@@ -3,23 +3,33 @@ const MINUTE = "['’′]";
 const SECOND = '[\"”″]';
 
 const DMS_HEMISPHERE_PATTERN = new RegExp(
-  `(-?\\d{1,3})\\s*${DEGREE}\\s*(\\d{1,2})\\s*${MINUTE}\\s*` +
+  `([+-]?\\d{1,3})\\s*${DEGREE}\\s*(\\d{1,2})\\s*${MINUTE}\\s*` +
     `(\\d{1,2}(?:\\.\\d+)?)\\s*${SECOND}?\\s*([NSEW])`,
   'gi',
 );
 
 const DDM_HEMISPHERE_PATTERN = new RegExp(
-  `(-?\\d{1,3})\\s*${DEGREE}\\s*(\\d{1,2}(?:\\.\\d+)?)\\s*${MINUTE}\\s*([NSEW])`,
+  `([+-]?\\d{1,3})\\s*${DEGREE}\\s*(\\d{1,2}(?:\\.\\d+)?)\\s*${MINUTE}\\s*([NSEW])`,
   'gi',
 );
 
 const DECIMAL_HEMISPHERE_PATTERN =
-  /(-?\d{1,3}(?:\.\d+)?)\s*([NS])\s*[,;]?\s*(-?\d{1,3}(?:\.\d+)?)\s*([EW])/i;
-const LAT_LABEL_PATTERN = /\b(?:lat|latitude)\b\s*[:=]?\s*(-?\d{1,3}(?:\.\d+)?)/i;
+  /([+-]?\d{1,3}(?:\.\d+)?)\s*([NS])\s*[,;]?\s*([+-]?\d{1,3}(?:\.\d+)?)\s*([EW])/i;
+const LAT_LABEL_PATTERN =
+  /\b(?:lat|latitude)\b\s*[:=]?\s*([+-]?\d{1,3}(?:\.\d+)?)/i;
 const LON_LABEL_PATTERN =
-  /\b(?:lon|long|longitude|lng)\b\s*[:=]?\s*(-?\d{1,3}(?:\.\d+)?)/i;
-const DECIMAL_PAIR_PATTERN = /(-?\d{1,3}(?:\.\d+)?)\s*[,;]\s*(-?\d{1,3}(?:\.\d+)?)/;
-const DECIMAL_SPACE_PAIR_PATTERN = /(-?\d{1,3}\.\d+)\s+(-?\d{1,3}\.\d+)/;
+  /\b(?:lon|long|longitude|lng)\b\s*[:=]?\s*([+-]?\d{1,3}(?:\.\d+)?)/i;
+const DECIMAL_PAIR_PATTERN =
+  /([+-]?\d{1,3}(?:\.\d+)?)\s*[,;]\s*([+-]?\d{1,3}(?:\.\d+)?)/;
+const DECIMAL_SPACE_PAIR_PATTERN =
+  /([+-]?\d{1,3}\.\d+)\s+([+-]?\d{1,3}\.\d+)/;
+
+function normalizeWatermarkText(value) {
+  return String(value)
+    .replace(/\u00a0/g, ' ')
+    .replace(/[−–—]/g, '-')
+    .replace(/(\d),(\d)/g, '$1.$2');
+}
 
 function hemisphereSign(hemisphere) {
   return ['S', 'W'].includes(String(hemisphere).toUpperCase()) ? -1 : 1;
@@ -239,7 +249,7 @@ function parseSpacePair(text) {
 }
 
 export function parseCoordinateText(input) {
-  const text = typeof input === 'string' ? input.trim() : '';
+  const text = typeof input === 'string' ? normalizeWatermarkText(input.trim()) : '';
   if (!text) {
     return { status: 'not_found', format: null, code: 'NO_COORDINATE' };
   }
