@@ -26,6 +26,7 @@ describe('CoordinateExtractor', () => {
     recognizeImageText.mockResolvedValue({
       text: 'Latitude: -6.12345\nLongitude: 107.12345',
       confidence: 93,
+      sourceLabel: 'Bottom-right watermark',
     });
     const onApplyCoordinate = vi.fn();
     render(<CoordinateExtractor onApplyCoordinate={onApplyCoordinate} />);
@@ -37,6 +38,7 @@ describe('CoordinateExtractor', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Scan coordinates' }));
 
     expect(await screen.findByText(/Coordinate candidate detected/)).toBeInTheDocument();
+    expect(screen.getByText(/Bottom-right watermark/)).toBeInTheDocument();
     expect(onApplyCoordinate).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole('button', { name: /Apply & verify/ }));
@@ -64,7 +66,7 @@ describe('CoordinateExtractor', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Scan coordinates' }));
 
-    expect(await screen.findByText(/Coordinate order is ambiguous/)).toBeInTheDocument();
+    expect(await screen.findByText(/Coordinate result requires verification/)).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: /Apply & verify/ })).toHaveLength(2);
   });
 
