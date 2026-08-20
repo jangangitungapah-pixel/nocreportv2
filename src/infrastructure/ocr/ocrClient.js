@@ -1,4 +1,9 @@
-import { prepareOcrImage } from './imagePreprocessor.js';
+import { analyzeCoordinateOcrText } from './coordinateCandidates.js';
+import { prepareOcrVariants } from './imagePreprocessor.js';
+
+const COORDINATE_WHITELIST = `0123456789.,+-°º'\"NSEWnsew: `;
+const GENERAL_WHITELIST =
+  `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,+-°º'\"/:()#@& _-`;
 
 function normalizeProgress(message) {
   const progress = Number(message?.progress ?? 0);
@@ -8,23 +13,91 @@ function normalizeProgress(message) {
   };
 }
 
+function reportAttemptProgress(onProgress, message, attemptIndex, attemptCount, label) {
+  const current = normalizeProgress(message);
+  const attemptShare = 1 / Math.max(1, attemptCount);
+  const overall = attemptIndex * attemptShare + current.progress * attemptShare;
+
+  onProgress?.({
+    status: `${label} · ${current.status}`,
+    progress: Math.max(0, Math.min(1, overall)),
+  });
+}
+
+function attemptResult(variant, result) {
+  const text = result.data?.text ?? '';
+  return {
+    id: variant.id,
+    label: variant.label,
+    text,
+    confidence: Number(result.data?.confidence ?? 0),
+    analysis: analyzeCoordinateOcrText(text),
+  };
+}
+
+function isCoordinateResult(analysis) {
+  return ['success', 'ambiguous', 'invalid'].includes(analysis?.status);
+}
+
 export async function recognizeImageText(file, { onProgress } = {}) {
   const { PSM, createWorker } = await import('tesseract.js');
-  const image = await prepareOcrImage(file);
+  const variants = await prepareOcrVariants(file);
   const worker = await createWorker('eng', undefined, {
-    logger: (message) => onProgress?.(normalizeProgress(message)),
+    logger: () => {},
   });
+  const attempts = [];
 
   try {
-    await worker.setParameters({
-      tessedit_pageseg_mode: PSM.SPARSE_TEXT,
-      preserve_interword_spaces: '1',
-    });
+    for (let index = 0; index < variants.length; index += 1) {
+      const variant = variants[index];
+      const isFocused = variant.coordinateFocused;
 
-    const result = await worker.recognize(image);
+      await worker.setParameters({
+        tessedit_pageseg_mode: PSM.SPARSE_TEXT,
+        preserve_interword_spaces: '1',
+        tessedit_char_whitelist: isFocused ? COORDINATE_WHITELIST : GENERAL_WHITELIST,
+      });
+
+      const result = await worker.recognize(variant.image, {}, {
+        text: true,
+      });
+      const attempt = attemptResult(variant, result);
+      attempts.push(attempt);
+
+      onProgress?.({
+        status: `${variant.label} complete`,
+        progress: (index + 1) / variants.length,
+      });
+
+      if (isFocused && isCoordinateResult(attempt.analysis)) {
+        return {
+          text: attempt.text,
+          confidence: attempt.confidence,
+          analysis: attempt.analysis,
+          sourceRegion: variant.id,
+          sourceLabel: variant.label,
+          attempts,
+        };
+      }
+    }
+
+    const bestAttempt =
+      attempts.find((attempt) => isCoordinateResult(attempt.analysis)) ??
+      attempts.at(-1) ?? {
+        text: '',
+        confidence: 0,
+        analysis: analyzeCoordinateOcrText(''),
+        id: 'none',
+        label: 'No OCR attempt',
+      };
+
     return {
-      text: result.data?.text ?? '',
-      confidence: Number(result.data?.confidence ?? 0),
+      text: bestAttempt.text,
+      confidence: bestAttempt.confidence,
+      analysis: bestAttempt.analysis,
+      sourceRegion: bestAttempt.id,
+      sourceLabel: bestAttempt.label,
+      attempts,
     };
   } finally {
     await worker.terminate();
