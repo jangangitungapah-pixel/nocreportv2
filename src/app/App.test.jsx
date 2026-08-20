@@ -49,10 +49,11 @@ describe('application shell', () => {
     expect(screen.getByRole('button', { name: 'Switch to light mode' })).toBeInTheDocument();
   });
 
-  it('supports the reserved ticket editor route', () => {
+  it('supports the ticket editor route', () => {
     renderRoute('/generator/ticket-123');
 
     expect(screen.getByRole('heading', { name: 'Template Generator' })).toBeInTheDocument();
-    expect(screen.getByText('Ticket form workspace')).toBeInTheDocument();
+    expect(screen.getByText('Ticket Identity')).toBeInTheDocument();
+    expect(screen.getByLabelText('Generated NOC report')).toBeInTheDocument();
   });
 });
