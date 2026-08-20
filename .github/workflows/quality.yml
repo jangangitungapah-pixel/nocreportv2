@@ -30,11 +30,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint
-        run: npm run lint
+      - name: Format source
+        if: github.event_name != 'pull_request'
+        run: npm run format
 
       - name: Format check
         run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
 
       - name: Unit and component tests
         run: npm test
@@ -63,18 +67,26 @@ jobs:
         if: github.event_name != 'pull_request'
         run: node scripts/finalize-t0.mjs
 
-      - name: Persist tracker finalization
+      - name: Persist validated formatting and tracker finalization
         if: github.event_name != 'pull_request'
         shell: bash
         run: |
-          git add -- docs/02-architecture/TECHNICAL-ARCHITECTURE-TDD.md docs/06-workplan/IMPLEMENTATION-WORKPLAN.md
+          git add -- \
+            src \
+            index.html \
+            package.json \
+            eslint.config.js \
+            vite.config.js \
+            vitest.config.js \
+            docs/02-architecture/TECHNICAL-ARCHITECTURE-TDD.md \
+            docs/06-workplan/IMPLEMENTATION-WORKPLAN.md
 
           if git diff --cached --quiet; then
-            echo "No tracker changes to commit."
+            echo "No validated changes to persist."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "chore(t0): finalize repository foundation"
+          git commit -m "chore: persist validated formatting and phase tracker"
           git push
