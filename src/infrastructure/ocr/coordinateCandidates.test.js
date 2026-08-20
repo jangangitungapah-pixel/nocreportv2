@@ -55,8 +55,20 @@ describe('OCR coordinate candidate pipeline', () => {
     });
   });
 
-  it('requires verification when an unlabeled space-separated pair can be swapped', () => {
+  it('accepts the only geographically valid order for an unlabeled pair', () => {
     const result = analyzeCoordinateOcrText('-6.12345 107.12345');
+
+    expect(result).toMatchObject({
+      status: 'success',
+      format: 'DD',
+      latitude: -6.12345,
+      longitude: 107.12345,
+      formatted: '-6.12345, 107.12345',
+    });
+  });
+
+  it('requires verification when both unlabeled coordinate orders are geographically valid', () => {
+    const result = analyzeCoordinateOcrText('-6.12345 7.12345');
 
     expect(result.status).toBe('ambiguous');
     expect(result.code).toBe('AMBIGUOUS_ORDER');
