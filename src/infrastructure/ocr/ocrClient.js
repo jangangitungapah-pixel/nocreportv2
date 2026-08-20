@@ -1,116 +1,64 @@
-import { analyzeCoordinateOcrText } from './coordinateCandidates.js';
-import { prepareOcrVariants } from './imagePreprocessor.js';
+import { recognizeWithPaddle } from './paddleOcrClient.js';
+import { recognizeWithTesseract } from './tesseractOcrClient.js';
 
-const COORDINATE_WHITELIST = `0123456789.,+-°º'\"NSEWnsew: `;
-const GENERAL_WHITELIST =
-  `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,+-°º'\"/:()#@& _-`;
-
-function normalizeProgress(message) {
-  const progress = Number(message?.progress ?? 0);
-  return {
-    status: String(message?.status ?? 'processing'),
-    progress: Number.isFinite(progress) ? Math.max(0, Math.min(1, progress)) : 0,
-  };
+function hasCoordinateCandidate(result) {
+  return ['success', 'ambiguous', 'invalid'].includes(result?.analysis?.status);
 }
 
-function reportAttemptProgress(onProgress, message, attemptIndex, attemptCount, label) {
-  const current = normalizeProgress(message);
-  const attemptShare = 1 / Math.max(1, attemptCount);
-  const overall = attemptIndex * attemptShare + current.progress * attemptShare;
-
-  onProgress?.({
-    status: `${label} · ${current.status}`,
-    progress: Math.max(0, Math.min(1, overall)),
-  });
-}
-
-function attemptResult(variant, result) {
-  const text = result.data?.text ?? '';
-  return {
-    id: variant.id,
-    label: variant.label,
-    text,
-    confidence: Number(result.data?.confidence ?? 0),
-    analysis: analyzeCoordinateOcrText(text),
-  };
-}
-
-function isCoordinateResult(analysis) {
-  return ['success', 'ambiguous', 'invalid'].includes(analysis?.status);
+function combineAttempts(primary, fallback) {
+  return [...(primary?.attempts ?? []), ...(fallback?.attempts ?? [])];
 }
 
 export async function recognizeImageText(file, { onProgress } = {}) {
-  const { PSM, createWorker } = await import('tesseract.js');
-  const variants = await prepareOcrVariants(file);
-  let activeAttemptIndex = 0;
-  let activeAttemptLabel = variants[0]?.label ?? 'OCR';
-
-  const worker = await createWorker('eng', undefined, {
-    logger: (message) =>
-      reportAttemptProgress(
-        onProgress,
-        message,
-        activeAttemptIndex,
-        variants.length,
-        activeAttemptLabel,
-      ),
-  });
-  const attempts = [];
+  let paddleResult = null;
+  let paddleError = null;
 
   try {
-    for (let index = 0; index < variants.length; index += 1) {
-      const variant = variants[index];
-      const isFocused = variant.coordinateFocused;
-      activeAttemptIndex = index;
-      activeAttemptLabel = variant.label;
+    paddleResult = await recognizeWithPaddle(file, {
+      onProgress: (progress) =>
+        onProgress?.({
+          status: progress.status,
+          progress: Math.min(0.7, Number(progress.progress ?? 0) * 0.7),
+        }),
+    });
 
-      await worker.setParameters({
-        tessedit_pageseg_mode: PSM.SPARSE_TEXT,
-        preserve_interword_spaces: '1',
-        tessedit_char_whitelist: isFocused ? COORDINATE_WHITELIST : GENERAL_WHITELIST,
-      });
-
-      const result = await worker.recognize(variant.image);
-      const attempt = attemptResult(variant, result);
-      attempts.push(attempt);
-
-      onProgress?.({
-        status: `${variant.label} complete`,
-        progress: (index + 1) / variants.length,
-      });
-
-      if (isFocused && isCoordinateResult(attempt.analysis)) {
-        onProgress?.({ status: 'Coordinate candidate detected', progress: 1 });
-        return {
-          text: attempt.text,
-          confidence: attempt.confidence,
-          analysis: attempt.analysis,
-          sourceRegion: variant.id,
-          sourceLabel: variant.label,
-          attempts,
-        };
-      }
+    if (hasCoordinateCandidate(paddleResult)) {
+      onProgress?.({ status: 'PaddleOCR coordinate candidate ready', progress: 1 });
+      return paddleResult;
     }
-
-    const bestAttempt =
-      attempts.find((attempt) => isCoordinateResult(attempt.analysis)) ??
-      attempts.at(-1) ?? {
-        text: '',
-        confidence: 0,
-        analysis: analyzeCoordinateOcrText(''),
-        id: 'none',
-        label: 'No OCR attempt',
-      };
-
-    return {
-      text: bestAttempt.text,
-      confidence: bestAttempt.confidence,
-      analysis: bestAttempt.analysis,
-      sourceRegion: bestAttempt.id,
-      sourceLabel: bestAttempt.label,
-      attempts,
-    };
-  } finally {
-    await worker.terminate();
+  } catch (error) {
+    paddleError = error;
   }
+
+  onProgress?.({
+    status: paddleError ? 'PaddleOCR unavailable · trying Tesseract fallback' : 'Trying Tesseract fallback',
+    progress: 0.72,
+  });
+
+  const tesseractResult = await recognizeWithTesseract(file, {
+    onProgress: (progress) =>
+      onProgress?.({
+        status: progress.status,
+        progress: 0.72 + Math.min(0.28, Number(progress.progress ?? 0) * 0.28),
+      }),
+  });
+
+  if (hasCoordinateCandidate(tesseractResult)) {
+    return {
+      ...tesseractResult,
+      attempts: combineAttempts(paddleResult, tesseractResult),
+      fallbackReason: paddleError?.message ?? null,
+    };
+  }
+
+  const reviewResult =
+    paddleResult && Number(paddleResult.confidence ?? 0) >= Number(tesseractResult.confidence ?? 0)
+      ? paddleResult
+      : tesseractResult;
+
+  return {
+    ...reviewResult,
+    attempts: combineAttempts(paddleResult, tesseractResult),
+    fallbackReason: paddleError?.message ?? null,
+  };
 }
