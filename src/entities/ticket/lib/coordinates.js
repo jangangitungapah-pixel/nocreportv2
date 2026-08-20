@@ -14,7 +14,9 @@ const DDM_HEMISPHERE_PATTERN = new RegExp(
 );
 
 const DECIMAL_HEMISPHERE_PATTERN =
-  /([+-]?\d{1,3}(?:\.\d+)?)\s*([NS])\s*[,;]?\s*([+-]?\d{1,3}(?:\.\d+)?)\s*([EW])/i;
+  /(?<![\d.])([+-]?\d{1,3}(?:\.\d+)?)\s*([NS])\s*[,;]?\s*([+-]?\d{1,3}(?:\.\d+)?)\s*([EW])/i;
+const COMPACT_DMS_TOKEN_PATTERN =
+  /(?:^|[^\d.])([+-]?)(\d{5,7})(?:\.(\d+))?\s*([NSEW])\b/gi;
 const LAT_LABEL_PATTERN =
   /\b(?:lat|latitude)\b\s*[:=]?\s*([+-]?\d{1,3}(?:\.\d+)?)/i;
 const LON_LABEL_PATTERN =
@@ -199,6 +201,55 @@ function parseDecimalHemisphere(text) {
   return success('DD', latitude, longitude);
 }
 
+function compactDmsValue(digits, fraction, hemisphere) {
+  const axis = coordinateAxis(hemisphere);
+  if (!axis) return null;
+
+  const degreeDigits = digits.length - 4;
+  const validDegreeDigits = axis === 'latitude' ? [1, 2] : [2, 3];
+  if (!validDegreeDigits.includes(degreeDigits)) {
+    return null;
+  }
+
+  const degrees = digits.slice(0, degreeDigits);
+  const minutes = digits.slice(degreeDigits, degreeDigits + 2);
+  const secondsInteger = digits.slice(degreeDigits + 2);
+  const seconds = fraction ? `${secondsInteger}.${fraction}` : secondsInteger;
+  return convertDms(degrees, minutes, seconds, hemisphere);
+}
+
+function parseCompactDmsHemisphere(text) {
+  COMPACT_DMS_TOKEN_PATTERN.lastIndex = 0;
+  const values = {};
+
+  for (const match of text.matchAll(COMPACT_DMS_TOKEN_PATTERN)) {
+    const [, sign, digits, fraction, hemisphere] = match;
+    const axis = coordinateAxis(hemisphere);
+    if (!axis || values[axis] !== undefined) continue;
+
+    const value = compactDmsValue(digits, fraction, hemisphere);
+    if (value === null) continue;
+
+    values[axis] = sign === '-' ? -Math.abs(value) : value;
+  }
+
+  if (values.latitude === undefined || values.longitude === undefined) {
+    return null;
+  }
+
+  const candidate = normalizeCoordinates(values.latitude, values.longitude);
+  if (!candidate) {
+    return { status: 'invalid', format: 'DMS', code: 'OUT_OF_RANGE' };
+  }
+
+  return {
+    status: 'ambiguous',
+    format: 'DMS',
+    code: 'OCR_COMPACT_DMS_RECOVERY',
+    candidates: [candidate],
+  };
+}
+
 function parseLabeledDecimal(text) {
   const latitude = text.match(LAT_LABEL_PATTERN)?.[1];
   const longitude = text.match(LON_LABEL_PATTERN)?.[1];
@@ -258,6 +309,7 @@ export function parseCoordinateText(input) {
     parseDms,
     parseDdm,
     parseDecimalHemisphere,
+    parseCompactDmsHemisphere,
     parseLabeledDecimal,
     parseDecimalPair,
     parseSpacePair,
