@@ -1,5 +1,6 @@
 import {
   collection,
+  doc,
   documentId,
   getCountFromServer,
   getDoc,
@@ -9,7 +10,6 @@ import {
   query,
   startAfter,
   where,
-  doc,
 } from 'firebase/firestore';
 
 import { TICKET_STATUS } from '../../entities/ticket/index.js';
@@ -97,21 +97,22 @@ export async function listCutPointTickets({
   try {
     const db = getFirestoreClient();
     const pageSize = boundedLimit(limit, 500, 500);
-    const allowedStatuses = new Set(statuses);
-    const snapshot = await getDocs(
-      query(
-        collection(db, 'tickets'),
-        where('hasCoordinates', '==', true),
-        orderBy('updatedAt', 'desc'),
-        firestoreLimit(pageSize),
-      ),
-    );
+    const normalizedStatuses = Array.isArray(statuses) ? [...new Set(statuses)].slice(0, 10) : [];
+    const constraints = [where('hasCoordinates', '==', true)];
+
+    if (normalizedStatuses.length === 1) {
+      constraints.push(where('status', '==', normalizedStatuses[0]));
+    } else if (normalizedStatuses.length > 1) {
+      constraints.push(where('status', 'in', normalizedStatuses));
+    }
+
+    constraints.push(orderBy('updatedAt', 'desc'), firestoreLimit(pageSize));
+    const snapshot = await getDocs(query(collection(db, 'tickets'), ...constraints));
 
     return snapshot.docs
       .map(mapTicketSnapshot)
       .filter(
         (ticket) =>
-          allowedStatuses.has(ticket.status) &&
           Number.isFinite(ticket.coordinate?.latitude) &&
           Number.isFinite(ticket.coordinate?.longitude),
       );
