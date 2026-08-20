@@ -31,21 +31,8 @@ jobs:
         run: npm ci
 
       - name: Format source
+        if: github.event_name != 'pull_request'
         run: npm run format
-
-      - name: Formatting diff guard
-        if: github.event_name == 'pull_request'
-        shell: bash
-        run: |
-          if git diff --quiet; then
-            echo "Formatting is already clean."
-            exit 0
-          fi
-
-          echo "Prettier would change the following files:"
-          git diff --name-only
-          git diff
-          exit 1
 
       - name: Format check
         run: npm run format:check
