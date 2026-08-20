@@ -1,15 +1,12 @@
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 
 import { LoginPage } from '../features/auth/pages/LoginPage.jsx';
+import { DashboardPage } from '../features/dashboard/pages/DashboardPage.jsx';
+import { RunningTicketsPage } from '../features/running-tickets/pages/RunningTicketsPage.jsx';
 import { TicketGeneratorPage } from '../features/ticket-generator/pages/TicketGeneratorPage.jsx';
 import { AppShell } from './layouts/AppShell.jsx';
 import { ProtectedRoute } from './routes/ProtectedRoute.jsx';
-import {
-  CutPointTrackerPage,
-  DashboardPage,
-  NotFoundPage,
-  RunningTicketsPage,
-} from './routes/pages.jsx';
+import { CutPointTrackerPage, NotFoundPage } from './routes/pages.jsx';
 
 export const routeObjects = [
   {
