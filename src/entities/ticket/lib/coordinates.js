@@ -39,6 +39,10 @@ function coordinateAxis(hemisphere) {
   return null;
 }
 
+function cleanPrecision(value) {
+  return Number(Number(value).toFixed(12));
+}
+
 function convertDms(degrees, minutes, seconds, hemisphere) {
   const degreeValue = Number(degrees);
   const minuteValue = Number(minutes);
@@ -118,10 +122,13 @@ export function normalizeCoordinates(latitude, longitude) {
     return null;
   }
 
+  const normalizedLatitude = cleanPrecision(validation.latitude);
+  const normalizedLongitude = cleanPrecision(validation.longitude);
+
   return {
-    latitude: validation.latitude,
-    longitude: validation.longitude,
-    formatted: formatCoordinatePair(validation.latitude, validation.longitude),
+    latitude: normalizedLatitude,
+    longitude: normalizedLongitude,
+    formatted: formatCoordinatePair(normalizedLatitude, normalizedLongitude),
   };
 }
 
