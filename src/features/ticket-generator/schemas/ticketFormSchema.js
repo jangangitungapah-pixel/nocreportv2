@@ -13,6 +13,9 @@ export const ticketFormSchema = z
     cutPoint: z.string(),
     latitude: z.string(),
     longitude: z.string(),
+    coordinateSource: z.enum(['manual', 'ocr']).default('manual'),
+    coordinateDetectedFormat: z.string().nullable().default('DD'),
+    coordinateVerified: z.boolean().default(true),
   })
   .superRefine((value, context) => {
     const latitude = value.latitude.trim();
