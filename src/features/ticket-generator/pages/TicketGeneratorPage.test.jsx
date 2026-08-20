@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 
@@ -42,7 +42,7 @@ describe('Template Generator workflow', () => {
       'Title : *[MANDAU] LINK DOWN, [TT : INC-20260818-00015849]*',
     );
     expect(preview).toHaveTextContent('Impact List : SITE_MAJALENGKA');
-    expect(screen.getByText(/INC-20260818-00015849/)).toBeInTheDocument();
+    expect(screen.getByText('INC-20260818-00015849', { selector: 'strong' })).toBeInTheDocument();
   });
 
   it('blocks Running status until Title and Occur Time exist', () => {
@@ -110,7 +110,7 @@ describe('Template Generator workflow', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Copy Report' }));
 
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(writeText).toHaveBeenCalledWith(previewText);
     });
   });
