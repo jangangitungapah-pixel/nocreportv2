@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../../app/providers/AuthProvider.jsx';
@@ -7,11 +7,24 @@ import { Button, TextInput } from '../../../shared/ui/index.jsx';
 export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { error: authError, firebaseConfigured, signIn } = useAuth();
+  const {
+    error: authError,
+    firebaseConfigured,
+    isAuthenticated,
+    loading,
+    signIn,
+  } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [pending, setPending] = useState(false);
   const [localError, setLocalError] = useState('');
+  const destination = location.state?.from ?? '/dashboard';
+
+  useEffect(() => {
+    if (firebaseConfigured && !loading && isAuthenticated) {
+      navigate(destination, { replace: true });
+    }
+  }, [destination, firebaseConfigured, isAuthenticated, loading, navigate]);
 
   const submit = async (event) => {
     event.preventDefault();
@@ -24,7 +37,6 @@ export function LoginPage() {
     setLocalError('');
     try {
       await signIn(email.trim(), password);
-      navigate(location.state?.from ?? '/dashboard', { replace: true });
     } catch (error) {
       setLocalError(
         error?.code === 'ACCOUNT_DISABLED'
@@ -72,8 +84,8 @@ export function LoginPage() {
                 {localError || 'Your authenticated account does not have an active application profile.'}
               </p>
             ) : null}
-            <Button className="w-full" type="submit" disabled={pending}>
-              {pending ? 'Signing in…' : 'Sign in'}
+            <Button className="w-full" type="submit" disabled={pending || loading}>
+              {pending || loading ? 'Signing in…' : 'Sign in'}
             </Button>
           </form>
         ) : (
