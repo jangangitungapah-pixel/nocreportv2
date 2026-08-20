@@ -60,7 +60,7 @@ describe('Template Generator workflow', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Mark Running' }));
 
-    expect(screen.getByText('Running')).toBeInTheDocument();
+    expect(screen.getByText('Running', { selector: 'span[data-status="RUNNING"]' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Resolve Ticket' })).toBeInTheDocument();
   });
 
