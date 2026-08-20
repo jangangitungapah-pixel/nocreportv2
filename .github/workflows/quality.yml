@@ -1,0 +1,84 @@
+name: Quality
+
+on:
+  push:
+    branches:
+      - feature/t0-repository-foundation
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Bootstrap package lock
+        shell: bash
+        run: |
+          if [[ ! -f package-lock.json ]]; then
+            npm install --package-lock-only --ignore-scripts
+          fi
+
+      - name: Prepare phase tracker
+        run: node scripts/finalize-t0.mjs
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Unit and component tests
+        run: npm test
+
+      - name: Production build
+        run: npm run build
+
+      - name: Dev server smoke test
+        shell: bash
+        run: |
+          npm run dev -- --host 127.0.0.1 > /tmp/nocreport-vite.log 2>&1 &
+          VITE_PID=$!
+          trap 'kill "$VITE_PID" 2>/dev/null || true' EXIT
+
+          for attempt in {1..20}; do
+            if curl --fail --silent --show-error http://127.0.0.1:5173/ > /tmp/nocreport-index.html; then
+              exit 0
+            fi
+            sleep 1
+          done
+
+          cat /tmp/nocreport-vite.log
+          exit 1
+
+      - name: Persist generated foundation files
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          git add -- package-lock.json docs/02-architecture/TECHNICAL-ARCHITECTURE-TDD.md docs/06-workplan/IMPLEMENTATION-WORKPLAN.md
+
+          if git diff --cached --quiet; then
+            echo "No generated foundation changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(t0): finalize repository foundation"
+          git push
