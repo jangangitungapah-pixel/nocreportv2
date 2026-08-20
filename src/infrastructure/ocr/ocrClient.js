@@ -70,7 +70,7 @@ export async function recognizeImageText(file, { onProgress } = {}) {
         tessedit_char_whitelist: isFocused ? COORDINATE_WHITELIST : GENERAL_WHITELIST,
       });
 
-      const result = await worker.recognize(variant.image, {}, { text: true });
+      const result = await worker.recognize(variant.image);
       const attempt = attemptResult(variant, result);
       attempts.push(attempt);
 
@@ -80,6 +80,7 @@ export async function recognizeImageText(file, { onProgress } = {}) {
       });
 
       if (isFocused && isCoordinateResult(attempt.analysis)) {
+        onProgress?.({ status: 'Coordinate candidate detected', progress: 1 });
         return {
           text: attempt.text,
           confidence: attempt.confidence,
