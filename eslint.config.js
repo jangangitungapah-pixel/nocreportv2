@@ -1,7 +1,11 @@
 import js from '@eslint/js';
 
 const browserGlobals = {
+  Blob: 'readonly',
+  File: 'readonly',
+  URL: 'readonly',
   console: 'readonly',
+  createImageBitmap: 'readonly',
   document: 'readonly',
   navigator: 'readonly',
   window: 'readonly',
