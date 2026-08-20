@@ -62,7 +62,7 @@ service cloud.firestore {
       allow create: if canWriteOperations()
         && request.resource.data.createdBy == request.auth.uid
         && request.resource.data.updatedBy == request.auth.uid
-        && request.resource.data.revision == 0
+        && request.resource.data.revision == 1
         && hasValidCoordinate(request.resource.data);
 
       allow update: if canWriteOperations()
