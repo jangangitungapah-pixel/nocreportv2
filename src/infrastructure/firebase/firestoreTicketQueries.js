@@ -17,6 +17,12 @@ import { createInfrastructureError, normalizeFirebaseError } from './firebaseErr
 import { getFirestoreClient } from './firestoreClient.js';
 import { mapProgressSnapshot, mapTicketSnapshot } from './firestoreMappers.js';
 
+const OPERATIONAL_STATUSES = Object.freeze([
+  TICKET_STATUS.DRAFT,
+  TICKET_STATUS.RUNNING,
+  TICKET_STATUS.RESOLVED,
+]);
+
 function boundedLimit(value, fallback, maximum) {
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed <= 0) return fallback;
@@ -66,7 +72,7 @@ export async function listRunningTickets({ limit = 100 } = {}) {
   }
 }
 
-export async function listTickets({ statuses = null, limit = 50, cursor = null } = {}) {
+export async function listTickets({ statuses = OPERATIONAL_STATUSES, limit = 50, cursor = null } = {}) {
   try {
     const db = getFirestoreClient();
     const pageSize = boundedLimit(limit, 50, 100);
@@ -175,7 +181,12 @@ export async function getDashboardSummary() {
       where('resolvedAt', '<', tomorrow),
     );
     const cutPointQuery = query(tickets, where('hasCoordinates', '==', true));
-    const recentQuery = query(tickets, orderBy('updatedAt', 'desc'), firestoreLimit(8));
+    const recentQuery = query(
+      tickets,
+      where('status', 'in', OPERATIONAL_STATUSES),
+      orderBy('updatedAt', 'desc'),
+      firestoreLimit(8),
+    );
 
     const [running, todayCount, resolvedToday, cutPoints, recent] = await Promise.all([
       getCountFromServer(runningQuery),
