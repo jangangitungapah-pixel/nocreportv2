@@ -1,0 +1,103 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userPath() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
+
+    function hasActiveProfile() {
+      return isSignedIn()
+        && exists(userPath())
+        && get(userPath()).data.active == true;
+    }
+
+    function hasRole(role) {
+      return hasActiveProfile() && get(userPath()).data.role == role;
+    }
+
+    function isAdmin() {
+      return hasRole('ADMIN');
+    }
+
+    function canReadOperations() {
+      return hasActiveProfile()
+        && get(userPath()).data.role in ['ADMIN', 'OPERATOR', 'VIEWER'];
+    }
+
+    function canWriteOperations() {
+      return hasActiveProfile()
+        && get(userPath()).data.role in ['ADMIN', 'OPERATOR'];
+    }
+
+    function hasValidCoordinate(data) {
+      return data.hasCoordinates == false
+        || (
+          data.hasCoordinates == true
+          && data.coordinate is map
+          && data.coordinate.latitude is number
+          && data.coordinate.longitude is number
+          && data.coordinate.latitude >= -90
+          && data.coordinate.latitude <= 90
+          && data.coordinate.longitude >= -180
+          && data.coordinate.longitude <= 180
+          && data.coordinate.verified == true
+        );
+    }
+
+    match /users/{userId} {
+      allow read: if hasActiveProfile()
+        && (request.auth.uid == userId || isAdmin());
+      allow create, update: if isAdmin();
+      allow delete: if false;
+    }
+
+    match /tickets/{ticketId} {
+      allow read: if canReadOperations();
+
+      allow create: if canWriteOperations()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.revision == 0
+        && hasValidCoordinate(request.resource.data);
+
+      allow update: if canWriteOperations()
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.revision == resource.data.revision + 1
+        && hasValidCoordinate(request.resource.data);
+
+      allow delete: if false;
+
+      match /progress/{progressId} {
+        allow read: if canReadOperations();
+        allow create: if canWriteOperations()
+          && request.resource.data.createdBy == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0;
+        allow update: if canWriteOperations()
+          && request.resource.data.createdBy == resource.data.createdBy
+          && request.resource.data.updatedBy == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0;
+        allow delete: if canWriteOperations();
+      }
+
+      match /auditEvents/{eventId} {
+        allow read: if isAdmin();
+        allow create: if canWriteOperations()
+          && request.resource.data.actorUid == request.auth.uid;
+        allow update, delete: if false;
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
