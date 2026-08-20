@@ -41,6 +41,8 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
   const [progress, setProgress] = useState({ status: '', progress: 0 });
   const [analysis, setAnalysis] = useState(null);
   const [confidence, setConfidence] = useState(null);
+  const [sourceLabel, setSourceLabel] = useState('');
+  const [attempts, setAttempts] = useState([]);
 
   useEffect(() => {
     if (!file) {
@@ -57,6 +59,8 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
     const validation = validateOcrImageFile(nextFile);
     setAnalysis(null);
     setConfidence(null);
+    setSourceLabel('');
+    setAttempts([]);
     setProgress({ status: '', progress: 0 });
 
     if (!validation.valid) {
@@ -81,12 +85,16 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
     setPhase('processing');
     setError('');
     setAnalysis(null);
+    setAttempts([]);
+    setSourceLabel('');
 
     try {
       const result = await recognizeImageText(file, { onProgress: setProgress });
-      const nextAnalysis = analyzeCoordinateOcrText(result.text);
+      const nextAnalysis = result.analysis ?? analyzeCoordinateOcrText(result.text);
       setAnalysis(nextAnalysis);
       setConfidence(result.confidence);
+      setSourceLabel(result.sourceLabel ?? '');
+      setAttempts(result.attempts ?? []);
 
       if (nextAnalysis.status === 'success') {
         setPhase('detected');
@@ -228,8 +236,10 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
       {phase === 'detected' && successfulCandidate ? (
         <div className="mt-4 space-y-2">
           <p className="text-xs font-semibold text-[var(--text-secondary)]">
-            Coordinate candidate detected{Number.isFinite(confidence) ? ` · OCR confidence ${Math.round(confidence)}%` : ''}.
-            Verify it before applying.
+            Coordinate candidate detected
+            {sourceLabel ? ` from ${sourceLabel}` : ''}
+            {Number.isFinite(confidence) ? ` · OCR confidence ${Math.round(confidence)}%` : ''}. Verify it
+            before applying.
           </p>
           <CandidateButton candidate={successfulCandidate} label={analysis.format} onApply={applyCandidate} />
         </div>
@@ -238,7 +248,7 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
       {phase === 'ambiguous' ? (
         <div className="mt-4 space-y-2">
           <p className="text-sm font-semibold text-[var(--danger-text)]">
-            Coordinate order is ambiguous. Choose the correct Latitude/Longitude pair.
+            Coordinate result requires verification. Choose the correct Latitude/Longitude pair.
           </p>
           {analysis.candidates.map((candidate, index) => (
             <CandidateButton
@@ -260,7 +270,7 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
       {phase === 'not_found' || phase === 'invalid' ? (
         <div className="mt-4 rounded-lg border border-[var(--border-default)] bg-[var(--surface-muted)] p-3 text-sm text-[var(--text-secondary)]">
           {phase === 'not_found'
-            ? 'No supported coordinate pattern was detected. Enter Latitude/Longitude manually or try a clearer image.'
+            ? 'No supported coordinate pattern was detected after region-first and full-image OCR. Enter Latitude/Longitude manually or try another photo.'
             : 'OCR found coordinate-like text, but the resulting location is invalid. Please correct it manually.'}
         </div>
       ) : null}
@@ -268,11 +278,31 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
       {analysis?.normalizedText ? (
         <details className="mt-4 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3">
           <summary className="cursor-pointer text-xs font-semibold text-[var(--text-secondary)]">
-            Review OCR text
+            Review OCR text{sourceLabel ? ` · ${sourceLabel}` : ''}
           </summary>
           <pre className="mt-3 max-h-44 overflow-auto whitespace-pre-wrap break-words text-xs leading-5 text-[var(--text-secondary)]">
             {analysis.normalizedText}
           </pre>
+        </details>
+      ) : null}
+
+      {attempts.length > 1 ? (
+        <details className="mt-3 rounded-lg border border-[var(--border-subtle)] p-3">
+          <summary className="cursor-pointer text-xs font-semibold text-[var(--text-muted)]">
+            OCR attempts ({attempts.length})
+          </summary>
+          <div className="mt-3 space-y-3">
+            {attempts.map((attempt) => (
+              <div key={attempt.id} className="rounded-lg bg-[var(--surface-muted)] p-3">
+                <p className="text-xs font-bold text-[var(--text-secondary)]">
+                  {attempt.label} · {Math.round(attempt.confidence || 0)}%
+                </p>
+                <pre className="mt-2 max-h-32 overflow-auto whitespace-pre-wrap break-words text-xs leading-5 text-[var(--text-muted)]">
+                  {attempt.text || '(no text)'}
+                </pre>
+              </div>
+            ))}
+          </div>
         </details>
       ) : null}
     </section>
