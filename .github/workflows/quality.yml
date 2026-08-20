@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -24,16 +25,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-
-      - name: Bootstrap package lock
-        shell: bash
-        run: |
-          if [[ ! -f package-lock.json ]]; then
-            npm install --package-lock-only --ignore-scripts
-          fi
-
-      - name: Prepare phase tracker
-        run: node scripts/finalize-t0.mjs
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
@@ -67,14 +59,18 @@ jobs:
           cat /tmp/nocreport-vite.log
           exit 1
 
-      - name: Persist generated foundation files
-        if: github.event_name == 'push'
+      - name: Finalize D0 and T0 tracker
+        if: github.event_name != 'pull_request'
+        run: node scripts/finalize-t0.mjs
+
+      - name: Persist tracker finalization
+        if: github.event_name != 'pull_request'
         shell: bash
         run: |
-          git add -- package-lock.json docs/02-architecture/TECHNICAL-ARCHITECTURE-TDD.md docs/06-workplan/IMPLEMENTATION-WORKPLAN.md
+          git add -- docs/02-architecture/TECHNICAL-ARCHITECTURE-TDD.md docs/06-workplan/IMPLEMENTATION-WORKPLAN.md
 
           if git diff --cached --quiet; then
-            echo "No generated foundation changes to commit."
+            echo "No tracker changes to commit."
             exit 0
           fi
 
