@@ -109,9 +109,7 @@ export async function listCutPointTickets({
   try {
     const db = getFirestoreClient();
     const pageSize = boundedLimit(limit, 500, 500);
-    const normalizedStatuses = Array.isArray(statuses)
-      ? [...new Set(statuses)].slice(0, 10)
-      : [];
+    const normalizedStatuses = Array.isArray(statuses) ? [...new Set(statuses)].slice(0, 10) : [];
     const constraints = [where('hasCoordinates', '==', true)];
 
     if (normalizedStatuses.length === 1) {
