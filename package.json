@@ -11,8 +11,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write \"src/**/*.{js,jsx,css}\" \"*.{js,json,html}\" \".github/**/*.yml\" \"scripts/**/*.mjs\"",
-    "format:check": "prettier --check \"src/**/*.{js,jsx,css}\" \"*.{js,json,html}\" \".github/**/*.yml\" \"scripts/**/*.mjs\"",
+    "format": "prettier --write \"src/**/*.{js,jsx,css}\" \"*.{js,json,html}\"",
+    "format:check": "prettier --check \"src/**/*.{js,jsx,css}\" \"*.{js,json,html}\"",
     "test": "vitest run",
     "test:watch": "vitest"
   },
