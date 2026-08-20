@@ -31,7 +31,9 @@ export async function recognizeImageText(file, { onProgress } = {}) {
   }
 
   onProgress?.({
-    status: paddleError ? 'PaddleOCR unavailable · trying Tesseract fallback' : 'Trying Tesseract fallback',
+    status: paddleError
+      ? 'PaddleOCR unavailable · trying Tesseract fallback'
+      : 'Trying Tesseract fallback',
     progress: 0.72,
   });
 

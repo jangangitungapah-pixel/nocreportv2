@@ -132,7 +132,9 @@ export function EmptyState({ title, description, action = null }) {
   return (
     <div className="rounded-xl border border-dashed border-[var(--border-default)] bg-[var(--surface-panel)] p-8 text-center">
       <h2 className="text-base font-semibold text-[var(--text-primary)]">{title}</h2>
-      <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-[var(--text-secondary)]">{description}</p>
+      <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-[var(--text-secondary)]">
+        {description}
+      </p>
       {action ? <div className="mt-5">{action}</div> : null}
     </div>
   );
@@ -140,7 +142,10 @@ export function EmptyState({ title, description, action = null }) {
 
 export function ErrorState({ title = 'Something went wrong', description, onRetry }) {
   return (
-    <div role="alert" className="rounded-xl border border-[var(--danger-border)] bg-[var(--danger-soft)] p-5">
+    <div
+      role="alert"
+      className="rounded-xl border border-[var(--danger-border)] bg-[var(--danger-soft)] p-5"
+    >
       <h2 className="text-sm font-semibold text-[var(--danger-text)]">{title}</h2>
       <p className="mt-1 text-sm leading-5 text-[var(--text-secondary)]">{description}</p>
       {onRetry ? (
@@ -156,7 +161,10 @@ export function Skeleton({ className = '' }) {
   return (
     <div
       aria-hidden="true"
-      className={joinClassNames('animate-pulse rounded-lg bg-[var(--surface-muted-strong)]', className)}
+      className={joinClassNames(
+        'animate-pulse rounded-lg bg-[var(--surface-muted-strong)]',
+        className,
+      )}
     />
   );
 }

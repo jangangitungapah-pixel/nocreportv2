@@ -309,7 +309,10 @@ export function TicketGeneratorPage() {
     } catch (error) {
       pushToast({
         title: 'Save failed',
-        message: persistenceMessage(error, 'The Ticket could not be saved. Your form data is still on screen.'),
+        message: persistenceMessage(
+          error,
+          'The Ticket could not be saved. Your form data is still on screen.',
+        ),
         tone: 'error',
       });
     } finally {
@@ -398,7 +401,11 @@ export function TicketGeneratorPage() {
     setCopyPending(true);
     try {
       await copyPlainText(report);
-      pushToast({ title: 'Report copied', message: 'Plain text is ready to paste.', tone: 'success' });
+      pushToast({
+        title: 'Report copied',
+        message: 'Plain text is ready to paste.',
+        tone: 'success',
+      });
     } catch {
       pushToast({
         title: 'Copy failed',
@@ -428,7 +435,11 @@ export function TicketGeneratorPage() {
       setRevision(result.ticketRevision);
       setProgressEntries((current) => [...current, result.progress]);
       setProgressDirty(false);
-      pushToast({ title: 'Progress added', message: 'Timeline update persisted.', tone: 'success' });
+      pushToast({
+        title: 'Progress added',
+        message: 'Timeline update persisted.',
+        tone: 'success',
+      });
     } catch (error) {
       pushToast({
         title: 'Progress not saved',
@@ -459,7 +470,11 @@ export function TicketGeneratorPage() {
       setProgressEntries((current) =>
         current.map((item) => (item.id === result.progress.id ? result.progress : item)),
       );
-      pushToast({ title: 'Progress updated', message: 'Timeline correction persisted.', tone: 'success' });
+      pushToast({
+        title: 'Progress updated',
+        message: 'Timeline correction persisted.',
+        tone: 'success',
+      });
     } catch (error) {
       pushToast({
         title: 'Progress update failed',
@@ -492,7 +507,11 @@ export function TicketGeneratorPage() {
       });
       setRevision(result.ticketRevision);
       setProgressEntries((current) => current.filter((entry) => entry.id !== progressId));
-      pushToast({ title: 'Progress removed', message: 'Timeline correction persisted.', tone: 'success' });
+      pushToast({
+        title: 'Progress removed',
+        message: 'Timeline correction persisted.',
+        tone: 'success',
+      });
     } catch (error) {
       pushToast({
         title: 'Progress removal failed',
@@ -534,7 +553,10 @@ export function TicketGeneratorPage() {
     return (
       <ErrorState
         title="Ticket could not be loaded"
-        description={persistenceMessage(loadError, 'Check the Ticket ID, permission, or Firebase connection.')}
+        description={persistenceMessage(
+          loadError,
+          'Check the Ticket ID, permission, or Firebase connection.',
+        )}
         onRetry={loadPersistedEditor}
       />
     );
@@ -693,7 +715,8 @@ export function TicketGeneratorPage() {
             </div>
             {ticket.coordinate ? (
               <p className="mt-2 text-xs text-[var(--text-muted)]">
-                Source: {ticket.coordinate.source === 'ocr' ? 'Local photo OCR · verified' : 'Manual entry'}
+                Source:{' '}
+                {ticket.coordinate.source === 'ocr' ? 'Local photo OCR · verified' : 'Manual entry'}
                 {ticket.coordinate.detectedFormat ? ` · ${ticket.coordinate.detectedFormat}` : ''}
               </p>
             ) : null}

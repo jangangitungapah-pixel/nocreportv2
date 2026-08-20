@@ -7,7 +7,9 @@ export function ReportPreview({ report, onCopy, copyPending = false }) {
         <div className="flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-4 py-3">
           <div>
             <h3 className="text-sm font-bold">Live Report Preview</h3>
-            <p className="mt-0.5 text-xs text-[var(--text-muted)]">Exact plain text used by Copy Report.</p>
+            <p className="mt-0.5 text-xs text-[var(--text-muted)]">
+              Exact plain text used by Copy Report.
+            </p>
           </div>
           <Button onClick={onCopy} disabled={copyPending}>
             {copyPending ? 'Copying…' : 'Copy Report'}

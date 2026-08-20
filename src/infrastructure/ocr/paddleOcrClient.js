@@ -28,7 +28,10 @@ function resultText(result) {
     if (Math.abs(pa.y - pb.y) > 24) return pa.y - pb.y;
     return pa.x - pb.x;
   });
-  return items.map((item) => String(item?.text ?? '').trim()).filter(Boolean).join('\n');
+  return items
+    .map((item) => String(item?.text ?? '').trim())
+    .filter(Boolean)
+    .join('\n');
 }
 
 function resultConfidence(result) {
@@ -98,7 +101,8 @@ export async function recognizeWithPaddle(file, { onProgress } = {}) {
 
   const attempts = variants.map((variant, index) => buildAttempt(variant, results[index]));
   attempts.sort((a, b) => {
-    const statusDiff = coordinateStatusRank(b.analysis?.status) - coordinateStatusRank(a.analysis?.status);
+    const statusDiff =
+      coordinateStatusRank(b.analysis?.status) - coordinateStatusRank(a.analysis?.status);
     if (statusDiff !== 0) return statusDiff;
     return b.confidence - a.confidence;
   });

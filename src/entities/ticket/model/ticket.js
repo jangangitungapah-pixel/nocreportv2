@@ -43,8 +43,7 @@ export function createEmptyTicket(overrides = {}) {
     id: overrides.id ?? null,
     schemaVersion: 1,
     title,
-    externalTtNumber:
-      overrides.externalTtNumber ?? extractExternalTicketNumber(title) ?? null,
+    externalTtNumber: overrides.externalTtNumber ?? extractExternalTicketNumber(title) ?? null,
     impactList: cleanImpactList(overrides.impactList),
     occurAt: overrides.occurAt ?? null,
     dispatchAt: overrides.dispatchAt ?? null,
@@ -57,7 +56,8 @@ export function createEmptyTicket(overrides = {}) {
     latestProgress: overrides.latestProgress ?? null,
     progressCount: Number.isInteger(overrides.progressCount) ? overrides.progressCount : 0,
     progress: Array.isArray(overrides.progress) ? [...overrides.progress] : [],
-    revision: Number.isInteger(overrides.revision) && overrides.revision >= 0 ? overrides.revision : 0,
+    revision:
+      Number.isInteger(overrides.revision) && overrides.revision >= 0 ? overrides.revision : 0,
     createdAt: overrides.createdAt ?? null,
     createdBy: overrides.createdBy ?? null,
     updatedAt: overrides.updatedAt ?? null,

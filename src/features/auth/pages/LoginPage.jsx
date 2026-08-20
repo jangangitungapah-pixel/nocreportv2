@@ -7,13 +7,7 @@ import { Button, TextInput } from '../../../shared/ui/index.jsx';
 export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const {
-    error: authError,
-    firebaseConfigured,
-    isAuthenticated,
-    loading,
-    signIn,
-  } = useAuth();
+  const { error: authError, firebaseConfigured, isAuthenticated, loading, signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [pending, setPending] = useState(false);
@@ -80,8 +74,12 @@ export function LoginPage() {
               onChange={(event) => setPassword(event.target.value)}
             />
             {localError || authError ? (
-              <p className="rounded-lg border border-[var(--danger-border)] bg-[var(--danger-soft)] p-3 text-sm text-[var(--danger-text)]" role="alert">
-                {localError || 'Your authenticated account does not have an active application profile.'}
+              <p
+                className="rounded-lg border border-[var(--danger-border)] bg-[var(--danger-soft)] p-3 text-sm text-[var(--danger-text)]"
+                role="alert"
+              >
+                {localError ||
+                  'Your authenticated account does not have an active application profile.'}
               </p>
             ) : null}
             <Button className="w-full" type="submit" disabled={pending || loading}>

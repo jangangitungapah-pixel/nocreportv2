@@ -138,8 +138,8 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
         <div>
           <h3 className="text-sm font-bold">Cut Point Photo OCR</h3>
           <p className="mt-1 max-w-2xl text-xs leading-5 text-[var(--text-muted)]">
-            The image stays in this browser session. It is not uploaded or stored; only coordinates can
-            move to the Ticket data model after verification.
+            The image stays in this browser session. It is not uploaded or stored; only coordinates
+            can move to the Ticket data model after verification.
           </p>
         </div>
         <span className="rounded-full bg-[var(--success-soft)] px-2.5 py-1 text-[11px] font-bold text-[var(--success-text)]">
@@ -194,9 +194,7 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
           )}
 
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">
-              {file ? file.name : 'Drop a geotag photo here'}
-            </p>
+            <p className="text-sm font-semibold">{file ? file.name : 'Drop a geotag photo here'}</p>
             <p className="mt-1 text-xs leading-5 text-[var(--text-muted)]">
               JPG, PNG, or WebP · maximum 15 MB · mobile photo picker supported
             </p>
@@ -238,10 +236,14 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
           <p className="text-xs font-semibold text-[var(--text-secondary)]">
             Coordinate candidate detected
             {sourceLabel ? ` from ${sourceLabel}` : ''}
-            {Number.isFinite(confidence) ? ` · OCR confidence ${Math.round(confidence)}%` : ''}. Verify it
-            before applying.
+            {Number.isFinite(confidence) ? ` · OCR confidence ${Math.round(confidence)}%` : ''}.
+            Verify it before applying.
           </p>
-          <CandidateButton candidate={successfulCandidate} label={analysis.format} onApply={applyCandidate} />
+          <CandidateButton
+            candidate={successfulCandidate}
+            label={analysis.format}
+            onApply={applyCandidate}
+          />
         </div>
       ) : null}
 

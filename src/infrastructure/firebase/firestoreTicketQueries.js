@@ -28,7 +28,7 @@ function pageResult(snapshot, pageSize, mapper) {
   const hasMore = snapshot.docs.length > pageSize;
   return {
     items: docs.map(mapper),
-    nextCursor: hasMore ? docs.at(-1) ?? null : null,
+    nextCursor: hasMore ? (docs.at(-1) ?? null) : null,
     hasMore,
   };
 }
@@ -38,7 +38,9 @@ export async function getTicketById(ticketId) {
     const db = getFirestoreClient();
     const snapshot = await getDoc(doc(db, 'tickets', ticketId));
     if (!snapshot.exists()) {
-      throw createInfrastructureError('NOT_FOUND', 'Ticket does not exist.', { details: { ticketId } });
+      throw createInfrastructureError('NOT_FOUND', 'Ticket does not exist.', {
+        details: { ticketId },
+      });
     }
     return mapTicketSnapshot(snapshot);
   } catch (error) {
@@ -161,7 +163,11 @@ export async function getDashboardSummary() {
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     const runningQuery = query(tickets, where('status', '==', TICKET_STATUS.RUNNING));
-    const todayQuery = query(tickets, where('occurAt', '>=', today), where('occurAt', '<', tomorrow));
+    const todayQuery = query(
+      tickets,
+      where('occurAt', '>=', today),
+      where('occurAt', '<', tomorrow),
+    );
     const resolvedTodayQuery = query(
       tickets,
       where('status', '==', TICKET_STATUS.RESOLVED),

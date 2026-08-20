@@ -69,13 +69,7 @@ function latestBetween(left, right) {
   return timestampMillis(left.occurredAt) >= timestampMillis(right.occurredAt) ? left : right;
 }
 
-export async function updateProgress({
-  ticketId,
-  progressId,
-  expectedRevision,
-  occurredAt,
-  text,
-}) {
+export async function updateProgress({ ticketId, progressId, expectedRevision, occurredAt, text }) {
   try {
     const { normalizedText, occurredDate } = validateProgressInput(occurredAt, text);
     const db = getFirestoreClient();
@@ -90,7 +84,9 @@ export async function updateProgress({
         transaction.get(progressRef),
       ]);
       if (!ticketSnapshot.exists()) {
-        throw createInfrastructureError('NOT_FOUND', 'Ticket does not exist.', { details: { ticketId } });
+        throw createInfrastructureError('NOT_FOUND', 'Ticket does not exist.', {
+          details: { ticketId },
+        });
       }
       if (!progressSnapshot.exists()) {
         throw createInfrastructureError('NOT_FOUND', 'Progress entry does not exist.', {
@@ -158,7 +154,9 @@ export async function removeProgress({ ticketId, progressId, expectedRevision })
         transaction.get(progressRef),
       ]);
       if (!ticketSnapshot.exists()) {
-        throw createInfrastructureError('NOT_FOUND', 'Ticket does not exist.', { details: { ticketId } });
+        throw createInfrastructureError('NOT_FOUND', 'Ticket does not exist.', {
+          details: { ticketId },
+        });
       }
       if (!progressSnapshot.exists()) {
         throw createInfrastructureError('NOT_FOUND', 'Progress entry does not exist.', {
@@ -173,8 +171,7 @@ export async function removeProgress({ ticketId, progressId, expectedRevision })
 
       transaction.delete(progressRef);
       transaction.update(ticketRef, {
-        latestProgress:
-          currentLatest?.progressId === progressId ? fallbackLatest : currentLatest,
+        latestProgress: currentLatest?.progressId === progressId ? fallbackLatest : currentLatest,
         progressCount: Math.max(0, Number(ticketData.progressCount ?? 0) - 1),
         updatedAt: serverTimestamp(),
         updatedBy: user.uid,

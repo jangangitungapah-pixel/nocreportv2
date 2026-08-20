@@ -137,9 +137,21 @@ export function DashboardPage() {
       {!loading && !error ? (
         <>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <MetricCard label="Running Tickets" value={summary.runningCount} hint="Currently active" />
-            <MetricCard label="Tickets Today" value={summary.ticketsTodayCount} hint="Occurred today" />
-            <MetricCard label="With Coordinates" value={summary.cutPointCount} hint="Map-ready records" />
+            <MetricCard
+              label="Running Tickets"
+              value={summary.runningCount}
+              hint="Currently active"
+            />
+            <MetricCard
+              label="Tickets Today"
+              value={summary.ticketsTodayCount}
+              hint="Occurred today"
+            />
+            <MetricCard
+              label="With Coordinates"
+              value={summary.cutPointCount}
+              hint="Map-ready records"
+            />
             <MetricCard
               label="Resolved Today"
               value={summary.resolvedTodayCount}

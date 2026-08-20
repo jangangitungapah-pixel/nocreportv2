@@ -50,7 +50,9 @@ export function ToastProvider({ children }) {
               <div>
                 <p className="text-sm font-semibold text-[var(--text-primary)]">{toast.title}</p>
                 {toast.message ? (
-                  <p className="mt-1 text-sm leading-5 text-[var(--text-secondary)]">{toast.message}</p>
+                  <p className="mt-1 text-sm leading-5 text-[var(--text-secondary)]">
+                    {toast.message}
+                  </p>
                 ) : null}
               </div>
               <button

@@ -15,12 +15,9 @@ const DDM_HEMISPHERE_PATTERN = new RegExp(
 
 const DECIMAL_HEMISPHERE_PATTERN =
   /(?<![\d.])([+-]?\d{1,3}(?:\.\d+)?)\s*([NS])\s*[,;]?\s*([+-]?\d{1,3}(?:\.\d+)?)\s*([EW])/i;
-const COMPACT_DMS_TOKEN_PATTERN =
-  /(?:^|[^\d.])([+-]?)(\d{5,7})(?:\.(\d+))?\s*([NSEW])\b/gi;
-const LAT_LABEL_PATTERN =
-  /\b(?:lat|latitude)\b\s*[:=]?\s*([+-]?\d{1,3}(?:\.\d+)?)/i;
-const LON_LABEL_PATTERN =
-  /\b(?:lon|long|longitude|lng)\b\s*[:=]?\s*([+-]?\d{1,3}(?:\.\d+)?)/i;
+const COMPACT_DMS_TOKEN_PATTERN = /(?:^|[^\d.])([+-]?)(\d{5,7})(?:\.(\d+))?\s*([NSEW])\b/gi;
+const LAT_LABEL_PATTERN = /\b(?:lat|latitude)\b\s*[:=]?\s*([+-]?\d{1,3}(?:\.\d+)?)/i;
+const LON_LABEL_PATTERN = /\b(?:lon|long|longitude|lng)\b\s*[:=]?\s*([+-]?\d{1,3}(?:\.\d+)?)/i;
 
 // Unlabeled/unqualified pairs are intentionally strict. OCR often emits short number pairs
 // from timestamps, labels, counters, or UI chrome (for example "8,7"). A pair without

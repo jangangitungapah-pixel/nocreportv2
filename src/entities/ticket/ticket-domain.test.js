@@ -69,11 +69,9 @@ describe('ticket lifecycle', () => {
 
 describe('external TT number extraction', () => {
   it('extracts the canonical bracketed TT notation', () => {
-    expect(
-      extractExternalTicketNumber(
-        '[MANDAU] LINK DOWN, [TT : INC-20260818-00015849]',
-      ),
-    ).toBe('INC-20260818-00015849');
+    expect(extractExternalTicketNumber('[MANDAU] LINK DOWN, [TT : INC-20260818-00015849]')).toBe(
+      'INC-20260818-00015849',
+    );
   });
 
   it('accepts an incident number even when the TT label is absent', () => {
@@ -189,9 +187,7 @@ describe('report formatter', () => {
 
     expect(report.indexOf('14:21 we have open TT')).toBeLessThan(report.indexOf('14:47 team OTW'));
     expect(report).toContain('Rootcause = impact forest burning');
-    expect(report).toContain(
-      'Cut Point = OTDR FO CUT at KM 24 from majalengka (FD fibeerstar)',
-    );
+    expect(report).toContain('Cut Point = OTDR FO CUT at KM 24 from majalengka (FD fibeerstar)');
   });
 });
 
@@ -215,9 +211,7 @@ describe('coordinate domain', () => {
   });
 
   it('parses DMS and converts South to a negative latitude', () => {
-    expect(
-      parseCoordinateText(`6° 07' 24.42" S, 107° 07' 24.42" E`),
-    ).toMatchObject({
+    expect(parseCoordinateText(`6° 07' 24.42" S, 107° 07' 24.42" E`)).toMatchObject({
       status: 'success',
       format: 'DMS',
       latitude: -6.12345,

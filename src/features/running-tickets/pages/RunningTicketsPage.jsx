@@ -198,7 +198,9 @@ export function RunningTicketsPage() {
                       <p className="font-mono text-xs font-semibold text-[var(--text-secondary)]">
                         {ticket.externalTtNumber ?? 'No TT detected'}
                       </p>
-                      <p className="mt-1 line-clamp-2 font-semibold">{ticket.title || 'Untitled ticket'}</p>
+                      <p className="mt-1 line-clamp-2 font-semibold">
+                        {ticket.title || 'Untitled ticket'}
+                      </p>
                     </td>
                     <td className="max-w-xs px-4 py-3 text-[var(--text-secondary)]">
                       <p className="line-clamp-3">{ticket.latestProgress?.text || '—'}</p>

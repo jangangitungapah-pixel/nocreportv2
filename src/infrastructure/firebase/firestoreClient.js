@@ -13,11 +13,7 @@ export function getFirestoreClient() {
 
   if (shouldUseFirebaseEmulators() && !firestoreEmulatorConnected) {
     const emulator = readEmulatorConfig();
-    connectFirestoreEmulator(
-      firestoreClient,
-      emulator.firestoreHost,
-      emulator.firestorePort,
-    );
+    connectFirestoreEmulator(firestoreClient, emulator.firestoreHost, emulator.firestorePort);
     firestoreEmulatorConnected = true;
   }
 

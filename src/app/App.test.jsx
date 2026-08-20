@@ -36,7 +36,9 @@ describe('application shell', () => {
       'page',
     );
 
-    expect(screen.getByRole('navigation', { name: 'Mobile primary navigation' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('navigation', { name: 'Mobile primary navigation' }),
+    ).toBeInTheDocument();
   });
 
   it('persists a user-selected dark theme', () => {

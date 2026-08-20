@@ -25,7 +25,11 @@ export async function archiveTicket({ ticketId, expectedRevision }) {
   });
 }
 
-export async function restoreTicket({ ticketId, expectedRevision, toStatus = TICKET_STATUS.RESOLVED }) {
+export async function restoreTicket({
+  ticketId,
+  expectedRevision,
+  toStatus = TICKET_STATUS.RESOLVED,
+}) {
   return transitionTicketStatus({ ticketId, expectedRevision, toStatus });
 }
 

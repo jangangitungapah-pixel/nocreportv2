@@ -32,7 +32,9 @@ describe('OCR coordinate candidate pipeline', () => {
   });
 
   it('parses a field DMS watermark that uses decimal comma', () => {
-    const result = analyzeCoordinateOcrText(`20 Agu 2026 21.07.33\n6°35'39,378"S 106°39'57,78"E\nKabupaten Bogor`);
+    const result = analyzeCoordinateOcrText(
+      `20 Agu 2026 21.07.33\n6°35'39,378"S 106°39'57,78"E\nKabupaten Bogor`,
+    );
 
     expect(result.status).toBe('success');
     expect(result.format).toBe('DMS');

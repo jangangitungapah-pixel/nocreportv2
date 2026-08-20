@@ -70,9 +70,13 @@ function validateCreationStatus(ticket) {
   if (ticket.status === TICKET_STATUS.RUNNING) {
     const validation = validateRunningRequirements(ticket);
     if (validation.valid) return;
-    throw createInfrastructureError('VALIDATION_ERROR', 'Running Ticket requirements are incomplete.', {
-      details: { fields: validation.errors },
-    });
+    throw createInfrastructureError(
+      'VALIDATION_ERROR',
+      'Running Ticket requirements are incomplete.',
+      {
+        details: { fields: validation.errors },
+      },
+    );
   }
 
   throw createInfrastructureError(
@@ -137,7 +141,9 @@ export async function saveTicket({ ticketId, expectedRevision, patch = {} }) {
     await runTransaction(db, async (transaction) => {
       const snapshot = await transaction.get(ticketRef);
       if (!snapshot.exists()) {
-        throw createInfrastructureError('NOT_FOUND', 'Ticket does not exist.', { details: { ticketId } });
+        throw createInfrastructureError('NOT_FOUND', 'Ticket does not exist.', {
+          details: { ticketId },
+        });
       }
 
       assertExpectedRevision(snapshot.data(), expectedRevision, ticketId);
@@ -177,16 +183,22 @@ export async function transitionTicketStatus({ ticketId, expectedRevision, toSta
     await runTransaction(db, async (transaction) => {
       const snapshot = await transaction.get(ticketRef);
       if (!snapshot.exists()) {
-        throw createInfrastructureError('NOT_FOUND', 'Ticket does not exist.', { details: { ticketId } });
+        throw createInfrastructureError('NOT_FOUND', 'Ticket does not exist.', {
+          details: { ticketId },
+        });
       }
 
       assertExpectedRevision(snapshot.data(), expectedRevision, ticketId);
       const current = mapTicketSnapshot(snapshot);
       const validation = validateTicketTransition(current, toStatus);
       if (!validation.valid) {
-        throw createInfrastructureError('VALIDATION_ERROR', 'Ticket status transition is not allowed.', {
-          details: { fields: validation.errors },
-        });
+        throw createInfrastructureError(
+          'VALIDATION_ERROR',
+          'Ticket status transition is not allowed.',
+          {
+            details: { fields: validation.errors },
+          },
+        );
       }
 
       const auditRef = doc(collection(ticketRef, 'auditEvents'));
@@ -238,7 +250,9 @@ export async function updateCoordinate({ ticketId, expectedRevision, coordinate 
     await runTransaction(db, async (transaction) => {
       const snapshot = await transaction.get(ticketRef);
       if (!snapshot.exists()) {
-        throw createInfrastructureError('NOT_FOUND', 'Ticket does not exist.', { details: { ticketId } });
+        throw createInfrastructureError('NOT_FOUND', 'Ticket does not exist.', {
+          details: { ticketId },
+        });
       }
       assertExpectedRevision(snapshot.data(), expectedRevision, ticketId);
 
@@ -269,7 +283,9 @@ export async function clearCoordinate({ ticketId, expectedRevision }) {
     await runTransaction(db, async (transaction) => {
       const snapshot = await transaction.get(ticketRef);
       if (!snapshot.exists()) {
-        throw createInfrastructureError('NOT_FOUND', 'Ticket does not exist.', { details: { ticketId } });
+        throw createInfrastructureError('NOT_FOUND', 'Ticket does not exist.', {
+          details: { ticketId },
+        });
       }
       assertExpectedRevision(snapshot.data(), expectedRevision, ticketId);
 
@@ -296,7 +312,10 @@ export async function appendProgress({ ticketId, expectedRevision, occurredAt, t
     const normalizedText = String(text ?? '').trim();
     const occurredDate = occurredAt instanceof Date ? occurredAt : new Date(occurredAt);
     if (!normalizedText || Number.isNaN(occurredDate.getTime())) {
-      throw createInfrastructureError('VALIDATION_ERROR', 'Progress requires a valid time and text.');
+      throw createInfrastructureError(
+        'VALIDATION_ERROR',
+        'Progress requires a valid time and text.',
+      );
     }
 
     const db = getFirestoreClient();
@@ -307,7 +326,9 @@ export async function appendProgress({ ticketId, expectedRevision, occurredAt, t
     await runTransaction(db, async (transaction) => {
       const ticketSnapshot = await transaction.get(ticketRef);
       if (!ticketSnapshot.exists()) {
-        throw createInfrastructureError('NOT_FOUND', 'Ticket does not exist.', { details: { ticketId } });
+        throw createInfrastructureError('NOT_FOUND', 'Ticket does not exist.', {
+          details: { ticketId },
+        });
       }
       const ticketData = ticketSnapshot.data();
       assertExpectedRevision(ticketData, expectedRevision, ticketId);

@@ -68,7 +68,9 @@ export function AppShell() {
               Workspace
             </p>
             <p className="mt-1 truncate text-sm font-semibold">
-              {localDevelopmentMode ? 'Local development' : profile?.displayName || profile?.email || 'Firebase user'}
+              {localDevelopmentMode
+                ? 'Local development'
+                : profile?.displayName || profile?.email || 'Firebase user'}
             </p>
             <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
               {localDevelopmentMode
@@ -94,7 +96,7 @@ export function AppShell() {
           </div>
           <div className="flex items-center gap-2">
             <span className="hidden text-xs font-medium text-[var(--text-muted)] sm:inline">
-              {localDevelopmentMode ? 'Local preview' : role ?? 'Authenticated'} · T5
+              {localDevelopmentMode ? 'Local preview' : (role ?? 'Authenticated')} · T5
             </span>
             <IconButton
               label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}

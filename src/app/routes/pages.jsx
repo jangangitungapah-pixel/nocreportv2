@@ -16,8 +16,8 @@ export function CutPointTrackerPage() {
         <div className="max-w-lg">
           <p className="text-base font-bold">Map module reserved</p>
           <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
-            Leaflet and the configurable tile source are loaded in T6 so the initial Dashboard bundle
-            stays lean.
+            Leaflet and the configurable tile source are loaded in T6 so the initial Dashboard
+            bundle stays lean.
           </p>
         </div>
       </div>
