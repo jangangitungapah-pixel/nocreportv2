@@ -1,0 +1,108 @@
+name: Quality
+
+on:
+  push:
+    branches:
+      - feature/t0-repository-foundation
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Format source
+        if: github.event_name != 'pull_request'
+        run: npm run format
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit and component tests
+        run: npm test
+
+      - name: Production build
+        run: npm run build
+
+      - name: Dev server smoke test
+        shell: bash
+        run: |
+          npm run dev -- --host 127.0.0.1 > /tmp/nocreport-vite.log 2>&1 &
+          VITE_PID=$!
+          trap 'kill "$VITE_PID" 2>/dev/null || true' EXIT
+
+          for attempt in {1..20}; do
+            if curl --fail --silent --show-error http://127.0.0.1:5173/ > /tmp/nocreport-index.html; then
+              exit 0
+            fi
+            sleep 1
+          done
+
+          cat /tmp/nocreport-vite.log
+          exit 1
+
+      - name: Finalize D0 and T0 tracker
+        if: github.event_name != 'pull_request'
+        run: node scripts/finalize-t0.mjs
+
+      - name: Finalize T1 tracker
+        if: github.event_name != 'pull_request'
+        run: node scripts/finalize-t1.mjs
+
+      - name: Finalize T2 tracker
+        if: github.event_name != 'pull_request'
+        run: node scripts/finalize-t2.mjs
+
+      - name: Finalize T3 tracker
+        if: github.event_name != 'pull_request'
+        run: node scripts/finalize-t3.mjs
+
+      - name: Finalize T4 tracker
+        if: github.event_name != 'pull_request'
+        run: node scripts/finalize-t4.mjs
+
+      - name: Persist validated formatting and phase tracker
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          git add -- \
+            src \
+            index.html \
+            package.json \
+            eslint.config.js \
+            vite.config.js \
+            vitest.config.js \
+            docs/02-architecture/TECHNICAL-ARCHITECTURE-TDD.md \
+            docs/06-workplan/IMPLEMENTATION-WORKPLAN.md
+
+          if git diff --cached --quiet; then
+            echo "No validated changes to persist."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: persist validated formatting and phase tracker"
+          git push
