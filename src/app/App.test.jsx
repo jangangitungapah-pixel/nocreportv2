@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 
 import { AppProviders } from './providers/AppProviders.jsx';
@@ -19,6 +19,10 @@ describe('application shell', () => {
   beforeEach(() => {
     window.localStorage.clear();
     delete document.documentElement.dataset.theme;
+  });
+
+  afterEach(() => {
+    cleanup();
   });
 
   it('renders the Dashboard inside desktop and mobile navigation shells', () => {
