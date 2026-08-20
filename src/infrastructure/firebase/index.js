@@ -12,3 +12,8 @@ export {
 } from './firebaseErrors.js';
 export { getFirebaseApp } from './firebaseApp.js';
 export { getFirestoreClient } from './firestoreClient.js';
+export {
+  archiveTicket,
+  firestoreTicketRepository,
+  restoreTicket,
+} from './firestoreTicketRepository.js';
