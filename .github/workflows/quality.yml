@@ -79,6 +79,10 @@ jobs:
         if: github.event_name != 'pull_request'
         run: node scripts/finalize-t3.mjs
 
+      - name: Finalize T4 tracker
+        if: github.event_name != 'pull_request'
+        run: node scripts/finalize-t4.mjs
+
       - name: Persist validated formatting and phase tracker
         if: github.event_name != 'pull_request'
         shell: bash
