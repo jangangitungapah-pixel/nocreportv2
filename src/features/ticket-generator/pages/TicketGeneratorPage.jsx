@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useFieldArray, useForm, useWatch } from 'react-hook-form';
-import { useBlocker, useNavigate, useParams } from 'react-router-dom';
+import { useBlocker, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { useAuth } from '../../../app/providers/AuthProvider.jsx';
 import { useToast } from '../../../app/providers/ToastProvider.jsx';
@@ -128,6 +128,7 @@ function GeneratorLoading() {
 
 export function TicketGeneratorPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { ticketId: routeTicketId } = useParams();
   const { localDevelopmentMode } = useAuth();
   const { pushToast } = useToast();
@@ -199,6 +200,18 @@ export function TicketGeneratorPage() {
   useEffect(() => {
     loadPersistedEditor();
   }, [loadPersistedEditor]);
+
+  useEffect(() => {
+    if (loadingTicket || location.hash !== '#progress-text') return undefined;
+
+    const timer = window.setTimeout(() => {
+      const progressInput = document.getElementById('progress-text');
+      progressInput?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+      progressInput?.focus();
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [loadingTicket, location.hash, routeTicketId]);
 
   useEffect(() => {
     if (pendingNavigationTicketId && !hasUnsavedChanges) {
