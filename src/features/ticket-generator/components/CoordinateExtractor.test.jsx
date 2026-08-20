@@ -10,6 +10,7 @@ vi.mock('../../../infrastructure/ocr/ocrClient.js', () => ({
 
 describe('CoordinateExtractor', () => {
   beforeEach(() => {
+    recognizeImageText.mockReset();
     vi.stubGlobal('URL', {
       createObjectURL: vi.fn(() => 'blob:cut-point-preview'),
       revokeObjectURL: vi.fn(),
@@ -37,8 +38,9 @@ describe('CoordinateExtractor', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Scan coordinates' }));
 
-    expect(await screen.findByText(/Coordinate candidate detected/)).toBeInTheDocument();
-    expect(screen.getByText(/Bottom-right watermark/)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Coordinate candidate detected from Bottom-right watermark/),
+    ).toBeInTheDocument();
     expect(onApplyCoordinate).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole('button', { name: /Apply & verify/ }));
@@ -57,7 +59,7 @@ describe('CoordinateExtractor', () => {
   });
 
   it('shows both candidates when coordinate order is ambiguous', async () => {
-    recognizeImageText.mockResolvedValue({ text: '-6.12345 107.12345', confidence: 80 });
+    recognizeImageText.mockResolvedValue({ text: '-6.12345 7.12345', confidence: 80 });
     render(<CoordinateExtractor onApplyCoordinate={vi.fn()} />);
 
     const file = new File(['image'], 'cut-point.webp', { type: 'image/webp' });
