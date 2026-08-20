@@ -42,8 +42,18 @@ function isCoordinateResult(analysis) {
 export async function recognizeImageText(file, { onProgress } = {}) {
   const { PSM, createWorker } = await import('tesseract.js');
   const variants = await prepareOcrVariants(file);
+  let activeAttemptIndex = 0;
+  let activeAttemptLabel = variants[0]?.label ?? 'OCR';
+
   const worker = await createWorker('eng', undefined, {
-    logger: () => {},
+    logger: (message) =>
+      reportAttemptProgress(
+        onProgress,
+        message,
+        activeAttemptIndex,
+        variants.length,
+        activeAttemptLabel,
+      ),
   });
   const attempts = [];
 
@@ -51,6 +61,8 @@ export async function recognizeImageText(file, { onProgress } = {}) {
     for (let index = 0; index < variants.length; index += 1) {
       const variant = variants[index];
       const isFocused = variant.coordinateFocused;
+      activeAttemptIndex = index;
+      activeAttemptLabel = variant.label;
 
       await worker.setParameters({
         tessedit_pageseg_mode: PSM.SPARSE_TEXT,
@@ -58,9 +70,7 @@ export async function recognizeImageText(file, { onProgress } = {}) {
         tessedit_char_whitelist: isFocused ? COORDINATE_WHITELIST : GENERAL_WHITELIST,
       });
 
-      const result = await worker.recognize(variant.image, {}, {
-        text: true,
-      });
+      const result = await worker.recognize(variant.image, {}, { text: true });
       const attempt = attemptResult(variant, result);
       attempts.push(attempt);
 
