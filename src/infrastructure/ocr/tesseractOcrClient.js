@@ -1,8 +1,8 @@
 import { analyzeCoordinateOcrText } from './coordinateCandidates.js';
 import { prepareOcrVariants } from './imagePreprocessor.js';
 
-const COORDINATE_WHITELIST = `0123456789.,+-°º'\"NSEWnsew: `;
-const GENERAL_WHITELIST = `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,+-°º'\"/:()#@& _-`;
+const COORDINATE_WHITELIST = `0123456789.,+-°º'"NSEWnsew: `;
+const GENERAL_WHITELIST = `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,+-°º'"/:()#@& _-`;
 
 function normalizeProgress(message) {
   const progress = Number(message?.progress ?? 0);
@@ -87,7 +87,8 @@ export async function recognizeWithTesseract(file, { onProgress } = {}) {
       }
     }
 
-    const bestAttempt = attempts.find((attempt) => isCoordinateResult(attempt.analysis)) ??
+    const bestAttempt =
+      attempts.find((attempt) => isCoordinateResult(attempt.analysis)) ??
       attempts.at(-1) ?? {
         engine: 'tesseract',
         text: '',
