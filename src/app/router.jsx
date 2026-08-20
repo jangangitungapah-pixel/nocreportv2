@@ -1,11 +1,11 @@
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 
+import { TicketGeneratorPage } from '../features/ticket-generator/pages/TicketGeneratorPage.jsx';
 import { AppShell } from './layouts/AppShell.jsx';
 import { ProtectedRoute } from './routes/ProtectedRoute.jsx';
 import {
   CutPointTrackerPage,
   DashboardPage,
-  GeneratorPage,
   LoginPage,
   NotFoundPage,
   RunningTicketsPage,
@@ -24,8 +24,8 @@ export const routeObjects = [
         children: [
           { index: true, element: <Navigate to="/dashboard" replace /> },
           { path: '/dashboard', element: <DashboardPage /> },
-          { path: '/generator/new', element: <GeneratorPage /> },
-          { path: '/generator/:ticketId', element: <GeneratorPage /> },
+          { path: '/generator/new', element: <TicketGeneratorPage /> },
+          { path: '/generator/:ticketId', element: <TicketGeneratorPage /> },
           { path: '/running', element: <RunningTicketsPage /> },
           { path: '/cut-points', element: <CutPointTrackerPage /> },
         ],
