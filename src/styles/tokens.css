@@ -1,0 +1,19 @@
+:root {
+  color-scheme: light;
+  --surface-canvas: #f4f6f8;
+  --surface-panel: #ffffff;
+  --border-subtle: #dfe4ea;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --surface-canvas: #0d1117;
+  --surface-panel: #151b23;
+  --border-subtle: #2b3440;
+  --text-primary: #f3f4f6;
+  --text-secondary: #c3cad4;
+  --text-muted: #8f9baa;
+}
