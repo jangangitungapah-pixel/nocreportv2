@@ -1,8 +1,9 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 
+import { Button, IconButton } from '../../shared/ui/index.jsx';
 import { PRIMARY_NAVIGATION, isNavigationItemActive } from '../navigation.js';
+import { useAuth } from '../providers/AuthProvider.jsx';
 import { useTheme } from '../providers/ThemeProvider.jsx';
-import { IconButton } from '../../shared/ui/index.jsx';
 
 function currentPageLabel(pathname) {
   if (pathname.startsWith('/generator')) return 'Template Generator';
@@ -38,6 +39,7 @@ function NavigationLink({ item }) {
 
 export function AppShell() {
   const location = useLocation();
+  const { firebaseConfigured, localDevelopmentMode, profile, role, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const pageLabel = currentPageLabel(location.pathname);
 
@@ -65,10 +67,19 @@ export function AppShell() {
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]">
               Workspace
             </p>
-            <p className="mt-1 text-sm font-semibold">Development mode</p>
-            <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
-              Authentication boundary is prepared and will be enforced in the Firebase phase.
+            <p className="mt-1 truncate text-sm font-semibold">
+              {localDevelopmentMode ? 'Local development' : profile?.displayName || profile?.email || 'Firebase user'}
             </p>
+            <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
+              {localDevelopmentMode
+                ? 'Firebase is not configured. No operational data is written to the cloud.'
+                : `Authenticated role: ${role ?? 'UNKNOWN'}`}
+            </p>
+            {firebaseConfigured ? (
+              <Button tone="secondary" className="mt-3 w-full" onClick={() => signOut()}>
+                Sign out
+              </Button>
+            ) : null}
           </div>
         </div>
       </aside>
@@ -83,7 +94,7 @@ export function AppShell() {
           </div>
           <div className="flex items-center gap-2">
             <span className="hidden text-xs font-medium text-[var(--text-muted)] sm:inline">
-              T2 · UI Foundation
+              {localDevelopmentMode ? 'Local preview' : role ?? 'Authenticated'} · T5
             </span>
             <IconButton
               label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
