@@ -1,5 +1,9 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut,
+} from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 
 import {
@@ -76,7 +80,7 @@ export function AuthProvider({ children }) {
       },
       async signOut() {
         if (!firebaseConfigured) return;
-        await signOut(getAuthClient());
+        await firebaseSignOut(getAuthClient());
       },
     }),
     [error, firebaseConfigured, loading, profile, user],
