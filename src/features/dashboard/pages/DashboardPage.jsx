@@ -105,8 +105,8 @@ export function DashboardPage() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="text-sm font-medium text-[var(--text-muted)]">Operational overview</p>
-          <h2 className="mt-1 text-2xl font-bold tracking-tight">Dashboard</h2>
+          <p className="text-sm font-medium text-[var(--text-muted)]">Today at a glance</p>
+          <h2 className="mt-1 text-2xl font-bold tracking-tight">Operational overview</h2>
         </div>
         <Link to="/generator/new" className={primaryLinkClass}>
           New Ticket
