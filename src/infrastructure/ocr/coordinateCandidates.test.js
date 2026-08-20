@@ -31,6 +31,28 @@ describe('OCR coordinate candidate pipeline', () => {
     expect(result.formatted).toBe('-6.12345, 107.12345');
   });
 
+  it('parses a field DMS watermark that uses decimal comma', () => {
+    const result = analyzeCoordinateOcrText(`20 Agu 2026 21.07.33\n6°35'39,378"S 106°39'57,78"E\nKabupaten Bogor`);
+
+    expect(result.status).toBe('success');
+    expect(result.format).toBe('DMS');
+    expect(result.latitude).toBeCloseTo(-6.594271666666667, 8);
+    expect(result.longitude).toBeCloseTo(106.66605, 8);
+  });
+
+  it('parses a signed field DD watermark with decimal comma and hemispheres', () => {
+    const result = analyzeCoordinateOcrText(
+      `20 Agu 2026 21:13:55.704\n-6,7709S +107,6371E\nKecamatan Ciater\nKabupaten Subang`,
+    );
+
+    expect(result).toMatchObject({
+      status: 'success',
+      format: 'DD',
+      latitude: -6.7709,
+      longitude: 107.6371,
+    });
+  });
+
   it('requires verification when an unlabeled space-separated pair can be swapped', () => {
     const result = analyzeCoordinateOcrText('-6.12345 107.12345');
 
