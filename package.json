@@ -17,6 +17,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@paddleocr/paddleocr-js": "0.4.2",
     "firebase": "12.18.0",
     "leaflet": "1.9.4",
     "react": "19.2.8",
