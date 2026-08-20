@@ -1,7 +1,7 @@
 # NOC Report Template Generator — Implementation Workplan & Phase Tracker
 
 **Document ID:** NOCREPORT-WORKPLAN-001  
-**Version:** 0.1  
+**Version:** 0.2  
 **Status:** Active Project Tracker  
 **Repository:** `jangangitungapah-pixel/nocreportv2`  
 **Purpose:** Canonical implementation order, phase completion criteria, and persistent project progress tracker.
@@ -29,7 +29,7 @@ The implementation sequence in this workplan is derived from:
 - `docs/02-architecture/TECHNICAL-ARCHITECTURE-TDD.md`
 - `docs/03-data/DATA-DATABASE-PRD.md`
 - `docs/04-api/API-INTEGRATION-PRD.md`
-- `docs/05-security/SECURITY-ACCESS-CONTROL-PRD.md` once created
+- `docs/05-security/SECURITY-ACCESS-CONTROL-PRD.md`
 
 If this workplan conflicts with a source-of-truth PRD/TDD, the PRD/TDD takes precedence and this workplan must be updated.
 
@@ -111,9 +111,9 @@ Small preparatory changes for a later phase are allowed only when they are neces
 
 # 3. Current Project Status
 
-**Overall status:** DOCUMENTATION BASELINE IN PROGRESS  
-**Current Active Phase:** `D0 — Documentation Baseline Completion`  
-**Next Implementation Phase:** `T0 — Repository Foundation`
+**Overall status:** IMPLEMENTATION IN PROGRESS  
+**Current Active Phase:** `T5 — Firebase Integration & Operational Data Features`  
+**Next Implementation Phase:** `T6 — Cut Point Tracker`
 
 ## Documentation Status
 
@@ -122,21 +122,21 @@ Small preparatory changes for a later phase are allowed only when they are neces
 - [x] Technical Architecture PRD / TDD
 - [x] Data & Database PRD
 - [x] API & Integration PRD
-- [ ] Security & Access Control PRD
+- [x] Security & Access Control PRD
 - [x] Implementation Workplan & Phase Tracker created
 
-D0 remains incomplete until the Security & Access Control PRD is finished and cross-document conflicts have been reviewed.
+D0 is complete. Cross-document review resolved the React Router baseline to the current stable 7.x line and confirmed the Spark-only/no-photo-storage architecture.
 
 ---
 
 # 4. Master Phase Overview
 
-- [ ] **D0 — Documentation Baseline Completion**
-- [ ] **T0 — Repository Foundation**
-- [ ] **T1 — Domain Foundation**
-- [ ] **T2 — UI Shell & Design System Foundation**
-- [ ] **T3 — Template Generator Core**
-- [ ] **T4 — Local OCR & Coordinate Extraction**
+- [x] **D0 — Documentation Baseline Completion**
+- [x] **T0 — Repository Foundation**
+- [x] **T1 — Domain Foundation**
+- [x] **T2 — UI Shell & Design System Foundation**
+- [x] **T3 — Template Generator Core**
+- [x] **T4 — Local OCR & Coordinate Extraction**
 - [ ] **T5 — Firebase Integration & Operational Data Features**
 - [ ] **T6 — Cut Point Tracker**
 - [ ] **T7 — Hardening, Security Validation & Full QA**
@@ -146,7 +146,7 @@ D0 remains incomplete until the Security & Access Control PRD is finished and cr
 
 # 5. D0 — Documentation Baseline Completion
 
-**Status:** IN PROGRESS  
+**Status:** COMPLETE  
 **Dependency:** None  
 **Goal:** Finish the product and technical contracts before application implementation begins.
 
@@ -157,13 +157,13 @@ D0 remains incomplete until the Security & Access Control PRD is finished and cr
 - [x] Create Technical Architecture PRD / TDD.
 - [x] Create Data & Database PRD.
 - [x] Create API & Integration PRD.
-- [ ] Create Security & Access Control PRD.
+- [x] Create Security & Access Control PRD.
 - [x] Create this Implementation Workplan.
-- [ ] Cross-review all PRDs/TDDs for conflicting requirements.
-- [ ] Confirm final MVP technology baseline remains Spark-compatible.
-- [ ] Confirm no MVP requirement depends on Cloud Storage.
-- [ ] Confirm persisted Cut Point photo policy: **photo not stored; only coordinate metadata persisted**.
-- [ ] Resolve any documentation contradictions discovered during review.
+- [x] Cross-review all PRDs/TDDs for conflicting requirements.
+- [x] Confirm final MVP technology baseline remains Spark-compatible.
+- [x] Confirm no MVP requirement depends on Cloud Storage.
+- [x] Confirm persisted Cut Point photo policy: **photo not stored; only coordinate metadata persisted**.
+- [x] Resolve any documentation contradictions discovered during review.
 
 ## Exit Criteria
 
@@ -176,15 +176,15 @@ D0 is complete when:
 
 ## Completion Record
 
-**Completed:** —  
-**Commit / PR:** —  
-**Notes:** Security & Access Control PRD remains pending.
+**Completed:** 2026-08-21  
+**Commit / PR:** `6543b9cd92d8f43a8521c107ab970868b4878e4f` + T0 foundation branch  
+**Notes:** Security PRD completed. Cross-review confirmed Spark-compatible MVP, no Cloud Storage dependency, browser-local Cut Point photos, coordinate-only persistence, and corrected React Router baseline to stable 7.x.
 
 ---
 
 # 6. T0 — Repository Foundation
 
-**Status:** NOT STARTED  
+**Status:** COMPLETE  
 **Dependency:** D0 complete  
 **Goal:** Create a clean, reproducible React/Vite development foundation before feature implementation.
 
@@ -192,70 +192,70 @@ D0 is complete when:
 
 ### Project Scaffold
 
-- [ ] Scaffold Vite React application using JavaScript/JSX.
-- [ ] Confirm application starts locally.
-- [ ] Confirm production build succeeds.
-- [ ] Commit `package-lock.json`.
-- [ ] Establish supported Node.js version.
-- [ ] Add `.nvmrc` or equivalent runtime documentation if useful.
+- [x] Scaffold Vite React application using JavaScript/JSX.
+- [x] Confirm application starts locally.
+- [x] Confirm production build succeeds.
+- [x] Commit `package-lock.json`.
+- [x] Establish supported Node.js version.
+- [x] Add `.nvmrc` or equivalent runtime documentation if useful.
 
 ### Core Dependencies
 
-- [ ] Install React Router.
-- [ ] Install Tailwind CSS using approved Vite integration.
-- [ ] Install React Hook Form.
-- [ ] Install Zod.
-- [ ] Install Firebase Web SDK.
-- [ ] Install Leaflet dependencies.
-- [ ] Install OCR dependency only where architecture requires it; keep OCR lazy-loadable.
+- [x] Install React Router.
+- [x] Install Tailwind CSS using approved Vite integration.
+- [x] Install React Hook Form.
+- [x] Install Zod.
+- [x] Install Firebase Web SDK.
+- [x] Install Leaflet dependencies.
+- [x] Install OCR dependency only where architecture requires it; keep OCR lazy-loadable.
 
 ### Code Quality
 
-- [ ] Configure ESLint.
-- [ ] Configure Prettier.
-- [ ] Add lint script.
-- [ ] Add format script.
-- [ ] Add format-check script.
-- [ ] Add build script.
-- [ ] Add test script foundation.
+- [x] Configure ESLint.
+- [x] Configure Prettier.
+- [x] Add lint script.
+- [x] Add format script.
+- [x] Add format-check script.
+- [x] Add build script.
+- [x] Add test script foundation.
 
 ### Test Foundation
 
-- [ ] Configure Vitest.
-- [ ] Configure React Testing Library.
-- [ ] Configure jest-dom matchers.
-- [ ] Create one smoke/unit test proving test runner works.
+- [x] Configure Vitest.
+- [x] Configure React Testing Library.
+- [x] Configure jest-dom matchers.
+- [x] Create one smoke/unit test proving test runner works.
 
 ### Repository Structure
 
-- [ ] Create `src/app/`.
-- [ ] Create `src/features/`.
-- [ ] Create `src/entities/`.
-- [ ] Create `src/infrastructure/`.
-- [ ] Create `src/shared/`.
-- [ ] Create `src/styles/`.
-- [ ] Preserve vertical feature architecture from TDD.
+- [x] Create `src/app/`.
+- [x] Create `src/features/`.
+- [x] Create `src/entities/`.
+- [x] Create `src/infrastructure/`.
+- [x] Create `src/shared/`.
+- [x] Create `src/styles/`.
+- [x] Preserve vertical feature architecture from TDD.
 
 ### Environment Foundation
 
-- [ ] Add `.env.example` without secrets.
-- [ ] Define expected Firebase environment variable names.
-- [ ] Define map tile environment variable names.
-- [ ] Ensure real `.env` files are ignored.
+- [x] Add `.env.example` without secrets.
+- [x] Define expected Firebase environment variable names.
+- [x] Define map tile environment variable names.
+- [x] Ensure real `.env` files are ignored.
 
 ### CI Foundation
 
-- [ ] Add GitHub Actions quality workflow.
-- [ ] CI runs install, lint, format check, test, and build.
-- [ ] CI succeeds on the foundation commit/PR.
+- [x] Add GitHub Actions quality workflow.
+- [x] CI runs install, lint, format check, test, and build.
+- [x] CI succeeds on the foundation commit/PR.
 
 ## Mandatory Quality Gate
 
-- [ ] `npm run lint` passes.
-- [ ] `npm run format:check` passes.
-- [ ] `npm test` passes.
-- [ ] `npm run build` passes.
-- [ ] GitHub Actions passes.
+- [x] `npm run lint` passes.
+- [x] `npm run format:check` passes.
+- [x] `npm test` passes.
+- [x] `npm run build` passes.
+- [x] GitHub Actions passes.
 
 ## Exit Criteria
 
@@ -263,83 +263,83 @@ Repository can be freshly cloned, installed, tested, linted, and built without f
 
 ## Completion Record
 
-**Completed:** —  
-**Commit / PR:** —  
-**Notes:** —
+**Completed:** 2026-08-21  
+**Commit / PR:** `9279420056540c71aa33edc2f0c2f92f6d979ea7`  
+**Notes:** React/Vite foundation, pinned runtime/dependencies, Tailwind, ESLint, Prettier, Vitest/RTL, environment contract, vertical source directories, generated package lock, dev-server smoke check, and GitHub Actions quality gate completed.
 
 ---
 
 # 7. T1 — Domain Foundation
 
-**Status:** NOT STARTED  
+**Status:** COMPLETE  
 **Dependency:** T0 complete  
 **Goal:** Implement product rules as tested pure JavaScript before UI depends on them.
 
 ## Ticket Domain
 
-- [ ] Define normalized Ticket object contract.
-- [ ] Implement empty Ticket factory.
-- [ ] Define canonical ticket statuses.
-- [ ] Implement Draft → Running validation.
-- [ ] Implement lifecycle transition validation.
-- [ ] Implement revision/concurrency domain contract.
+- [x] Define normalized Ticket object contract.
+- [x] Implement empty Ticket factory.
+- [x] Define canonical ticket statuses.
+- [x] Implement Draft → Running validation.
+- [x] Implement lifecycle transition validation.
+- [x] Implement revision/concurrency domain contract.
 
 ## Report Formatter
 
-- [ ] Implement `formatTicketReport(ticket)`.
-- [ ] Preserve user wording.
-- [ ] Render canonical field order.
-- [ ] Hide Impact List when empty.
-- [ ] Render Impact List when populated.
-- [ ] Format Occur Time correctly.
-- [ ] Format Dispatch Time correctly.
-- [ ] Sort progress chronologically.
-- [ ] Ensure Preview and Clipboard can consume the same formatter output.
+- [x] Implement `formatTicketReport(ticket)`.
+- [x] Preserve user wording.
+- [x] Render canonical field order.
+- [x] Hide Impact List when empty.
+- [x] Render Impact List when populated.
+- [x] Format Occur Time correctly.
+- [x] Format Dispatch Time correctly.
+- [x] Sort progress chronologically.
+- [x] Ensure Preview and Clipboard can consume the same formatter output.
 
 ## TT Number Extraction
 
-- [ ] Implement recognizable external TT extraction.
-- [ ] Handle missing/unknown patterns safely.
-- [ ] Keep Title as source of truth.
+- [x] Implement recognizable external TT extraction.
+- [x] Handle missing/unknown patterns safely.
+- [x] Keep Title as source of truth.
 
 ## Progress Domain
 
-- [ ] Define Progress Entry contract.
-- [ ] Implement chronological sorting.
-- [ ] Support duplicate timestamps deterministically.
-- [ ] Support progress crossing midnight/date boundaries.
+- [x] Define Progress Entry contract.
+- [x] Implement chronological sorting.
+- [x] Support duplicate timestamps deterministically.
+- [x] Support progress crossing midnight/date boundaries.
 
 ## Coordinate Domain
 
-- [ ] Implement Decimal Degrees parser.
-- [ ] Implement DMS parser.
-- [ ] Implement DDM parser.
-- [ ] Implement N/S/E/W conversion.
-- [ ] Implement latitude range validation.
-- [ ] Implement longitude range validation.
-- [ ] Implement canonical coordinate formatter.
-- [ ] Implement ambiguity result contract.
+- [x] Implement Decimal Degrees parser.
+- [x] Implement DMS parser.
+- [x] Implement DDM parser.
+- [x] Implement N/S/E/W conversion.
+- [x] Implement latitude range validation.
+- [x] Implement longitude range validation.
+- [x] Implement canonical coordinate formatter.
+- [x] Implement ambiguity result contract.
 
 ## Unit Test Gate
 
-- [ ] Report formatting tests pass.
-- [ ] Empty Impact List tests pass.
-- [ ] TT extraction tests pass.
-- [ ] Timeline ordering tests pass.
-- [ ] Midnight crossover tests pass.
-- [ ] DD coordinate tests pass.
-- [ ] DMS coordinate tests pass.
-- [ ] DDM coordinate tests pass.
-- [ ] Hemisphere conversion tests pass.
-- [ ] Invalid range tests pass.
-- [ ] Ambiguous coordinate tests pass.
+- [x] Report formatting tests pass.
+- [x] Empty Impact List tests pass.
+- [x] TT extraction tests pass.
+- [x] Timeline ordering tests pass.
+- [x] Midnight crossover tests pass.
+- [x] DD coordinate tests pass.
+- [x] DMS coordinate tests pass.
+- [x] DDM coordinate tests pass.
+- [x] Hemisphere conversion tests pass.
+- [x] Invalid range tests pass.
+- [x] Ambiguous coordinate tests pass.
 
 ## Mandatory Quality Gate
 
-- [ ] lint passes.
-- [ ] format check passes.
-- [ ] unit tests pass.
-- [ ] build passes.
+- [x] lint passes.
+- [x] format check passes.
+- [x] unit tests pass.
+- [x] build passes.
 
 ## Exit Criteria
 
@@ -347,81 +347,81 @@ Critical product logic can be tested without React, Firebase, OCR, or map depend
 
 ## Completion Record
 
-**Completed:** —  
-**Commit / PR:** —  
-**Notes:** —
+**Completed:** 2026-08-21  
+**Commit / PR:** `9279420056540c71aa33edc2f0c2f92f6d979ea7`  
+**Notes:** Pure JavaScript Ticket domain completed with lifecycle/revision validation, canonical report generation, external TT extraction, deterministic progress ordering, DD/DMS/DDM coordinate parsing, range validation, ambiguity handling, and regression tests.
 
 ---
 
 # 8. T2 — UI Shell & Design System Foundation
 
-**Status:** NOT STARTED  
+**Status:** COMPLETE  
 **Dependency:** T1 complete  
 **Goal:** Build the responsive NOC operations shell and reusable UI primitives before feature screens become large.
 
 ## Application Shell
 
-- [ ] Configure application routing.
-- [ ] Add authenticated-route placeholder boundary.
-- [ ] Implement desktop sidebar shell.
-- [ ] Implement mobile top bar.
-- [ ] Implement mobile bottom navigation.
-- [ ] Implement Not Found route.
+- [x] Configure application routing.
+- [x] Add authenticated-route placeholder boundary.
+- [x] Implement desktop sidebar shell.
+- [x] Implement mobile top bar.
+- [x] Implement mobile bottom navigation.
+- [x] Implement Not Found route.
 
 ## Routes
 
-- [ ] `/dashboard`
-- [ ] `/generator/new`
-- [ ] `/generator/:ticketId`
-- [ ] `/running`
-- [ ] `/cut-points`
-- [ ] `/login`
+- [x] `/dashboard`
+- [x] `/generator/new`
+- [x] `/generator/:ticketId`
+- [x] `/running`
+- [x] `/cut-points`
+- [x] `/login`
 
 ## Theme & Tokens
 
-- [ ] Implement semantic color tokens.
-- [ ] Implement typography tokens.
-- [ ] Implement spacing/radius/shadow tokens where useful.
-- [ ] Implement Light Mode.
-- [ ] Implement Dark Mode.
-- [ ] Persist local theme preference.
-- [ ] Avoid duplicate Light/Dark components.
+- [x] Implement semantic color tokens.
+- [x] Implement typography tokens.
+- [x] Implement spacing/radius/shadow tokens where useful.
+- [x] Implement Light Mode.
+- [x] Implement Dark Mode.
+- [x] Persist local theme preference.
+- [x] Avoid duplicate Light/Dark components.
 
 ## Shared UI
 
-- [ ] Button.
-- [ ] Icon Button.
-- [ ] Text Input.
-- [ ] Textarea.
-- [ ] Date/time input wrapper.
-- [ ] Status Badge.
-- [ ] Empty State.
-- [ ] Error State.
-- [ ] Skeleton/loading primitives.
-- [ ] Dialog/confirmation primitive.
-- [ ] Toast/notification feedback.
+- [x] Button.
+- [x] Icon Button.
+- [x] Text Input.
+- [x] Textarea.
+- [x] Date/time input wrapper.
+- [x] Status Badge.
+- [x] Empty State.
+- [x] Error State.
+- [x] Skeleton/loading primitives.
+- [x] Dialog/confirmation primitive.
+- [x] Toast/notification feedback.
 
 ## Accessibility Baseline
 
-- [ ] Keyboard-visible focus states.
-- [ ] Proper labels for form controls.
-- [ ] Icon button accessible names.
-- [ ] Minimum practical touch target.
-- [ ] No status conveyed by color alone.
+- [x] Keyboard-visible focus states.
+- [x] Proper labels for form controls.
+- [x] Icon button accessible names.
+- [x] Minimum practical touch target.
+- [x] No status conveyed by color alone.
 
 ## Responsive Gate
 
-- [ ] No horizontal page overflow on target mobile viewport.
-- [ ] Sidebar/navigation responsive behavior verified.
-- [ ] Keyboard navigation verified for shell.
+- [x] No horizontal page overflow on target mobile viewport.
+- [x] Sidebar/navigation responsive behavior verified.
+- [x] Keyboard navigation verified for shell.
 
 ## Mandatory Quality Gate
 
-- [ ] component tests for critical shared primitives pass.
-- [ ] lint passes.
-- [ ] format check passes.
-- [ ] tests pass.
-- [ ] build passes.
+- [x] component tests for critical shared primitives pass.
+- [x] lint passes.
+- [x] format check passes.
+- [x] tests pass.
+- [x] build passes.
 
 ## Exit Criteria
 
@@ -429,84 +429,84 @@ All four product pages can exist inside a stable responsive shell using shared v
 
 ## Completion Record
 
-**Completed:** —  
-**Commit / PR:** —  
-**Notes:** —
+**Completed:** 2026-08-21  
+**Commit / PR:** `9279420056540c71aa33edc2f0c2f92f6d979ea7`  
+**Notes:** Responsive operations shell, complete route map, protected-route boundary, persistent semantic light/dark theme, desktop sidebar, mobile top/bottom navigation, shared accessible UI primitives, feedback/dialog foundations, responsive overflow protection, and component tests completed.
 
 ---
 
 # 9. T3 — Template Generator Core
 
-**Status:** NOT STARTED  
+**Status:** COMPLETE  
 **Dependency:** T2 complete  
 **Goal:** Deliver the primary reporting workflow before cloud persistence or OCR integration.
 
 ## Generator Workspace
 
-- [ ] Implement desktop split workspace.
-- [ ] Implement mobile single-column workflow.
-- [ ] Implement Live Report Preview.
-- [ ] Keep preview output identical to formatter output.
-- [ ] Implement Copy Report.
-- [ ] Implement copy success/failure feedback.
+- [x] Implement desktop split workspace.
+- [x] Implement mobile single-column workflow.
+- [x] Implement Live Report Preview.
+- [x] Keep preview output identical to formatter output.
+- [x] Implement Copy Report.
+- [x] Implement copy success/failure feedback.
 
 ## Ticket Form
 
-- [ ] Title input.
-- [ ] detected TT number display.
-- [ ] Impact List add/edit/remove/reorder.
-- [ ] Occur Time.
-- [ ] Dispatch Time.
-- [ ] PIC.
-- [ ] Rootcause.
-- [ ] Cut Point.
-- [ ] Latitude input.
-- [ ] Longitude input.
-- [ ] coordinate validation feedback.
+- [x] Title input.
+- [x] detected TT number display.
+- [x] Impact List add/edit/remove/reorder.
+- [x] Occur Time.
+- [x] Dispatch Time.
+- [x] PIC.
+- [x] Rootcause.
+- [x] Cut Point.
+- [x] Latitude input.
+- [x] Longitude input.
+- [x] coordinate validation feedback.
 
 ## Progress Timeline
 
-- [ ] Progress Composer.
-- [ ] Full datetime internally.
-- [ ] Add update interaction.
-- [ ] Edit progress locally before Firebase phase where appropriate.
-- [ ] Delete/correct progress UX.
-- [ ] Multi-day grouping/display.
-- [ ] Correct chronological ordering.
+- [x] Progress Composer.
+- [x] Full datetime internally.
+- [x] Add update interaction.
+- [x] Edit progress locally before Firebase phase where appropriate.
+- [x] Delete/correct progress UX.
+- [x] Multi-day grouping/display.
+- [x] Correct chronological ordering.
 
 ## Ticket Lifecycle UI
 
-- [ ] Draft state.
-- [ ] Mark Running action.
-- [ ] Running validation errors.
-- [ ] Resolve action UX foundation.
-- [ ] Archive action visibility according to role placeholder.
+- [x] Draft state.
+- [x] Mark Running action.
+- [x] Running validation errors.
+- [x] Resolve action UX foundation.
+- [x] Archive action visibility according to role placeholder.
 
 ## Dirty State & Save UX Foundation
 
-- [ ] React Hook Form dirty tracking.
-- [ ] Unsaved Changes indicator.
-- [ ] navigation protection for dirty form.
-- [ ] Save interface prepared against repository contract.
-- [ ] No Firestore per-keystroke writes.
+- [x] React Hook Form dirty tracking.
+- [x] Unsaved Changes indicator.
+- [x] navigation protection for dirty form.
+- [x] Save interface prepared against repository contract.
+- [x] No Firestore per-keystroke writes.
 
 ## Component/Integration Test Gate
 
-- [ ] Title/report preview flow.
-- [ ] Impact hide/show flow.
-- [ ] progress add/render flow.
-- [ ] running validation flow.
-- [ ] coordinate manual validation flow.
-- [ ] Copy Report flow.
+- [x] Title/report preview flow.
+- [x] Impact hide/show flow.
+- [x] progress add/render flow.
+- [x] running validation flow.
+- [x] coordinate manual validation flow.
+- [x] Copy Report flow.
 
 ## Mandatory Quality Gate
 
-- [ ] lint passes.
-- [ ] format check passes.
-- [ ] tests pass.
-- [ ] build passes.
-- [ ] manual desktop Generator QA passes.
-- [ ] manual mobile Generator QA passes.
+- [x] lint passes.
+- [x] format check passes.
+- [x] tests pass.
+- [x] build passes.
+- [x] manual desktop Generator QA passes.
+- [x] manual mobile Generator QA passes.
 
 ## Exit Criteria
 
@@ -514,77 +514,77 @@ An operator can generate a complete report locally without Firebase and without 
 
 ## Completion Record
 
-**Completed:** —  
-**Commit / PR:** —  
-**Notes:** —
+**Completed:** 2026-08-21  
+**Commit / PR:** `9279420056540c71aa33edc2f0c2f92f6d979ea7`  
+**Notes:** Local Generator workflow completed with React Hook Form, optional Impact List editing/reorder, incident fields, manual coordinate validation, editable multi-day Progress Timeline, lifecycle validation, unsaved-navigation protection, local-session Save state, canonical live report preview, Clipboard copy feedback, and integration tests. No Firebase writes or OCR are introduced in this phase.
 
 ---
 
 # 10. T4 — Local OCR & Coordinate Extraction
 
-**Status:** NOT STARTED  
+**Status:** COMPLETE  
 **Dependency:** T3 complete  
 **Goal:** Extract Cut Point coordinates from geotag watermark photos entirely in the browser.
 
 ## Photo Input
 
-- [ ] Drag and drop area.
-- [ ] File picker fallback.
-- [ ] Mobile image selection support.
-- [ ] supported image type validation.
-- [ ] practical file size handling.
-- [ ] local image preview.
+- [x] Drag and drop area.
+- [x] File picker fallback.
+- [x] Mobile image selection support.
+- [x] supported image type validation.
+- [x] practical file size handling.
+- [x] local image preview.
 
 ## Local OCR
 
-- [ ] Tesseract worker integration.
-- [ ] OCR module lazy-loaded.
-- [ ] browser UI remains responsive during OCR.
-- [ ] implement preprocessing where it measurably improves coordinate extraction.
-- [ ] expose OCR processing state.
-- [ ] expose OCR failure state.
+- [x] Tesseract worker integration.
+- [x] OCR module lazy-loaded.
+- [x] browser UI remains responsive during OCR.
+- [x] implement preprocessing where it measurably improves coordinate extraction.
+- [x] expose OCR processing state.
+- [x] expose OCR failure state.
 
 ## Coordinate Candidate Pipeline
 
-- [ ] Feed OCR text into T1 coordinate parser.
-- [ ] Recognize explicit Lat/Lng labels.
-- [ ] Recognize hemisphere indicators.
-- [ ] Handle DD.
-- [ ] Handle DMS.
-- [ ] Handle DDM.
-- [ ] detect ambiguous candidates.
-- [ ] do not silently guess materially ambiguous coordinates.
+- [x] Feed OCR text into T1 coordinate parser.
+- [x] Recognize explicit Lat/Lng labels.
+- [x] Recognize hemisphere indicators.
+- [x] Handle DD.
+- [x] Handle DMS.
+- [x] Handle DDM.
+- [x] detect ambiguous candidates.
+- [x] do not silently guess materially ambiguous coordinates.
 
 ## Verification UX
 
-- [ ] populate editable Latitude/Longitude fields.
-- [ ] show normalized output.
-- [ ] allow manual correction.
-- [ ] user confirmation becomes canonical final coordinate.
+- [x] populate editable Latitude/Longitude fields.
+- [x] show normalized output.
+- [x] allow manual correction.
+- [x] user confirmation becomes canonical final coordinate.
 
 ## Privacy / Storage Rule
 
-- [ ] confirm no photo upload occurs.
-- [ ] confirm no base64 photo is persisted.
-- [ ] confirm no image is persisted to Firestore.
-- [ ] confirm no Firebase Storage dependency exists.
-- [ ] only coordinate metadata proceeds to persistence boundary.
+- [x] confirm no photo upload occurs.
+- [x] confirm no base64 photo is persisted.
+- [x] confirm no image is persisted to Firestore.
+- [x] confirm no Firebase Storage dependency exists.
+- [x] only coordinate metadata proceeds to persistence boundary.
 
 ## OCR Test Gate
 
-- [ ] fixture image with DD coordinate passes.
-- [ ] fixture image with DMS coordinate passes.
-- [ ] fixture image with DDM coordinate passes.
-- [ ] ambiguous fixture requires user verification.
-- [ ] no-coordinate fixture fails gracefully.
+- [x] fixture image with DD coordinate passes.
+- [x] fixture image with DMS coordinate passes.
+- [x] fixture image with DDM coordinate passes.
+- [x] ambiguous fixture requires user verification.
+- [x] no-coordinate fixture fails gracefully.
 
 ## Mandatory Quality Gate
 
-- [ ] lint passes.
-- [ ] format check passes.
-- [ ] tests pass.
-- [ ] build passes.
-- [ ] OCR bundle does not load on initial Dashboard route.
+- [x] lint passes.
+- [x] format check passes.
+- [x] tests pass.
+- [x] build passes.
+- [x] OCR bundle does not load on initial Dashboard route.
 
 ## Exit Criteria
 
@@ -592,9 +592,9 @@ An operator can select a local Cut Point photo, extract/verify coordinates, and 
 
 ## Completion Record
 
-**Completed:** —  
-**Commit / PR:** —  
-**Notes:** —
+**Completed:** 2026-08-21  
+**Commit / PR:** `9279420056540c71aa33edc2f0c2f92f6d979ea7`  
+**Notes:** Browser-local Cut Point OCR completed with image type/size validation, local preview, lazy Tesseract.js worker execution, temporary in-memory preprocessing, DD/DMS/DDM candidate parsing, ambiguity review, explicit operator verification, editable coordinate fields, OCR-source metadata, and regression tests. No image upload, base64 persistence, Cloud Storage, or Firestore image write is introduced.
 
 ---
 
