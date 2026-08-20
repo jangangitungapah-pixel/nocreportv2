@@ -24,8 +24,17 @@ export default [
       },
       globals: browserGlobals,
     },
+  },
+  {
+    files: ['**/*.{js,mjs}'],
     rules: {
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    },
+  },
+  {
+    files: ['**/*.jsx'],
+    rules: {
+      'no-unused-vars': 'off',
     },
   },
   {
