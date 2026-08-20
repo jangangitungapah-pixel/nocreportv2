@@ -18,6 +18,7 @@ import {
   TextInput,
   Textarea,
 } from '../../../shared/ui/index.jsx';
+import { CoordinateExtractor } from '../components/CoordinateExtractor.jsx';
 import { ImpactListEditor } from '../components/ImpactListEditor.jsx';
 import { ProgressComposer } from '../components/ProgressComposer.jsx';
 import { ProgressTimeline } from '../components/ProgressTimeline.jsx';
@@ -99,6 +100,7 @@ export function TicketGeneratorPage() {
     reset,
     clearErrors,
     setError,
+    setValue,
     formState: { errors, isDirty },
   } = useForm({
     defaultValues: { ...DEFAULT_TICKET_FORM, impactList: [] },
@@ -154,7 +156,7 @@ export function TicketGeneratorPage() {
     }
 
     clearErrors();
-    return values;
+    return validation.data;
   };
 
   const saveLocalDraft = () => {
@@ -230,6 +232,28 @@ export function TicketGeneratorPage() {
     setProgressEntries((current) => current.filter((entry) => entry.id !== removeProgressId));
     setProgressDirty(true);
     setRemoveProgressId(null);
+  };
+
+  const applyExtractedCoordinate = (candidate) => {
+    setValue('latitude', String(candidate.latitude), {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+    setValue('longitude', String(candidate.longitude), {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+    setValue('coordinateSource', 'ocr', { shouldDirty: true });
+    setValue('coordinateDetectedFormat', candidate.detectedFormat ?? null, { shouldDirty: true });
+    setValue('coordinateVerified', true, { shouldDirty: true });
+    clearErrors(['latitude', 'longitude']);
+    pushToast({
+      title: 'Coordinate verified',
+      message: `${candidate.formatted} applied. The source photo remains local only.`,
+      tone: 'success',
+    });
   };
 
   return (
@@ -340,9 +364,11 @@ export function TicketGeneratorPage() {
             </div>
           </FieldSection>
 
+          <CoordinateExtractor onApplyCoordinate={applyExtractedCoordinate} />
+
           <FieldSection
             title="Cut Point Coordinate"
-            description="Manual Decimal Degrees input is available now. Photo OCR is added in T4."
+            description="Latitude and Longitude remain editable even after OCR so the operator is always the final authority."
           >
             <div className="grid gap-4 md:grid-cols-2">
               <TextInput
@@ -371,6 +397,12 @@ export function TicketGeneratorPage() {
             >
               Normalized coordinate: {coordinate.text}
             </div>
+            {ticket.coordinate ? (
+              <p className="mt-2 text-xs text-[var(--text-muted)]">
+                Source: {ticket.coordinate.source === 'ocr' ? 'Local photo OCR · verified' : 'Manual entry'}
+                {ticket.coordinate.detectedFormat ? ` · ${ticket.coordinate.detectedFormat}` : ''}
+              </p>
+            ) : null}
           </FieldSection>
 
           <ProgressComposer onAdd={addProgress} />
