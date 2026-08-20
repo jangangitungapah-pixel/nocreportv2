@@ -21,10 +21,14 @@ const LAT_LABEL_PATTERN =
   /\b(?:lat|latitude)\b\s*[:=]?\s*([+-]?\d{1,3}(?:\.\d+)?)/i;
 const LON_LABEL_PATTERN =
   /\b(?:lon|long|longitude|lng)\b\s*[:=]?\s*([+-]?\d{1,3}(?:\.\d+)?)/i;
+
+// Unlabeled/unqualified pairs are intentionally strict. OCR often emits short number pairs
+// from timestamps, labels, counters, or UI chrome (for example "8,7"). A pair without
+// Lat/Lng labels or N/S/E/W hemispheres must therefore look like real GPS precision.
 const DECIMAL_PAIR_PATTERN =
-  /([+-]?\d{1,3}(?:\.\d+)?)\s*[,;]\s*([+-]?\d{1,3}(?:\.\d+)?)/;
+  /(?<![\d.])([+-]?\d{1,3}\.\d{3,})\s*[,;]\s*([+-]?\d{1,3}\.\d{3,})(?![\d.])/;
 const DECIMAL_SPACE_PAIR_PATTERN =
-  /([+-]?\d{1,3}\.\d+)\s+([+-]?\d{1,3}\.\d+)/;
+  /(?<![\d.])([+-]?\d{1,3}\.\d{3,})\s+([+-]?\d{1,3}\.\d{3,})(?![\d.])/;
 
 function normalizeWatermarkText(value) {
   return String(value)
