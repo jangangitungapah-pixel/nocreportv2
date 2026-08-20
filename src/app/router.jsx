@@ -1,12 +1,12 @@
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 
+import { LoginPage } from '../features/auth/pages/LoginPage.jsx';
 import { TicketGeneratorPage } from '../features/ticket-generator/pages/TicketGeneratorPage.jsx';
 import { AppShell } from './layouts/AppShell.jsx';
 import { ProtectedRoute } from './routes/ProtectedRoute.jsx';
 import {
   CutPointTrackerPage,
   DashboardPage,
-  LoginPage,
   NotFoundPage,
   RunningTicketsPage,
 } from './routes/pages.jsx';
