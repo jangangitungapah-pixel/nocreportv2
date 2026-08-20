@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useFieldArray, useForm, useWatch } from 'react-hook-form';
-import { useBlocker } from 'react-router-dom';
+import { useBlocker, useNavigate, useParams } from 'react-router-dom';
 
+import { useAuth } from '../../../app/providers/AuthProvider.jsx';
+import { useToast } from '../../../app/providers/ToastProvider.jsx';
 import {
   TICKET_STATUS,
   formatCoordinatePair,
@@ -9,11 +11,12 @@ import {
   validateCoordinatePair,
   validateTicketTransition,
 } from '../../../entities/ticket/index.js';
-import { useToast } from '../../../app/providers/ToastProvider.jsx';
 import {
   Button,
   ConfirmDialog,
   DateTimeField,
+  ErrorState,
+  Skeleton,
   StatusBadge,
   TextInput,
   Textarea,
@@ -24,6 +27,16 @@ import { ProgressComposer } from '../components/ProgressComposer.jsx';
 import { ProgressTimeline } from '../components/ProgressTimeline.jsx';
 import { ReportPreview } from '../components/ReportPreview.jsx';
 import { DEFAULT_TICKET_FORM, buildTicketFromForm } from '../lib/formToTicket.js';
+import {
+  createTicketEditor,
+  loadTicketEditor,
+  persistProgressAppend,
+  persistProgressRemove,
+  persistProgressUpdate,
+  persistTicketTransition,
+  saveTicketEditorCore,
+} from '../lib/persistenceService.js';
+import { ticketToFormValues } from '../lib/ticketToForm.js';
 import { validateTicketForm } from '../schemas/ticketFormSchema.js';
 
 function FieldSection({ title, description, children }) {
@@ -84,14 +97,52 @@ function coordinateSummary(latitude, longitude) {
   };
 }
 
+function persistenceMessage(error, fallback) {
+  if (error?.code === 'STALE_REVISION') {
+    return 'This Ticket changed in another session. Reload the Ticket before saving again.';
+  }
+  if (error?.code === 'PERMISSION_DENIED') {
+    return 'Your account does not have permission for this Ticket action.';
+  }
+  if (error?.code === 'NETWORK_ERROR') {
+    return 'The network/Firebase service is unavailable. Your unsaved form data is still on screen.';
+  }
+  return fallback;
+}
+
+function GeneratorLoading() {
+  return (
+    <div className="space-y-5" aria-label="Loading Ticket">
+      <Skeleton className="h-16" />
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(340px,2fr)]">
+        <div className="space-y-5">
+          <Skeleton className="h-44" />
+          <Skeleton className="h-44" />
+          <Skeleton className="h-60" />
+        </div>
+        <Skeleton className="h-[34rem]" />
+      </div>
+    </div>
+  );
+}
+
 export function TicketGeneratorPage() {
+  const navigate = useNavigate();
+  const { ticketId: routeTicketId } = useParams();
+  const { localDevelopmentMode } = useAuth();
   const { pushToast } = useToast();
   const [status, setStatus] = useState(TICKET_STATUS.DRAFT);
   const [savedStatus, setSavedStatus] = useState(TICKET_STATUS.DRAFT);
   const [progressEntries, setProgressEntries] = useState([]);
   const [progressDirty, setProgressDirty] = useState(false);
   const [copyPending, setCopyPending] = useState(false);
+  const [persistPending, setPersistPending] = useState(false);
   const [removeProgressId, setRemoveProgressId] = useState(null);
+  const [revision, setRevision] = useState(0);
+  const [persistedCoordinateSignature, setPersistedCoordinateSignature] = useState('none');
+  const [loadingTicket, setLoadingTicket] = useState(false);
+  const [loadError, setLoadError] = useState(null);
+  const [pendingNavigationTicketId, setPendingNavigationTicketId] = useState(null);
 
   const {
     control,
@@ -114,11 +165,48 @@ export function TicketGeneratorPage() {
   const blocker = useBlocker(hasUnsavedChanges);
 
   const ticket = useMemo(
-    () => buildTicketFromForm(watchedValues, { status, progress: progressEntries }),
-    [progressEntries, status, watchedValues],
+    () => buildTicketFromForm(watchedValues, { status, progress: progressEntries, revision }),
+    [progressEntries, revision, status, watchedValues],
   );
   const report = useMemo(() => formatTicketReport(ticket), [ticket]);
   const coordinate = coordinateSummary(watchedValues?.latitude, watchedValues?.longitude);
+
+  const loadPersistedEditor = useCallback(async () => {
+    if (localDevelopmentMode || !routeTicketId) {
+      setLoadingTicket(false);
+      setLoadError(null);
+      return;
+    }
+
+    setLoadingTicket(true);
+    setLoadError(null);
+    try {
+      const loaded = await loadTicketEditor(routeTicketId);
+      reset(ticketToFormValues(loaded.ticket));
+      setStatus(loaded.ticket.status);
+      setSavedStatus(loaded.ticket.status);
+      setProgressEntries(loaded.progress);
+      setProgressDirty(false);
+      setRevision(loaded.ticket.revision);
+      setPersistedCoordinateSignature(loaded.coordinateSignature);
+    } catch (error) {
+      setLoadError(error);
+    } finally {
+      setLoadingTicket(false);
+    }
+  }, [localDevelopmentMode, reset, routeTicketId]);
+
+  useEffect(() => {
+    loadPersistedEditor();
+  }, [loadPersistedEditor]);
+
+  useEffect(() => {
+    if (pendingNavigationTicketId && !hasUnsavedChanges) {
+      const nextId = pendingNavigationTicketId;
+      setPendingNavigationTicketId(null);
+      navigate(`/generator/${nextId}`, { replace: true });
+    }
+  }, [hasUnsavedChanges, navigate, pendingNavigationTicketId]);
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {
@@ -159,25 +247,81 @@ export function TicketGeneratorPage() {
     return validation.data;
   };
 
-  const saveLocalDraft = () => {
+  const saveTicket = async () => {
     const values = validateFormState();
-    if (!values) return;
+    if (!values || persistPending) return;
 
-    reset(values);
-    setProgressDirty(false);
-    setSavedStatus(status);
-    pushToast({
-      title: 'Saved for this session',
-      message: 'Firestore persistence is connected in T5. No cloud write occurred.',
-      tone: 'success',
-    });
+    if (localDevelopmentMode) {
+      reset(values);
+      setProgressDirty(false);
+      setSavedStatus(status);
+      pushToast({
+        title: 'Saved for this session',
+        message: 'Local preview mode does not write to Firestore.',
+        tone: 'success',
+      });
+      return;
+    }
+
+    const candidate = buildTicketFromForm(values, { status, progress: progressEntries, revision });
+    setPersistPending(true);
+    try {
+      if (!routeTicketId) {
+        const created = await createTicketEditor(candidate, progressEntries);
+        setRevision(created.revision);
+        reset(values);
+        setProgressDirty(false);
+        setSavedStatus(status);
+        setPendingNavigationTicketId(created.ticketId);
+        pushToast({
+          title: 'Ticket created',
+          message: 'Ticket and current Progress Timeline were persisted to Firestore.',
+          tone: 'success',
+        });
+        return;
+      }
+
+      if (!isDirty) {
+        pushToast({
+          title: 'No core changes to save',
+          message: 'Status and Progress mutations are persisted separately when they happen.',
+          tone: 'success',
+        });
+        return;
+      }
+
+      const saved = await saveTicketEditorCore({
+        ticketId: routeTicketId,
+        expectedRevision: revision,
+        ticket: candidate,
+        previousCoordinateSignature: persistedCoordinateSignature,
+      });
+      setRevision(saved.revision);
+      setPersistedCoordinateSignature(saved.coordinateSignature);
+      setStatus(saved.ticket.status);
+      setSavedStatus(saved.ticket.status);
+      reset(ticketToFormValues(saved.ticket));
+      pushToast({
+        title: 'Ticket saved',
+        message: 'Core Ticket fields and verified coordinate metadata are up to date.',
+        tone: 'success',
+      });
+    } catch (error) {
+      pushToast({
+        title: 'Save failed',
+        message: persistenceMessage(error, 'The Ticket could not be saved. Your form data is still on screen.'),
+        tone: 'error',
+      });
+    } finally {
+      setPersistPending(false);
+    }
   };
 
-  const transitionTo = (targetStatus) => {
+  const transitionTo = async (targetStatus) => {
     const values = validateFormState();
-    if (!values) return;
+    if (!values || persistPending) return;
 
-    const candidate = buildTicketFromForm(values, { status, progress: progressEntries });
+    const candidate = buildTicketFromForm(values, { status, progress: progressEntries, revision });
     const transition = validateTicketTransition(candidate, targetStatus);
 
     if (!transition.valid) {
@@ -194,12 +338,60 @@ export function TicketGeneratorPage() {
       return;
     }
 
-    setStatus(targetStatus);
-    pushToast({
-      title: targetStatus === TICKET_STATUS.RUNNING ? 'Ticket marked Running' : 'Ticket resolved',
-      message: 'The change is local until Firebase persistence is connected.',
-      tone: 'success',
-    });
+    if (localDevelopmentMode || !routeTicketId) {
+      if (!localDevelopmentMode && !routeTicketId && targetStatus === TICKET_STATUS.RESOLVED) {
+        pushToast({
+          title: 'Save Ticket first',
+          message: 'Create the Firestore Ticket before resolving it.',
+          tone: 'error',
+        });
+        return;
+      }
+
+      setStatus(targetStatus);
+      pushToast({
+        title: targetStatus === TICKET_STATUS.RUNNING ? 'Ticket marked Running' : 'Ticket resolved',
+        message: localDevelopmentMode
+          ? 'The status change is local in preview mode.'
+          : 'The Running status will be persisted when this new Ticket is saved.',
+        tone: 'success',
+      });
+      return;
+    }
+
+    if (isDirty) {
+      pushToast({
+        title: 'Save form changes first',
+        message: 'Persist the current Ticket fields before changing its cloud status.',
+        tone: 'error',
+      });
+      return;
+    }
+
+    setPersistPending(true);
+    try {
+      const result = await persistTicketTransition({
+        ticketId: routeTicketId,
+        expectedRevision: revision,
+        toStatus: targetStatus,
+      });
+      setRevision(result.revision);
+      setStatus(result.ticket.status);
+      setSavedStatus(result.ticket.status);
+      pushToast({
+        title: targetStatus === TICKET_STATUS.RUNNING ? 'Ticket marked Running' : 'Ticket resolved',
+        message: 'Status transition was persisted atomically.',
+        tone: 'success',
+      });
+    } catch (error) {
+      pushToast({
+        title: 'Status change failed',
+        message: persistenceMessage(error, 'The status transition could not be persisted.'),
+        tone: 'error',
+      });
+    } finally {
+      setPersistPending(false);
+    }
   };
 
   const copyReport = async () => {
@@ -218,20 +410,98 @@ export function TicketGeneratorPage() {
     }
   };
 
-  const addProgress = (entry) => {
-    setProgressEntries((current) => [...current, entry]);
-    setProgressDirty(true);
+  const addProgress = async (entry) => {
+    if (localDevelopmentMode || !routeTicketId) {
+      setProgressEntries((current) => [...current, entry]);
+      setProgressDirty(true);
+      return;
+    }
+
+    if (persistPending) return;
+    setPersistPending(true);
+    try {
+      const result = await persistProgressAppend({
+        ticketId: routeTicketId,
+        expectedRevision: revision,
+        entry,
+      });
+      setRevision(result.ticketRevision);
+      setProgressEntries((current) => [...current, result.progress]);
+      setProgressDirty(false);
+      pushToast({ title: 'Progress added', message: 'Timeline update persisted.', tone: 'success' });
+    } catch (error) {
+      pushToast({
+        title: 'Progress not saved',
+        message: persistenceMessage(error, 'The progress update could not be persisted.'),
+        tone: 'error',
+      });
+    } finally {
+      setPersistPending(false);
+    }
   };
 
-  const updateProgress = (entry) => {
-    setProgressEntries((current) => current.map((item) => (item.id === entry.id ? entry : item)));
-    setProgressDirty(true);
+  const updateProgress = async (entry) => {
+    if (localDevelopmentMode || !routeTicketId) {
+      setProgressEntries((current) => current.map((item) => (item.id === entry.id ? entry : item)));
+      setProgressDirty(true);
+      return;
+    }
+
+    if (persistPending) return;
+    setPersistPending(true);
+    try {
+      const result = await persistProgressUpdate({
+        ticketId: routeTicketId,
+        expectedRevision: revision,
+        entry,
+      });
+      setRevision(result.ticketRevision);
+      setProgressEntries((current) =>
+        current.map((item) => (item.id === result.progress.id ? result.progress : item)),
+      );
+      pushToast({ title: 'Progress updated', message: 'Timeline correction persisted.', tone: 'success' });
+    } catch (error) {
+      pushToast({
+        title: 'Progress update failed',
+        message: persistenceMessage(error, 'The progress correction could not be persisted.'),
+        tone: 'error',
+      });
+    } finally {
+      setPersistPending(false);
+    }
   };
 
-  const confirmRemoveProgress = () => {
-    setProgressEntries((current) => current.filter((entry) => entry.id !== removeProgressId));
-    setProgressDirty(true);
+  const confirmRemoveProgress = async () => {
+    const progressId = removeProgressId;
     setRemoveProgressId(null);
+    if (!progressId) return;
+
+    if (localDevelopmentMode || !routeTicketId) {
+      setProgressEntries((current) => current.filter((entry) => entry.id !== progressId));
+      setProgressDirty(true);
+      return;
+    }
+
+    if (persistPending) return;
+    setPersistPending(true);
+    try {
+      const result = await persistProgressRemove({
+        ticketId: routeTicketId,
+        expectedRevision: revision,
+        progressId,
+      });
+      setRevision(result.ticketRevision);
+      setProgressEntries((current) => current.filter((entry) => entry.id !== progressId));
+      pushToast({ title: 'Progress removed', message: 'Timeline correction persisted.', tone: 'success' });
+    } catch (error) {
+      pushToast({
+        title: 'Progress removal failed',
+        message: persistenceMessage(error, 'The progress entry could not be removed.'),
+        tone: 'error',
+      });
+    } finally {
+      setPersistPending(false);
+    }
   };
 
   const applyExtractedCoordinate = (candidate) => {
@@ -256,6 +526,20 @@ export function TicketGeneratorPage() {
     });
   };
 
+  if (loadingTicket) {
+    return <GeneratorLoading />;
+  }
+
+  if (loadError) {
+    return (
+      <ErrorState
+        title="Ticket could not be loaded"
+        description={persistenceMessage(loadError, 'Check the Ticket ID, permission, or Firebase connection.')}
+        onRetry={loadPersistedEditor}
+      />
+    );
+  }
+
   return (
     <div className="space-y-5">
       <section className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-4 py-3 shadow-[var(--shadow-sm)]">
@@ -266,19 +550,29 @@ export function TicketGeneratorPage() {
               {ticket.externalTtNumber ?? 'New ticket — TT number not detected'}
             </p>
             <p className="text-xs text-[var(--text-muted)]">
-              {hasUnsavedChanges ? 'Unsaved changes' : 'Session state saved'}
+              {hasUnsavedChanges
+                ? 'Unsaved changes'
+                : localDevelopmentMode
+                  ? 'Session state saved'
+                  : routeTicketId
+                    ? `Saved to Firestore · revision ${revision}`
+                    : 'New cloud Ticket not saved yet'}
             </p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button tone="secondary" onClick={saveLocalDraft}>
-            Save
+          <Button tone="secondary" disabled={persistPending} onClick={saveTicket}>
+            {persistPending ? 'Saving…' : 'Save'}
           </Button>
           {status === TICKET_STATUS.DRAFT ? (
-            <Button onClick={() => transitionTo(TICKET_STATUS.RUNNING)}>Mark Running</Button>
+            <Button disabled={persistPending} onClick={() => transitionTo(TICKET_STATUS.RUNNING)}>
+              Mark Running
+            </Button>
           ) : null}
           {status === TICKET_STATUS.RUNNING ? (
-            <Button onClick={() => transitionTo(TICKET_STATUS.RESOLVED)}>Resolve Ticket</Button>
+            <Button disabled={persistPending} onClick={() => transitionTo(TICKET_STATUS.RESOLVED)}>
+              Resolve Ticket
+            </Button>
           ) : null}
           <Button tone="secondary" disabled title="Admin archive permission is enforced in T7">
             Archive
@@ -419,7 +713,11 @@ export function TicketGeneratorPage() {
       <ConfirmDialog
         open={blocker.state === 'blocked'}
         title="Leave with unsaved changes?"
-        description="Changes made since the last local-session Save will be discarded if you leave this page."
+        description={
+          localDevelopmentMode
+            ? 'Changes made since the last local-session Save will be discarded if you leave this page.'
+            : 'Unsaved core Ticket changes will be discarded if you leave this page.'
+        }
         confirmLabel="Leave page"
         tone="danger"
         onClose={() => blocker.reset?.()}
@@ -429,7 +727,11 @@ export function TicketGeneratorPage() {
       <ConfirmDialog
         open={Boolean(removeProgressId)}
         title="Remove progress update?"
-        description="This removes the local progress entry from the current draft."
+        description={
+          localDevelopmentMode || !routeTicketId
+            ? 'This removes the local progress entry from the current draft.'
+            : 'This removes the persisted progress entry and updates the Ticket summary atomically.'
+        }
         confirmLabel="Remove"
         tone="danger"
         onClose={() => setRemoveProgressId(null)}
