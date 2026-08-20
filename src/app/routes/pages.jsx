@@ -2,15 +2,6 @@ import { Link } from 'react-router-dom';
 
 import { EmptyState, StatusBadge } from '../../shared/ui/index.jsx';
 
-function SectionCard({ title, children }) {
-  return (
-    <section className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-5 shadow-[var(--shadow-sm)]">
-      <h2 className="text-sm font-bold text-[var(--text-primary)]">{title}</h2>
-      <div className="mt-3 text-sm leading-6 text-[var(--text-secondary)]">{children}</div>
-    </section>
-  );
-}
-
 const primaryLinkClass =
   'inline-flex min-h-11 items-center justify-center rounded-lg bg-[var(--accent-solid)] px-4 text-sm font-semibold text-[var(--accent-on-solid)] transition hover:bg-[var(--accent-solid-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]';
 
@@ -44,21 +35,6 @@ export function DashboardPage() {
           </Link>
         }
       />
-    </div>
-  );
-}
-
-export function GeneratorPage() {
-  return (
-    <div className="grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(320px,2fr)]">
-      <SectionCard title="Ticket form workspace">
-        Form sections are implemented in T3. The shell already reserves the desktop split-workspace
-        pattern and collapses safely on mobile.
-      </SectionCard>
-      <SectionCard title="Live report preview">
-        Preview will consume the canonical T1 formatter. No duplicate formatting implementation will
-        be introduced.
-      </SectionCard>
     </div>
   );
 }
