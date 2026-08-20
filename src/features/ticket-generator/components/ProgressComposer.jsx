@@ -10,8 +10,8 @@ function toInputValue(date) {
 }
 
 function createLocalId() {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID();
+  if (typeof window !== 'undefined' && typeof window.crypto?.randomUUID === 'function') {
+    return window.crypto.randomUUID();
   }
 
   return `progress-${Date.now()}-${Math.random().toString(16).slice(2)}`;
