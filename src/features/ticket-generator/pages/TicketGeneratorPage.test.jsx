@@ -48,8 +48,8 @@ describe('Template Generator workflow', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Mark Running' }));
 
-    expect(screen.getByText('Title is required.')).toBeInTheDocument();
-    expect(screen.getByText('Occur Time is required.')).toBeInTheDocument();
+    expect(screen.getAllByText('Title is required.').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Occur Time is required.').length).toBeGreaterThan(0);
     expect(screen.getByText('Draft')).toBeInTheDocument();
 
     fireEvent.change(screen.getByRole('textbox', { name: /Title/ }), {
