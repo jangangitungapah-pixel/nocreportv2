@@ -2,7 +2,8 @@ import { analyzeCoordinateOcrText } from './coordinateCandidates.js';
 import { prepareOcrVariants } from './imagePreprocessor.js';
 
 const COORDINATE_WHITELIST = `0123456789.,+-°º'"NSEWnsew: `;
-const GENERAL_WHITELIST = `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,+-°º'"/:()#@& _-`;
+const GENERAL_WHITELIST =
+  `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,+-°º'"/:()#@& _-`;
 
 function normalizeProgress(message) {
   const progress = Number(message?.progress ?? 0);
