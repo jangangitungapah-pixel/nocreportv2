@@ -34,6 +34,13 @@ service cloud.firestore {
         && get(userPath()).data.role in ['ADMIN', 'OPERATOR'];
     }
 
+    function archiveTransitionAllowed() {
+      return (
+        request.resource.data.status != 'ARCHIVED'
+        && resource.data.status != 'ARCHIVED'
+      ) || isAdmin();
+    }
+
     function hasValidCoordinate(data) {
       return data.hasCoordinates == false
         || (
@@ -63,9 +70,11 @@ service cloud.firestore {
         && request.resource.data.createdBy == request.auth.uid
         && request.resource.data.updatedBy == request.auth.uid
         && request.resource.data.revision == 1
+        && request.resource.data.status != 'ARCHIVED'
         && hasValidCoordinate(request.resource.data);
 
       allow update: if canWriteOperations()
+        && archiveTransitionAllowed()
         && request.resource.data.createdBy == resource.data.createdBy
         && request.resource.data.createdAt == resource.data.createdAt
         && request.resource.data.updatedBy == request.auth.uid
