@@ -9,7 +9,7 @@ const DMS_HEMISPHERE_PATTERN = new RegExp(
 );
 
 const DDM_HEMISPHERE_PATTERN = new RegExp(
-  `([+-]?\\d{1,3})\\s*${DEGREE}\\s*(\\d{1,2})\\s*${MINUTE}\\s*(\\d{1,2}(?:\\.\\d+)?)\\s*${MINUTE}\\s*([NSEW])`,
+  `([+-]?\\d{1,3})\\s*${DEGREE}\\s*(\\d{1,2}(?:\\.\\d+)?)\\s*${MINUTE}\\s*([NSEW])`,
   'gi',
 );
 
