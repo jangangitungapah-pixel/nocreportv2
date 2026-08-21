@@ -53,7 +53,13 @@ export function filterCutPointMarkers(markers, { search = '', status = 'ALL' } =
     if (status !== 'ALL' && marker.status !== status) return false;
     if (!normalizedSearch) return true;
 
-    return [marker.externalTtNumber, marker.title, marker.pic, marker.cutPoint, marker.latestProgress]
+    return [
+      marker.externalTtNumber,
+      marker.title,
+      marker.pic,
+      marker.cutPoint,
+      marker.latestProgress,
+    ]
       .filter(Boolean)
       .join('\n')
       .toLocaleLowerCase()

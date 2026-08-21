@@ -9,9 +9,8 @@ import { ProtectedRoute } from './routes/ProtectedRoute.jsx';
 import { NotFoundPage } from './routes/pages.jsx';
 
 async function loadCutPointTrackerRoute() {
-  const { CutPointTrackerPage } = await import(
-    '../features/cut-point-tracker/pages/CutPointTrackerPage.jsx'
-  );
+  const { CutPointTrackerPage } =
+    await import('../features/cut-point-tracker/pages/CutPointTrackerPage.jsx');
   return { Component: CutPointTrackerPage };
 }
 

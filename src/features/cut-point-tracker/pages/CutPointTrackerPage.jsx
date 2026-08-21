@@ -5,7 +5,13 @@ import { useAuth } from '../../../app/providers/AuthProvider.jsx';
 import { TICKET_STATUS } from '../../../entities/ticket/index.js';
 import { firestoreTicketRepository } from '../../../infrastructure/firebase/index.js';
 import { createLeafletMap, readMapConfig } from '../../../infrastructure/map/index.js';
-import { EmptyState, ErrorState, Skeleton, StatusBadge, TextInput } from '../../../shared/ui/index.jsx';
+import {
+  EmptyState,
+  ErrorState,
+  Skeleton,
+  StatusBadge,
+  TextInput,
+} from '../../../shared/ui/index.jsx';
 import { buildCutPointMarkers, filterCutPointMarkers } from '../lib/mapData.js';
 
 const selectClass =
@@ -215,8 +221,9 @@ export function CutPointTrackerPage() {
 
       {localDevelopmentMode ? (
         <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-4 text-sm text-[var(--text-secondary)]">
-          Local preview mode has no persisted Cut Point records. Configure Firebase to load confirmed
-          Ticket coordinates; the map still uses the configured OpenStreetMap-compatible tile source.
+          Local preview mode has no persisted Cut Point records. Configure Firebase to load
+          confirmed Ticket coordinates; the map still uses the configured OpenStreetMap-compatible
+          tile source.
         </div>
       ) : null}
 
@@ -296,7 +303,9 @@ export function CutPointTrackerPage() {
           {tileWarning ? (
             <div className="absolute inset-x-4 top-4 z-[510] rounded-lg border border-[var(--warning-border)] bg-[var(--warning-soft)] p-3 text-sm text-[var(--warning-text)] shadow-[var(--shadow-sm)]">
               <p className="font-semibold">Basemap tiles are having trouble loading.</p>
-              <p className="mt-1 text-xs">Ticket data and coordinates remain available in the list.</p>
+              <p className="mt-1 text-xs">
+                Ticket data and coordinates remain available in the list.
+              </p>
               <button
                 type="button"
                 className={`mt-2 ${secondaryActionClass}`}
@@ -312,7 +321,8 @@ export function CutPointTrackerPage() {
               <div>
                 <p className="font-bold">Map renderer could not start</p>
                 <p className="mt-2 text-sm text-[var(--text-secondary)]">
-                  The Ticket list remains usable. Retry the Leaflet map without reloading Ticket data.
+                  The Ticket list remains usable. Retry the Leaflet map without reloading Ticket
+                  data.
                 </p>
                 <button
                   type="button"
