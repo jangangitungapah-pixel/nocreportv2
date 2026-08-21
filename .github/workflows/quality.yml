@@ -51,6 +51,9 @@ jobs:
       - name: Firebase emulator integration tests
         run: npm run test:firebase:emulator
 
+      - name: T7 security hygiene
+        run: node scripts/t7-security-hygiene.mjs
+
       - name: Production build
         run: npm run build
 
