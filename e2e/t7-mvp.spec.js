@@ -144,7 +144,7 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await page.getByLabel('Event time').fill('2026-08-21T08:30');
     await page.getByLabel('Progress update').fill('Team arrived at the Cut Point');
     await page.getByRole('button', { name: 'Add update' }).click();
-    await expect(page.getByText('Team arrived at the Cut Point')).toBeVisible();
+    await expect(page.getByText('Team arrived at the Cut Point', { exact: true })).toBeVisible();
 
     await page.getByLabel('Latitude').fill('-6.917464');
     await page.getByLabel('Longitude').fill('107.619123');
@@ -155,7 +155,7 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await expect(page.getByLabel('Title')).toHaveValue(
       '[T7-E2E] BANDUNG LINK DOWN [TT : INC-20260821-00070001]',
     );
-    await expect(page.getByText('Team arrived at the Cut Point')).toBeVisible();
+    await expect(page.getByText('Team arrived at the Cut Point', { exact: true })).toBeVisible();
     await expect(page.getByLabel('Latitude')).toHaveValue('-6.917464');
     await expect(page.getByLabel('Longitude')).toHaveValue('107.619123');
 
