@@ -143,9 +143,7 @@ describe('RunningTicketsPage operational actions', () => {
 
     renderPage();
     await screen.findAllByText('[MANDAU] LINK DOWN');
-    fireEvent.click(
-      screen.getAllByRole('button', { name: 'Resolve INC-20260818-00015849' })[0],
-    );
+    fireEvent.click(screen.getAllByRole('button', { name: 'Resolve INC-20260818-00015849' })[0]);
 
     await waitFor(() => {
       expect(firestoreTicketRepository.transitionTicketStatus).toHaveBeenCalledWith({
