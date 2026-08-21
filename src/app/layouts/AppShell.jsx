@@ -39,9 +39,12 @@ function NavigationLink({ item }) {
 
 export function AppShell() {
   const location = useLocation();
-  const { firebaseConfigured, localDevelopmentMode, profile, role, signOut } = useAuth();
+  const { can, firebaseConfigured, localDevelopmentMode, profile, role, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const pageLabel = currentPageLabel(location.pathname);
+  const visibleNavigation = PRIMARY_NAVIGATION.filter(
+    (item) => !item.requiredCapability || can(item.requiredCapability),
+  );
 
   return (
     <div className="min-h-screen bg-[var(--surface-canvas)] text-[var(--text-primary)]">
@@ -57,7 +60,7 @@ export function AppShell() {
         </div>
 
         <nav className="flex-1 space-y-1 p-3" aria-label="Primary navigation">
-          {PRIMARY_NAVIGATION.map((item) => (
+          {visibleNavigation.map((item) => (
             <NavigationLink key={item.key} item={item} />
           ))}
         </nav>
@@ -96,7 +99,7 @@ export function AppShell() {
           </div>
           <div className="flex items-center gap-2">
             <span className="hidden text-xs font-medium text-[var(--text-muted)] sm:inline">
-              {localDevelopmentMode ? 'Local preview' : (role ?? 'Authenticated')} · T5
+              {localDevelopmentMode ? 'Local preview' : (role ?? 'Authenticated')} · T7
             </span>
             <IconButton
               label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
@@ -113,10 +116,11 @@ export function AppShell() {
       </div>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-4 border-t border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-50 grid border-t border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur lg:hidden"
+        style={{ gridTemplateColumns: `repeat(${visibleNavigation.length}, minmax(0, 1fr))` }}
         aria-label="Mobile primary navigation"
       >
-        {PRIMARY_NAVIGATION.map((item) => {
+        {visibleNavigation.map((item) => {
           const active = isNavigationItemActive(location.pathname, item);
           return (
             <Link
