@@ -183,6 +183,7 @@ export async function getDashboardSummary() {
       where('status', '==', TICKET_STATUS.RESOLVED),
       where('resolvedAt', '>=', today),
       where('resolvedAt', '<', tomorrow),
+      orderBy('resolvedAt', 'asc'),
     );
     const cutPointQuery = query(tickets, where('hasCoordinates', '==', true));
     const recentQuery = query(
