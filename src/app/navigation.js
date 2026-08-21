@@ -1,3 +1,5 @@
+import { CAPABILITY } from '../entities/user/authorization.js';
+
 export const PRIMARY_NAVIGATION = [
   {
     key: 'dashboard',
@@ -12,6 +14,7 @@ export const PRIMARY_NAVIGATION = [
     shortLabel: 'Generate',
     to: '/generator/new',
     icon: 'G',
+    requiredCapability: CAPABILITY.CREATE_TICKET,
   },
   {
     key: 'running',
