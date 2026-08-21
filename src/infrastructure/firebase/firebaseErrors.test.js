@@ -29,6 +29,15 @@ describe('Firebase error normalization', () => {
     expect(normalizeFirebaseError({ code: 'resource-exhausted' }).code).toBe('QUOTA_EXCEEDED');
   });
 
+  it('maps Firestore failed preconditions explicitly', () => {
+    expect(normalizeFirebaseError({ code: 'firestore/failed-precondition' }).code).toBe(
+      'FIRESTORE_PRECONDITION',
+    );
+    expect(normalizeFirebaseError({ code: 'failed-precondition' }).code).toBe(
+      'FIRESTORE_PRECONDITION',
+    );
+  });
+
   it('preserves an existing normalized infrastructure error', () => {
     const source = createInfrastructureError('STALE_REVISION', 'stale');
     expect(normalizeFirebaseError(source)).toBe(source);
