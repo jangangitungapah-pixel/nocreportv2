@@ -37,7 +37,7 @@ jobs:
         run: npm ci
 
       - name: Install T7 browser QA dependencies
-        run: npm install --no-save --package-lock=false @playwright/test@1.55.0 @axe-core/playwright@4.10.2
+        run: npm install --no-save --package-lock=false @playwright/test@1.62.1 @axe-core/playwright@4.13.0
 
       - name: Format source
         run: npm run format
