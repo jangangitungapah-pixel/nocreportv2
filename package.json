@@ -17,6 +17,9 @@
     "test:watch": "vitest",
     "test:firebase:emulator": "node scripts/test-firebase-emulator.mjs",
     "test:integration": "npm run test:firebase:emulator",
+    "firebase:deploy:rules": "npx --yes firebase-tools deploy --only firestore:rules --project nocreportv2",
+    "firebase:deploy:indexes": "npx --yes firebase-tools deploy --only firestore:indexes --project nocreportv2",
+    "firebase:deploy:firestore": "npx --yes firebase-tools deploy --only firestore:rules,firestore:indexes --project nocreportv2",
     "quality": "npm run format:check && npm run lint && npm test && npm run test:integration && npm run build"
   },
   "dependencies": {
