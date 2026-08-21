@@ -175,6 +175,14 @@ async function runApplicationViewportQa(session, width, height) {
     `${APP_ORIGIN}/cut-points`,
     `document.querySelector('[aria-label="Cut Point map"]') && document.body.textContent.includes('Cut Point Tracker')`,
   );
+  await waitFor(
+    () =>
+      evaluate(
+        session,
+        `document.querySelector('.leaflet-control-attribution')?.textContent?.includes('OpenStreetMap') === true`,
+      ),
+    `Leaflet attribution at ${width}px`,
+  );
 
   await assertNoHorizontalOverflow(session, `/cut-points at ${width}px`);
 
