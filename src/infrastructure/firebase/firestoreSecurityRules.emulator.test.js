@@ -1,0 +1,251 @@
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+} from 'firebase/auth';
+import {
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  setDoc,
+  updateDoc,
+} from 'firebase/firestore';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+
+import { getAuthClient } from './authClient.js';
+import { getFirestoreClient } from './firestoreClient.js';
+import { firestoreTicketRepository } from './firestoreTicketRepository.js';
+
+const PROJECT_ID = 'demo-nocreport';
+const FIRESTORE_HOST = 'http://127.0.0.1:8080';
+const PASSWORD = 'nocreport-security-password';
+const shouldRunEmulatorTests =
+  String(import.meta.env.VITE_FIREBASE_EMULATOR_TESTS ?? '').toLowerCase() === 'true';
+const describeEmulator = shouldRunEmulatorTests ? describe : describe.skip;
+
+const accounts = {
+  admin: { email: 'security-admin@nocreport.test', role: 'ADMIN', active: true, uid: null },
+  operator: { email: 'security-operator@nocreport.test', role: 'OPERATOR', active: true, uid: null },
+  viewer: { email: 'security-viewer@nocreport.test', role: 'VIEWER', active: true, uid: null },
+  inactive: { email: 'security-inactive@nocreport.test', role: 'OPERATOR', active: false, uid: null },
+};
+
+async function requireOk(response, label) {
+  if (response.ok) return response;
+  throw new Error(`${label} failed: ${response.status} ${await response.text()}`);
+}
+
+async function clearFirestore() {
+  const url = `${FIRESTORE_HOST}/emulator/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
+  await requireOk(await globalThis.fetch(url, { method: 'DELETE' }), 'Clear Firestore emulator');
+}
+
+async function seedProfile(account) {
+  const url = `${FIRESTORE_HOST}/v1/projects/${PROJECT_ID}/databases/(default)/documents/users/${encodeURIComponent(account.uid)}`;
+  await requireOk(
+    await globalThis.fetch(url, {
+      method: 'PATCH',
+      headers: {
+        Authorization: 'Bearer owner',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        fields: {
+          schemaVersion: { integerValue: '1' },
+          active: { booleanValue: account.active },
+          role: { stringValue: account.role },
+          email: { stringValue: account.email },
+          displayName: { stringValue: account.role },
+        },
+      }),
+    }),
+    `Seed ${account.role} profile`,
+  );
+}
+
+async function seedProfiles() {
+  for (const account of Object.values(accounts)) {
+    await seedProfile(account);
+  }
+}
+
+async function signInAs(account) {
+  await signOut(getAuthClient()).catch(() => {});
+  return signInWithEmailAndPassword(getAuthClient(), account.email, PASSWORD);
+}
+
+function ticketDocument(actorUid, overrides = {}) {
+  return {
+    schemaVersion: 1,
+    title: '[SECURITY] LINK DOWN',
+    externalTtNumber: null,
+    impactList: [],
+    occurAt: null,
+    dispatchAt: null,
+    pic: '',
+    rootcause: '',
+    cutPoint: '',
+    coordinate: null,
+    hasCoordinates: false,
+    status: 'DRAFT',
+    latestProgress: null,
+    progressCount: 0,
+    createdAt: new Date('2026-08-21T00:00:00.000Z'),
+    createdBy: actorUid,
+    updatedAt: new Date('2026-08-21T00:00:00.000Z'),
+    updatedBy: actorUid,
+    resolvedAt: null,
+    resolvedBy: null,
+    archivedAt: null,
+    archivedBy: null,
+    revision: 1,
+    ...overrides,
+  };
+}
+
+async function expectPermissionDenied(operation) {
+  try {
+    await operation();
+    throw new Error('Expected Firestore permission denial, but the operation succeeded.');
+  } catch (error) {
+    if (error?.message === 'Expected Firestore permission denial, but the operation succeeded.') {
+      throw error;
+    }
+    expect(String(error?.code ?? error?.message)).toMatch(/permission-denied/i);
+  }
+}
+
+describeEmulator.sequential('Firestore Security Rules role matrix', () => {
+  beforeAll(async () => {
+    await clearFirestore();
+    for (const account of Object.values(accounts)) {
+      const credential = await createUserWithEmailAndPassword(
+        getAuthClient(),
+        account.email,
+        PASSWORD,
+      );
+      account.uid = credential.user.uid;
+    }
+    await signOut(getAuthClient());
+  });
+
+  beforeEach(async () => {
+    await clearFirestore();
+    await seedProfiles();
+    await signOut(getAuthClient()).catch(() => {});
+  });
+
+  afterAll(async () => {
+    if (shouldRunEmulatorTests) {
+      await signOut(getAuthClient()).catch(() => {});
+      await clearFirestore();
+    }
+  });
+
+  it('denies unauthenticated operational reads and writes', async () => {
+    const db = getFirestoreClient();
+    await expectPermissionDenied(() => getDocs(collection(db, 'tickets')));
+    await expectPermissionDenied(() =>
+      setDoc(doc(db, 'tickets', 'anonymous-write'), ticketDocument('forged-uid')),
+    );
+  });
+
+  it('allows Viewer reads but denies Ticket mutation', async () => {
+    const db = getFirestoreClient();
+    await signInAs(accounts.admin);
+    await setDoc(
+      doc(db, 'tickets', 'viewer-readable'),
+      ticketDocument(accounts.admin.uid),
+    );
+
+    await signInAs(accounts.viewer);
+    const snapshot = await getDocs(collection(db, 'tickets'));
+    expect(snapshot.docs.map((item) => item.id)).toContain('viewer-readable');
+    await expectPermissionDenied(() =>
+      setDoc(doc(db, 'tickets', 'viewer-write'), ticketDocument(accounts.viewer.uid)),
+    );
+  });
+
+  it('allows Operator operational create/update but denies archive', async () => {
+    await signInAs(accounts.operator);
+    const created = await firestoreTicketRepository.createTicket({
+      title: '[SECURITY] OPERATOR TICKET',
+      occurAt: new Date('2026-08-21T01:00:00.000Z'),
+    });
+    const saved = await firestoreTicketRepository.saveTicket({
+      ticketId: created.ticketId,
+      expectedRevision: 1,
+      patch: { pic: 'Operator A' },
+    });
+
+    expect(saved.ticket.pic).toBe('Operator A');
+    await expect(
+      firestoreTicketRepository.archiveTicket({
+        ticketId: created.ticketId,
+        expectedRevision: saved.revision,
+      }),
+    ).rejects.toMatchObject({ code: 'PERMISSION_DENIED' });
+  });
+
+  it('denies inactive users even when their persisted role is Operator', async () => {
+    await signInAs(accounts.inactive);
+    await expectPermissionDenied(() => getDocs(collection(getFirestoreClient(), 'tickets')));
+  });
+
+  it('prevents Operator self-promotion and allows Admin role management', async () => {
+    const db = getFirestoreClient();
+    const operatorRef = doc(db, 'users', accounts.operator.uid);
+
+    await signInAs(accounts.operator);
+    await expectPermissionDenied(() => updateDoc(operatorRef, { role: 'ADMIN' }));
+
+    await signInAs(accounts.admin);
+    await updateDoc(operatorRef, { role: 'VIEWER', active: true });
+  });
+
+  it('rejects forged actor identities and invalid coordinates', async () => {
+    const db = getFirestoreClient();
+    await signInAs(accounts.operator);
+
+    await expectPermissionDenied(() =>
+      setDoc(
+        doc(db, 'tickets', 'forged-actor'),
+        ticketDocument(accounts.admin.uid, { updatedBy: accounts.operator.uid }),
+      ),
+    );
+
+    await expectPermissionDenied(() =>
+      setDoc(
+        doc(db, 'tickets', 'invalid-coordinate'),
+        ticketDocument(accounts.operator.uid, {
+          hasCoordinates: true,
+          coordinate: {
+            latitude: 95,
+            longitude: 181,
+            verified: true,
+            verifiedBy: accounts.operator.uid,
+          },
+        }),
+      ),
+    );
+  });
+
+  it('denies normal hard Ticket delete and audit rewrite/delete', async () => {
+    const db = getFirestoreClient();
+    await signInAs(accounts.admin);
+    const ticketRef = doc(db, 'tickets', 'protected-ticket');
+    await setDoc(ticketRef, ticketDocument(accounts.admin.uid));
+
+    await expectPermissionDenied(() => deleteDoc(ticketRef));
+
+    const auditRef = doc(db, 'tickets', 'protected-ticket', 'auditEvents', 'audit-1');
+    await setDoc(auditRef, {
+      type: 'TICKET_UPDATED',
+      actorUid: accounts.admin.uid,
+      createdAt: new Date('2026-08-21T01:00:00.000Z'),
+    });
+    await expectPermissionDenied(() => updateDoc(auditRef, { type: 'FORGED' }));
+    await expectPermissionDenied(() => deleteDoc(auditRef));
+  });
+});
