@@ -15,10 +15,18 @@ describe('Firebase error normalization', () => {
     expect(error.details).toEqual({ firebaseCode: 'firestore/permission-denied' });
   });
 
+  it('maps modular Firestore permission errors without a service prefix', () => {
+    const error = normalizeFirebaseError({ code: 'permission-denied' });
+
+    expect(error.code).toBe('PERMISSION_DENIED');
+    expect(error.details).toEqual({ firebaseCode: 'permission-denied' });
+  });
+
   it('maps quota errors explicitly', () => {
     expect(normalizeFirebaseError({ code: 'firestore/resource-exhausted' }).code).toBe(
       'QUOTA_EXCEEDED',
     );
+    expect(normalizeFirebaseError({ code: 'resource-exhausted' }).code).toBe('QUOTA_EXCEEDED');
   });
 
   it('preserves an existing normalized infrastructure error', () => {
