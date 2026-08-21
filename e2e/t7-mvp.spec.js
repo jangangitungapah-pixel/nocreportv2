@@ -6,6 +6,7 @@ const APP_ORIGIN = 'http://127.0.0.1:5187';
 const AUTH_ORIGIN = 'http://127.0.0.1:9099';
 const FIRESTORE_ORIGIN = 'http://127.0.0.1:8080';
 const PASSWORD = 'NocReport-T7-E2E-2026!';
+const INCIDENT_TITLE = '[T7-E2E] BANDUNG LINK DOWN [TT : INC-20260821-00070001]';
 
 const accounts = {
   admin: { email: 't7-admin@nocreport.test', role: 'ADMIN', active: true, uid: null },
@@ -126,7 +127,7 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await page.getByRole('link', { name: 'New Ticket' }).click();
     await expect(page).toHaveURL(/\/generator\/new$/);
 
-    await page.getByLabel('Title').fill('[T7-E2E] BANDUNG LINK DOWN [TT : INC-20260821-00070001]');
+    await page.getByLabel('Title').fill(INCIDENT_TITLE);
     await page.getByLabel('Occur Time').fill('2026-08-21T08:00');
     await page.getByLabel('Dispatch Time').fill('2026-08-21T08:10');
     await page.getByLabel('PIC').fill('T7 Operator');
@@ -152,9 +153,7 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await expect(page.getByText(/Saved to Firestore · revision/)).toBeVisible();
 
     await page.reload();
-    await expect(page.getByLabel('Title')).toHaveValue(
-      '[T7-E2E] BANDUNG LINK DOWN [TT : INC-20260821-00070001]',
-    );
+    await expect(page.getByLabel('Title')).toHaveValue(INCIDENT_TITLE);
     await expect(page.getByText('Team arrived at the Cut Point', { exact: true })).toBeVisible();
     await expect(page.getByLabel('Latitude')).toHaveValue('-6.917464');
     await expect(page.getByLabel('Longitude')).toHaveValue('107.619123');
@@ -163,18 +162,13 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await expect(page.getByText('Report copied')).toBeVisible();
 
     await page.goto('/running');
-    await expect(
-      page.getByText('[T7-E2E] BANDUNG LINK DOWN [TT : INC-20260821-00070001]').first(),
-    ).toBeVisible();
+    const runningTable = page.getByRole('table');
+    await expect(runningTable.getByText(INCIDENT_TITLE, { exact: true })).toBeVisible();
     await page.getByRole('textbox', { name: /Search Running Tickets/ }).fill('00070001');
-    await expect(
-      page.getByText('[T7-E2E] BANDUNG LINK DOWN [TT : INC-20260821-00070001]').first(),
-    ).toBeVisible();
+    await expect(runningTable.getByText(INCIDENT_TITLE, { exact: true })).toBeVisible();
 
     await page.goto('/cut-points');
-    await expect(
-      page.getByText('[T7-E2E] BANDUNG LINK DOWN [TT : INC-20260821-00070001]').first(),
-    ).toBeVisible();
+    await expect(page.getByText(INCIDENT_TITLE, { exact: true }).first()).toBeVisible();
     await page.getByRole('button', { name: 'Locate' }).first().click();
     await expect(page.locator('.leaflet-popup')).toContainText('INC-20260821-00070001');
 
@@ -183,9 +177,7 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await expect(page.getByText('Ticket resolved')).toBeVisible();
 
     await page.goto('/running');
-    await expect(
-      page.getByText('[T7-E2E] BANDUNG LINK DOWN [TT : INC-20260821-00070001]'),
-    ).toHaveCount(0);
+    await expect(page.getByText(INCIDENT_TITLE, { exact: true })).toHaveCount(0);
   });
 
   test('Operator and Viewer UI restrictions match the role matrix', async ({ browser }) => {
