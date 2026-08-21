@@ -79,11 +79,11 @@ describe('RunningTicketsPage operational actions', () => {
   it('filters the bounded Running dataset by coordinate availability and search', async () => {
     renderPage();
 
-    expect(await screen.findByText('[MANDAU] LINK DOWN')).toBeInTheDocument();
-    expect(screen.getByText('[BANDUNG] SECOND LINK')).toBeInTheDocument();
+    expect(await screen.findAllByText('[MANDAU] LINK DOWN')).toHaveLength(2);
+    expect(screen.getAllByText('[BANDUNG] SECOND LINK')).toHaveLength(2);
 
     fireEvent.change(screen.getByLabelText('Coordinate filter'), { target: { value: 'with' } });
-    expect(screen.queryByText('[BANDUNG] SECOND LINK')).not.toBeInTheDocument();
+    expect(screen.queryAllByText('[BANDUNG] SECOND LINK')).toHaveLength(0);
 
     fireEvent.change(screen.getByRole('textbox', { name: /Search Running Tickets/ }), {
       target: { value: 'no-match' },
@@ -93,7 +93,7 @@ describe('RunningTicketsPage operational actions', () => {
 
   it('exposes Add Progress as a direct deep link to the persisted Ticket composer', async () => {
     renderPage();
-    await screen.findByText('[MANDAU] LINK DOWN');
+    await screen.findAllByText('[MANDAU] LINK DOWN');
 
     const links = screen.getAllByRole('link', { name: 'Add Progress' });
     expect(links[0]).toHaveAttribute('href', '/generator/ticket-1#progress-text');
@@ -122,7 +122,7 @@ describe('RunningTicketsPage operational actions', () => {
     });
 
     renderPage();
-    await screen.findByText('[MANDAU] LINK DOWN');
+    await screen.findAllByText('[MANDAU] LINK DOWN');
     fireEvent.click(
       screen.getAllByRole('button', { name: 'Copy report for INC-20260818-00015849' })[0],
     );
@@ -142,7 +142,7 @@ describe('RunningTicketsPage operational actions', () => {
     });
 
     renderPage();
-    await screen.findByText('[MANDAU] LINK DOWN');
+    await screen.findAllByText('[MANDAU] LINK DOWN');
     fireEvent.click(
       screen.getAllByRole('button', { name: 'Resolve INC-20260818-00015849' })[0],
     );
@@ -155,7 +155,7 @@ describe('RunningTicketsPage operational actions', () => {
       });
     });
     await waitFor(() => {
-      expect(screen.queryByText('[MANDAU] LINK DOWN')).not.toBeInTheDocument();
+      expect(screen.queryAllByText('[MANDAU] LINK DOWN')).toHaveLength(0);
     });
   });
 });
