@@ -1,7 +1,7 @@
 # NOC Report Template Generator — Implementation Workplan & Phase Tracker
 
 **Document ID:** NOCREPORT-WORKPLAN-001  
-**Version:** 0.2  
+**Version:** 0.3  
 **Status:** Active Project Tracker  
 **Repository:** `jangangitungapah-pixel/nocreportv2`  
 **Purpose:** Canonical implementation order, phase completion criteria, and persistent project progress tracker.
@@ -112,8 +112,8 @@ Small preparatory changes for a later phase are allowed only when they are neces
 # 3. Current Project Status
 
 **Overall status:** IMPLEMENTATION IN PROGRESS  
-**Current Active Phase:** `T5 — Firebase Integration & Operational Data Features`  
-**Next Implementation Phase:** `T6 — Cut Point Tracker`
+**Current Active Phase:** `T6 — Cut Point Tracker`  
+**Next Implementation Phase:** `T7 — Hardening, Security Validation & Full QA`
 
 ## Documentation Status
 
@@ -137,7 +137,7 @@ D0 is complete. Cross-document review resolved the React Router baseline to the 
 - [x] **T2 — UI Shell & Design System Foundation**
 - [x] **T3 — Template Generator Core**
 - [x] **T4 — Local OCR & Coordinate Extraction**
-- [ ] **T5 — Firebase Integration & Operational Data Features**
+- [x] **T5 — Firebase Integration & Operational Data Features**
 - [ ] **T6 — Cut Point Tracker**
 - [ ] **T7 — Hardening, Security Validation & Full QA**
 - [ ] **T8 — Firebase Deployment & MVP Release**
@@ -600,109 +600,109 @@ An operator can select a local Cut Point photo, extract/verify coordinates, and 
 
 # 11. T5 — Firebase Integration & Operational Data Features
 
-**Status:** NOT STARTED  
+**Status:** COMPLETE  
 **Dependency:** T4 complete; Security PRD must exist before security-related T5 work is accepted  
 **Goal:** Connect the tested application to Firestore/Auth using repository contracts and deliver persistent operational workflows.
 
 ## Firebase Foundation
 
-- [ ] Initialize Firebase adapter once.
-- [ ] Add Firestore client adapter.
-- [ ] Add Authentication adapter foundation.
-- [ ] Configure Firebase Emulator Suite.
-- [ ] Ensure tests never write to production Firebase.
+- [x] Initialize Firebase adapter once.
+- [x] Add Firestore client adapter.
+- [x] Add Authentication adapter foundation.
+- [x] Configure Firebase Emulator Suite.
+- [x] Ensure tests never write to production Firebase.
 
 ## Ticket Repository
 
-- [ ] `createTicket()`.
-- [ ] `getTicket()`.
-- [ ] `saveTicket()`.
-- [ ] lifecycle/status mutation contract.
-- [ ] archive/restore contract.
-- [ ] optimistic/revision concurrency handling.
-- [ ] normalized application errors.
+- [x] `createTicket()`.
+- [x] `getTicket()`.
+- [x] `saveTicket()`.
+- [x] lifecycle/status mutation contract.
+- [x] archive/restore contract.
+- [x] optimistic/revision concurrency handling.
+- [x] normalized application errors.
 
 ## Progress Repository
 
-- [ ] append progress using transaction/batch rules.
-- [ ] update progress.
-- [ ] remove progress where allowed.
-- [ ] maintain `latestProgress`.
-- [ ] maintain `progressCount`.
-- [ ] handle backdated progress correctly.
-- [ ] update Ticket revision atomically.
+- [x] append progress using transaction/batch rules.
+- [x] update progress.
+- [x] remove progress where allowed.
+- [x] maintain `latestProgress`.
+- [x] maintain `progressCount`.
+- [x] handle backdated progress correctly.
+- [x] update Ticket revision atomically.
 
 ## Coordinate Persistence
 
-- [ ] persist Latitude/Longitude metadata.
-- [ ] persist verification metadata.
-- [ ] maintain `hasCoordinates` atomically.
-- [ ] confirm photo remains browser-local only.
+- [x] persist Latitude/Longitude metadata.
+- [x] persist verification metadata.
+- [x] maintain `hasCoordinates` atomically.
+- [x] confirm photo remains browser-local only.
 
 ## Firestore Indexes
 
-- [ ] add indexes required by Running Ticket queries.
-- [ ] add indexes required by map/cut point queries.
-- [ ] add indexes required by historical pagination if needed.
-- [ ] commit `firestore.indexes.json`.
+- [x] add indexes required by Running Ticket queries.
+- [x] add indexes required by map/cut point queries.
+- [x] add indexes required by historical pagination if needed.
+- [x] commit `firestore.indexes.json`.
 
 ## Dashboard
 
-- [ ] Running Ticket summary.
-- [ ] recent ticket activity.
-- [ ] recent updates.
-- [ ] quick action to create Ticket.
-- [ ] Firestore reads bounded and intentional.
+- [x] Running Ticket summary.
+- [x] recent ticket activity.
+- [x] recent updates.
+- [x] quick action to create Ticket.
+- [x] Firestore reads bounded and intentional.
 
 ## Running Ticket
 
-- [ ] query only `RUNNING` records by default.
-- [ ] desktop data grid.
-- [ ] mobile Ticket Cards.
-- [ ] search by external TT number.
-- [ ] search Title within bounded operational dataset.
-- [ ] search PIC within bounded operational dataset.
-- [ ] search Cut Point within bounded operational dataset.
-- [ ] sorting.
-- [ ] relevant filtering.
-- [ ] quick Open action.
-- [ ] quick Add Progress action.
-- [ ] quick Copy Report action.
-- [ ] Resolve action.
+- [x] query only `RUNNING` records by default.
+- [x] desktop data grid.
+- [x] mobile Ticket Cards.
+- [x] search by external TT number.
+- [x] search Title within bounded operational dataset.
+- [x] search PIC within bounded operational dataset.
+- [x] search Cut Point within bounded operational dataset.
+- [x] sorting.
+- [x] relevant filtering.
+- [x] quick Open action.
+- [x] quick Add Progress action.
+- [x] quick Copy Report action.
+- [x] Resolve action.
 
 ## Historical Query Foundation
 
-- [ ] no unbounded `getAllTickets()` implementation.
-- [ ] pagination/cursor support.
-- [ ] archive excluded from normal operational view.
+- [x] no unbounded `getAllTickets()` implementation.
+- [x] pagination/cursor support.
+- [x] archive excluded from normal operational view.
 
 ## Audit Trail
 
-- [ ] meaningful ticket audit events.
-- [ ] meaningful progress audit events.
-- [ ] coordinate update audit event.
-- [ ] lifecycle audit event.
-- [ ] no per-keystroke audit logging.
+- [x] meaningful ticket audit events.
+- [x] meaningful progress audit events.
+- [x] coordinate update audit event.
+- [x] lifecycle audit event.
+- [x] no per-keystroke audit logging.
 
 ## Emulator Integration Tests
 
-- [ ] create/save ticket.
-- [ ] load ticket.
-- [ ] append progress.
-- [ ] concurrent revision rejection.
-- [ ] coordinate persistence.
-- [ ] mark Running.
-- [ ] Resolve.
-- [ ] archive/restore where implemented.
+- [x] create/save ticket.
+- [x] load ticket.
+- [x] append progress.
+- [x] concurrent revision rejection.
+- [x] coordinate persistence.
+- [x] mark Running.
+- [x] Resolve.
+- [x] archive/restore where implemented.
 
 ## Mandatory Quality Gate
 
-- [ ] lint passes.
-- [ ] format check passes.
-- [ ] unit/component tests pass.
-- [ ] Firebase emulator integration tests pass.
-- [ ] build passes.
-- [ ] Firestore read/write patterns reviewed for Spark Plan suitability.
+- [x] lint passes.
+- [x] format check passes.
+- [x] unit/component tests pass.
+- [x] Firebase emulator integration tests pass.
+- [x] build passes.
+- [x] Firestore read/write patterns reviewed for Spark Plan suitability.
 
 ## Exit Criteria
 
@@ -710,72 +710,72 @@ Core incident workflows persist correctly across browser reloads and multiple op
 
 ## Completion Record
 
-**Completed:** —  
-**Commit / PR:** —  
-**Notes:** —
+**Completed:** 2026-08-21  
+**Commit / PR:** `b96b94a61af44a09f085781902c91181163bfc97` / PR #1 Quality #237  
+**Notes:** Firebase Auth/Firestore adapters, bounded operational queries, optimistic revision guards, transactional progress and coordinate persistence, audit events, operational Dashboard/Running Ticket integration, archive/restore contracts, indexes, and a Firebase Auth + Firestore Emulator integration gate are validated. Running Ticket includes bounded search/filter/sort plus Open, Add Progress, canonical Copy Report, and optimistic-concurrency Resolve actions. Emulator tests use a demo project ID and never target production Firebase. Spark suitability review confirms no unbounded operational reads, no Cloud Storage, no Cloud Functions, and no per-keystroke persistence.
 
 ---
 
 # 12. T6 — Cut Point Tracker
 
-**Status:** NOT STARTED  
+**Status:** IN PROGRESS  
 **Dependency:** T5 complete  
 **Goal:** Visualize confirmed Ticket Cut Point coordinates on an operational map using the canonical Ticket dataset.
 
 ## Map Foundation
 
-- [ ] Leaflet integration.
-- [ ] OpenStreetMap tile configuration.
-- [ ] tile URL environment-configurable.
-- [ ] attribution visible.
-- [ ] no Google Maps paid API dependency.
+- [x] Leaflet integration.
+- [x] OpenStreetMap tile configuration.
+- [x] tile URL environment-configurable.
+- [x] attribution visible.
+- [x] no Google Maps paid API dependency.
 
 ## Cut Point Query
 
-- [ ] query `hasCoordinates == true` or approved equivalent.
-- [ ] exclude invalid coordinates.
-- [ ] use same Ticket dataset; no duplicate `mapMarkers` collection.
-- [ ] query remains bounded according to operational scope.
+- [x] query `hasCoordinates == true` or approved equivalent.
+- [x] exclude invalid coordinates.
+- [x] use same Ticket dataset; no duplicate `mapMarkers` collection.
+- [x] query remains bounded according to operational scope.
 
 ## Marker UX
 
-- [ ] marker per valid Ticket.
-- [ ] TT number.
-- [ ] Title.
-- [ ] Ticket status.
-- [ ] Cut Point text.
-- [ ] Latitude/Longitude.
-- [ ] PIC.
-- [ ] latest update metadata where useful.
-- [ ] Open Ticket action.
+- [x] marker per valid Ticket.
+- [x] TT number.
+- [x] Title.
+- [x] Ticket status.
+- [x] Cut Point text.
+- [x] Latitude/Longitude.
+- [x] PIC.
+- [x] latest update metadata where useful.
+- [x] Open Ticket action.
 
 ## Desktop Layout
 
-- [ ] map workspace.
-- [ ] search/filter/list panel.
-- [ ] map receives primary screen area.
+- [x] map workspace.
+- [x] search/filter/list panel.
+- [x] map receives primary screen area.
 
 ## Mobile Layout
 
-- [ ] map as primary canvas.
-- [ ] ticket/filter bottom sheet.
+- [x] map as primary canvas.
+- [x] ticket/filter bottom sheet.
 - [ ] usable marker interaction on touch devices.
 - [ ] no page-level horizontal overflow.
 
 ## Error/Empty States
 
-- [ ] no coordinate records state.
-- [ ] tile/network failure state.
-- [ ] query failure state.
+- [x] no coordinate records state.
+- [x] tile/network failure state.
+- [x] query failure state.
 
 ## Mandatory Quality Gate
 
-- [ ] component/integration tests pass.
-- [ ] map marker data mapping tests pass.
-- [ ] lint passes.
-- [ ] format check passes.
-- [ ] tests pass.
-- [ ] build passes.
+- [x] component/integration tests pass.
+- [x] map marker data mapping tests pass.
+- [x] lint passes.
+- [x] format check passes.
+- [x] tests pass.
+- [x] build passes.
 - [ ] manual mobile map QA passes.
 - [ ] manual desktop map QA passes.
 
@@ -787,7 +787,7 @@ All eligible persisted Ticket coordinates can be visualized and opened from the 
 
 **Completed:** —  
 **Commit / PR:** —  
-**Notes:** —
+**Notes:** Automated T6 implementation and quality gates are green through PR #1 Quality #241. Route-level and Leaflet-level dynamic imports produce separate Cut Point/Leaflet chunks. Manual mobile/desktop map QA remains required before T6 can be marked complete.
 
 ---
 
