@@ -6,7 +6,14 @@ import { RunningTicketsPage } from '../features/running-tickets/pages/RunningTic
 import { TicketGeneratorPage } from '../features/ticket-generator/pages/TicketGeneratorPage.jsx';
 import { AppShell } from './layouts/AppShell.jsx';
 import { ProtectedRoute } from './routes/ProtectedRoute.jsx';
-import { CutPointTrackerPage, NotFoundPage } from './routes/pages.jsx';
+import { NotFoundPage } from './routes/pages.jsx';
+
+async function loadCutPointTrackerRoute() {
+  const { CutPointTrackerPage } = await import(
+    '../features/cut-point-tracker/pages/CutPointTrackerPage.jsx'
+  );
+  return { Component: CutPointTrackerPage };
+}
 
 export const routeObjects = [
   {
@@ -24,7 +31,7 @@ export const routeObjects = [
           { path: '/generator/new', element: <TicketGeneratorPage /> },
           { path: '/generator/:ticketId', element: <TicketGeneratorPage /> },
           { path: '/running', element: <RunningTicketsPage /> },
-          { path: '/cut-points', element: <CutPointTrackerPage /> },
+          { path: '/cut-points', lazy: loadCutPointTrackerRoute },
         ],
       },
     ],
