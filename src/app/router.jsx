@@ -1,5 +1,6 @@
 import { Navigate, createBrowserRouter } from 'react-router-dom';
 
+import { USER_ROLE } from '../entities/user/authorization.js';
 import { LoginPage } from '../features/auth/pages/LoginPage.jsx';
 import { DashboardPage } from '../features/dashboard/pages/DashboardPage.jsx';
 import { RunningTicketsPage } from '../features/running-tickets/pages/RunningTicketsPage.jsx';
@@ -27,7 +28,14 @@ export const routeObjects = [
         children: [
           { index: true, element: <Navigate to="/dashboard" replace /> },
           { path: '/dashboard', element: <DashboardPage /> },
-          { path: '/generator/new', element: <TicketGeneratorPage /> },
+          {
+            path: '/generator/new',
+            element: (
+              <ProtectedRoute allowedRoles={[USER_ROLE.ADMIN, USER_ROLE.OPERATOR]}>
+                <TicketGeneratorPage />
+              </ProtectedRoute>
+            ),
+          },
           { path: '/generator/:ticketId', element: <TicketGeneratorPage /> },
           { path: '/running', element: <RunningTicketsPage /> },
           { path: '/cut-points', lazy: loadCutPointTrackerRoute },
