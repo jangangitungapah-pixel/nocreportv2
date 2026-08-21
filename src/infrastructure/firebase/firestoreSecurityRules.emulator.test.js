@@ -1,16 +1,5 @@
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-} from 'firebase/auth';
-import {
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  setDoc,
-  updateDoc,
-} from 'firebase/firestore';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { collection, deleteDoc, doc, getDocs, setDoc, updateDoc } from 'firebase/firestore';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
 import { getAuthClient } from './authClient.js';
@@ -26,9 +15,19 @@ const describeEmulator = shouldRunEmulatorTests ? describe : describe.skip;
 
 const accounts = {
   admin: { email: 'security-admin@nocreport.test', role: 'ADMIN', active: true, uid: null },
-  operator: { email: 'security-operator@nocreport.test', role: 'OPERATOR', active: true, uid: null },
+  operator: {
+    email: 'security-operator@nocreport.test',
+    role: 'OPERATOR',
+    active: true,
+    uid: null,
+  },
   viewer: { email: 'security-viewer@nocreport.test', role: 'VIEWER', active: true, uid: null },
-  inactive: { email: 'security-inactive@nocreport.test', role: 'OPERATOR', active: false, uid: null },
+  inactive: {
+    email: 'security-inactive@nocreport.test',
+    role: 'OPERATOR',
+    active: false,
+    uid: null,
+  },
 };
 
 async function requireOk(response, label) {
@@ -154,10 +153,7 @@ describeEmulator.sequential('Firestore Security Rules role matrix', () => {
   it('allows Viewer reads but denies Ticket mutation', async () => {
     const db = getFirestoreClient();
     await signInAs(accounts.admin);
-    await setDoc(
-      doc(db, 'tickets', 'viewer-readable'),
-      ticketDocument(accounts.admin.uid),
-    );
+    await setDoc(doc(db, 'tickets', 'viewer-readable'), ticketDocument(accounts.admin.uid));
 
     await signInAs(accounts.viewer);
     const snapshot = await getDocs(collection(db, 'tickets'));
