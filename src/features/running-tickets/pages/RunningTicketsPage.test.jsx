@@ -7,9 +7,17 @@ import { firestoreTicketRepository } from '../../../infrastructure/firebase/inde
 import { RunningTicketsPage } from './RunningTicketsPage.jsx';
 
 const pushToast = vi.fn();
+const authState = vi.hoisted(() => ({ canCreate: true, canMutate: true }));
 
 vi.mock('../../../app/providers/AuthProvider.jsx', () => ({
-  useAuth: () => ({ localDevelopmentMode: false, role: 'OPERATOR' }),
+  useAuth: () => ({
+    localDevelopmentMode: false,
+    can(capability) {
+      if (capability === 'ticket:create') return authState.canCreate;
+      if (capability === 'ticket:edit') return authState.canMutate;
+      return true;
+    },
+  }),
 }));
 
 vi.mock('../../../app/providers/ToastProvider.jsx', () => ({
@@ -59,6 +67,8 @@ function renderPage() {
 describe('RunningTicketsPage operational actions', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    authState.canCreate = true;
+    authState.canMutate = true;
     firestoreTicketRepository.listRunningTickets.mockResolvedValue([
       createTicket(),
       createTicket({
@@ -97,6 +107,20 @@ describe('RunningTicketsPage operational actions', () => {
 
     const links = screen.getAllByRole('link', { name: 'Add Progress' });
     expect(links[0]).toHaveAttribute('href', '/generator/ticket-1#progress-text');
+  });
+
+  it('keeps Viewer actions read-only while preserving Open and Copy Report', async () => {
+    authState.canCreate = false;
+    authState.canMutate = false;
+
+    renderPage();
+    await screen.findAllByText('[MANDAU] LINK DOWN');
+
+    expect(screen.queryByRole('link', { name: 'New Ticket' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Add Progress' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Resolve INC-/ })).not.toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: 'Open' }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('button', { name: /Copy report for INC-/ }).length).toBeGreaterThan(0);
   });
 
   it('copies the canonical report from a fresh Ticket plus persisted Progress pages', async () => {
