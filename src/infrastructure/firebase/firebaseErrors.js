@@ -3,12 +3,19 @@ const FIREBASE_ERROR_MAP = Object.freeze({
   'auth/user-disabled': 'ACCOUNT_DISABLED',
   'auth/network-request-failed': 'NETWORK_ERROR',
   'firestore/permission-denied': 'PERMISSION_DENIED',
+  'permission-denied': 'PERMISSION_DENIED',
   'firestore/unauthenticated': 'NOT_AUTHENTICATED',
+  unauthenticated: 'NOT_AUTHENTICATED',
   'firestore/unavailable': 'NETWORK_ERROR',
+  unavailable: 'NETWORK_ERROR',
   'firestore/not-found': 'NOT_FOUND',
+  'not-found': 'NOT_FOUND',
   'firestore/already-exists': 'CONFLICT',
+  'already-exists': 'CONFLICT',
   'firestore/deadline-exceeded': 'NETWORK_ERROR',
+  'deadline-exceeded': 'NETWORK_ERROR',
   'firestore/resource-exhausted': 'QUOTA_EXCEEDED',
+  'resource-exhausted': 'QUOTA_EXCEEDED',
 });
 
 export class InfrastructureError extends Error {
