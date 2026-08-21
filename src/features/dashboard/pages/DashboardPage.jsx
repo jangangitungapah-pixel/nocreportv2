@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useAuth } from '../../../app/providers/AuthProvider.jsx';
+import { CAPABILITY } from '../../../entities/user/authorization.js';
 import { firestoreTicketRepository } from '../../../infrastructure/firebase/index.js';
 import { ErrorState, Skeleton, StatusBadge } from '../../../shared/ui/index.jsx';
 
@@ -72,7 +73,8 @@ function RecentTicketRow({ ticket }) {
 }
 
 export function DashboardPage() {
-  const { localDevelopmentMode } = useAuth();
+  const { localDevelopmentMode, can } = useAuth();
+  const canCreateTicket = can(CAPABILITY.CREATE_TICKET);
   const [summary, setSummary] = useState(EMPTY_SUMMARY);
   const [loading, setLoading] = useState(!localDevelopmentMode);
   const [error, setError] = useState(null);
@@ -107,9 +109,11 @@ export function DashboardPage() {
           <p className="text-sm font-medium text-[var(--text-muted)]">Today at a glance</p>
           <h2 className="mt-1 text-2xl font-bold tracking-tight">Operational overview</h2>
         </div>
-        <Link to="/generator/new" className={primaryLinkClass}>
-          New Ticket
-        </Link>
+        {canCreateTicket ? (
+          <Link to="/generator/new" className={primaryLinkClass}>
+            New Ticket
+          </Link>
+        ) : null}
       </div>
 
       {localDevelopmentMode ? (
