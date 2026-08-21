@@ -71,6 +71,9 @@ jobs:
           cat /tmp/nocreport-vite.log
           exit 1
 
+      - name: T6 real-browser viewport and touch QA
+        run: node scripts/t6-browser-qa.mjs
+
       - name: Verify source formatting is committed
         if: github.event_name == 'pull_request'
         shell: bash
