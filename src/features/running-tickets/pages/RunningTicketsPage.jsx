@@ -8,6 +8,7 @@ import {
   formatDateTime,
   formatTicketReport,
 } from '../../../entities/ticket/index.js';
+import { CAPABILITY } from '../../../entities/user/authorization.js';
 import { firestoreTicketRepository } from '../../../infrastructure/firebase/index.js';
 import {
   EmptyState,
@@ -213,7 +214,7 @@ function RunningSkeleton() {
 }
 
 export function RunningTicketsPage() {
-  const { localDevelopmentMode, role } = useAuth();
+  const { can, localDevelopmentMode } = useAuth();
   const { pushToast } = useToast();
   const [tickets, setTickets] = useState([]);
   const [search, setSearch] = useState('');
@@ -223,7 +224,8 @@ export function RunningTicketsPage() {
   const [error, setError] = useState(null);
   const [copyPendingId, setCopyPendingId] = useState(null);
   const [resolvePendingId, setResolvePendingId] = useState(null);
-  const canMutate = role === 'ADMIN' || role === 'OPERATOR';
+  const canMutate = can(CAPABILITY.EDIT_TICKET);
+  const canCreate = can(CAPABILITY.CREATE_TICKET);
 
   const loadTickets = useCallback(async () => {
     if (localDevelopmentMode) {
@@ -325,9 +327,11 @@ export function RunningTicketsPage() {
             <StatusBadge status="RUNNING" />
           </div>
         </div>
-        <Link to="/generator/new" className={primaryLinkClass}>
-          New Ticket
-        </Link>
+        {canCreate ? (
+          <Link to="/generator/new" className={primaryLinkClass}>
+            New Ticket
+          </Link>
+        ) : null}
       </div>
 
       {localDevelopmentMode ? (
@@ -403,7 +407,7 @@ export function RunningTicketsPage() {
               : 'Try a different TT number, Title, PIC, Cut Point, or coordinate filter.'
           }
           action={
-            tickets.length === 0 ? (
+            tickets.length === 0 && canCreate ? (
               <Link to="/generator/new" className={primaryLinkClass}>
                 Create Ticket
               </Link>
