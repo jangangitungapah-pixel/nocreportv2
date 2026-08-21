@@ -17,3 +17,4 @@ export {
   firestoreTicketRepository,
   restoreTicket,
 } from './firestoreTicketRepository.js';
+export { watchUserProfile } from './userProfileClient.js';
