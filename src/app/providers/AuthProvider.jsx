@@ -4,25 +4,21 @@ import {
   signInWithEmailAndPassword,
   signOut as firebaseSignOut,
 } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
 
+import { hasCapability as roleHasCapability, isOperationalRole } from '../../entities/user/authorization.js';
 import {
+  createInfrastructureError,
   getAuthClient,
   getFirebaseConfigStatus,
-  getFirestoreClient,
   normalizeFirebaseError,
+  watchUserProfile,
 } from '../../infrastructure/firebase/index.js';
 
 const AuthContext = createContext(null);
 
-async function loadUserProfile(uid) {
-  const snapshot = await getDoc(doc(getFirestoreClient(), 'users', uid));
-  if (!snapshot.exists()) return null;
-  return { id: snapshot.id, ...snapshot.data() };
-}
-
 export function AuthProvider({ children }) {
   const firebaseConfigured = getFirebaseConfigStatus().configured;
+  const localDevelopmentMode = !firebaseConfigured;
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(firebaseConfigured);
@@ -35,38 +31,80 @@ export function AuthProvider({ children }) {
     }
 
     const auth = getAuthClient();
-    return onAuthStateChanged(auth, async (nextUser) => {
+    let unsubscribeProfile = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, (nextUser) => {
+      unsubscribeProfile?.();
+      unsubscribeProfile = null;
       setLoading(true);
       setError(null);
       setUser(nextUser);
+      setProfile(null);
 
       if (!nextUser) {
-        setProfile(null);
         setLoading(false);
         return;
       }
 
-      try {
-        setProfile(await loadUserProfile(nextUser.uid));
-      } catch (profileError) {
-        setProfile(null);
-        setError(normalizeFirebaseError(profileError, 'PERMISSION_DENIED'));
-      } finally {
-        setLoading(false);
-      }
+      unsubscribeProfile = watchUserProfile(nextUser.uid, {
+        onProfile(nextProfile) {
+          if (!nextProfile?.active) {
+            setProfile(null);
+            setError(
+              createInfrastructureError(
+                'ACCOUNT_DISABLED',
+                'The authenticated account does not have an active application profile.',
+              ),
+            );
+            setLoading(false);
+            return;
+          }
+
+          if (!isOperationalRole(nextProfile.role)) {
+            setProfile(null);
+            setError(
+              createInfrastructureError(
+                'PERMISSION_DENIED',
+                'The application profile does not contain an approved operational role.',
+              ),
+            );
+            setLoading(false);
+            return;
+          }
+
+          setProfile(nextProfile);
+          setError(null);
+          setLoading(false);
+        },
+        onError(profileError) {
+          setProfile(null);
+          setError(normalizeFirebaseError(profileError, 'PERMISSION_DENIED'));
+          setLoading(false);
+        },
+      });
     });
+
+    return () => {
+      unsubscribeProfile?.();
+      unsubscribeAuth();
+    };
   }, [firebaseConfigured]);
+
+  const role = profile?.role ?? (localDevelopmentMode ? 'LOCAL_DEV' : null);
 
   const value = useMemo(
     () => ({
       firebaseConfigured,
-      localDevelopmentMode: !firebaseConfigured,
+      localDevelopmentMode,
       user,
       profile,
       loading,
       error,
-      isAuthenticated: !firebaseConfigured || Boolean(user && profile?.active),
-      role: profile?.role ?? (!firebaseConfigured ? 'LOCAL_DEV' : null),
+      isAuthenticated: localDevelopmentMode || Boolean(user && profile?.active && isOperationalRole(role)),
+      role,
+      can(capability) {
+        return roleHasCapability(role, capability, { localDevelopmentMode });
+      },
       async signIn(email, password) {
         if (!firebaseConfigured) return null;
         try {
@@ -79,11 +117,14 @@ export function AuthProvider({ children }) {
         }
       },
       async signOut() {
+        setProfile(null);
+        setUser(null);
+        setError(null);
         if (!firebaseConfigured) return;
         await firebaseSignOut(getAuthClient());
       },
     }),
-    [error, firebaseConfigured, loading, profile, user],
+    [error, firebaseConfigured, loading, localDevelopmentMode, profile, role, user],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
