@@ -17,9 +17,4 @@ export {
   firestoreTicketRepository,
   restoreTicket,
 } from './firestoreTicketRepository.js';
-export {
-  BOOTSTRAP_ADMIN_UID,
-  ensureBootstrapAdminProfile,
-  isBootstrapAdminUid,
-  watchUserProfile,
-} from './userProfileClient.js';
+export { watchUserProfile } from './userProfileClient.js';
