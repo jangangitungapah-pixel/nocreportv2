@@ -293,10 +293,14 @@ async function runMarkerTouchQa(session) {
   console.log('T6 marker touch QA passed at 390x844.');
 }
 
-const vite = spawn('npm', ['run', 'dev', '--', '--host', '127.0.0.1'], {
-  stdio: 'ignore',
-  env: process.env,
-});
+const vite = spawn(
+  process.execPath,
+  ['node_modules/vite/bin/vite.js', '--host', '127.0.0.1', '--port', '5173', '--strictPort'],
+  {
+    stdio: 'ignore',
+    env: process.env,
+  },
+);
 const chromeProfile = `/tmp/nocreport-t6-chrome-${process.pid}`;
 const watchdog = scheduleTimeout(() => {
   console.error(`T6 browser QA exceeded ${OVERALL_TIMEOUT_MS}ms.`);
