@@ -11,10 +11,8 @@ import {
 } from '../../entities/user/authorization.js';
 import {
   createInfrastructureError,
-  ensureBootstrapAdminProfile,
   getAuthClient,
   getFirebaseConfigStatus,
-  isBootstrapAdminUid,
   normalizeFirebaseError,
   watchUserProfile,
 } from '../../infrastructure/firebase/index.js';
@@ -51,23 +49,8 @@ export function AuthProvider({ children }) {
         return;
       }
 
-      let bootstrapPending = false;
       unsubscribeProfile = watchUserProfile(nextUser.uid, {
         onProfile(nextProfile) {
-          if (!nextProfile && isBootstrapAdminUid(nextUser.uid)) {
-            if (bootstrapPending) return;
-            bootstrapPending = true;
-            setError(null);
-            ensureBootstrapAdminProfile(nextUser.uid).catch((bootstrapError) => {
-              bootstrapPending = false;
-              setProfile(null);
-              setError(normalizeFirebaseError(bootstrapError, 'PERMISSION_DENIED'));
-              setLoading(false);
-            });
-            return;
-          }
-
-          bootstrapPending = false;
           if (!nextProfile?.active) {
             setProfile(null);
             setError(
@@ -97,7 +80,6 @@ export function AuthProvider({ children }) {
           setLoading(false);
         },
         onError(profileError) {
-          bootstrapPending = false;
           setProfile(null);
           setError(normalizeFirebaseError(profileError, 'PERMISSION_DENIED'));
           setLoading(false);
