@@ -1,6 +1,6 @@
 import { defineConfig } from '@playwright/test';
 
-const T7_APP_ORIGIN = 'http://127.0.0.1:5174';
+const T7_APP_ORIGIN = 'http://127.0.0.1:5187';
 
 export default defineConfig({
   testDir: './e2e',
@@ -21,7 +21,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
   },
   webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 5174',
+    command: 'npm run dev -- --host 127.0.0.1 --port 5187 --strictPort',
     url: `${T7_APP_ORIGIN}/login`,
     reuseExistingServer: false,
     timeout: 30_000,
