@@ -2,12 +2,14 @@
 
 import { execFileSync, spawn } from 'node:child_process';
 import { rm } from 'node:fs/promises';
+import { clearTimeout, setTimeout as scheduleTimeout } from 'node:timers';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 const APP_ORIGIN = 'http://127.0.0.1:5173';
 const DEBUG_PORT = 9222;
 const WAIT_INTERVAL_MS = 100;
 const WAIT_TIMEOUT_MS = 20_000;
+const OVERALL_TIMEOUT_MS = 90_000;
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -284,10 +286,14 @@ async function runMarkerTouchQa(session) {
 }
 
 const vite = spawn('npm', ['run', 'dev', '--', '--host', '127.0.0.1'], {
-  stdio: ['ignore', 'pipe', 'pipe'],
+  stdio: 'ignore',
   env: process.env,
 });
 const chromeProfile = `/tmp/nocreport-t6-chrome-${process.pid}`;
+const watchdog = scheduleTimeout(() => {
+  console.error(`T6 browser QA exceeded ${OVERALL_TIMEOUT_MS}ms.`);
+  process.exit(1);
+}, OVERALL_TIMEOUT_MS);
 let chrome = null;
 let session = null;
 
@@ -306,7 +312,7 @@ try {
       '--window-size=1280,900',
       'about:blank',
     ],
-    { stdio: ['ignore', 'pipe', 'pipe'] },
+    { stdio: 'ignore' },
   );
 
   session = await connectToChrome();
@@ -323,9 +329,10 @@ try {
   await runMarkerTouchQa(session);
   console.log('T6 real-browser viewport and touch QA passed.');
 } finally {
+  clearTimeout(watchdog);
   session?.close();
-  chrome?.kill('SIGTERM');
-  vite.kill('SIGTERM');
-  await sleep(300);
+  chrome?.kill('SIGKILL');
+  vite.kill('SIGKILL');
+  await sleep(100);
   await rm(chromeProfile, { recursive: true, force: true }).catch(() => {});
 }
