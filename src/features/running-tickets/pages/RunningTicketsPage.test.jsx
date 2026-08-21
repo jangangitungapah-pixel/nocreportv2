@@ -120,7 +120,9 @@ describe('RunningTicketsPage operational actions', () => {
     expect(screen.queryByRole('link', { name: 'Add Progress' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Resolve INC-/ })).not.toBeInTheDocument();
     expect(screen.getAllByRole('link', { name: 'Open' }).length).toBeGreaterThan(0);
-    expect(screen.getAllByRole('button', { name: /Copy report for INC-/ }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('button', { name: /Copy report for INC-/ }).length).toBeGreaterThan(
+      0,
+    );
   });
 
   it('copies the canonical report from a fresh Ticket plus persisted Progress pages', async () => {
