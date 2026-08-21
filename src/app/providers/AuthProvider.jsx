@@ -5,7 +5,10 @@ import {
   signOut as firebaseSignOut,
 } from 'firebase/auth';
 
-import { hasCapability as roleHasCapability, isOperationalRole } from '../../entities/user/authorization.js';
+import {
+  hasCapability as roleHasCapability,
+  isOperationalRole,
+} from '../../entities/user/authorization.js';
 import {
   createInfrastructureError,
   ensureBootstrapAdminProfile,
@@ -118,7 +121,8 @@ export function AuthProvider({ children }) {
       profile,
       loading,
       error,
-      isAuthenticated: localDevelopmentMode || Boolean(user && profile?.active && isOperationalRole(role)),
+      isAuthenticated:
+        localDevelopmentMode || Boolean(user && profile?.active && isOperationalRole(role)),
       role,
       can(capability) {
         return roleHasCapability(role, capability, { localDevelopmentMode });
