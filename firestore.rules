@@ -94,7 +94,24 @@ service cloud.firestore {
         );
     }
 
-    function statusTransitionAllowed() {
+    function commonTicketUpdateValid() {
+      return request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.schemaVersion == resource.data.schemaVersion
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.revision == resource.data.revision + 1
+        && validTicketContract(request.resource.data);
+    }
+
+    function isAdminRestore() {
+      return isAdmin()
+        && resource.data.status == 'ARCHIVED'
+        && request.resource.data.status in ['DRAFT', 'RUNNING', 'RESOLVED']
+        && request.resource.data.archivedAt == null
+        && request.resource.data.archivedBy == null;
+    }
+
+    function normalStatusTransitionAllowed() {
       return request.resource.data.status == resource.data.status
         || (
           resource.data.status == 'DRAFT'
@@ -108,11 +125,6 @@ service cloud.firestore {
           isAdmin()
           && request.resource.data.status == 'ARCHIVED'
           && resource.data.status != 'ARCHIVED'
-        )
-        || (
-          isAdmin()
-          && resource.data.status == 'ARCHIVED'
-          && request.resource.data.status in ['DRAFT', 'RUNNING', 'RESOLVED']
         );
     }
 
@@ -134,13 +146,6 @@ service cloud.firestore {
           isAdmin()
           && request.resource.data.status == 'ARCHIVED'
           && request.resource.data.archivedBy == request.auth.uid
-        )
-        || (
-          isAdmin()
-          && resource.data.status == 'ARCHIVED'
-          && request.resource.data.status != 'ARCHIVED'
-          && request.resource.data.archivedBy == null
-          && request.resource.data.archivedAt == null
         )
       );
     }
@@ -168,16 +173,16 @@ service cloud.firestore {
         && request.resource.data.updatedBy == request.auth.uid
         && validInitialTicket(request.resource.data);
 
-      allow update: if canWriteOperations()
-        && request.resource.data.createdBy == resource.data.createdBy
-        && request.resource.data.createdAt == resource.data.createdAt
-        && request.resource.data.schemaVersion == resource.data.schemaVersion
-        && request.resource.data.updatedBy == request.auth.uid
-        && request.resource.data.revision == resource.data.revision + 1
-        && validTicketContract(request.resource.data)
-        && statusTransitionAllowed()
-        && lifecycleAuditFieldsValid()
-        && coordinateMutationValid();
+      allow update: if commonTicketUpdateValid()
+        && coordinateMutationValid()
+        && (
+          isAdminRestore()
+          || (
+            canWriteOperations()
+            && normalStatusTransitionAllowed()
+            && lifecycleAuditFieldsValid()
+          )
+        );
 
       allow delete: if false;
 
