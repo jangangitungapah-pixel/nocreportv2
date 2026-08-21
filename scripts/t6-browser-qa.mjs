@@ -1,14 +1,13 @@
+/* global fetch, WebSocket */
+
 import { execFileSync, spawn } from 'node:child_process';
 import { rm } from 'node:fs/promises';
+import { setTimeout as sleep } from 'node:timers/promises';
 
 const APP_ORIGIN = 'http://127.0.0.1:5173';
 const DEBUG_PORT = 9222;
 const WAIT_INTERVAL_MS = 100;
 const WAIT_TIMEOUT_MS = 20_000;
-
-function sleep(milliseconds) {
-  return new Promise((resolve) => setTimeout(resolve, milliseconds));
-}
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
