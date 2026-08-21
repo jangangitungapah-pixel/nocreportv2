@@ -19,7 +19,7 @@ async function requireOk(response, label) {
 
 async function clearFirestore() {
   await requireOk(
-    await fetch(
+    await globalThis.fetch(
       `${FIRESTORE_ORIGIN}/emulator/v1/projects/${PROJECT_ID}/databases/(default)/documents`,
       { method: 'DELETE' },
     ),
@@ -29,7 +29,7 @@ async function clearFirestore() {
 
 async function createAuthAccount(account) {
   const response = await requireOk(
-    await fetch(
+    await globalThis.fetch(
       `${AUTH_ORIGIN}/identitytoolkit.googleapis.com/v1/accounts:signUp?key=demo-api-key`,
       {
         method: 'POST',
@@ -50,7 +50,7 @@ async function createAuthAccount(account) {
 async function seedProfile(account) {
   const url = `${FIRESTORE_ORIGIN}/v1/projects/${PROJECT_ID}/databases/(default)/documents/users/${encodeURIComponent(account.uid)}`;
   await requireOk(
-    await fetch(url, {
+    await globalThis.fetch(url, {
       method: 'PATCH',
       headers: {
         Authorization: 'Bearer owner',
@@ -162,12 +162,18 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await expect(page.getByText('Report copied')).toBeVisible();
 
     await page.goto('/running');
-    await expect(page.getByText('[T7-E2E] BANDUNG LINK DOWN [TT : INC-20260821-00070001]').first()).toBeVisible();
+    await expect(
+      page.getByText('[T7-E2E] BANDUNG LINK DOWN [TT : INC-20260821-00070001]').first(),
+    ).toBeVisible();
     await page.getByRole('textbox', { name: /Search Running Tickets/ }).fill('00070001');
-    await expect(page.getByText('[T7-E2E] BANDUNG LINK DOWN [TT : INC-20260821-00070001]').first()).toBeVisible();
+    await expect(
+      page.getByText('[T7-E2E] BANDUNG LINK DOWN [TT : INC-20260821-00070001]').first(),
+    ).toBeVisible();
 
     await page.goto('/cut-points');
-    await expect(page.getByText('[T7-E2E] BANDUNG LINK DOWN [TT : INC-20260821-00070001]').first()).toBeVisible();
+    await expect(
+      page.getByText('[T7-E2E] BANDUNG LINK DOWN [TT : INC-20260821-00070001]').first(),
+    ).toBeVisible();
     await page.getByRole('button', { name: 'Locate' }).first().click();
     await expect(page.locator('.leaflet-popup')).toContainText('INC-20260821-00070001');
 
@@ -176,7 +182,9 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await expect(page.getByText('Ticket resolved')).toBeVisible();
 
     await page.goto('/running');
-    await expect(page.getByText('[T7-E2E] BANDUNG LINK DOWN [TT : INC-20260821-00070001]')).toHaveCount(0);
+    await expect(
+      page.getByText('[T7-E2E] BANDUNG LINK DOWN [TT : INC-20260821-00070001]'),
+    ).toHaveCount(0);
   });
 
   test('Operator and Viewer UI restrictions match the role matrix', async ({ browser }) => {
