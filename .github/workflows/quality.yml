@@ -15,23 +15,31 @@ permissions:
 jobs:
   quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 35
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
           cache: npm
 
+      - name: Set up Java for Firebase Emulator
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
       - name: Install dependencies
         run: npm ci
 
+      - name: Install T7 browser QA dependencies
+        run: npm install --no-save --package-lock=false @playwright/test@1.62.1 @axe-core/playwright@4.13.0
+
       - name: Format source
-        if: github.event_name != 'pull_request'
         run: npm run format
 
       - name: Format check
@@ -42,6 +50,12 @@ jobs:
 
       - name: Unit and component tests
         run: npm test
+
+      - name: Firebase emulator integration tests
+        run: npm run test:firebase:emulator
+
+      - name: T7 security hygiene
+        run: node scripts/t7-security-hygiene.mjs
 
       - name: Production build
         run: npm run build
@@ -63,6 +77,31 @@ jobs:
           cat /tmp/nocreport-vite.log
           exit 1
 
+      - name: T6 real-browser viewport and touch QA
+        run: node scripts/t6-browser-qa.mjs
+
+      - name: T7 Playwright E2E and accessibility QA
+        run: node scripts/test-t7-e2e.mjs
+
+      - name: Record T6 browser QA evidence
+        if: github.event_name != 'pull_request'
+        run: node scripts/record-t6-browser-qa.mjs
+
+      - name: Verify source formatting is committed
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          git diff --exit-code -- \
+            src \
+            e2e \
+            scripts \
+            index.html \
+            package.json \
+            playwright.config.js \
+            eslint.config.js \
+            vite.config.js \
+            vitest.config.js
+
       - name: Finalize D0 and T0 tracker
         if: github.event_name != 'pull_request'
         run: node scripts/finalize-t0.mjs
@@ -83,14 +122,25 @@ jobs:
         if: github.event_name != 'pull_request'
         run: node scripts/finalize-t4.mjs
 
+      - name: Finalize T5 tracker
+        if: github.event_name != 'pull_request'
+        run: node scripts/finalize-t5.mjs
+
+      - name: Finalize T6 tracker
+        if: github.event_name != 'pull_request'
+        run: node scripts/finalize-t6.mjs
+
       - name: Persist validated formatting and phase tracker
         if: github.event_name != 'pull_request'
         shell: bash
         run: |
           git add -- \
             src \
+            e2e \
+            scripts \
             index.html \
             package.json \
+            playwright.config.js \
             eslint.config.js \
             vite.config.js \
             vitest.config.js \

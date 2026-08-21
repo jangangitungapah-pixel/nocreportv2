@@ -1,7 +1,7 @@
 # NOC Report Template Generator — Technical Architecture PRD / TDD
 
 **Document ID:** NOCREPORT-TDD-001  
-**Version:** 0.1  
+**Version:** 0.2  
 **Status:** Baseline / Technical Source of Truth  
 **Parent documents:** `docs/00-product/MASTER-PRD.md`, `docs/01-ux/UI-UX-PRD.md`  
 **Repository:** `jangangitungapah-pixel/nocreportv2`  
@@ -123,7 +123,7 @@ The implementation baseline is:
 | --- | --- |
 | Runtime UI | React 19.2.x |
 | Build tool | Vite 8.x |
-| Routing | React Router 8.x in client SPA/declarative mode |
+| Routing | React Router 7.x stable in client SPA/declarative mode |
 | Styling | Tailwind CSS 4.x via `@tailwindcss/vite` |
 | Local component CSS | Plain `.css` where component-specific styling is clearer |
 | Forms | React Hook Form |

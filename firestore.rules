@@ -1,0 +1,219 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function userPath() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
+
+    function hasActiveProfile() {
+      return isSignedIn()
+        && exists(userPath())
+        && get(userPath()).data.active == true;
+    }
+
+    function hasRole(role) {
+      return hasActiveProfile() && get(userPath()).data.role == role;
+    }
+
+    function isAdmin() {
+      return hasRole('ADMIN');
+    }
+
+    function canReadOperations() {
+      return hasActiveProfile()
+        && get(userPath()).data.role in ['ADMIN', 'OPERATOR', 'VIEWER'];
+    }
+
+    function canWriteOperations() {
+      return hasActiveProfile()
+        && get(userPath()).data.role in ['ADMIN', 'OPERATOR'];
+    }
+
+    function validRole(role) {
+      return role in ['ADMIN', 'OPERATOR', 'VIEWER'];
+    }
+
+    function validUserProfile(data) {
+      return data.active is bool
+        && data.role is string
+        && validRole(data.role);
+    }
+
+    function validTicketStatus(status) {
+      return status in ['DRAFT', 'RUNNING', 'RESOLVED', 'ARCHIVED'];
+    }
+
+    function hasValidCoordinate(data) {
+      return (
+        data.hasCoordinates == false
+        && (!data.keys().hasAny(['coordinate']) || data.coordinate == null)
+      ) || (
+        data.hasCoordinates == true
+        && data.coordinate is map
+        && data.coordinate.latitude is number
+        && data.coordinate.longitude is number
+        && data.coordinate.latitude >= -90
+        && data.coordinate.latitude <= 90
+        && data.coordinate.longitude >= -180
+        && data.coordinate.longitude <= 180
+        && data.coordinate.verified == true
+        && data.coordinate.verifiedBy is string
+      );
+    }
+
+    function validTicketContract(data) {
+      return data.schemaVersion == 1
+        && data.createdBy is string
+        && data.updatedBy is string
+        && data.revision is int
+        && data.revision >= 1
+        && data.hasCoordinates is bool
+        && data.status is string
+        && validTicketStatus(data.status)
+        && hasValidCoordinate(data);
+    }
+
+    function validInitialTicket(data) {
+      return validTicketContract(data)
+        && data.status in ['DRAFT', 'RUNNING']
+        && data.revision == 1
+        && data.progressCount == 0
+        && data.latestProgress == null
+        && data.resolvedAt == null
+        && data.resolvedBy == null
+        && data.archivedAt == null
+        && data.archivedBy == null
+        && (
+          data.hasCoordinates == false
+          || data.coordinate.verifiedBy == request.auth.uid
+        );
+    }
+
+    function commonTicketUpdateValid() {
+      return request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.schemaVersion == resource.data.schemaVersion
+        && request.resource.data.updatedBy == request.auth.uid
+        && request.resource.data.revision == resource.data.revision + 1
+        && validTicketContract(request.resource.data);
+    }
+
+    function isAdminRestore() {
+      return isAdmin()
+        && resource.data.status == 'ARCHIVED'
+        && request.resource.data.status in ['DRAFT', 'RUNNING', 'RESOLVED']
+        && request.resource.data.archivedAt == null
+        && request.resource.data.archivedBy == null;
+    }
+
+    function normalStatusTransitionAllowed() {
+      return request.resource.data.status == resource.data.status
+        || (
+          resource.data.status == 'DRAFT'
+          && request.resource.data.status == 'RUNNING'
+        )
+        || (
+          resource.data.status == 'RUNNING'
+          && request.resource.data.status == 'RESOLVED'
+        )
+        || (
+          isAdmin()
+          && request.resource.data.status == 'ARCHIVED'
+          && resource.data.status != 'ARCHIVED'
+        );
+    }
+
+    function lifecycleAuditFieldsValid() {
+      let changed = request.resource.data.diff(resource.data).affectedKeys();
+      let resolvedFieldsChanged = changed.hasAny(['resolvedAt', 'resolvedBy']);
+      let archivedFieldsChanged = changed.hasAny(['archivedAt', 'archivedBy']);
+
+      return (
+        !resolvedFieldsChanged
+        || (
+          resource.data.status == 'RUNNING'
+          && request.resource.data.status == 'RESOLVED'
+          && request.resource.data.resolvedBy == request.auth.uid
+        )
+      ) && (
+        !archivedFieldsChanged
+        || (
+          isAdmin()
+          && request.resource.data.status == 'ARCHIVED'
+          && request.resource.data.archivedBy == request.auth.uid
+        )
+      );
+    }
+
+    function coordinateMutationValid() {
+      let changed = request.resource.data.diff(resource.data).affectedKeys();
+      return !changed.hasAny(['coordinate', 'hasCoordinates'])
+        || request.resource.data.hasCoordinates == false
+        || request.resource.data.coordinate.verifiedBy == request.auth.uid;
+    }
+
+    match /users/{userId} {
+      allow read: if hasActiveProfile()
+        && (request.auth.uid == userId || isAdmin());
+      allow create: if isAdmin()
+        && validUserProfile(request.resource.data);
+      allow update: if isAdmin()
+        && validUserProfile(request.resource.data);
+      allow delete: if false;
+    }
+
+    match /tickets/{ticketId} {
+      allow read: if canReadOperations();
+
+      allow create: if canWriteOperations()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid
+        && validInitialTicket(request.resource.data);
+
+      allow update: if commonTicketUpdateValid()
+        && coordinateMutationValid()
+        && (
+          isAdminRestore()
+          || (
+            canWriteOperations()
+            && normalStatusTransitionAllowed()
+            && lifecycleAuditFieldsValid()
+          )
+        );
+
+      allow delete: if false;
+
+      match /progress/{progressId} {
+        allow read: if canReadOperations();
+        allow create: if canWriteOperations()
+          && request.resource.data.createdBy == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0;
+        allow update: if canWriteOperations()
+          && request.resource.data.createdBy == resource.data.createdBy
+          && request.resource.data.createdAt == resource.data.createdAt
+          && request.resource.data.updatedBy == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0;
+        allow delete: if canWriteOperations();
+      }
+
+      match /auditEvents/{eventId} {
+        allow read: if isAdmin();
+        allow create: if canWriteOperations()
+          && request.resource.data.actorUid == request.auth.uid
+          && request.resource.data.type is string;
+        allow update, delete: if false;
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

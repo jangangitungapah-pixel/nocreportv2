@@ -1,0 +1,53 @@
+.noc-map-marker-icon {
+  border: 0;
+  background: transparent;
+}
+
+.noc-map-marker-hit {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  cursor: pointer;
+}
+
+.noc-map-marker-dot {
+  width: 14px;
+  height: 14px;
+  border: 3px solid var(--surface-panel);
+  border-radius: 9999px;
+  background: var(--accent-solid);
+  box-shadow: var(--shadow-sm);
+}
+
+.noc-map-marker-icon:focus-visible .noc-map-marker-dot {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+.noc-map-popup {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--text-primary);
+}
+
+.noc-map-popup p {
+  margin: 0;
+}
+
+.noc-map-popup-action {
+  min-height: 44px;
+  margin-top: 0.5rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.5rem;
+  background: var(--accent-solid);
+  padding: 0.5rem 0.75rem;
+  color: var(--accent-on-solid);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.noc-map-popup-action:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
