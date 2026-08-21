@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
 const PROJECT_ID = 'demo-nocreport';
+const APP_ORIGIN = 'http://127.0.0.1:5174';
 const AUTH_ORIGIN = 'http://127.0.0.1:9099';
 const FIRESTORE_ORIGIN = 'http://127.0.0.1:8080';
 const PASSWORD = 'NocReport-T7-E2E-2026!';
@@ -118,7 +119,7 @@ test.describe.serial('T7 MVP browser workflow', () => {
     context,
   }) => {
     await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
-      origin: 'http://127.0.0.1:5173',
+      origin: APP_ORIGIN,
     });
     await login(page, accounts.admin);
 
