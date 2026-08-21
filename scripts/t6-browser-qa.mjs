@@ -181,10 +181,14 @@ async function runApplicationViewportQa(session, width, height) {
     `(() => {
       const mapHost = document.querySelector('[aria-label="Cut Point map"]');
       const mapSection = mapHost?.parentElement;
+      const workspace = mapSection?.parentElement;
+      const listPanel = workspace?.firstElementChild;
       const attribution = document.querySelector('.leaflet-control-attribution');
       return {
         mapWidth: mapSection?.getBoundingClientRect().width ?? 0,
         mapHeight: mapSection?.getBoundingClientRect().height ?? 0,
+        panelWidth: listPanel?.getBoundingClientRect().width ?? 0,
+        workspaceWidth: workspace?.getBoundingClientRect().width ?? 0,
         attribution: attribution?.textContent ?? ''
       };
     })()`,
@@ -198,7 +202,11 @@ async function runApplicationViewportQa(session, width, height) {
   );
 
   if (width >= 1280) {
-    assert(layout.mapWidth >= 700, `Desktop map does not receive primary screen area: ${layout.mapWidth}px.`);
+    const mapShare = layout.workspaceWidth > 0 ? layout.mapWidth / layout.workspaceWidth : 0;
+    assert(
+      layout.mapWidth > layout.panelWidth && mapShare >= 0.55,
+      `Desktop map must remain the primary workspace: map=${layout.mapWidth}px, panel=${layout.panelWidth}px, workspace=${layout.workspaceWidth}px, share=${mapShare.toFixed(2)}.`,
+    );
   }
 
   console.log(`T6 viewport QA passed at ${width}x${height}.`);
