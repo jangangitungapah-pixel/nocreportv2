@@ -103,6 +103,14 @@ export function persistTicketTransition({ ticketId, expectedRevision, toStatus }
   return firestoreTicketRepository.transitionTicketStatus({ ticketId, expectedRevision, toStatus });
 }
 
+export function persistTicketArchive({ ticketId, expectedRevision }) {
+  return firestoreTicketRepository.archiveTicket({ ticketId, expectedRevision });
+}
+
+export function persistTicketRestore({ ticketId, expectedRevision, toStatus }) {
+  return firestoreTicketRepository.restoreTicket({ ticketId, expectedRevision, toStatus });
+}
+
 export function persistProgressAppend({ ticketId, expectedRevision, entry }) {
   return firestoreTicketRepository.appendProgress({
     ticketId,
