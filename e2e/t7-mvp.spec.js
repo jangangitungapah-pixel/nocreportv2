@@ -7,6 +7,7 @@ const AUTH_ORIGIN = 'http://127.0.0.1:9099';
 const FIRESTORE_ORIGIN = 'http://127.0.0.1:8080';
 const PASSWORD = 'NocReport-T7-E2E-2026!';
 const INCIDENT_TITLE = '[T7-E2E] BANDUNG LINK DOWN [TT : INC-20260821-00070001]';
+const INCIDENT_TT = 'INC-20260821-00070001';
 
 const accounts = {
   admin: { email: 't7-admin@nocreport.test', role: 'ADMIN', active: true, uid: null },
@@ -170,13 +171,13 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await page.goto('/cut-points');
     await expect(page.getByText(INCIDENT_TITLE, { exact: true }).first()).toBeVisible();
     await page.getByRole('button', { name: 'Locate' }).first().click();
-    await expect(page.locator('.leaflet-popup')).toContainText('INC-20260821-00070001');
-
-    await page.goto(`/generator/${ticketId}`);
-    await page.getByRole('button', { name: 'Resolve Ticket' }).click();
-    await expect(page.getByText('Ticket resolved')).toBeVisible();
+    await expect(page.locator('.leaflet-popup')).toContainText(INCIDENT_TT);
 
     await page.goto('/running');
+    const incidentRow = page.getByRole('row').filter({ hasText: INCIDENT_TT });
+    await expect(incidentRow).toBeVisible();
+    await incidentRow.getByRole('button', { name: `Resolve ${INCIDENT_TT}` }).click();
+    await expect(page.getByText('Ticket resolved')).toBeVisible();
     await expect(page.getByText(INCIDENT_TITLE, { exact: true })).toHaveCount(0);
   });
 
