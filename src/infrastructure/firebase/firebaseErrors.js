@@ -16,6 +16,8 @@ const FIREBASE_ERROR_MAP = Object.freeze({
   'deadline-exceeded': 'NETWORK_ERROR',
   'firestore/resource-exhausted': 'QUOTA_EXCEEDED',
   'resource-exhausted': 'QUOTA_EXCEEDED',
+  'firestore/failed-precondition': 'FIRESTORE_PRECONDITION',
+  'failed-precondition': 'FIRESTORE_PRECONDITION',
 });
 
 export class InfrastructureError extends Error {
