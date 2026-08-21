@@ -42,8 +42,6 @@ describe('authorization capability matrix', () => {
   });
 
   it('treats local preview as an explicit non-persisted development override', () => {
-    expect(
-      hasCapability(null, CAPABILITY.MANAGE_USERS, { localDevelopmentMode: true }),
-    ).toBe(true);
+    expect(hasCapability(null, CAPABILITY.MANAGE_USERS, { localDevelopmentMode: true })).toBe(true);
   });
 });
