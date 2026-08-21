@@ -6,10 +6,6 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    function bootstrapAdminUid() {
-      return 'gEmUAqisGwU78iVSk3jIEH49uF13';
-    }
-
     function userPath() {
       return /databases/$(database)/documents/users/$(request.auth.uid);
     }
@@ -46,20 +42,6 @@ service cloud.firestore {
       return data.active is bool
         && data.role is string
         && validRole(data.role);
-    }
-
-    function isBootstrapAdminRead(userId) {
-      return isSignedIn()
-        && request.auth.uid == bootstrapAdminUid()
-        && userId == request.auth.uid;
-    }
-
-    function isBootstrapAdminCreate(userId) {
-      return isBootstrapAdminRead(userId)
-        && !exists(/databases/$(database)/documents/users/$(userId))
-        && request.resource.data.keys().hasOnly(['active', 'role'])
-        && request.resource.data.active == true
-        && request.resource.data.role == 'ADMIN';
     }
 
     function validTicketStatus(status) {
@@ -176,16 +158,10 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read: if isBootstrapAdminRead(userId)
-        || (
-          hasActiveProfile()
-          && (request.auth.uid == userId || isAdmin())
-        );
-      allow create: if isBootstrapAdminCreate(userId)
-        || (
-          isAdmin()
-          && validUserProfile(request.resource.data)
-        );
+      allow read: if hasActiveProfile()
+        && (request.auth.uid == userId || isAdmin());
+      allow create: if isAdmin()
+        && validUserProfile(request.resource.data);
       allow update: if isAdmin()
         && validUserProfile(request.resource.data);
       allow delete: if false;
