@@ -145,14 +145,7 @@ function TicketActions({ ticket, canMutate, copyPending, resolvePending, onCopy,
   );
 }
 
-function TicketCard({
-  ticket,
-  canMutate,
-  copyPending,
-  resolvePending,
-  onCopy,
-  onResolve,
-}) {
+function TicketCard({ ticket, canMutate, copyPending, resolvePending, onCopy, onResolve }) {
   return (
     <article className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-4 shadow-[var(--shadow-sm)]">
       <div className="flex flex-wrap items-start justify-between gap-2">
