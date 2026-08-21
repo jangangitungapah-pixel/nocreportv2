@@ -23,7 +23,7 @@ describe('shared UI primitives', () => {
     expect(screen.getByText('Running')).toBeInTheDocument();
   });
 
-  it('keeps confirmation actions as proper buttons', () => {
+  it('manages confirmation dialog focus and keyboard dismissal', () => {
     const onClose = vi.fn();
     const onConfirm = vi.fn();
 
@@ -38,12 +38,23 @@ describe('shared UI primitives', () => {
       />,
     );
 
-    expect(screen.getByRole('dialog', { name: 'Resolve ticket?' })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Resolve' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    const dialog = screen.getByRole('dialog', { name: 'Resolve ticket?' });
+    const cancel = screen.getByRole('button', { name: 'Cancel' });
+    const resolve = screen.getByRole('button', { name: 'Resolve' });
+
+    expect(dialog).toHaveAttribute('aria-describedby');
+    expect(cancel).toHaveFocus();
+
+    resolve.focus();
+    fireEvent.keyDown(document, { key: 'Tab' });
+    expect(cancel).toHaveFocus();
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    fireEvent.click(resolve);
+    fireEvent.click(cancel);
 
     expect(onConfirm).toHaveBeenCalledOnce();
-    expect(onClose).toHaveBeenCalledOnce();
+    expect(onClose).toHaveBeenCalledTimes(2);
   });
 
   it('supports disabled primary actions', () => {
