@@ -3,6 +3,8 @@ const DEFAULT_ATTRIBUTION = '© OpenStreetMap contributors';
 const INDONESIA_CENTER = [-2.5, 118];
 const INDONESIA_ZOOM = 5;
 
+export const MAP_MARKER_TOUCH_SIZE = 44;
+
 export function readMapConfig(env = import.meta.env) {
   return {
     tileUrl: String(env?.VITE_MAP_TILE_URL ?? '').trim() || DEFAULT_TILE_URL,
@@ -51,6 +53,16 @@ function createPopupNode(marker, onOpenTicket) {
   return root;
 }
 
+function createMarkerIcon(L) {
+  return L.divIcon({
+    className: 'noc-map-marker-icon',
+    html: '<span class="noc-map-marker-hit" aria-hidden="true"><span class="noc-map-marker-dot"></span></span>',
+    iconSize: [MAP_MARKER_TOUCH_SIZE, MAP_MARKER_TOUCH_SIZE],
+    iconAnchor: [MAP_MARKER_TOUCH_SIZE / 2, MAP_MARKER_TOUCH_SIZE / 2],
+    popupAnchor: [0, -18],
+  });
+}
+
 export async function createLeafletMap({
   container,
   config = readMapConfig(),
@@ -62,11 +74,13 @@ export async function createLeafletMap({
   const [leafletModule] = await Promise.all([
     import('leaflet'),
     import('leaflet/dist/leaflet.css'),
+    import('./leafletMap.css'),
   ]);
   const L = leafletModule.default ?? leafletModule;
   const map = L.map(container, { zoomControl: true }).setView(INDONESIA_CENTER, INDONESIA_ZOOM);
   const markerLayer = L.layerGroup().addTo(map);
   const markerReferences = new Map();
+  const markerIcon = createMarkerIcon(L);
 
   const tileLayer = L.tileLayer(config.tileUrl, {
     attribution: config.attribution,
@@ -81,10 +95,12 @@ export async function createLeafletMap({
 
     const coordinates = [];
     for (const markerData of markers) {
-      const marker = L.circleMarker([markerData.latitude, markerData.longitude], {
-        radius: 8,
-        weight: 2,
-        fillOpacity: 0.85,
+      const markerLabel = markerData.externalTtNumber || markerData.title || 'Cut Point';
+      const marker = L.marker([markerData.latitude, markerData.longitude], {
+        icon: markerIcon,
+        keyboard: true,
+        title: markerLabel,
+        alt: `Cut Point ${markerLabel}`,
       });
       marker.bindPopup(createPopupNode(markerData, onOpenTicket), { maxWidth: 320 });
       marker.addTo(markerLayer);
