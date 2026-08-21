@@ -1,3 +1,5 @@
+import { useEffect, useId, useRef } from 'react';
+
 function joinClassNames(...values) {
   return values.filter(Boolean).join(' ');
 }
@@ -178,6 +180,53 @@ export function ConfirmDialog({
   onClose,
   tone = 'primary',
 }) {
+  const titleId = useId();
+  const descriptionId = useId();
+  const dialogRef = useRef(null);
+  const cancelRef = useRef(null);
+  const previousActiveElementRef = useRef(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    previousActiveElementRef.current = document.activeElement;
+    cancelRef.current?.focus();
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onCloseRef.current?.();
+        return;
+      }
+
+      if (event.key !== 'Tab') return;
+      const focusable = Array.from(
+        dialogRef.current?.querySelectorAll(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      );
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable.at(-1);
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      previousActiveElementRef.current?.focus?.();
+    };
+  }, [open]);
+
   if (!open) return null;
 
   return (
@@ -187,18 +236,22 @@ export function ConfirmDialog({
       onMouseDown={onClose}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="confirm-dialog-title"
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
         className="w-full max-w-md rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] p-5 shadow-[var(--shadow-lg)]"
         onMouseDown={(event) => event.stopPropagation()}
       >
-        <h2 id="confirm-dialog-title" className="text-lg font-semibold text-[var(--text-primary)]">
+        <h2 id={titleId} className="text-lg font-semibold text-[var(--text-primary)]">
           {title}
         </h2>
-        <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">{description}</p>
+        <p id={descriptionId} className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
+          {description}
+        </p>
         <div className="mt-6 flex justify-end gap-2">
-          <Button tone="secondary" onClick={onClose}>
+          <Button ref={cancelRef} tone="secondary" onClick={onClose}>
             Cancel
           </Button>
           <Button tone={tone} onClick={onConfirm}>
