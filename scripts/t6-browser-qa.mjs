@@ -318,5 +318,6 @@ try {
   session?.close();
   chrome?.kill('SIGTERM');
   vite.kill('SIGTERM');
-  await rm(chromeProfile, { recursive: true, force: true });
+  await sleep(300);
+  await rm(chromeProfile, { recursive: true, force: true }).catch(() => {});
 }
