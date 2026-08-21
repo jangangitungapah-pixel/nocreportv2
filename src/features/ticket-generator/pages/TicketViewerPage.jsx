@@ -98,7 +98,10 @@ export function TicketViewerPage() {
 
   if (loading) {
     return (
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(340px,2fr)]" aria-label="Loading Ticket">
+      <div
+        className="grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(340px,2fr)]"
+        aria-label="Loading Ticket"
+      >
         <Skeleton className="h-[34rem]" />
         <Skeleton className="h-[34rem]" />
       </div>
@@ -115,16 +118,18 @@ export function TicketViewerPage() {
     );
   }
 
-  const coordinate = ticket.hasCoordinates && ticket.coordinate
-    ? formatCoordinatePair(ticket.coordinate.latitude, ticket.coordinate.longitude)
-    : '—';
+  const coordinate =
+    ticket.hasCoordinates && ticket.coordinate
+      ? formatCoordinatePair(ticket.coordinate.latitude, ticket.coordinate.longitude)
+      : '—';
 
   return (
     <div className="space-y-5">
       <section className="rounded-xl border border-[var(--border-subtle)] bg-[var(--accent-soft)] p-4 text-sm text-[var(--accent-text)]">
         <p className="font-semibold">Viewer read-only mode</p>
         <p className="mt-1 text-xs leading-5">
-          You can inspect this Ticket and copy the generated report. Ticket, progress, lifecycle, and coordinate mutations are disabled for the Viewer role.
+          You can inspect this Ticket and copy the generated report. Ticket, progress, lifecycle,
+          and coordinate mutations are disabled for the Viewer role.
         </p>
       </section>
 
@@ -136,7 +141,9 @@ export function TicketViewerPage() {
                 <p className="font-mono text-xs font-semibold text-[var(--text-muted)]">
                   {ticket.externalTtNumber || 'No TT detected'}
                 </p>
-                <h2 className="mt-2 break-words text-lg font-bold">{ticket.title || 'Untitled Ticket'}</h2>
+                <h2 className="mt-2 break-words text-lg font-bold">
+                  {ticket.title || 'Untitled Ticket'}
+                </h2>
               </div>
               <StatusBadge status={ticket.status} />
             </div>
