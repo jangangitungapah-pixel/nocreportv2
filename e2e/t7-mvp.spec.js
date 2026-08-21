@@ -131,7 +131,7 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await page.getByLabel('Dispatch Time').fill('2026-08-21T08:10');
     await page.getByLabel('PIC').fill('T7 Operator');
     await page.getByLabel('Rootcause').fill('Fiber cut during maintenance');
-    await page.getByLabel('Cut Point').fill('KM 12 from Bandung hub');
+    await page.locator('#cut-point').fill('KM 12 from Bandung hub');
 
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page).toHaveURL(/\/generator\/[A-Za-z0-9_-]+$/);
