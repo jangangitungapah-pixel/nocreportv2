@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { Button, ConfirmDialog, StatusBadge, TextInput } from './index.jsx';
+import { Button, ConfirmDialog, SelectField, StatusBadge, TextInput } from './index.jsx';
 
 afterEach(() => {
   cleanup();
@@ -21,6 +21,54 @@ describe('shared UI primitives', () => {
     render(<StatusBadge status="RUNNING" />);
 
     expect(screen.getByText('Running')).toBeInTheDocument();
+  });
+
+  it('uses a product-owned listbox instead of a native select', () => {
+    const onValueChange = vi.fn();
+    render(
+      <SelectField
+        id="status"
+        label="Ticket status"
+        value="RUNNING"
+        onValueChange={onValueChange}
+        options={[
+          { value: 'RUNNING', label: 'Running' },
+          { value: 'RESOLVED', label: 'Resolved' },
+        ]}
+      />,
+    );
+
+    const trigger = screen.getByRole('combobox', { name: 'Ticket status' });
+    expect(trigger).toHaveTextContent('Running');
+    expect(document.querySelector('select')).not.toBeInTheDocument();
+
+    fireEvent.click(trigger);
+    expect(screen.getByRole('listbox', { name: 'Ticket status' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('option', { name: 'Resolved' }));
+    expect(onValueChange).toHaveBeenCalledWith('RESOLVED');
+  });
+
+  it('supports keyboard navigation in the custom listbox', () => {
+    const onValueChange = vi.fn();
+    render(
+      <SelectField
+        id="sort"
+        label="Sort"
+        value="newest"
+        onValueChange={onValueChange}
+        options={[
+          { value: 'newest', label: 'Newest' },
+          { value: 'oldest', label: 'Oldest' },
+        ]}
+      />,
+    );
+
+    const trigger = screen.getByRole('combobox', { name: 'Sort' });
+    trigger.focus();
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' });
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    fireEvent.keyDown(trigger, { key: 'Enter' });
+    expect(onValueChange).toHaveBeenCalledWith('oldest');
   });
 
   it('manages confirmation dialog focus and keyboard dismissal', () => {

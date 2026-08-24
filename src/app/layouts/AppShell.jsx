@@ -1,6 +1,7 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 
-import { Button, IconButton } from '../../shared/ui/index.jsx';
+import { BrandLockup, BrandMark } from '../../shared/brand/BrandIdentity.jsx';
+import { Button, IconButton, UiIcon } from '../../shared/ui/index.jsx';
 import { PRIMARY_NAVIGATION, isNavigationItemActive } from '../navigation.js';
 import { useAuth } from '../providers/AuthProvider.jsx';
 import { useTheme } from '../providers/ThemeProvider.jsx';
@@ -21,21 +22,21 @@ function NavigationLink({ item }) {
     <Link
       to={item.to}
       aria-current={active ? 'page' : undefined}
-      className={`group flex min-h-12 items-center gap-3 rounded-2xl border px-3.5 text-sm font-bold tracking-[-0.01em] transition-[transform,background-color,border-color,box-shadow,color] duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
+      className={`group flex min-h-12 select-none items-center gap-3 rounded-2xl border px-3.5 text-sm font-bold tracking-[-0.01em] transition-[transform,background-color,border-color,box-shadow,color] duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] active:scale-[0.985] ${
         active
           ? 'border-[var(--border-accent)] bg-[var(--accent-soft)] text-[var(--accent-text)] shadow-[var(--shadow-xs)]'
           : 'border-transparent text-[var(--text-secondary)] hover:translate-x-0.5 hover:border-[var(--border-subtle)] hover:bg-[var(--surface-panel)] hover:text-[var(--text-primary)] hover:shadow-[var(--shadow-xs)]'
       }`}
     >
       <span
-        className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl border text-[10px] font-extrabold transition duration-200 ${
+        className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl border transition duration-200 ${
           active
             ? 'border-[var(--border-accent)] bg-[var(--surface-panel)] text-[var(--accent-text)] shadow-[var(--shadow-xs)]'
             : 'border-[var(--border-subtle)] bg-[var(--surface-muted)] text-[var(--text-muted)] group-hover:bg-[var(--surface-panel)] group-hover:text-[var(--text-primary)]'
         }`}
         aria-hidden="true"
       >
-        {item.icon}
+        <UiIcon name={item.icon} size={16} />
       </span>
       <span className="min-w-0 flex-1 truncate">{item.label}</span>
       {active ? (
@@ -57,22 +58,8 @@ export function AppShell() {
   return (
     <div className="min-h-screen text-[var(--text-primary)]">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 border-r border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] p-3 backdrop-blur-2xl lg:flex lg:flex-col">
-        <div className="flex min-h-[72px] items-center gap-3 rounded-2xl px-3">
-          <div className="relative grid h-11 w-11 place-items-center overflow-hidden rounded-2xl bg-[var(--accent-solid)] text-xs font-black text-[var(--accent-on-solid)] shadow-[var(--shadow-accent)]">
-            <span className="relative z-10">NR</span>
-            <span
-              className="absolute -right-3 -top-3 h-8 w-8 rounded-full bg-white/20 blur-sm"
-              aria-hidden="true"
-            />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-[var(--font-display)] text-[15px] font-bold tracking-[-0.03em]">
-              NOC Report
-            </p>
-            <p className="mt-0.5 truncate text-[11px] font-semibold uppercase tracking-[0.11em] text-[var(--text-muted)]">
-              Operations Workspace
-            </p>
-          </div>
+        <div className="flex min-h-[72px] items-center rounded-2xl px-3">
+          <BrandLockup eager />
         </div>
 
         <div className="my-2 px-3">
@@ -122,13 +109,16 @@ export function AppShell() {
       <div className="lg:pl-72">
         <header className="sticky top-0 z-30 px-3 pt-3 md:px-5 lg:px-6">
           <div className="mx-auto flex min-h-[64px] w-full max-w-[var(--page-max)] items-center justify-between gap-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] px-4 shadow-[var(--shadow-sm)] backdrop-blur-2xl md:px-5">
-            <div className="min-w-0">
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-[var(--accent-text)] lg:hidden">
-                NOC Report
-              </p>
-              <h1 className="truncate font-[var(--font-display)] text-lg font-bold tracking-[-0.035em] md:text-xl">
-                {pageLabel}
-              </h1>
+            <div className="flex min-w-0 items-center gap-3">
+              <BrandMark size="xs" className="lg:hidden" eager />
+              <div className="min-w-0">
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-[var(--accent-text)] lg:hidden">
+                  NOC Report
+                </p>
+                <h1 className="truncate font-[var(--font-display)] text-lg font-bold tracking-[-0.035em] md:text-xl">
+                  {pageLabel}
+                </h1>
+              </div>
             </div>
             <div className="flex shrink-0 items-center gap-2">
               <span className="spatial-chip hidden sm:inline-flex">
@@ -142,9 +132,7 @@ export function AppShell() {
                 label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
                 onClick={toggleTheme}
               >
-                <span className="text-base" aria-hidden="true">
-                  {theme === 'light' ? '◐' : '◑'}
-                </span>
+                <UiIcon name={theme === 'light' ? 'moon' : 'sun'} size={18} />
               </IconButton>
             </div>
           </div>
@@ -167,21 +155,21 @@ export function AppShell() {
               key={item.key}
               to={item.to}
               aria-current={active ? 'page' : undefined}
-              className={`flex min-h-13 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-1.5 text-[10px] font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
+              className={`flex min-h-13 select-none flex-col items-center justify-center gap-1 rounded-2xl px-1 py-1.5 text-[10px] font-bold transition-[transform,background-color,color] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] active:scale-[0.94] ${
                 active
                   ? 'bg-[var(--accent-soft)] text-[var(--accent-text)]'
                   : 'text-[var(--text-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--text-primary)]'
               }`}
             >
               <span
-                className={`grid h-6 w-6 place-items-center rounded-lg text-[9px] font-black ${
+                className={`grid h-7 w-7 place-items-center rounded-lg ${
                   active
                     ? 'bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]'
                     : 'bg-[var(--surface-muted)]'
                 }`}
                 aria-hidden="true"
               >
-                {item.icon}
+                <UiIcon name={item.icon} size={14} />
               </span>
               <span className="max-w-full truncate">{item.shortLabel}</span>
             </Link>

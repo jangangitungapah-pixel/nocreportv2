@@ -193,9 +193,9 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await expect(page).toHaveURL(/\/generator\/new$/);
 
     await page.getByLabel('Title').fill(INCIDENT_TITLE);
-    await page.getByLabel('Occur Time').fill('2026-08-21T08:00');
-    await page.getByLabel('Dispatch Time').fill('2026-08-21T08:10');
-    await page.getByLabel('PIC').fill('T7 Operator');
+    await page.getByLabel('Occur Time', { exact: true }).fill('2026-08-21T08:00');
+    await page.getByLabel('Dispatch Time', { exact: true }).fill('2026-08-21T08:10');
+    await page.getByLabel('PIC', { exact: true }).fill('T7 Operator');
     await page.getByLabel('Rootcause').fill('Fiber cut during maintenance');
     await page.locator('#cut-point').fill('KM 12 from Bandung hub');
 
@@ -211,7 +211,7 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await page.getByRole('button', { name: 'Mark Running' }).click();
     await expect(page.getByText('Ticket marked Running')).toBeVisible();
 
-    await page.getByLabel('Event time').fill('2026-08-21T08:30');
+    await page.getByLabel('Event time', { exact: true }).fill('2026-08-21T08:30');
     await page.getByLabel('Progress update').fill('Team arrived at the Cut Point');
     await page.getByRole('button', { name: 'Add update' }).click();
     await expect(page.getByText('Team arrived at the Cut Point', { exact: true })).toBeVisible();

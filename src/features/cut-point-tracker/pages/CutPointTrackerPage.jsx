@@ -8,16 +8,22 @@ import { createLeafletMap, readMapConfig } from '../../../infrastructure/map/ind
 import {
   EmptyState,
   ErrorState,
+  SelectField,
   Skeleton,
   StatusBadge,
   TextInput,
+  UiIcon,
 } from '../../../shared/ui/index.jsx';
 import { buildCutPointMarkers, filterCutPointMarkers } from '../lib/mapData.js';
 
-const selectClass =
-  'min-h-[var(--control-height)] w-full rounded-xl border border-[var(--border-default)] bg-[var(--surface-panel-strong)] px-3.5 text-sm font-medium text-[var(--text-primary)] shadow-[var(--shadow-xs)] outline-none transition-[background-color,border-color,box-shadow] duration-200 hover:border-[var(--border-strong)] focus:border-[var(--accent-solid)] focus:bg-[var(--surface-panel)] focus:ring-4 focus:ring-[var(--focus-soft)]';
 const secondaryActionClass =
-  'inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-3 text-xs font-bold text-[var(--text-primary)] shadow-[var(--shadow-xs)] transition-[transform,background-color,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-[var(--border-default)] hover:bg-[var(--surface-panel-strong)] hover:shadow-[var(--shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] active:translate-y-0';
+  'inline-flex min-h-10 select-none items-center justify-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-3 text-xs font-bold text-[var(--text-primary)] shadow-[var(--shadow-xs)] transition-[transform,background-color,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-[var(--border-default)] hover:bg-[var(--surface-panel-strong)] hover:shadow-[var(--shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] active:scale-[0.975] active:translate-y-0';
+
+const STATUS_OPTIONS = [
+  { value: 'ALL', label: 'Running + Resolved' },
+  { value: TICKET_STATUS.RUNNING, label: 'Running' },
+  { value: TICKET_STATUS.RESOLVED, label: 'Resolved' },
+];
 
 function MarkerCard({ marker, selected, onLocate }) {
   return (
@@ -105,19 +111,13 @@ function FilterControls({ search, status, onSearchChange, onStatusChange }) {
         value={search}
         onChange={(event) => onSearchChange(event.target.value)}
       />
-      <label className="block text-[13px] font-bold text-[var(--text-primary)]">
-        Ticket status
-        <select
-          className={`mt-2 ${selectClass}`}
-          value={status}
-          aria-label="Cut Point status filter"
-          onChange={(event) => onStatusChange(event.target.value)}
-        >
-          <option value="ALL">Running + Resolved</option>
-          <option value={TICKET_STATUS.RUNNING}>Running</option>
-          <option value={TICKET_STATUS.RESOLVED}>Resolved</option>
-        </select>
-      </label>
+      <SelectField
+        id="cut-point-status-filter"
+        label="Ticket status"
+        value={status}
+        options={STATUS_OPTIONS}
+        onValueChange={onStatusChange}
+      />
     </div>
   );
 }
@@ -247,7 +247,8 @@ export function CutPointTrackerPage() {
             </div>
           </div>
           <button type="button" className={secondaryActionClass} onClick={loadTickets}>
-            ↻&nbsp; Refresh data
+            <UiIcon name="refresh" size={15} />
+            Refresh data
           </button>
         </div>
       </header>
@@ -368,6 +369,7 @@ export function CutPointTrackerPage() {
                 className={`mt-3 ${secondaryActionClass}`}
                 onClick={() => setMapRevision((current) => current + 1)}
               >
+                <UiIcon name="refresh" size={15} />
                 Retry map tiles
               </button>
             </div>
@@ -377,10 +379,10 @@ export function CutPointTrackerPage() {
             <div className="absolute inset-4 z-[520] grid place-items-center rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] p-4 text-center shadow-[var(--shadow-lg)] backdrop-blur-xl">
               <div className="max-w-sm">
                 <span
-                  className="mx-auto grid h-11 w-11 place-items-center rounded-2xl bg-[var(--danger-soft)] text-sm font-black text-[var(--danger-text)]"
+                  className="mx-auto grid h-11 w-11 place-items-center rounded-2xl bg-[var(--danger-soft)] text-[var(--danger-text)]"
                   aria-hidden="true"
                 >
-                  !
+                  <UiIcon name="error" size={18} />
                 </span>
                 <p className="mt-4 font-bold">Map renderer could not start</p>
                 <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
@@ -392,6 +394,7 @@ export function CutPointTrackerPage() {
                   className={`mt-4 ${secondaryActionClass}`}
                   onClick={() => setMapRevision((current) => current + 1)}
                 >
+                  <UiIcon name="refresh" size={15} />
                   Retry map
                 </button>
               </div>

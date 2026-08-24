@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../../app/providers/AuthProvider.jsx';
+import { BrandLockup, BrandMark } from '../../../shared/brand/BrandIdentity.jsx';
 import { Button, TextInput } from '../../../shared/ui/index.jsx';
 
 const localPreviewLinkClass =
@@ -67,21 +68,15 @@ export function LoginPage() {
             aria-hidden="true"
           />
           <div className="relative">
-            <div className="flex items-center gap-3">
-              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#7278f5] text-xs font-black text-white shadow-[0_14px_34px_rgb(72_79_206/34%)]">
-                NR
-              </span>
-              <div>
-                <p className="font-[var(--font-display)] text-sm font-bold tracking-[-0.03em]">
-                  NOC Report
-                </p>
-                <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-white/45">
-                  Operations workspace
-                </p>
-              </div>
-            </div>
+            <BrandLockup inverse eager markSize="lg" />
 
-            <div className="mt-20 max-w-md">
+            <div className="mt-16 max-w-md">
+              <BrandMark
+                size="xl"
+                inverse
+                eager
+                className="mb-8 border-white/15 bg-white/[0.08] shadow-[0_24px_70px_rgb(0_0_0/28%)]"
+              />
               <p className="text-[11px] font-extrabold uppercase tracking-[0.17em] text-[#aeb2ff]">
                 Incident clarity
               </p>
@@ -117,17 +112,7 @@ export function LoginPage() {
         <div className="flex min-h-[560px] items-center p-5 sm:p-8 lg:p-10">
           <div className="mx-auto w-full max-w-md">
             <div className="flex items-center justify-between gap-4 lg:hidden">
-              <div className="flex items-center gap-3">
-                <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[var(--accent-solid)] text-xs font-black text-[var(--accent-on-solid)] shadow-[var(--shadow-accent)]">
-                  NR
-                </span>
-                <div>
-                  <p className="text-sm font-bold">NOC Report</p>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--text-muted)]">
-                    Operations
-                  </p>
-                </div>
-              </div>
+              <BrandLockup compact eager subtitle="Operations" />
             </div>
 
             <div className="mt-8 lg:mt-0">

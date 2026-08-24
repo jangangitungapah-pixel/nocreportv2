@@ -13,18 +13,31 @@ import { firestoreTicketRepository } from '../../../infrastructure/firebase/inde
 import {
   EmptyState,
   ErrorState,
+  SelectField,
   Skeleton,
   StatusBadge,
   TextInput,
+  UiIcon,
 } from '../../../shared/ui/index.jsx';
 
 const primaryLinkClass =
-  'inline-flex min-h-[var(--control-height)] items-center justify-center gap-2 rounded-xl bg-[var(--accent-solid)] px-4 text-sm font-bold text-[var(--accent-on-solid)] shadow-[var(--shadow-accent)] transition-[transform,background-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-[var(--accent-solid-hover)] hover:shadow-[var(--shadow-md)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-canvas)]';
+  'inline-flex min-h-[var(--control-height)] select-none items-center justify-center gap-2 rounded-xl bg-[var(--accent-solid)] px-4 text-sm font-bold text-[var(--accent-on-solid)] shadow-[var(--shadow-accent)] transition-[transform,background-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-[var(--accent-solid-hover)] hover:shadow-[var(--shadow-md)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-canvas)] active:scale-[0.985] active:translate-y-0';
 const actionClass =
-  'inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-3 text-xs font-bold text-[var(--text-primary)] shadow-[var(--shadow-xs)] transition-[transform,background-color,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-[var(--border-default)] hover:bg-[var(--surface-panel-strong)] hover:shadow-[var(--shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] disabled:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none';
-const selectClass =
-  'min-h-[var(--control-height)] w-full rounded-xl border border-[var(--border-default)] bg-[var(--surface-panel-strong)] px-3.5 text-sm font-medium text-[var(--text-primary)] shadow-[var(--shadow-xs)] outline-none transition-[background-color,border-color,box-shadow] duration-200 hover:border-[var(--border-strong)] focus:border-[var(--accent-solid)] focus:bg-[var(--surface-panel)] focus:ring-4 focus:ring-[var(--focus-soft)]';
+  'inline-flex min-h-10 select-none items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-3 text-xs font-bold text-[var(--text-primary)] shadow-[var(--shadow-xs)] transition-[transform,background-color,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-[var(--border-default)] hover:bg-[var(--surface-panel-strong)] hover:shadow-[var(--shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] active:scale-[0.975] active:translate-y-0 disabled:translate-y-0 disabled:scale-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none';
 const MAX_REPORT_PROGRESS = 1000;
+
+const COORDINATE_OPTIONS = [
+  { value: 'all', label: 'All Running' },
+  { value: 'with', label: 'With coordinates' },
+  { value: 'without', label: 'Without coordinates' },
+];
+
+const SORT_OPTIONS = [
+  { value: 'updated-desc', label: 'Last updated' },
+  { value: 'occur-desc', label: 'Occur newest' },
+  { value: 'occur-asc', label: 'Occur oldest' },
+  { value: 'title-asc', label: 'Title A–Z' },
+];
 
 function matchesSearch(ticket, search) {
   if (!search) return true;
@@ -341,7 +354,7 @@ export function RunningTicketsPage() {
           </div>
           {canCreate ? (
             <Link to="/generator/new" className={primaryLinkClass}>
-              <span aria-hidden="true">＋</span>
+              <UiIcon name="plus" size={16} />
               New Ticket
             </Link>
           ) : null}
@@ -363,33 +376,20 @@ export function RunningTicketsPage() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-        <label className="block text-[13px] font-bold text-[var(--text-primary)]">
-          Coordinate filter
-          <select
-            className={`mt-2 ${selectClass}`}
-            value={coordinateFilter}
-            aria-label="Coordinate filter"
-            onChange={(event) => setCoordinateFilter(event.target.value)}
-          >
-            <option value="all">All Running</option>
-            <option value="with">With coordinates</option>
-            <option value="without">Without coordinates</option>
-          </select>
-        </label>
-        <label className="block text-[13px] font-bold text-[var(--text-primary)]">
-          Sort
-          <select
-            className={`mt-2 ${selectClass}`}
-            value={sort}
-            aria-label="Sort Running Tickets"
-            onChange={(event) => setSort(event.target.value)}
-          >
-            <option value="updated-desc">Last updated</option>
-            <option value="occur-desc">Occur newest</option>
-            <option value="occur-asc">Occur oldest</option>
-            <option value="title-asc">Title A–Z</option>
-          </select>
-        </label>
+        <SelectField
+          id="running-coordinate-filter"
+          label="Coordinate filter"
+          value={coordinateFilter}
+          options={COORDINATE_OPTIONS}
+          onValueChange={setCoordinateFilter}
+        />
+        <SelectField
+          id="running-sort"
+          label="Sort"
+          value={sort}
+          options={SORT_OPTIONS}
+          onValueChange={setSort}
+        />
       </section>
 
       {!loading && !error && tickets.length > 0 ? (
@@ -449,9 +449,9 @@ export function RunningTicketsPage() {
             ))}
           </div>
 
-          <div className="hidden overflow-x-auto rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-md)] md:block">
+          <div className="data-table-shell hidden overflow-x-auto rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-md)] md:block">
             <table className="w-full min-w-[1180px] border-collapse text-left text-sm">
-              <thead className="bg-[var(--surface-panel-strong)] text-[10px] uppercase tracking-[0.11em] text-[var(--text-muted)]">
+              <thead className="bg-[var(--surface-panel-translucent)] text-[10px] uppercase tracking-[0.11em] text-[var(--text-muted)]">
                 <tr>
                   <th className="px-4 py-4 font-extrabold">Ticket</th>
                   <th className="px-4 py-4 font-extrabold">Latest Progress</th>
