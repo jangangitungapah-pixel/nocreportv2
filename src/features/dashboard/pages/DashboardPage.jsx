@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../../app/providers/AuthProvider.jsx';
 import { CAPABILITY } from '../../../entities/user/authorization.js';
 import { firestoreTicketRepository } from '../../../infrastructure/firebase/index.js';
-import { ErrorState, Skeleton, StatusBadge } from '../../../shared/ui/index.jsx';
+import { ErrorState, Skeleton, StatusBadge, UiIcon } from '../../../shared/ui/index.jsx';
 
 const EMPTY_SUMMARY = {
   runningCount: 0,
@@ -15,7 +15,7 @@ const EMPTY_SUMMARY = {
 };
 
 const primaryLinkClass =
-  'inline-flex min-h-[var(--control-height)] items-center justify-center gap-2 rounded-xl bg-[var(--accent-solid)] px-4 text-sm font-bold text-[var(--accent-on-solid)] shadow-[var(--shadow-accent)] transition-[transform,background-color,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:bg-[var(--accent-solid-hover)] hover:shadow-[var(--shadow-md)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-canvas)] active:translate-y-0';
+  'inline-flex min-h-[var(--control-height)] select-none items-center justify-center gap-2 rounded-xl bg-[var(--accent-solid)] px-4 text-sm font-bold text-[var(--accent-on-solid)] shadow-[var(--shadow-accent)] transition-[transform,background-color,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:bg-[var(--accent-solid-hover)] hover:shadow-[var(--shadow-md)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-canvas)] active:scale-[0.985] active:translate-y-0';
 
 function formatDateTime(value) {
   if (!(value instanceof Date) || Number.isNaN(value.getTime())) return '—';
@@ -81,11 +81,14 @@ function RecentTicketRow({ ticket }) {
   return (
     <Link
       to={`/generator/${ticket.id}`}
-      className="group grid gap-3 border-t border-[var(--border-subtle)] px-4 py-4 transition-colors duration-200 first:border-t-0 hover:bg-[var(--surface-muted)] md:grid-cols-[minmax(0,1fr)_120px_150px] md:items-center md:px-5"
+      className="group grid select-none gap-3 border-t border-[var(--border-subtle)] px-4 py-4 transition-[background-color,transform] duration-150 first:border-t-0 hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)] active:scale-[0.997] md:grid-cols-[minmax(0,1fr)_120px_150px] md:items-center md:px-5"
     >
       <div className="min-w-0">
         <div className="flex min-w-0 items-center gap-2">
-          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--accent-solid)] opacity-60 transition group-hover:opacity-100" />
+          <span
+            className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--accent-solid)] opacity-60 transition group-hover:opacity-100"
+            aria-hidden="true"
+          />
           <p className="truncate font-mono text-[11px] font-bold text-[var(--text-muted)]">
             {ticket.externalTtNumber ?? 'No TT detected'}
           </p>
@@ -155,9 +158,7 @@ export function DashboardPage() {
             <div className="mt-6 flex flex-wrap items-center gap-3">
               {canCreateTicket ? (
                 <Link to="/generator/new" className={primaryLinkClass}>
-                  <span className="text-base leading-none" aria-hidden="true">
-                    +
-                  </span>
+                  <UiIcon name="plus" size={16} />
                   New Ticket
                 </Link>
               ) : null}
