@@ -251,9 +251,12 @@ export function ArchiveManagementPage() {
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2 md:justify-end">
-                      <Button tone="secondary" asChild>
-                        <Link to={`/generator/${ticket.id}`}>Open</Link>
-                      </Button>
+                      <Link
+                        to={`/generator/${ticket.id}`}
+                        className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-4 text-sm font-semibold text-[var(--text-primary)] transition hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                      >
+                        Open
+                      </Link>
                       <Button
                         tone={isArchived ? 'primary' : 'danger'}
                         disabled={mutatingTicketId === ticket.id}
