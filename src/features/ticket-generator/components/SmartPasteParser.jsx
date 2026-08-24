@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { Button, Textarea, UiIcon } from '../../../shared/ui/index.jsx';
 import { parseSmartReport } from '../lib/smartReportParser.js';
+import '../styles/generatorWorkspace.css';
 
 const FIELD_LABELS = {
   title: 'Title',
