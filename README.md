@@ -6,6 +6,8 @@ React/Vite web app for creating, persisting, searching, and resolving NOC incide
 
 The implementation is currently in **T7 — Hardening, Security Validation & Full QA**. T0–T6 are complete. Automated T7 coverage includes Firebase Auth/RBAC, Firestore Security Rules, emulator integration, security/repository hygiene, responsive browser checks, Playwright end-to-end coverage, keyboard/focus checks, and axe serious/critical accessibility checks. Firebase production deployment is intentionally deferred to T8.
 
+All objective T7 implementation/evidence gates are now covered; the remaining T7 acceptance items are the intentionally manual visual/responsive checks recorded in the canonical workplan.
+
 The canonical phase tracker lives at `docs/06-workplan/IMPLEMENTATION-WORKPLAN.md`.
 
 ## Technology baseline
