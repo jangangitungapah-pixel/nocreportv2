@@ -60,19 +60,18 @@ export function ProgressComposer({ onAdd }) {
   };
 
   return (
-    <section className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-4 shadow-[var(--shadow-sm)] md:p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <section className="generator-progress-composer rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-4 shadow-[var(--shadow-xs)]">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="spatial-kicker">Live timeline</p>
-          <h3 className="mt-1.5 text-base font-bold">Progress Timeline</h3>
-          <p className="mt-1 text-xs leading-5 text-[var(--text-muted)]">
-            Add operational updates quickly. Ctrl/Cmd + Enter submits the current update.
-          </p>
+          <p className="spatial-kicker">Progress Timeline</p>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">Add the latest operational update.</p>
         </div>
-        <span className="spatial-chip hidden sm:inline-flex">Ctrl / ⌘ + Enter</span>
+        <span className="spatial-chip hidden min-h-7 px-2.5 text-[10px] sm:inline-flex">
+          Ctrl / ⌘ + Enter
+        </span>
       </div>
 
-      <div className="mt-4 grid gap-3 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-panel-strong)] p-3 lg:grid-cols-[210px_minmax(0,1fr)_auto] lg:items-end lg:p-4">
+      <div className="mt-3 grid gap-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel-strong)] p-2.5 lg:grid-cols-[200px_minmax(0,1fr)_auto] lg:items-end">
         <DateTimeField
           id="progress-time"
           label="Event time"
