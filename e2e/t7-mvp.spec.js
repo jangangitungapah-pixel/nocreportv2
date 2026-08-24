@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+import { Buffer } from 'node:buffer';
 
 const PROJECT_ID = 'demo-nocreport';
 const APP_ORIGIN = 'http://127.0.0.1:5187';
