@@ -1,6 +1,6 @@
 # UI Native-Feel Elimination Audit
 
-**Status:** AUTOMATED QA COMPLETE — VISUAL ACCEPTANCE PENDING  
+**Status:** DASHBOARD COMPACT PASS — AUTOMATED QA RUNNING  
 **Branch:** `feature/ui-native-polish`  
 **Parent:** `feature/smart-template-parser`
 
@@ -76,9 +76,19 @@ The target is a cohesive custom product surface where every visible control belo
 - [x] Favicon, Apple touch icon, browser title, description, and theme metadata use the product identity.
 - [x] Brand asset path is covered by unit regression tests.
 
+### Dashboard compact workspace
+
+- [x] Oversized Operational overview hero panel removed.
+- [x] Redundant Workspace signal card removed.
+- [x] Duplicate Local preview banner removed.
+- [x] Dashboard intro copy reduced to one short operational status line.
+- [x] New Ticket action moved into a compact page header.
+- [x] KPI cards moved directly under the page header and reduced in vertical footprint.
+- [x] Recently updated header and empty state spacing tightened.
+
 ## Automated QA evidence
 
-Final product/code head before this documentation-only update: `a34a23219f8945dd07de3bb656ecf40d9ea3dae9`.
+Previous fully validated product head: `a34a23219f8945dd07de3bb656ecf40d9ea3dae9`.
 
 **Quality #637: FULL GREEN**
 
@@ -92,9 +102,11 @@ Final product/code head before this documentation-only update: `a34a23219f8945dd
 - [x] Source formatting verification green after exact Prettier output was committed.
 - [x] Temporary one-shot formatter workflow removed before the final green run.
 
+Fresh full Quality validation is running for the Dashboard compact workspace pass.
+
 ## Release gate
 
-- [x] Automated QA complete.
+- [ ] Dashboard compact pass automated QA complete.
 - [ ] Manual Light/Dark desktop/mobile micro-polish and branding acceptance.
 
-PR #4 remains a draft stacked on `feature/smart-template-parser` until manual visual acceptance is complete.
+PR #4 remains draft. It is temporarily targeted at `main` only to trigger the full Quality workflow and will be retargeted back to `feature/smart-template-parser` after validation.
