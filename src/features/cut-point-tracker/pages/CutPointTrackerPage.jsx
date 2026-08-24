@@ -15,55 +15,75 @@ import {
 import { buildCutPointMarkers, filterCutPointMarkers } from '../lib/mapData.js';
 
 const selectClass =
-  'min-h-11 w-full rounded-lg border border-[var(--border-default)] bg-[var(--surface-panel)] px-3 text-sm text-[var(--text-primary)] outline-none transition focus:border-[var(--accent-solid)] focus:ring-2 focus:ring-[var(--focus-ring)]';
+  'min-h-[var(--control-height)] w-full rounded-xl border border-[var(--border-default)] bg-[var(--surface-panel-strong)] px-3.5 text-sm font-medium text-[var(--text-primary)] shadow-[var(--shadow-xs)] outline-none transition-[background-color,border-color,box-shadow] duration-200 hover:border-[var(--border-strong)] focus:border-[var(--accent-solid)] focus:bg-[var(--surface-panel)] focus:ring-4 focus:ring-[var(--focus-soft)]';
 const secondaryActionClass =
-  'inline-flex min-h-10 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-3 text-xs font-semibold transition hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]';
+  'inline-flex min-h-10 items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-3 text-xs font-bold text-[var(--text-primary)] shadow-[var(--shadow-xs)] transition-[transform,background-color,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-[var(--border-default)] hover:bg-[var(--surface-panel-strong)] hover:shadow-[var(--shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] active:translate-y-0';
 
 function MarkerCard({ marker, selected, onLocate }) {
   return (
     <article
-      className={`rounded-xl border p-3 transition ${
+      className={`group relative overflow-hidden rounded-2xl border p-3.5 shadow-[var(--shadow-xs)] transition-[transform,background-color,border-color,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)] ${
         selected
-          ? 'border-[var(--accent-solid)] bg-[var(--accent-soft)]'
-          : 'border-[var(--border-subtle)] bg-[var(--surface-panel)]'
+          ? 'border-[var(--border-accent)] bg-[var(--accent-soft)]'
+          : 'border-[var(--border-subtle)] bg-[var(--surface-panel)] hover:border-[var(--border-default)]'
       }`}
     >
-      <div className="flex flex-wrap items-start justify-between gap-2">
-        <div className="min-w-0">
-          <p className="font-mono text-xs font-semibold text-[var(--text-secondary)]">
+      <span
+        className={`absolute inset-y-4 left-0 w-0.5 rounded-full ${
+          marker.status === TICKET_STATUS.RUNNING
+            ? 'bg-[var(--success-solid)]'
+            : 'bg-[var(--accent-cyan)]'
+        }`}
+        aria-hidden="true"
+      />
+      <div className="flex flex-wrap items-start justify-between gap-2 pl-1">
+        <div className="min-w-0 flex-1">
+          <p className="font-mono text-[11px] font-bold text-[var(--text-muted)]">
             {marker.externalTtNumber ?? 'No TT detected'}
           </p>
-          <h3 className="mt-1 line-clamp-2 text-sm font-bold">{marker.title}</h3>
+          <h3 className="mt-1.5 line-clamp-2 text-sm font-bold leading-5 tracking-[-0.015em]">
+            {marker.title}
+          </h3>
         </div>
         <StatusBadge status={marker.status} />
       </div>
-      <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
-        <div className="col-span-2">
-          <dt className="font-semibold text-[var(--text-muted)]">Cut Point</dt>
-          <dd className="mt-0.5 line-clamp-2 text-[var(--text-secondary)]">
+      <dl className="mt-3 grid grid-cols-2 gap-2 pl-1 text-xs">
+        <div className="col-span-2 rounded-xl bg-[var(--surface-muted)] p-2.5">
+          <dt className="text-[10px] font-extrabold uppercase tracking-[0.09em] text-[var(--text-muted)]">
+            Cut Point
+          </dt>
+          <dd className="mt-1 line-clamp-2 font-semibold leading-5 text-[var(--text-secondary)]">
             {marker.cutPoint || '—'}
           </dd>
         </div>
-        <div>
-          <dt className="font-semibold text-[var(--text-muted)]">PIC</dt>
-          <dd className="mt-0.5 truncate text-[var(--text-secondary)]">{marker.pic || '—'}</dd>
+        <div className="rounded-xl bg-[var(--surface-muted)] p-2.5">
+          <dt className="text-[10px] font-extrabold uppercase tracking-[0.09em] text-[var(--text-muted)]">
+            PIC
+          </dt>
+          <dd className="mt-1 truncate font-semibold text-[var(--text-secondary)]">
+            {marker.pic || '—'}
+          </dd>
         </div>
-        <div>
-          <dt className="font-semibold text-[var(--text-muted)]">Coordinate</dt>
-          <dd className="mt-0.5 font-mono text-[var(--text-secondary)]">
+        <div className="rounded-xl bg-[var(--surface-muted)] p-2.5">
+          <dt className="text-[10px] font-extrabold uppercase tracking-[0.09em] text-[var(--text-muted)]">
+            Coordinate
+          </dt>
+          <dd className="mt-1 truncate font-mono text-[10px] font-bold text-[var(--accent-text)]">
             {marker.coordinateLabel}
           </dd>
         </div>
         {marker.latestProgress ? (
-          <div className="col-span-2">
-            <dt className="font-semibold text-[var(--text-muted)]">Latest update</dt>
-            <dd className="mt-0.5 line-clamp-2 text-[var(--text-secondary)]">
+          <div className="col-span-2 rounded-xl bg-[var(--surface-muted)] p-2.5">
+            <dt className="text-[10px] font-extrabold uppercase tracking-[0.09em] text-[var(--text-muted)]">
+              Latest update
+            </dt>
+            <dd className="mt-1 line-clamp-2 font-medium leading-5 text-[var(--text-secondary)]">
               {marker.latestProgress}
             </dd>
           </div>
         ) : null}
       </dl>
-      <div className="mt-3 grid grid-cols-2 gap-2">
+      <div className="mt-3 grid grid-cols-2 gap-2 pl-1">
         <button type="button" className={secondaryActionClass} onClick={() => onLocate(marker)}>
           Locate
         </button>
@@ -85,10 +105,10 @@ function FilterControls({ search, status, onSearchChange, onStatusChange }) {
         value={search}
         onChange={(event) => onSearchChange(event.target.value)}
       />
-      <label className="block text-sm font-medium text-[var(--text-secondary)]">
+      <label className="block text-[13px] font-bold text-[var(--text-primary)]">
         Ticket status
         <select
-          className={`mt-1.5 ${selectClass}`}
+          className={`mt-2 ${selectClass}`}
           value={status}
           aria-label="Cut Point status filter"
           onChange={(event) => onStatusChange(event.target.value)}
@@ -206,48 +226,70 @@ export function CutPointTrackerPage() {
   };
 
   return (
-    <div className="space-y-4 overflow-x-hidden">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="text-sm font-medium text-[var(--text-muted)]">Geographic incident view</p>
-          <h2 className="mt-1 text-2xl font-bold tracking-tight">Cut Point Tracker</h2>
-          <p className="mt-1 text-xs text-[var(--text-secondary)]">
-            {markers.length} confirmed Ticket coordinates · one canonical Ticket dataset
-          </p>
+    <div className="space-y-4 overflow-x-hidden md:space-y-5">
+      <header className="spatial-panel-elevated relative overflow-hidden p-5 md:p-6">
+        <div
+          className="pointer-events-none absolute -right-20 -top-28 h-72 w-72 rounded-full bg-[var(--accent-glow)] blur-3xl"
+          aria-hidden="true"
+        />
+        <div className="relative flex flex-wrap items-end justify-between gap-5">
+          <div className="max-w-3xl">
+            <p className="spatial-kicker">Geographic incident view</p>
+            <h2 className="spatial-title mt-3">Cut Point Tracker</h2>
+            <p className="spatial-description mt-4">
+              Keep confirmed incident coordinates visible in the same operational context as the
+              Ticket itself. The map remains a view of the canonical Ticket dataset, never a second
+              location database.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <span className="spatial-chip">{markers.length} confirmed coordinates</span>
+              <span className="spatial-chip">{visibleMarkers.length} visible</span>
+            </div>
+          </div>
+          <button type="button" className={secondaryActionClass} onClick={loadTickets}>
+            ↻&nbsp; Refresh data
+          </button>
         </div>
-        <button type="button" className={secondaryActionClass} onClick={loadTickets}>
-          Refresh data
-        </button>
       </header>
 
       {localDevelopmentMode ? (
-        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-4 text-sm text-[var(--text-secondary)]">
-          Local preview mode has no persisted Cut Point records. Configure Firebase to load
-          confirmed Ticket coordinates; the map still uses the configured OpenStreetMap-compatible
-          tile source.
+        <div className="rounded-2xl border border-[var(--border-accent)] bg-[var(--accent-soft)] p-4 text-sm leading-6 text-[var(--text-secondary)] shadow-[var(--shadow-xs)]">
+          <span className="font-bold text-[var(--accent-text)]">Local preview.</span> No persisted Cut
+          Point records are available until Firebase is configured; the map still uses the configured
+          OpenStreetMap-compatible tile source.
         </div>
       ) : null}
 
-      <div className="grid gap-4 md:grid-cols-[340px_minmax(0,1fr)] md:items-start xl:grid-cols-[380px_minmax(0,1fr)]">
-        <section className="order-2 -mt-8 z-[450] rounded-t-2xl border border-[var(--border-subtle)] bg-[var(--surface-canvas)] p-4 shadow-[var(--shadow-md)] md:order-1 md:mt-0 md:max-h-[calc(100vh-11rem)] md:overflow-y-auto md:rounded-xl md:bg-[var(--surface-panel)] md:shadow-[var(--shadow-sm)]">
-          <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-[var(--border-default)] md:hidden" />
-          <FilterControls
-            search={search}
-            status={status}
-            onSearchChange={setSearch}
-            onStatusChange={setStatus}
-          />
+      <div className="grid gap-4 md:grid-cols-[350px_minmax(0,1fr)] md:items-start xl:grid-cols-[390px_minmax(0,1fr)]">
+        <section className="order-2 z-[450] -mt-10 rounded-t-[28px] border border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] p-4 shadow-[var(--shadow-lg)] backdrop-blur-2xl md:order-1 md:mt-0 md:max-h-[calc(100vh-11rem)] md:overflow-y-auto md:rounded-[var(--radius-xl)] md:bg-[var(--surface-panel)] md:shadow-[var(--shadow-md)]">
+          <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-[var(--border-default)] md:hidden" />
+          <div className="flex items-center justify-between gap-3 pb-4">
+            <div>
+              <p className="spatial-kicker">Mapped incidents</p>
+              <h3 className="mt-1.5 text-base font-bold">Browse Cut Points</h3>
+            </div>
+            <span className="spatial-chip hidden xl:inline-flex">Max 500</span>
+          </div>
+
+          <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-panel-strong)] p-3.5">
+            <FilterControls
+              search={search}
+              status={status}
+              onSearchChange={setSearch}
+              onStatusChange={setStatus}
+            />
+          </div>
 
           {!loading && !queryError ? (
-            <p className="mt-3 text-xs text-[var(--text-muted)]" aria-live="polite">
+            <p className="mt-3 px-1 text-xs font-semibold text-[var(--text-muted)]" aria-live="polite">
               Showing {visibleMarkers.length} of {markers.length} mapped Tickets.
             </p>
           ) : null}
 
           {loading ? (
             <div className="mt-4 grid gap-3" aria-label="Loading mapped Tickets">
-              <Skeleton className="h-44" />
-              <Skeleton className="h-44" />
+              <Skeleton className="h-48" />
+              <Skeleton className="h-48" />
             </div>
           ) : null}
 
@@ -292,24 +334,31 @@ export function CutPointTrackerPage() {
           ) : null}
         </section>
 
-        <section className="order-1 relative min-h-[52vh] overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] shadow-[var(--shadow-sm)] md:order-2 md:min-h-[calc(100vh-11rem)]">
+        <section className="order-1 relative min-h-[55vh] overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-muted)] shadow-[var(--shadow-md)] md:order-2 md:min-h-[calc(100vh-11rem)]">
+          <div className="pointer-events-none absolute inset-x-4 top-4 z-[490] flex justify-between gap-2">
+            <span className="spatial-chip bg-[var(--surface-panel-translucent)]">OpenStreetMap context</span>
+            {selectedTicketId ? (
+              <span className="spatial-chip bg-[var(--surface-panel-translucent)]">Marker focused</span>
+            ) : null}
+          </div>
+
           <div ref={mapHostRef} className="absolute inset-0" aria-label="Cut Point map" />
 
           {!loading && !queryError && visibleMarkers.length === 0 ? (
-            <div className="pointer-events-none absolute inset-x-4 top-4 z-[500] rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-panel)]/95 p-3 text-sm shadow-[var(--shadow-sm)]">
+            <div className="pointer-events-none absolute inset-x-4 top-16 z-[500] rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] p-3 text-sm shadow-[var(--shadow-sm)] backdrop-blur-xl">
               No eligible markers for the current filter. The basemap remains available for context.
             </div>
           ) : null}
 
           {tileWarning ? (
-            <div className="absolute inset-x-4 top-4 z-[510] rounded-lg border border-[var(--warning-border)] bg-[var(--warning-soft)] p-3 text-sm text-[var(--warning-text)] shadow-[var(--shadow-sm)]">
-              <p className="font-semibold">Basemap tiles are having trouble loading.</p>
-              <p className="mt-1 text-xs">
+            <div className="absolute inset-x-4 top-16 z-[510] rounded-2xl border border-[var(--warning-border)] bg-[var(--warning-soft)] p-3.5 text-sm text-[var(--warning-text)] shadow-[var(--shadow-md)]">
+              <p className="font-bold">Basemap tiles are having trouble loading.</p>
+              <p className="mt-1 text-xs leading-5">
                 Ticket data and coordinates remain available in the list.
               </p>
               <button
                 type="button"
-                className={`mt-2 ${secondaryActionClass}`}
+                className={`mt-3 ${secondaryActionClass}`}
                 onClick={() => setMapRevision((current) => current + 1)}
               >
                 Retry map tiles
@@ -318,16 +367,22 @@ export function CutPointTrackerPage() {
           ) : null}
 
           {mapError ? (
-            <div className="absolute inset-4 z-[520] grid place-items-center rounded-xl bg-[var(--surface-panel)]/95 p-4 text-center shadow-[var(--shadow-md)]">
-              <div>
-                <p className="font-bold">Map renderer could not start</p>
-                <p className="mt-2 text-sm text-[var(--text-secondary)]">
+            <div className="absolute inset-4 z-[520] grid place-items-center rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] p-4 text-center shadow-[var(--shadow-lg)] backdrop-blur-xl">
+              <div className="max-w-sm">
+                <span
+                  className="mx-auto grid h-11 w-11 place-items-center rounded-2xl bg-[var(--danger-soft)] text-sm font-black text-[var(--danger-text)]"
+                  aria-hidden="true"
+                >
+                  !
+                </span>
+                <p className="mt-4 font-bold">Map renderer could not start</p>
+                <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
                   The Ticket list remains usable. Retry the Leaflet map without reloading Ticket
                   data.
                 </p>
                 <button
                   type="button"
-                  className={`mt-3 ${secondaryActionClass}`}
+                  className={`mt-4 ${secondaryActionClass}`}
                   onClick={() => setMapRevision((current) => current + 1)}
                 >
                   Retry map
