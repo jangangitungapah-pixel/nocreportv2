@@ -8,12 +8,7 @@ const MARK_SIZE = {
   xl: 'h-24 w-24 rounded-[28px]',
 };
 
-export function BrandMark({
-  size = 'md',
-  className = '',
-  inverse = false,
-  eager = false,
-}) {
+export function BrandMark({ size = 'md', className = '', inverse = false, eager = false }) {
   return (
     <span
       className={`relative grid shrink-0 place-items-center overflow-hidden border p-1 shadow-[var(--shadow-sm)] ${MARK_SIZE[size] ?? MARK_SIZE.md} ${

@@ -1,13 +1,7 @@
 import { useState } from 'react';
 
 import { formatProgressTime, sortProgressTimeline } from '../../../entities/ticket/index.js';
-import {
-  Button,
-  DateTimeField,
-  IconButton,
-  Textarea,
-  UiIcon,
-} from '../../../shared/ui/index.jsx';
+import { Button, DateTimeField, IconButton, Textarea, UiIcon } from '../../../shared/ui/index.jsx';
 
 function toInputValue(value) {
   const date = value instanceof Date ? value : new Date(value);
