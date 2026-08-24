@@ -61,8 +61,14 @@ jobs:
       - name: T7 security hygiene
         run: node scripts/t7-security-hygiene.mjs
 
+      - name: T8 Firebase release preflight
+        run: npm run release:preflight
+
       - name: Production build
         run: npm run build
+
+      - name: Production Firebase-configured build
+        run: npm run build:production
 
       - name: Dev server smoke test
         shell: bash
@@ -116,6 +122,10 @@ jobs:
       - name: Finalize T6 tracker
         if: github.event_name != 'pull_request'
         run: node scripts/finalize-t6.mjs
+
+      - name: Finalize T7 tracker and activate T8
+        if: github.event_name != 'pull_request'
+        run: node scripts/finalize-t7.mjs
 
       - name: Persist validated formatting and phase tracker
         if: github.event_name != 'pull_request'
