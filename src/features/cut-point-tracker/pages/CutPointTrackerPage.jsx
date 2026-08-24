@@ -189,6 +189,9 @@ export function CutPointTrackerPage() {
 
   useEffect(() => {
     mapClientRef.current?.setMarkers(visibleMarkers);
+  }, [visibleMarkers]);
+
+  useEffect(() => {
     if (
       selectedTicketId &&
       !visibleMarkers.some((marker) => marker.ticketId === selectedTicketId)
