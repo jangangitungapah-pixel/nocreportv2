@@ -69,17 +69,50 @@ source = updateSection(
   '# 14. T8 — Firebase Deployment & MVP Release',
   '# 15. Phase Dependency Graph',
   (section) => {
-    let next = section.replace('**Status:** NOT STARTED', '**Status:** IN PROGRESS — release preparation active');
-    next = next.replace('- [ ] current Firebase quotas/pricing rechecked before release.', '- [x] current Firebase quotas/pricing rechecked before release.');
-    next = next.replace('- [ ] no Cloud Storage dependency created.', '- [x] no Cloud Storage dependency created.');
-    next = next.replace('- [ ] no Blaze-only production dependency accidentally introduced.', '- [x] no Blaze-only production dependency accidentally introduced.');
-    next = next.replace('- [ ] production environment values configured safely.', '- [x] production environment values configured safely.');
-    next = next.replace('- [ ] SPA Hosting rewrite configured.', '- [x] SPA Hosting rewrite configured.');
-    next = next.replace('- [ ] README setup instructions updated.', '- [x] README setup instructions updated.');
-    next = next.replace('- [ ] local development instructions updated.', '- [x] local development instructions updated.');
-    next = next.replace('- [ ] Firebase emulator instructions updated.', '- [x] Firebase emulator instructions updated.');
-    next = next.replace('- [ ] deployment instructions documented.', '- [x] deployment instructions documented.');
-    next = next.replace('- [ ] known limitations documented.', '- [x] known limitations documented.');
+    let next = section.replace(
+      '**Status:** NOT STARTED',
+      '**Status:** IN PROGRESS — release preparation active',
+    );
+    next = next.replace(
+      '- [ ] current Firebase quotas/pricing rechecked before release.',
+      '- [x] current Firebase quotas/pricing rechecked before release.',
+    );
+    next = next.replace(
+      '- [ ] no Cloud Storage dependency created.',
+      '- [x] no Cloud Storage dependency created.',
+    );
+    next = next.replace(
+      '- [ ] no Blaze-only production dependency accidentally introduced.',
+      '- [x] no Blaze-only production dependency accidentally introduced.',
+    );
+    next = next.replace(
+      '- [ ] production environment values configured safely.',
+      '- [x] production environment values configured safely.',
+    );
+    next = next.replace(
+      '- [ ] SPA Hosting rewrite configured.',
+      '- [x] SPA Hosting rewrite configured.',
+    );
+    next = next.replace(
+      '- [ ] README setup instructions updated.',
+      '- [x] README setup instructions updated.',
+    );
+    next = next.replace(
+      '- [ ] local development instructions updated.',
+      '- [x] local development instructions updated.',
+    );
+    next = next.replace(
+      '- [ ] Firebase emulator instructions updated.',
+      '- [x] Firebase emulator instructions updated.',
+    );
+    next = next.replace(
+      '- [ ] deployment instructions documented.',
+      '- [x] deployment instructions documented.',
+    );
+    next = next.replace(
+      '- [ ] known limitations documented.',
+      '- [x] known limitations documented.',
+    );
     return next;
   },
 );

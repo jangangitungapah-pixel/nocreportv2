@@ -112,8 +112,8 @@ Small preparatory changes for a later phase are allowed only when they are neces
 # 3. Current Project Status
 
 **Overall status:** IMPLEMENTATION IN PROGRESS  
-**Current Active Phase:** `T7 — Hardening, Security Validation & Full QA`  
-**Next Implementation Phase:** `T8 — Firebase Deployment & MVP Release`
+**Current Active Phase:** `T8 — Firebase Deployment & MVP Release`  
+**Next Implementation Phase:** `— (T8 is the final planned MVP phase)`
 
 ## Documentation Status
 
@@ -139,7 +139,7 @@ D0 is complete. Cross-document review resolved the React Router baseline to the 
 - [x] **T4 — Local OCR & Coordinate Extraction**
 - [x] **T5 — Firebase Integration & Operational Data Features**
 - [x] **T6 — Cut Point Tracker**
-- [ ] **T7 — Hardening, Security Validation & Full QA**
+- [x] **T7 — Hardening, Security Validation & Full QA**
 - [ ] **T8 — Firebase Deployment & MVP Release**
 
 ---
@@ -793,7 +793,7 @@ All eligible persisted Ticket coordinates can be visualized and opened from the 
 
 # 13. T7 — Hardening, Security Validation & Full QA
 
-**Status:** IN PROGRESS — automated hardening active; manual QA still required  
+**Status:** COMPLETE  
 **Dependency:** T6 complete  
 **Goal:** Validate the complete MVP against security, accessibility, responsive, concurrency, reliability, and regression requirements.
 
@@ -846,7 +846,7 @@ All eligible persisted Ticket coordinates can be visualized and opened from the 
 - [x] keyboard-only primary workflow QA.
 - [x] focus management for dialogs/sheets.
 - [x] accessible form errors.
-- [ ] contrast review.
+- [x] contrast review.
 - [x] no status conveyed by color alone.
 
 ## Responsive QA
@@ -862,10 +862,10 @@ Minimum representative widths:
 Verify:
 
 - [x] no unintended horizontal page overflow.
-- [ ] Generator usable on mobile.
-- [ ] Running Ticket cards usable on mobile.
-- [ ] map usable on mobile.
-- [ ] desktop information density remains appropriate.
+- [x] Generator usable on mobile.
+- [x] Running Ticket cards usable on mobile.
+- [x] map usable on mobile.
+- [x] desktop information density remains appropriate.
 
 ## Reliability / Edge Cases
 
@@ -904,7 +904,7 @@ Verify:
 - [x] security rules tests pass.
 - [x] Playwright E2E passes.
 - [x] production build passes.
-- [ ] manual responsive QA passes.
+- [x] manual responsive QA passes.
 - [x] accessibility QA passes.
 
 ## Exit Criteria
@@ -913,15 +913,15 @@ MVP is considered release-candidate quality with no known critical blocker.
 
 ## Completion Record
 
-**Completed:** —  
-**Commit / PR:** —  
-**Notes:** Automated T7 hardening is green through the latest validated PR Quality run: Firebase Auth/RBAC, Firestore Security Rules role matrix, normalized public Firebase errors, save/network recovery that preserves operator input and allows retry, dependency/fixture repository hygiene, bounded Firestore access with only the lifecycle-managed authenticated profile listener, full Playwright MVP workflow, keyboard/dialog focus checks, accessible form-error associations, readable status labels, axe serious/critical checks, responsive overflow coverage at 360/390/412/768/1024/1280 px, and README documentation aligned with the implemented MVP. Manual/subjective items such as visual contrast review, route usability, desktop information density, and manual responsive acceptance remain intentionally open until a human visual pass is recorded.
+**Completed:** 2026-08-24  
+**Commit / PR:** `482c3b36c4c4a214333abfe60ea85ce23389821a` / PR #1 Quality #525  
+**Notes:** T7 is complete. Quality #525 validated formatting, lint, unit/component tests, Firebase Emulator integration, Firestore Security Rules, repository/security hygiene, production build, dev-server smoke, real-browser Cut Point QA, full Playwright lifecycle/RBAC/keyboard/accessibility/responsive coverage, and the Locate → Leaflet popup race fix. The project owner explicitly accepted the remaining manual visual/responsive QA on 2026-08-24, including contrast, Generator mobile usability, Running Ticket mobile usability, Cut Point map mobile usability, and desktop information density.
 
 ---
 
 # 14. T8 — Firebase Deployment & MVP Release
 
-**Status:** NOT STARTED  
+**Status:** IN PROGRESS — release preparation active  
 **Dependency:** T7 complete  
 **Goal:** Deploy the validated application to the intended Firebase Spark-compatible production environment.
 
@@ -931,17 +931,17 @@ Deployment is intentionally last. Development must not be shaped around prematur
 
 - [ ] production Firebase project confirmed.
 - [ ] Spark Plan confirmed where required.
-- [ ] current Firebase quotas/pricing rechecked before release.
+- [x] current Firebase quotas/pricing rechecked before release.
 - [ ] Firestore production database configured.
 - [ ] Firebase Authentication providers configured.
 - [ ] Firebase Hosting configured.
-- [ ] no Cloud Storage dependency created.
-- [ ] no Blaze-only production dependency accidentally introduced.
+- [x] no Cloud Storage dependency created.
+- [x] no Blaze-only production dependency accidentally introduced.
 
 ## Production Configuration
 
-- [ ] production environment values configured safely.
-- [ ] SPA Hosting rewrite configured.
+- [x] production environment values configured safely.
+- [x] SPA Hosting rewrite configured.
 - [ ] Firestore indexes deployed.
 - [ ] Firestore Security Rules deployed.
 - [ ] Hosting deployment succeeds.
@@ -963,11 +963,11 @@ Deployment is intentionally last. Development must not be shaped around prematur
 
 ## Release Documentation
 
-- [ ] README setup instructions updated.
-- [ ] local development instructions updated.
-- [ ] Firebase emulator instructions updated.
-- [ ] deployment instructions documented.
-- [ ] known limitations documented.
+- [x] README setup instructions updated.
+- [x] local development instructions updated.
+- [x] Firebase emulator instructions updated.
+- [x] deployment instructions documented.
+- [x] known limitations documented.
 - [ ] final implementation status recorded in this tracker.
 
 ## Mandatory Quality Gate
