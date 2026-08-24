@@ -71,6 +71,8 @@ tracker = updateSection(
       '~1024px small desktop/tablet landscape.',
       '>=1280px desktop.',
       'no unintended horizontal page overflow.',
+      'save failure retains form data.',
+      'network error has recovery path.',
       'stale revision does not silently overwrite newer Ticket.',
       'duplicate progress timestamps remain deterministic.',
       'cross-midnight incidents render correctly.',
@@ -83,7 +85,10 @@ tracker = updateSection(
       'excessive Firestore listeners removed.',
       'Firestore reads/writes reviewed.',
       'no obsolete backup files.',
+      'no dead test fixtures without purpose.',
       'no debug logging left in production path.',
+      'no unused major dependency.',
+      'documentation matches final implementation.',
       'lint passes.',
       'format check passes.',
       'unit tests pass.',
@@ -99,10 +104,10 @@ tracker = updateSection(
       next = replaceRequired(next, `- [ ] ${item}`, `- [x] ${item}`, `T7 item: ${item}`);
     }
 
-    next = next.replace(
-      '**Notes:** —',
-      '**Notes:** Automated T7 hardening is green through the latest validated PR Quality run: Firebase Auth/RBAC, Firestore Security Rules role matrix, normalized public Firebase errors, security/repository hygiene, bounded Firestore access with only the lifecycle-managed authenticated profile listener, full Playwright MVP workflow, keyboard/dialog focus checks, accessible form-error associations, readable status labels, axe serious/critical checks, and responsive overflow coverage at 360/390/412/768/1024/1280 px. Manual/subjective items such as visual contrast review, route usability, desktop information density, and manual responsive acceptance remain intentionally open until a human visual pass is recorded.',
-    );
+    const notes =
+      '**Notes:** Automated T7 hardening is green through the latest validated PR Quality run: Firebase Auth/RBAC, Firestore Security Rules role matrix, normalized public Firebase errors, save/network recovery that preserves operator input and allows retry, dependency/fixture repository hygiene, bounded Firestore access with only the lifecycle-managed authenticated profile listener, full Playwright MVP workflow, keyboard/dialog focus checks, accessible form-error associations, readable status labels, axe serious/critical checks, responsive overflow coverage at 360/390/412/768/1024/1280 px, and README documentation aligned with the implemented MVP. Manual/subjective items such as visual contrast review, route usability, desktop information density, and manual responsive acceptance remain intentionally open until a human visual pass is recorded.';
+
+    next = next.replace(/\*\*Notes:\*\*.*?(?=\n\n---)/s, notes);
     return next;
   },
 );
