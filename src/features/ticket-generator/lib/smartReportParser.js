@@ -153,7 +153,13 @@ function inferProgressDateTimes(progressRows, occurAt) {
   });
 }
 
-function buildWarnings({ values, detectedFields, progressHeaderDetected, progressRows, multipleReports }) {
+function buildWarnings({
+  values,
+  detectedFields,
+  progressHeaderDetected,
+  progressRows,
+  multipleReports,
+}) {
   const warnings = [];
 
   if (!detectedFields.includes('title')) warnings.push('Title was not detected.');
@@ -168,7 +174,9 @@ function buildWarnings({ values, detectedFields, progressHeaderDetected, progres
     warnings.push('Update Progress was found but no HH:mm progress rows were detected.');
   }
   if (multipleReports) {
-    warnings.push('Multiple report/example markers were detected. Paste one report at a time for best results.');
+    warnings.push(
+      'Multiple report/example markers were detected. Paste one report at a time for best results.',
+    );
   }
 
   return warnings;
