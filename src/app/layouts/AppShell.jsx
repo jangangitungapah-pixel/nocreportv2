@@ -21,19 +21,26 @@ function NavigationLink({ item }) {
     <Link
       to={item.to}
       aria-current={active ? 'page' : undefined}
-      className={`flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
+      className={`group flex min-h-12 items-center gap-3 rounded-2xl border px-3.5 text-sm font-bold tracking-[-0.01em] transition-[transform,background-color,border-color,box-shadow,color] duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
         active
-          ? 'bg-[var(--accent-soft)] text-[var(--accent-text)]'
-          : 'text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] hover:text-[var(--text-primary)]'
+          ? 'border-[var(--border-accent)] bg-[var(--accent-soft)] text-[var(--accent-text)] shadow-[var(--shadow-xs)]'
+          : 'border-transparent text-[var(--text-secondary)] hover:translate-x-0.5 hover:border-[var(--border-subtle)] hover:bg-[var(--surface-panel)] hover:text-[var(--text-primary)] hover:shadow-[var(--shadow-xs)]'
       }`}
     >
       <span
-        className="grid h-7 w-7 shrink-0 place-items-center rounded-md border border-current/15 text-[11px] font-bold"
+        className={`grid h-8 w-8 shrink-0 place-items-center rounded-xl border text-[10px] font-extrabold transition duration-200 ${
+          active
+            ? 'border-[var(--border-accent)] bg-[var(--surface-panel)] text-[var(--accent-text)] shadow-[var(--shadow-xs)]'
+            : 'border-[var(--border-subtle)] bg-[var(--surface-muted)] text-[var(--text-muted)] group-hover:bg-[var(--surface-panel)] group-hover:text-[var(--text-primary)]'
+        }`}
         aria-hidden="true"
       >
         {item.icon}
       </span>
-      <span>{item.label}</span>
+      <span className="min-w-0 flex-1 truncate">{item.label}</span>
+      {active ? (
+        <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent-solid)]" aria-hidden="true" />
+      ) : null}
     </Link>
   );
 }
@@ -48,39 +55,61 @@ export function AppShell() {
   );
 
   return (
-    <div className="min-h-screen bg-[var(--surface-canvas)] text-[var(--text-primary)]">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-[var(--border-subtle)] bg-[var(--surface-panel)] lg:flex lg:flex-col">
-        <div className="flex h-16 items-center gap-3 border-b border-[var(--border-subtle)] px-4">
-          <div className="grid h-9 w-9 place-items-center rounded-lg bg-[var(--accent-solid)] text-xs font-black text-[var(--accent-on-solid)]">
-            NR
+    <div className="min-h-screen text-[var(--text-primary)]">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 border-r border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] p-3 backdrop-blur-2xl lg:flex lg:flex-col">
+        <div className="flex min-h-[72px] items-center gap-3 rounded-2xl px-3">
+          <div className="relative grid h-11 w-11 place-items-center overflow-hidden rounded-2xl bg-[var(--accent-solid)] text-xs font-black text-[var(--accent-on-solid)] shadow-[var(--shadow-accent)]">
+            <span className="relative z-10">NR</span>
+            <span
+              className="absolute -right-3 -top-3 h-8 w-8 rounded-full bg-white/20 blur-sm"
+              aria-hidden="true"
+            />
           </div>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-bold">NOC Report</p>
-            <p className="truncate text-xs text-[var(--text-muted)]">Operations Workspace</p>
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-[var(--font-display)] text-[15px] font-bold tracking-[-0.03em]">
+              NOC Report
+            </p>
+            <p className="mt-0.5 truncate text-[11px] font-semibold uppercase tracking-[0.11em] text-[var(--text-muted)]">
+              Operations Workspace
+            </p>
           </div>
         </div>
 
-        <nav className="flex-1 space-y-1 p-3" aria-label="Primary navigation">
+        <div className="my-2 px-3">
+          <div className="spatial-divider" />
+        </div>
+
+        <div className="px-3 pb-2 pt-3">
+          <p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-[var(--text-faint)]">
+            Workspace
+          </p>
+        </div>
+
+        <nav className="flex-1 space-y-1.5 overflow-y-auto px-1" aria-label="Primary navigation">
           {visibleNavigation.map((item) => (
             <NavigationLink key={item.key} item={item} />
           ))}
         </nav>
 
-        <div className="border-t border-[var(--border-subtle)] p-3">
-          <div className="rounded-xl bg-[var(--surface-muted)] p-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]">
-              Workspace
-            </p>
-            <p className="mt-1 truncate text-sm font-semibold">
-              {localDevelopmentMode
-                ? 'Local development'
-                : profile?.displayName || profile?.email || 'Firebase user'}
-            </p>
-            <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
-              {localDevelopmentMode
-                ? 'Firebase is not configured. No operational data is written to the cloud.'
-                : `Authenticated role: ${role ?? 'UNKNOWN'}`}
-            </p>
+        <div className="mt-4 border-t border-[var(--border-subtle)] pt-3">
+          <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-3.5 shadow-[var(--shadow-sm)]">
+            <div className="flex items-start gap-3">
+              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[var(--accent-soft)] text-xs font-extrabold text-[var(--accent-text)]">
+                {localDevelopmentMode ? 'LD' : String(role || 'U').slice(0, 2)}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-bold">
+                  {localDevelopmentMode
+                    ? 'Local development'
+                    : profile?.displayName || profile?.email || 'Firebase user'}
+                </p>
+                <p className="mt-1 text-xs leading-5 text-[var(--text-muted)]">
+                  {localDevelopmentMode
+                    ? 'Cloud writes are disabled in local preview.'
+                    : `${role ?? 'UNKNOWN'} access · Firebase`}
+                </p>
+              </div>
+            </div>
             {firebaseConfigured ? (
               <Button tone="secondary" className="mt-3 w-full" onClick={() => signOut()}>
                 Sign out
@@ -90,34 +119,41 @@ export function AppShell() {
         </div>
       </aside>
 
-      <div className="lg:pl-64">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] px-4 backdrop-blur md:px-6">
-          <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)] lg:hidden">
-              NOC Report
-            </p>
-            <h1 className="truncate text-lg font-bold tracking-tight">{pageLabel}</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="hidden text-xs font-medium text-[var(--text-muted)] sm:inline">
-              {localDevelopmentMode ? 'Local preview' : (role ?? 'Authenticated')} · T7
-            </span>
-            <IconButton
-              label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-              onClick={toggleTheme}
-            >
-              <span aria-hidden="true">{theme === 'light' ? '◐' : '◑'}</span>
-            </IconButton>
+      <div className="lg:pl-72">
+        <header className="sticky top-0 z-30 px-3 pt-3 md:px-5 lg:px-6">
+          <div className="mx-auto flex min-h-[64px] w-full max-w-[var(--page-max)] items-center justify-between gap-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] px-4 shadow-[var(--shadow-sm)] backdrop-blur-2xl md:px-5">
+            <div className="min-w-0">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.15em] text-[var(--accent-text)] lg:hidden">
+                NOC Report
+              </p>
+              <h1 className="truncate font-[var(--font-display)] text-lg font-bold tracking-[-0.035em] md:text-xl">
+                {pageLabel}
+              </h1>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <span className="spatial-chip hidden sm:inline-flex">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--success-solid)]" aria-hidden="true" />
+                {localDevelopmentMode ? 'Local preview' : (role ?? 'Authenticated')}
+              </span>
+              <IconButton
+                label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+                onClick={toggleTheme}
+              >
+                <span className="text-base" aria-hidden="true">
+                  {theme === 'light' ? '◐' : '◑'}
+                </span>
+              </IconButton>
+            </div>
           </div>
         </header>
 
-        <main className="mx-auto w-full max-w-[1600px] px-4 py-5 pb-24 md:px-6 md:py-6 lg:pb-8">
+        <main className="mx-auto w-full max-w-[var(--page-max)] px-4 pb-28 pt-5 md:px-6 md:pt-7 lg:px-8 lg:pb-10">
           <Outlet />
         </main>
       </div>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-50 grid border-t border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur lg:hidden"
+        className="fixed inset-x-3 bottom-3 z-50 grid gap-1 rounded-[22px] border border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] p-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] shadow-[var(--shadow-lg)] backdrop-blur-2xl lg:hidden"
         style={{ gridTemplateColumns: `repeat(${visibleNavigation.length}, minmax(0, 1fr))` }}
         aria-label="Mobile primary navigation"
       >
@@ -128,19 +164,23 @@ export function AppShell() {
               key={item.key}
               to={item.to}
               aria-current={active ? 'page' : undefined}
-              className={`flex min-h-12 flex-col items-center justify-center gap-1 rounded-lg px-1 text-[11px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
-                active ? 'text-[var(--accent-text)]' : 'text-[var(--text-muted)]'
+              className={`flex min-h-13 flex-col items-center justify-center gap-1 rounded-2xl px-1 py-1.5 text-[10px] font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
+                active
+                  ? 'bg-[var(--accent-soft)] text-[var(--accent-text)]'
+                  : 'text-[var(--text-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--text-primary)]'
               }`}
             >
               <span
-                className={`grid h-6 w-6 place-items-center rounded-md text-[10px] font-black ${
-                  active ? 'bg-[var(--accent-soft)]' : 'bg-[var(--surface-muted)]'
+                className={`grid h-6 w-6 place-items-center rounded-lg text-[9px] font-black ${
+                  active
+                    ? 'bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]'
+                    : 'bg-[var(--surface-muted)]'
                 }`}
                 aria-hidden="true"
               >
                 {item.icon}
               </span>
-              <span>{item.shortLabel}</span>
+              <span className="max-w-full truncate">{item.shortLabel}</span>
             </Link>
           );
         })}
