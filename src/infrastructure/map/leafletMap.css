@@ -25,14 +25,21 @@
   outline-offset: 3px;
 }
 
-.leaflet-control-attribution a {
-  text-decoration: underline;
+.leaflet-container .leaflet-control-attribution a {
+  text-decoration-line: underline !important;
+  text-decoration-thickness: 1px;
   text-underline-offset: 2px;
 }
 
-.leaflet-control-attribution a:focus-visible {
+.leaflet-container .leaflet-control-attribution a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.leaflet-container .leaflet-control-attribution a:focus-visible {
+  border-radius: 2px;
   outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
+  text-decoration-thickness: 2px;
 }
 
 .noc-map-popup {
