@@ -232,7 +232,10 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
       </div>
 
       {phase === 'processing' ? (
-        <div className="mt-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3.5" aria-live="polite">
+        <div
+          className="mt-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3.5"
+          aria-live="polite"
+        >
           <div className="flex items-center justify-between gap-3 text-xs font-bold">
             <span>{progress.status || 'Starting OCR worker…'}</span>
             <span className="font-mono tabular-nums text-[var(--accent-text)]">

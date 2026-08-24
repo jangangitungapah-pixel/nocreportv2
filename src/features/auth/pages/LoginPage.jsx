@@ -72,7 +72,9 @@ export function LoginPage() {
                 NR
               </span>
               <div>
-                <p className="font-[var(--font-display)] text-sm font-bold tracking-[-0.03em]">NOC Report</p>
+                <p className="font-[var(--font-display)] text-sm font-bold tracking-[-0.03em]">
+                  NOC Report
+                </p>
                 <p className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-white/45">
                   Operations workspace
                 </p>
@@ -99,7 +101,10 @@ export function LoginPage() {
               ['Local', 'Photo OCR'],
               ['Role-safe', 'Firebase'],
             ].map(([value, label]) => (
-              <div key={value} className="rounded-2xl border border-white/10 bg-white/[0.055] p-3.5 backdrop-blur">
+              <div
+                key={value}
+                className="rounded-2xl border border-white/10 bg-white/[0.055] p-3.5 backdrop-blur"
+              >
                 <p className="text-sm font-bold text-white/90">{value}</p>
                 <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-white/38">
                   {label}

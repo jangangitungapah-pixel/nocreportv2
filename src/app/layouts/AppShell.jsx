@@ -132,7 +132,10 @@ export function AppShell() {
             </div>
             <div className="flex shrink-0 items-center gap-2">
               <span className="spatial-chip hidden sm:inline-flex">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--success-solid)]" aria-hidden="true" />
+                <span
+                  className="h-1.5 w-1.5 rounded-full bg-[var(--success-solid)]"
+                  aria-hidden="true"
+                />
                 {localDevelopmentMode ? 'Local preview' : (role ?? 'Authenticated')}
               </span>
               <IconButton

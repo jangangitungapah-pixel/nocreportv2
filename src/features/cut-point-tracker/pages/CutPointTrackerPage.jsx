@@ -254,9 +254,9 @@ export function CutPointTrackerPage() {
 
       {localDevelopmentMode ? (
         <div className="rounded-2xl border border-[var(--border-accent)] bg-[var(--accent-soft)] p-4 text-sm leading-6 text-[var(--text-secondary)] shadow-[var(--shadow-xs)]">
-          <span className="font-bold text-[var(--accent-text)]">Local preview.</span> No persisted Cut
-          Point records are available until Firebase is configured; the map still uses the configured
-          OpenStreetMap-compatible tile source.
+          <span className="font-bold text-[var(--accent-text)]">Local preview.</span> No persisted
+          Cut Point records are available until Firebase is configured; the map still uses the
+          configured OpenStreetMap-compatible tile source.
         </div>
       ) : null}
 
@@ -281,7 +281,10 @@ export function CutPointTrackerPage() {
           </div>
 
           {!loading && !queryError ? (
-            <p className="mt-3 px-1 text-xs font-semibold text-[var(--text-muted)]" aria-live="polite">
+            <p
+              className="mt-3 px-1 text-xs font-semibold text-[var(--text-muted)]"
+              aria-live="polite"
+            >
               Showing {visibleMarkers.length} of {markers.length} mapped Tickets.
             </p>
           ) : null}
@@ -336,9 +339,13 @@ export function CutPointTrackerPage() {
 
         <section className="order-1 relative min-h-[55vh] overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-muted)] shadow-[var(--shadow-md)] md:order-2 md:min-h-[calc(100vh-11rem)]">
           <div className="pointer-events-none absolute inset-x-4 top-4 z-[490] flex justify-between gap-2">
-            <span className="spatial-chip bg-[var(--surface-panel-translucent)]">OpenStreetMap context</span>
+            <span className="spatial-chip bg-[var(--surface-panel-translucent)]">
+              OpenStreetMap context
+            </span>
             {selectedTicketId ? (
-              <span className="spatial-chip bg-[var(--surface-panel-translucent)]">Marker focused</span>
+              <span className="spatial-chip bg-[var(--surface-panel-translucent)]">
+                Marker focused
+              </span>
             ) : null}
           </div>
 

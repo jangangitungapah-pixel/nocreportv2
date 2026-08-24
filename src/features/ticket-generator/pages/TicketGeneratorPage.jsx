@@ -54,7 +54,9 @@ function FieldSection({ title, description, children }) {
         <div className="min-w-0">
           <h3 className="text-base font-bold text-[var(--text-primary)]">{title}</h3>
           {description ? (
-            <p className="mt-1 max-w-3xl text-xs leading-5 text-[var(--text-muted)]">{description}</p>
+            <p className="mt-1 max-w-3xl text-xs leading-5 text-[var(--text-muted)]">
+              {description}
+            </p>
           ) : null}
         </div>
       </div>
@@ -633,7 +635,10 @@ export function TicketGeneratorPage() {
               </Button>
             ) : null}
             {status === TICKET_STATUS.RUNNING ? (
-              <Button disabled={persistPending} onClick={() => transitionTo(TICKET_STATUS.RESOLVED)}>
+              <Button
+                disabled={persistPending}
+                onClick={() => transitionTo(TICKET_STATUS.RESOLVED)}
+              >
                 Resolve Ticket
               </Button>
             ) : null}

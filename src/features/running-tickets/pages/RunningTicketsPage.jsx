@@ -149,7 +149,10 @@ function TicketActions({ ticket, canMutate, copyPending, resolvePending, onCopy,
 function TicketCard({ ticket, canMutate, copyPending, resolvePending, onCopy, onResolve }) {
   return (
     <article className="group relative overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-4 shadow-[var(--shadow-sm)] transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-[var(--border-default)] hover:shadow-[var(--shadow-md)]">
-      <span className="absolute inset-y-5 left-0 w-0.5 rounded-full bg-[var(--success-solid)]" aria-hidden="true" />
+      <span
+        className="absolute inset-y-5 left-0 w-0.5 rounded-full bg-[var(--success-solid)]"
+        aria-hidden="true"
+      />
       <div className="flex flex-wrap items-start justify-between gap-2 pl-1">
         <div>
           <StatusBadge status={ticket.status} />
@@ -467,7 +470,10 @@ export function RunningTicketsPage() {
                   >
                     <td className="max-w-sm px-4 py-4">
                       <div className="flex items-center gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-[var(--success-solid)]" aria-hidden="true" />
+                        <span
+                          className="h-1.5 w-1.5 rounded-full bg-[var(--success-solid)]"
+                          aria-hidden="true"
+                        />
                         <p className="font-mono text-[11px] font-bold text-[var(--text-muted)]">
                           {ticket.externalTtNumber ?? 'No TT detected'}
                         </p>

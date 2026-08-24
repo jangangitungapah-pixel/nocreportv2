@@ -162,7 +162,10 @@ export function DashboardPage() {
                 </Link>
               ) : null}
               <span className="spatial-chip">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--success-solid)]" aria-hidden="true" />
+                <span
+                  className="h-1.5 w-1.5 rounded-full bg-[var(--success-solid)]"
+                  aria-hidden="true"
+                />
                 {localDevelopmentMode ? 'Preview mode' : 'Production connected'}
               </span>
             </div>
@@ -180,7 +183,9 @@ export function DashboardPage() {
               <div>
                 <p className="text-sm font-bold">Ready for operations</p>
                 <p className="mt-0.5 text-xs text-[var(--text-muted)]">
-                  {localDevelopmentMode ? 'Cloud persistence disabled' : 'Firebase workspace active'}
+                  {localDevelopmentMode
+                    ? 'Cloud persistence disabled'
+                    : 'Firebase workspace active'}
                 </p>
               </div>
             </div>
@@ -190,9 +195,9 @@ export function DashboardPage() {
 
       {localDevelopmentMode ? (
         <div className="rounded-2xl border border-[var(--border-accent)] bg-[var(--accent-soft)] p-4 text-sm leading-6 text-[var(--text-secondary)] shadow-[var(--shadow-xs)]">
-          <span className="font-bold text-[var(--accent-text)]">Local preview.</span>{' '}
-          Configure Firebase environment values to load operational counts and recent Ticket data;
-          the Generator remains fully usable locally.
+          <span className="font-bold text-[var(--accent-text)]">Local preview.</span> Configure
+          Firebase environment values to load operational counts and recent Ticket data; the
+          Generator remains fully usable locally.
         </div>
       ) : null}
 

@@ -202,8 +202,8 @@ export function ArchiveManagementPage() {
 
       {localDevelopmentMode ? (
         <section className="rounded-2xl border border-[var(--border-accent)] bg-[var(--accent-soft)] p-4 text-sm leading-6 text-[var(--text-secondary)] shadow-[var(--shadow-xs)]">
-          <span className="font-bold text-[var(--accent-text)]">Local preview.</span> Archive data is
-          unavailable because lifecycle mutations require Firebase Auth and Firestore.
+          <span className="font-bold text-[var(--accent-text)]">Local preview.</span> Archive data
+          is unavailable because lifecycle mutations require Firebase Auth and Firestore.
         </section>
       ) : loading ? (
         <div className="space-y-3" aria-label="Loading archive Tickets">

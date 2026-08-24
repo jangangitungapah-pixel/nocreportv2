@@ -158,8 +158,8 @@ export function TicketViewerPage() {
           <div>
             <p className="font-bold">Viewer read-only mode</p>
             <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
-              You can inspect this Ticket and copy the generated report. Ticket, progress, lifecycle,
-              and coordinate mutations are disabled for the Viewer role.
+              You can inspect this Ticket and copy the generated report. Ticket, progress,
+              lifecycle, and coordinate mutations are disabled for the Viewer role.
             </p>
           </div>
         </div>
