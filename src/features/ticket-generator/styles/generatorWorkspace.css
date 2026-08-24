@@ -1,0 +1,170 @@
+/* Dense Template Generator workspace composition.
+   Presentation-only: no persistence or Ticket lifecycle behavior lives here. */
+
+.generator-smart-import,
+.generator-impact-editor,
+.generator-progress-composer,
+.generator-progress-history,
+.generator-progress-empty,
+.generator-report-preview {
+  scroll-margin-top: 6rem;
+}
+
+/* Compact the command surface at the top of the Generator. */
+div.space-y-6:has(#ticket-title) > section.spatial-panel-elevated:first-child {
+  padding: 0.8rem 1rem !important;
+  border-radius: var(--radius-xl) !important;
+  box-shadow: var(--shadow-sm), var(--shadow-inset) !important;
+}
+
+div.space-y-6:has(#ticket-title)
+  > section.spatial-panel-elevated:first-child
+  > div[aria-hidden='true'] {
+  display: none;
+}
+
+div.space-y-6:has(#ticket-title)
+  > section.spatial-panel-elevated:first-child
+  > div.relative {
+  gap: 0.75rem !important;
+}
+
+div.space-y-6:has(#ticket-title)
+  > section.spatial-panel-elevated:first-child
+  p.mt-3 {
+  margin-top: 0.35rem !important;
+}
+
+div.space-y-6:has(#ticket-title)
+  > section.spatial-panel-elevated:first-child
+  p.mt-1 {
+  margin-top: 0.15rem !important;
+  line-height: 1.35rem !important;
+}
+
+/* Pull the useful editor content upward and reduce card-to-card travel. */
+div.space-y-6:has(#ticket-title) > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 1rem !important;
+}
+
+div.space-y-6:has(#ticket-title) > div.grid {
+  gap: 1rem !important;
+}
+
+div.space-y-6:has(#ticket-title) > div.grid > div.min-w-0.space-y-6 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 0.9rem !important;
+}
+
+/* Core form cards should read as one editor, not a stack of marketing panels. */
+section:has(#ticket-title),
+section:has(#occur-at),
+section:has(#pic),
+section:has(#latitude) {
+  padding: 1rem !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-xs), var(--shadow-inset) !important;
+}
+
+section:has(#ticket-title) > div.mb-5,
+section:has(#occur-at) > div.mb-5,
+section:has(#pic) > div.mb-5,
+section:has(#latitude) > div.mb-5 {
+  margin-bottom: 0.8rem !important;
+  gap: 0.55rem !important;
+}
+
+section:has(#ticket-title) > div.mb-5 > span,
+section:has(#occur-at) > div.mb-5 > span,
+section:has(#pic) > div.mb-5 > span,
+section:has(#latitude) > div.mb-5 > span {
+  width: 3px !important;
+  height: 1.5rem !important;
+  margin-top: 0.1rem !important;
+}
+
+section:has(#ticket-title) > div.mb-5 p,
+section:has(#occur-at) > div.mb-5 p,
+section:has(#pic) > div.mb-5 p,
+section:has(#latitude) > div.mb-5 p {
+  display: none;
+}
+
+section:has(#ticket-title) > div.mt-4,
+section:has(#latitude) > div.mt-4 {
+  margin-top: 0.75rem !important;
+  padding-top: 0.55rem !important;
+  padding-bottom: 0.55rem !important;
+}
+
+section:has(#pic) > div.mt-4 {
+  margin-top: 0.75rem !important;
+}
+
+/* OCR is a utility, so it should not visually outweigh the Ticket data itself. */
+section:has(input[aria-label='Choose Cut Point photo']) {
+  padding: 1rem !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-xs) !important;
+}
+
+section:has(input[aria-label='Choose Cut Point photo']) > div:first-child p.mt-1 {
+  display: none;
+}
+
+section:has(input[aria-label='Choose Cut Point photo']) > div.relative.mt-4 {
+  margin-top: 0.75rem !important;
+  padding: 0.75rem !important;
+  border-radius: var(--radius-lg) !important;
+}
+
+section:has(input[aria-label='Choose Cut Point photo']) .h-32 {
+  height: 5.5rem !important;
+}
+
+section:has(input[aria-label='Choose Cut Point photo']) .sm\:h-28 {
+  height: 5.5rem !important;
+}
+
+section:has(input[aria-label='Choose Cut Point photo']) .mt-4.flex {
+  margin-top: 0.65rem !important;
+}
+
+/* Keep the report useful while preventing it from dominating the editor. */
+.generator-report-preview pre {
+  overscroll-behavior: contain;
+}
+
+@media (min-width: 1280px) {
+  div.space-y-6:has(#ticket-title) > div.grid {
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 400px) !important;
+    align-items: start;
+  }
+
+  .generator-report-preview {
+    top: 5rem !important;
+  }
+}
+
+@media (min-width: 1536px) {
+  div.space-y-6:has(#ticket-title) > div.grid {
+    grid-template-columns: minmax(0, 1fr) 420px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  div.space-y-6:has(#ticket-title) > section.spatial-panel-elevated:first-child {
+    padding: 0.75rem !important;
+  }
+
+  .generator-smart-import,
+  .generator-impact-editor,
+  .generator-progress-composer,
+  .generator-progress-history,
+  section:has(#ticket-title),
+  section:has(#occur-at),
+  section:has(#pic),
+  section:has(#latitude),
+  section:has(input[aria-label='Choose Cut Point photo']) {
+    border-radius: var(--radius-lg) !important;
+  }
+}
