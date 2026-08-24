@@ -869,8 +869,8 @@ Verify:
 
 ## Reliability / Edge Cases
 
-- [ ] save failure retains form data.
-- [ ] network error has recovery path.
+- [x] save failure retains form data.
+- [x] network error has recovery path.
 - [x] stale revision does not silently overwrite newer Ticket.
 - [x] duplicate progress timestamps remain deterministic.
 - [x] cross-midnight incidents render correctly.
@@ -889,10 +889,10 @@ Verify:
 ## Repository Hygiene
 
 - [x] no obsolete backup files.
-- [ ] no dead test fixtures without purpose.
+- [x] no dead test fixtures without purpose.
 - [x] no debug logging left in production path.
-- [ ] no unused major dependency.
-- [ ] documentation matches final implementation.
+- [x] no unused major dependency.
+- [x] documentation matches final implementation.
 
 ## Mandatory Quality Gate
 
@@ -915,7 +915,7 @@ MVP is considered release-candidate quality with no known critical blocker.
 
 **Completed:** —  
 **Commit / PR:** —  
-**Notes:** Automated T7 hardening is green through the latest validated PR Quality run: Firebase Auth/RBAC, Firestore Security Rules role matrix, normalized public Firebase errors, security/repository hygiene, bounded Firestore access with only the lifecycle-managed authenticated profile listener, full Playwright MVP workflow, keyboard/dialog focus checks, accessible form-error associations, readable status labels, axe serious/critical checks, and responsive overflow coverage at 360/390/412/768/1024/1280 px. Manual/subjective items such as visual contrast review, route usability, desktop information density, and manual responsive acceptance remain intentionally open until a human visual pass is recorded.
+**Notes:** Automated T7 hardening is green through the latest validated PR Quality run: Firebase Auth/RBAC, Firestore Security Rules role matrix, normalized public Firebase errors, save/network recovery that preserves operator input and allows retry, dependency/fixture repository hygiene, bounded Firestore access with only the lifecycle-managed authenticated profile listener, full Playwright MVP workflow, keyboard/dialog focus checks, accessible form-error associations, readable status labels, axe serious/critical checks, responsive overflow coverage at 360/390/412/768/1024/1280 px, and README documentation aligned with the implemented MVP. Manual/subjective items such as visual contrast review, route usability, desktop information density, and manual responsive acceptance remain intentionally open until a human visual pass is recorded.
 
 ---
 

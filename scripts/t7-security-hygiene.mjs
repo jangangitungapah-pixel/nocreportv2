@@ -95,7 +95,9 @@ const textFileContents = new Map();
 
 for (const absolute of allFiles) {
   const path = repositoryPath(absolute);
-  if (FORBIDDEN_FILE_PATTERNS.some((pattern) => pattern.test(path) || pattern.test(basename(path)))) {
+  if (
+    FORBIDDEN_FILE_PATTERNS.some((pattern) => pattern.test(path) || pattern.test(basename(path)))
+  ) {
     violations.push(`${path}: credential-like or obsolete backup file name is not allowed`);
     continue;
   }
@@ -133,7 +135,9 @@ const productionSource = [...textFileContents.entries()]
 for (const dependency of Object.keys(packageJson.dependencies ?? {})) {
   const dependencyPattern = new RegExp(`['"]${escapeRegExp(dependency)}(?:/[^'"]*)?['"]`);
   if (!dependencyPattern.test(productionSource)) {
-    violations.push(`${dependency}: production dependency is declared but not referenced by application source`);
+    violations.push(
+      `${dependency}: production dependency is declared but not referenced by application source`,
+    );
   }
 }
 
@@ -157,7 +161,9 @@ const testAndQaSource = [...textFileContents.entries()]
 for (const fixturePath of fixturePaths) {
   const fixtureName = basename(fixturePath);
   if (!testAndQaSource.includes(fixturePath) && !testAndQaSource.includes(fixtureName)) {
-    violations.push(`${fixturePath}: committed test fixture/test-data file has no test or QA reference`);
+    violations.push(
+      `${fixturePath}: committed test fixture/test-data file has no test or QA reference`,
+    );
   }
 }
 

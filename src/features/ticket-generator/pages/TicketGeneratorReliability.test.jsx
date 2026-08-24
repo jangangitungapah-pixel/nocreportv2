@@ -56,7 +56,9 @@ describe('Template Generator persistence recovery', () => {
     await waitFor(() => expect(persistenceMocks.createTicketEditor).toHaveBeenCalledTimes(1));
     expect(await screen.findByText('Save failed')).toBeInTheDocument();
     expect(
-      screen.getByText('The network/Firebase service is unavailable. Your unsaved form data is still on screen.'),
+      screen.getByText(
+        'The network/Firebase service is unavailable. Your unsaved form data is still on screen.',
+      ),
     ).toBeInTheDocument();
     expect(title).toHaveValue('[MANDAU] RETRYABLE LINK DOWN');
 
