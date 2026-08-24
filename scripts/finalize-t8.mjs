@@ -48,7 +48,9 @@ for (const marker of [
   '- [x] required Firebase Authentication provider confirmed.',
 ]) {
   if (!evidence.includes(marker)) {
-    throw new Error(`T8 finalization refused: missing authenticated-smoke evidence marker: ${marker}`);
+    throw new Error(
+      `T8 finalization refused: missing authenticated-smoke evidence marker: ${marker}`,
+    );
   }
 }
 
@@ -85,16 +87,10 @@ source = updateSection(
   '# 14. T8 — Firebase Deployment & MVP Release',
   '# 15. Phase Dependency Graph',
   (section) => {
-    let next = section.replace(
-      /\*\*Status:\*\* IN PROGRESS[^\n]*/,
-      '**Status:** COMPLETE',
-    );
+    let next = section.replace(/\*\*Status:\*\* IN PROGRESS[^\n]*/, '**Status:** COMPLETE');
     next = next.replaceAll('- [ ]', '- [x]');
     next = next.replace('**Completed:** —', `**Completed:** ${releaseDate}`);
-    next = next.replace(
-      '**Commit / PR:** —',
-      `**Commit / PR:** \`${commitReference}\` / PR #1`,
-    );
+    next = next.replace('**Commit / PR:** —', `**Commit / PR:** \`${commitReference}\` / PR #1`);
     next = next.replace('**Production URL:** —', `**Production URL:** \`${productionUrl}\``);
     next = next.replace(
       /\*\*Notes:\*\*.*?(?=\n\n---)/s,
@@ -105,4 +101,6 @@ source = updateSection(
 );
 
 await writeFile(workplanPath, source);
-console.log(`T8 finalized as COMPLETE for ${productionUrl} using authenticated production evidence.`);
+console.log(
+  `T8 finalized as COMPLETE for ${productionUrl} using authenticated production evidence.`,
+);
