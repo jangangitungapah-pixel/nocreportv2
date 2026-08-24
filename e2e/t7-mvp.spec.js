@@ -109,7 +109,9 @@ async function tabUntilFocused(page, locator, maxTabs = 40) {
     const focused = await locator.evaluate((element) => element === document.activeElement);
     if (focused) return;
   }
-  throw new Error(`Keyboard focus did not reach ${await locator.getAttribute('aria-label') || 'target'}.`);
+  throw new Error(
+    `Keyboard focus did not reach ${(await locator.getAttribute('aria-label')) || 'target'}.`,
+  );
 }
 
 async function createOcrFixtureBuffer(page) {
@@ -226,7 +228,9 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await applyCoordinate.click();
     await expect(page.getByLabel('Latitude')).toHaveValue('3.5244');
     await expect(page.getByLabel('Longitude')).toHaveValue('98.7691');
-    await expect(page.getByText(/Coordinate applied to editable Latitude\/Longitude fields/)).toBeVisible();
+    await expect(
+      page.getByText(/Coordinate applied to editable Latitude\/Longitude fields/),
+    ).toBeVisible();
 
     await page.getByLabel('Longitude').fill('98.7692');
     await page.getByRole('button', { name: 'Save' }).click();
