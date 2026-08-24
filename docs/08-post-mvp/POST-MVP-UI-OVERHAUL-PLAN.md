@@ -1,7 +1,7 @@
 # Post-MVP UI Overhaul Plan
 
 **Document ID:** NOCREPORT-POSTMVP-UI-001  
-**Status:** IMPLEMENTED — QA / VISUAL ACCEPTANCE PENDING  
+**Status:** AUTOMATED QA COMPLETE — VISUAL ACCEPTANCE PENDING  
 **Branch:** `feature/ui-overhaul-v2`  
 **Production baseline:** `main` / MVP RELEASED
 
@@ -87,21 +87,57 @@ The target direction is a **spatial operations cockpit**: modern, youthful, calm
 
 ### UI-7 — Full visual QA & release readiness
 
-- [ ] format/lint/unit/component tests green on the final overhaul head;
-- [ ] Firebase Emulator/security tests green on the final overhaul head;
-- [ ] production build green on the final overhaul head;
-- [ ] browser responsive/touch gate green on the final overhaul head;
-- [ ] Playwright lifecycle/RBAC/accessibility gate green on the final overhaul head;
+- [x] format/lint/unit/component tests green on the final overhaul code head;
+- [x] Firebase Emulator/security tests green on the final overhaul code head;
+- [x] production build green on the final overhaul code head;
+- [x] browser responsive/touch gate green on the final overhaul code head;
+- [x] Playwright lifecycle/RBAC/accessibility gate green on the final overhaul code head;
 - [ ] manual light/dark desktop/mobile visual QA accepted;
 - [ ] PR ready for merge to `main` only after acceptance.
+
+## Automated QA evidence
+
+Quality **#617** completed successfully for code head `84085f6fbc09405ef56ea2e7ad13907255a16bc7` on 2026-08-24.
+
+Validated gates:
+
+- Prettier formatting and committed-format verification;
+- ESLint;
+- 104 unit/component tests;
+- Firebase Emulator repository integration;
+- Firestore Security Rules role matrix;
+- repository/security hygiene;
+- Firebase production release preflight;
+- generic and Firebase-configured production builds;
+- dev-server smoke;
+- responsive viewport and touch QA;
+- Admin end-to-end Ticket lifecycle including OCR, progress, resolve, archive, and restore;
+- Operator/Viewer RBAC restrictions;
+- keyboard navigation and dialog focus management;
+- serious/critical axe accessibility checks on primary routes.
 
 ## Implementation notes
 
 - Presentation components and semantic tokens were overhauled first so pages share one coherent visual language.
+- The Generator workspace frame received a dedicated final spatial pass so the most frequently used operator page is consistent with the rest of the overhaul.
 - Generator persistence, optimistic revision handling, Ticket transitions, report formatting, and OCR contracts were intentionally left unchanged.
 - Running Tickets, Archive, Cut Point Tracker, Dashboard, Login, Viewer, and supporting states now use the spatial design system.
-- The previous muted-text palette failed the serious WCAG color-contrast gate during Playwright QA; semantic text contrast was raised centrally in the token layer instead of patched page-by-page.
-- `main` remains the released production baseline until this draft PR completes QA and receives explicit visual acceptance.
+- Muted-text and destructive-action contrast issues discovered by axe were corrected centrally through semantic tokens.
+- Leaflet attribution links remain intact and now have explicit non-color link distinction and focus treatment.
+- Exact Prettier output is committed to the feature branch; the temporary one-shot formatting workflow was removed and is not part of the PR diff.
+- `main` remains the released production baseline until this draft PR receives explicit manual visual acceptance.
+
+## Manual visual acceptance checklist
+
+Review both **Light** and **Dark** themes at desktop and mobile sizes, with special attention to:
+
+- Login — first impression, hierarchy, contrast, and form comfort;
+- Dashboard — spatial depth, KPI scanability, recent activity, and long-session visual fatigue;
+- Generator — command toolbar, form density, section hierarchy, Report Preview, OCR, coordinate, and Progress Timeline;
+- Running Tickets — desktop data density, mobile cards, filtering, and quick actions;
+- Cut Point Tracker — map/list balance, marker cards, mobile bottom-sheet feel, and map controls;
+- Archive — lifecycle actions, destructive-state clarity, and data scanability;
+- shell/navigation — desktop rail, top bar, mobile bottom navigation, Light/Dark consistency, and no distracting decorative excess.
 
 ## Non-goals
 
