@@ -19,6 +19,7 @@
     "test:firebase:emulator": "node scripts/test-firebase-emulator.mjs",
     "test:integration": "npm run test:firebase:emulator",
     "release:preflight": "node scripts/t8-release-preflight.mjs",
+    "release:smoke:public": "node scripts/t8-production-smoke.mjs",
     "firebase:deploy:rules": "npx --yes firebase-tools deploy --only firestore:rules --project nocreportv2",
     "firebase:deploy:indexes": "npx --yes firebase-tools deploy --only firestore:indexes --project nocreportv2",
     "firebase:deploy:firestore": "npx --yes firebase-tools deploy --only firestore:rules,firestore:indexes --project nocreportv2",
