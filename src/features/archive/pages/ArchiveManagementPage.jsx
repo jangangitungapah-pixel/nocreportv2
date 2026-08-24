@@ -20,6 +20,9 @@ const VIEW = Object.freeze({
   ARCHIVED: 'archived',
 });
 
+const openLinkClass =
+  'inline-flex min-h-[var(--control-height)] items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-4 text-sm font-bold text-[var(--text-primary)] shadow-[var(--shadow-xs)] transition-[transform,background-color,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-[var(--border-default)] hover:bg-[var(--surface-panel-strong)] hover:shadow-[var(--shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]';
+
 function viewStatus(view) {
   return view === VIEW.ARCHIVED ? TICKET_STATUS.ARCHIVED : TICKET_STATUS.RESOLVED;
 }
@@ -154,45 +157,53 @@ export function ArchiveManagementPage() {
   }
 
   return (
-    <div className="space-y-5">
-      <section className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-5 shadow-[var(--shadow-sm)]">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--text-muted)]">
-              Admin lifecycle controls
-            </p>
-            <h2 className="mt-1 text-xl font-bold">Archive & Restore</h2>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-secondary)]">
-              Archive resolved Tickets out of normal operational views, or restore archived Tickets
-              back to Resolved. Every mutation uses the current Ticket revision and is enforced
-              again by Firestore Security Rules.
+    <div className="space-y-5 md:space-y-6">
+      <section className="spatial-panel-elevated relative overflow-hidden p-5 md:p-7">
+        <div
+          className="pointer-events-none absolute -right-20 -top-28 h-72 w-72 rounded-full bg-[var(--accent-glow)] blur-3xl"
+          aria-hidden="true"
+        />
+        <div className="relative flex flex-wrap items-end justify-between gap-6">
+          <div className="max-w-3xl">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="spatial-kicker">Admin lifecycle controls</p>
+              <span className="spatial-chip">ADMIN only</span>
+            </div>
+            <h2 className="spatial-title mt-3">Archive & Restore</h2>
+            <p className="spatial-description mt-4">
+              Move resolved Tickets out of the daily operational surface without losing history, or
+              restore archived work safely. Revision checks and Firestore Security Rules stay in the
+              loop for every mutation.
             </p>
           </div>
-          <div className="rounded-lg bg-[var(--surface-muted)] px-3 py-2 text-xs font-semibold text-[var(--text-secondary)]">
-            ADMIN only
-          </div>
-        </div>
 
-        <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Archive view">
-          <Button
-            tone={view === VIEW.RESOLVED ? 'primary' : 'secondary'}
-            onClick={() => setView(VIEW.RESOLVED)}
+          <div
+            className="flex rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-1 shadow-[var(--shadow-xs)]"
+            role="group"
+            aria-label="Archive view"
           >
-            Resolved
-          </Button>
-          <Button
-            tone={view === VIEW.ARCHIVED ? 'primary' : 'secondary'}
-            onClick={() => setView(VIEW.ARCHIVED)}
-          >
-            Archived
-          </Button>
+            <Button
+              tone={view === VIEW.RESOLVED ? 'primary' : 'secondary'}
+              className="min-h-10 px-3.5"
+              onClick={() => setView(VIEW.RESOLVED)}
+            >
+              Resolved
+            </Button>
+            <Button
+              tone={view === VIEW.ARCHIVED ? 'primary' : 'secondary'}
+              className="min-h-10 px-3.5"
+              onClick={() => setView(VIEW.ARCHIVED)}
+            >
+              Archived
+            </Button>
+          </div>
         </div>
       </section>
 
       {localDevelopmentMode ? (
-        <section className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-5 text-sm text-[var(--text-secondary)] shadow-[var(--shadow-sm)]">
-          Archive data is unavailable in local preview mode because lifecycle mutations require
-          Firebase Auth and Firestore.
+        <section className="rounded-2xl border border-[var(--border-accent)] bg-[var(--accent-soft)] p-4 text-sm leading-6 text-[var(--text-secondary)] shadow-[var(--shadow-xs)]">
+          <span className="font-bold text-[var(--accent-text)]">Local preview.</span> Archive data is
+          unavailable because lifecycle mutations require Firebase Auth and Firestore.
         </section>
       ) : loading ? (
         <div className="space-y-3" aria-label="Loading archive Tickets">
@@ -207,23 +218,35 @@ export function ArchiveManagementPage() {
           onRetry={loadInitial}
         />
       ) : (
-        <section className="overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-sm)]">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-4 py-3">
+        <section className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-sm)]">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border-subtle)] bg-[var(--surface-panel-strong)] px-4 py-4 md:px-5">
             <div>
-              <h3 className="text-sm font-bold">
+              <p className="spatial-kicker">Lifecycle history</p>
+              <h3 className="mt-1.5 text-lg font-bold">
                 {view === VIEW.ARCHIVED ? 'Archived Tickets' : 'Resolved Tickets'}
               </h3>
               <p className="mt-1 text-xs text-[var(--text-muted)]">
-                {tickets.length} loaded · pages are bounded to {PAGE_SIZE} Tickets
+                Bounded pages keep historical reads intentional.
               </p>
             </div>
+            <span className="spatial-chip">
+              {tickets.length} loaded · max {PAGE_SIZE}/page
+            </span>
           </div>
 
           {tickets.length === 0 ? (
-            <div className="px-4 py-10 text-center text-sm text-[var(--text-muted)]">
-              {view === VIEW.ARCHIVED
-                ? 'No archived Tickets in this page set.'
-                : 'No resolved Tickets are ready to archive.'}
+            <div className="px-4 py-12 text-center text-sm text-[var(--text-muted)]">
+              <span
+                className="mx-auto grid h-11 w-11 place-items-center rounded-2xl bg-[var(--surface-muted)] text-xs font-black text-[var(--text-muted)]"
+                aria-hidden="true"
+              >
+                0
+              </span>
+              <p className="mt-3 font-semibold">
+                {view === VIEW.ARCHIVED
+                  ? 'No archived Tickets in this page set.'
+                  : 'No resolved Tickets are ready to archive.'}
+              </p>
             </div>
           ) : (
             <div className="divide-y divide-[var(--border-subtle)]">
@@ -234,27 +257,24 @@ export function ArchiveManagementPage() {
                 return (
                   <article
                     key={ticket.id}
-                    className="grid gap-4 px-4 py-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-center"
+                    className="group grid gap-4 px-4 py-4 transition-colors duration-200 hover:bg-[var(--surface-muted)] md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:px-5"
                   >
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <StatusBadge status={ticket.status} />
-                        <span className="font-mono text-xs font-semibold text-[var(--text-muted)]">
+                        <span className="font-mono text-[11px] font-bold text-[var(--text-muted)]">
                           {ttLabel}
                         </span>
                       </div>
-                      <p className="mt-2 break-words text-sm font-semibold">
+                      <p className="mt-2 break-words text-sm font-bold tracking-[-0.01em]">
                         {ticket.title || 'Untitled Ticket'}
                       </p>
-                      <p className="mt-1 text-xs text-[var(--text-muted)]">
+                      <p className="mt-1.5 text-xs font-medium text-[var(--text-muted)]">
                         Updated {formatDateTime(ticket.updatedAt)} · revision {ticket.revision}
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2 md:justify-end">
-                      <Link
-                        to={`/generator/${ticket.id}`}
-                        className="inline-flex min-h-11 items-center justify-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-4 text-sm font-semibold text-[var(--text-primary)] transition hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
-                      >
+                      <Link to={`/generator/${ticket.id}`} className={openLinkClass}>
                         Open
                       </Link>
                       <Button
@@ -278,7 +298,7 @@ export function ArchiveManagementPage() {
           )}
 
           {hasMore ? (
-            <div className="border-t border-[var(--border-subtle)] p-4 text-center">
+            <div className="border-t border-[var(--border-subtle)] bg-[var(--surface-panel-strong)] p-4 text-center">
               <Button tone="secondary" disabled={loadingMore} onClick={loadMore}>
                 {loadingMore ? 'Loading…' : 'Load more'}
               </Button>
