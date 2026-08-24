@@ -131,6 +131,16 @@ jobs:
         if: github.event_name != 'pull_request'
         run: node scripts/apply-t8-production-deployment-evidence.mjs
 
+      - name: Finalize T8 release
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          if [ -f docs/07-release/AUTHENTICATED-PRODUCTION-SMOKE-EVIDENCE.md ]; then
+            node scripts/finalize-t8.mjs
+          else
+            echo "Authenticated production evidence is not present; T8 remains open."
+          fi
+
       - name: Persist validated formatting and phase tracker
         if: github.event_name != 'pull_request'
         shell: bash
