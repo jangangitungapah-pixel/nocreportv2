@@ -73,7 +73,7 @@ async function walk(directory) {
     const absolute = join(directory, entry.name);
     if (entry.isDirectory()) {
       if (IGNORED_DIRECTORIES.has(entry.name)) continue;
-      files.push(...(await walk(absolute));
+      files.push(...(await walk(absolute)));
     } else {
       files.push(absolute);
     }
