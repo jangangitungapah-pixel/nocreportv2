@@ -78,7 +78,9 @@ export function SmartPasteParser({ onApply }) {
                     ))}
                   </div>
                 ) : (
-                  <p className="mt-1 text-xs text-[var(--text-muted)]">No known labels detected yet.</p>
+                  <p className="mt-1 text-xs text-[var(--text-muted)]">
+                    No known labels detected yet.
+                  </p>
                 )}
               </div>
               <Button disabled={!parsed.canApply} onClick={apply}>
@@ -99,7 +101,8 @@ export function SmartPasteParser({ onApply }) {
           </div>
         ) : (
           <p className="mt-2 text-[11px] leading-5 text-[var(--text-muted)]">
-            Paste a completed report here. Fields are previewed first and only applied when you choose Fill generator.
+            Paste a completed report here. Fields are previewed first and only applied when you
+            choose Fill generator.
           </p>
         )}
       </div>
