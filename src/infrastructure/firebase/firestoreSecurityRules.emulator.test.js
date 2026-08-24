@@ -150,7 +150,7 @@ describeEmulator.sequential('Firestore Security Rules role matrix', () => {
     );
   });
 
-  it('allows Viewer Ticket and Progress reads but denies Ticket mutation', async () => {
+  it('allows Viewer Ticket and Progress repository reads but denies Ticket mutation', async () => {
     const db = getFirestoreClient();
     await signInAs(accounts.admin);
     await setDoc(doc(db, 'tickets', 'viewer-readable'), ticketDocument(accounts.admin.uid));
@@ -164,12 +164,18 @@ describeEmulator.sequential('Firestore Security Rules role matrix', () => {
     });
 
     await signInAs(accounts.viewer);
-    const snapshot = await getDocs(collection(db, 'tickets'));
-    expect(snapshot.docs.map((item) => item.id)).toContain('viewer-readable');
-    const progressSnapshot = await getDocs(
-      collection(db, 'tickets', 'viewer-readable', 'progress'),
-    );
-    expect(progressSnapshot.docs.map((item) => item.id)).toContain('progress-1');
+    const [ticket, progressPage] = await Promise.all([
+      firestoreTicketRepository.getTicketById('viewer-readable'),
+      firestoreTicketRepository.listProgress({
+        ticketId: 'viewer-readable',
+        pageSize: 100,
+        direction: 'asc',
+      }),
+    ]);
+    expect(ticket.id).toBe('viewer-readable');
+    expect(progressPage.items.map((item) => item.id)).toContain('progress-1');
+    expect(progressPage.hasMore).toBe(false);
+
     await expectPermissionDenied(() =>
       setDoc(doc(db, 'tickets', 'viewer-write'), ticketDocument(accounts.viewer.uid)),
     );
