@@ -28,6 +28,7 @@ try {
   if (error?.code === 'ENOENT') {
     throw new Error(
       `T8 finalization refused: ${evidencePath} does not exist. Complete authenticated production smoke first.`,
+      { cause: error },
     );
   }
   throw error;
