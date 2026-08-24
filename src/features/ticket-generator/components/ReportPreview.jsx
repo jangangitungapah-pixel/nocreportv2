@@ -16,7 +16,7 @@ export function ReportPreview({ report, onCopy, copyPending = false }) {
         </div>
         <div className="bg-[var(--surface-muted)] p-2">
           <pre
-            className="max-h-[calc(100vh-8.5rem)] min-h-72 overflow-auto whitespace-pre-wrap break-words rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-3.5 font-mono text-[12px] leading-5.5 text-[var(--text-primary)] shadow-[var(--shadow-xs)] md:p-4"
+            className="max-h-[calc(100vh-8.5rem)] min-h-72 overflow-auto whitespace-pre-wrap break-words rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-3.5 font-mono text-[12px] leading-5 text-[var(--text-primary)] shadow-[var(--shadow-xs)] md:p-4"
             aria-label="Generated NOC report"
           >
             {report}
