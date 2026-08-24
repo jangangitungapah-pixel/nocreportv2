@@ -41,12 +41,22 @@ import { validateTicketForm } from '../schemas/ticketFormSchema.js';
 
 function FieldSection({ title, description, children }) {
   return (
-    <section className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-5 shadow-[var(--shadow-sm)]">
-      <div className="mb-4">
-        <h3 className="text-sm font-bold">{title}</h3>
-        {description ? (
-          <p className="mt-1 text-xs leading-5 text-[var(--text-muted)]">{description}</p>
-        ) : null}
+    <section className="spatial-panel relative overflow-hidden p-5 md:p-6">
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,var(--border-accent),transparent)]"
+        aria-hidden="true"
+      />
+      <div className="mb-5 flex gap-3">
+        <span
+          className="mt-1 h-8 w-1 shrink-0 rounded-full bg-[var(--accent-solid)] shadow-[0_0_18px_var(--accent-glow)]"
+          aria-hidden="true"
+        />
+        <div className="min-w-0">
+          <h3 className="text-base font-bold text-[var(--text-primary)]">{title}</h3>
+          {description ? (
+            <p className="mt-1 max-w-3xl text-xs leading-5 text-[var(--text-muted)]">{description}</p>
+          ) : null}
+        </div>
       </div>
       {children}
     </section>
@@ -112,15 +122,15 @@ function persistenceMessage(error, fallback) {
 
 function GeneratorLoading() {
   return (
-    <div className="space-y-5" aria-label="Loading Ticket">
-      <Skeleton className="h-16" />
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(340px,2fr)]">
-        <div className="space-y-5">
-          <Skeleton className="h-44" />
-          <Skeleton className="h-44" />
-          <Skeleton className="h-60" />
+    <div className="space-y-6" aria-label="Loading Ticket">
+      <Skeleton className="h-28 rounded-[var(--radius-2xl)]" />
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(380px,0.75fr)]">
+        <div className="space-y-6">
+          <Skeleton className="h-48" />
+          <Skeleton className="h-48" />
+          <Skeleton className="h-64" />
         </div>
-        <Skeleton className="h-[34rem]" />
+        <Skeleton className="h-[38rem]" />
       </div>
     </div>
   );
@@ -578,47 +588,64 @@ export function TicketGeneratorPage() {
   }
 
   return (
-    <div className="space-y-5">
-      <section className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-4 py-3 shadow-[var(--shadow-sm)]">
-        <div className="flex min-w-0 flex-wrap items-center gap-3">
-          <StatusBadge status={status} />
+    <div className="space-y-6">
+      <section className="spatial-panel-elevated relative overflow-hidden p-4 md:p-5">
+        <div
+          className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full bg-[var(--accent-glow)] blur-3xl"
+          aria-hidden="true"
+        />
+        <div className="relative flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="spatial-kicker">Ticket workspace</span>
+              <StatusBadge status={status} />
+              <span
+                className={`spatial-chip ${hasUnsavedChanges ? 'border-[var(--border-accent)] bg-[var(--accent-soft)] text-[var(--accent-text)]' : ''}`}
+              >
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${hasUnsavedChanges ? 'bg-[var(--warning-solid)]' : 'bg-[var(--success-solid)]'}`}
+                  aria-hidden="true"
+                />
+                {hasUnsavedChanges ? 'Unsaved changes' : 'Up to date'}
+              </span>
+            </div>
+            <p className="mt-3 truncate font-mono text-sm font-bold tracking-[-0.01em] text-[var(--text-primary)] md:text-base">
               {ticket.externalTtNumber ?? 'New ticket — TT number not detected'}
             </p>
-            <p className="text-xs text-[var(--text-muted)]">
+            <p className="mt-1 text-xs leading-5 text-[var(--text-muted)]">
               {hasUnsavedChanges
-                ? 'Unsaved changes'
+                ? 'Keep working, then save when the operational data is ready.'
                 : localDevelopmentMode
-                  ? 'Session state saved'
+                  ? 'Session state saved · local preview mode'
                   : routeTicketId
                     ? `Saved to Firestore · revision ${revision}`
                     : 'New cloud Ticket not saved yet'}
             </p>
           </div>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button tone="secondary" disabled={persistPending} onClick={saveTicket}>
-            {persistPending ? 'Saving…' : 'Save'}
-          </Button>
-          {status === TICKET_STATUS.DRAFT ? (
-            <Button disabled={persistPending} onClick={() => transitionTo(TICKET_STATUS.RUNNING)}>
-              Mark Running
+
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap xl:justify-end">
+            <Button tone="secondary" disabled={persistPending} onClick={saveTicket}>
+              {persistPending ? 'Saving…' : 'Save'}
             </Button>
-          ) : null}
-          {status === TICKET_STATUS.RUNNING ? (
-            <Button disabled={persistPending} onClick={() => transitionTo(TICKET_STATUS.RESOLVED)}>
-              Resolve Ticket
+            {status === TICKET_STATUS.DRAFT ? (
+              <Button disabled={persistPending} onClick={() => transitionTo(TICKET_STATUS.RUNNING)}>
+                Mark Running
+              </Button>
+            ) : null}
+            {status === TICKET_STATUS.RUNNING ? (
+              <Button disabled={persistPending} onClick={() => transitionTo(TICKET_STATUS.RESOLVED)}>
+                Resolve Ticket
+              </Button>
+            ) : null}
+            <Button tone="secondary" disabled title="Admin archive permission is enforced in T7">
+              Archive
             </Button>
-          ) : null}
-          <Button tone="secondary" disabled title="Admin archive permission is enforced in T7">
-            Archive
-          </Button>
+          </div>
         </div>
       </section>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(340px,2fr)]">
-        <div className="space-y-5">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(380px,0.75fr)] 2xl:grid-cols-[minmax(0,1.55fr)_minmax(420px,0.72fr)]">
+        <div className="min-w-0 space-y-6">
           <FieldSection
             title="Ticket Identity"
             description="The complete operational Title remains the source of truth for report output."
@@ -631,8 +658,11 @@ export function TicketGeneratorPage() {
               error={errors.title?.message}
               {...register('title')}
             />
-            <div className="mt-3 rounded-lg bg-[var(--surface-muted)] px-3 py-2 text-xs text-[var(--text-secondary)]">
-              Detected TT: <strong>{ticket.externalTtNumber ?? 'Not detected'}</strong>
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-3.5 py-3 text-xs text-[var(--text-secondary)]">
+              <span className="font-semibold">Detected TT</span>
+              <strong className="font-mono text-[var(--text-primary)]">
+                {ticket.externalTtNumber ?? 'Not detected'}
+              </strong>
             </div>
           </FieldSection>
 
@@ -666,7 +696,10 @@ export function TicketGeneratorPage() {
             </div>
           </FieldSection>
 
-          <FieldSection title="Assignment & Diagnosis">
+          <FieldSection
+            title="Assignment & Diagnosis"
+            description="Keep ownership, root cause, and physical Cut Point context together for faster handover scanning."
+          >
             <div className="grid gap-4 md:grid-cols-2">
               <TextInput
                 id="pic"
@@ -720,16 +753,16 @@ export function TicketGeneratorPage() {
               />
             </div>
             <div
-              className={`mt-3 rounded-lg px-3 py-2 text-xs ${
+              className={`mt-4 rounded-xl border px-3.5 py-3 text-xs leading-5 ${
                 coordinate.valid
-                  ? 'bg-[var(--surface-muted)] text-[var(--text-secondary)]'
-                  : 'border border-[var(--danger-border)] bg-[var(--danger-soft)] text-[var(--danger-text)]'
+                  ? 'border-[var(--border-subtle)] bg-[var(--surface-muted)] text-[var(--text-secondary)]'
+                  : 'border-[var(--danger-border)] bg-[var(--danger-soft)] text-[var(--danger-text)]'
               }`}
             >
-              Normalized coordinate: {coordinate.text}
+              <span className="font-semibold">Normalized coordinate:</span> {coordinate.text}
             </div>
             {ticket.coordinate ? (
-              <p className="mt-2 text-xs text-[var(--text-muted)]">
+              <p className="mt-2 text-xs leading-5 text-[var(--text-muted)]">
                 Source:{' '}
                 {ticket.coordinate.source === 'ocr' ? 'Local photo OCR · verified' : 'Manual entry'}
                 {ticket.coordinate.detectedFormat ? ` · ${ticket.coordinate.detectedFormat}` : ''}
