@@ -62,6 +62,8 @@ tracker = updateSection(
       'automated axe checks on primary routes.',
       'keyboard-only primary workflow QA.',
       'focus management for dialogs/sheets.',
+      'accessible form errors.',
+      'no status conveyed by color alone.',
       '~360px mobile.',
       '~390/412px mobile.',
       '~768px tablet.',
@@ -97,7 +99,7 @@ tracker = updateSection(
 
     next = next.replace(
       '**Notes:** —',
-      '**Notes:** Automated T7 hardening is green through the latest validated PR Quality run: Firebase Auth/RBAC, Firestore Security Rules role matrix, security/repository hygiene, full Playwright MVP workflow, keyboard/dialog focus checks, axe serious/critical checks, and responsive overflow coverage at 360/390/412/768/1024/1280 px. Manual/subjective items such as visual contrast review, route usability, desktop information density, and manual responsive acceptance remain intentionally open until a human visual pass is recorded.',
+      '**Notes:** Automated T7 hardening is green through the latest validated PR Quality run: Firebase Auth/RBAC, Firestore Security Rules role matrix, security/repository hygiene, full Playwright MVP workflow, keyboard/dialog focus checks, accessible form-error associations, readable status labels, axe serious/critical checks, and responsive overflow coverage at 360/390/412/768/1024/1280 px. Manual/subjective items such as visual contrast review, route usability, desktop information density, and manual responsive acceptance remain intentionally open until a human visual pass is recorded.',
     );
     return next;
   },
