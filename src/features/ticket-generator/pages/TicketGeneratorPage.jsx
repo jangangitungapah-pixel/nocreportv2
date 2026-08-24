@@ -434,10 +434,10 @@ export function TicketGeneratorPage() {
     if (localDevelopmentMode || !routeTicketId) {
       setProgressEntries((current) => [...current, entry]);
       setProgressDirty(true);
-      return;
+      return true;
     }
 
-    if (persistPending) return;
+    if (persistPending) return false;
     setPersistPending(true);
     try {
       const result = await persistProgressAppend({
@@ -453,12 +453,14 @@ export function TicketGeneratorPage() {
         message: 'Timeline update persisted.',
         tone: 'success',
       });
+      return true;
     } catch (error) {
       pushToast({
         title: 'Progress not saved',
         message: persistenceMessage(error, 'The progress update could not be persisted.'),
         tone: 'error',
       });
+      return false;
     } finally {
       setPersistPending(false);
     }
