@@ -1,71 +1,150 @@
 :root {
   color-scheme: light;
 
-  --surface-canvas: #f4f6f8;
+  --font-display: 'Space Grotesk', 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Manrope', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+
+  --surface-canvas: #f4f6fb;
+  --surface-canvas-deep: #edf1f8;
   --surface-panel: #ffffff;
+  --surface-panel-strong: #fbfcff;
   --surface-elevated: #ffffff;
-  --surface-muted: #f0f3f6;
-  --surface-muted-strong: #e4e9ef;
-  --surface-panel-translucent: rgb(255 255 255 / 88%);
+  --surface-muted: #f2f4f9;
+  --surface-muted-strong: #e8edf5;
+  --surface-glass: rgb(255 255 255 / 76%);
+  --surface-panel-translucent: rgb(255 255 255 / 82%);
+  --surface-inverse: #171b27;
 
-  --border-subtle: #e2e7ec;
-  --border-default: #cfd7df;
+  --canvas-gradient:
+    radial-gradient(circle at 8% 2%, rgb(91 97 232 / 10%), transparent 27rem),
+    radial-gradient(circle at 92% 0%, rgb(14 165 233 / 7%), transparent 25rem);
+  --panel-gradient: linear-gradient(145deg, rgb(255 255 255 / 98%), rgb(249 251 255 / 92%));
+  --accent-gradient: linear-gradient(135deg, #666cf1 0%, #5359df 55%, #4850ce 100%);
 
-  --text-primary: #17202a;
-  --text-secondary: #4d5a68;
-  --text-muted: #5f6b7a;
+  --border-subtle: #e4e8f0;
+  --border-default: #d5dce8;
+  --border-strong: #bec8d8;
+  --border-accent: rgb(91 97 232 / 28%);
 
-  --accent-solid: #2457d6;
-  --accent-solid-hover: #1d49b8;
+  --text-primary: #171b27;
+  --text-secondary: #4f596b;
+  --text-muted: #768095;
+  --text-faint: #9aa3b4;
+  --text-on-inverse: #f8f9fc;
+
+  --accent-solid: #5b61e8;
+  --accent-solid-hover: #4d53d3;
   --accent-on-solid: #ffffff;
-  --accent-soft: #e9efff;
-  --accent-text: #1d49b8;
+  --accent-soft: #eef0ff;
+  --accent-soft-strong: #e1e4ff;
+  --accent-text: #484ecc;
+  --accent-glow: rgb(91 97 232 / 20%);
+  --accent-cyan: #0ea5e9;
+  --accent-violet: #8b5cf6;
 
-  --danger-solid: #c6363f;
-  --danger-soft: #fff0f1;
-  --danger-border: #f0b7bb;
-  --danger-text: #a12830;
+  --success-solid: #139767;
+  --success-soft: #e9f8f2;
+  --success-text: #0b7650;
+  --warning-solid: #d98916;
+  --warning-soft: #fff6df;
+  --warning-text: #9b5d05;
 
-  --focus-ring: #5b7ee5;
-  --focus-soft: rgb(36 87 214 / 14%);
-  --status-dot: #718096;
+  --danger-solid: #d44553;
+  --danger-soft: #fff0f2;
+  --danger-border: #f3c3c9;
+  --danger-text: #ad2f3d;
 
-  --shadow-sm: 0 1px 2px rgb(15 23 42 / 5%);
-  --shadow-lg: 0 16px 40px rgb(15 23 42 / 14%);
+  --focus-ring: #6268eb;
+  --focus-soft: rgb(91 97 232 / 16%);
+  --status-dot: #7f8a9e;
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
+  --radius-2xl: 28px;
+  --radius-pill: 999px;
+
+  --shadow-xs: 0 1px 2px rgb(20 24 36 / 4%);
+  --shadow-sm: 0 6px 20px rgb(25 31 46 / 6%);
+  --shadow-md: 0 14px 38px rgb(25 31 46 / 9%);
+  --shadow-lg: 0 26px 70px rgb(20 24 36 / 15%);
+  --shadow-accent: 0 12px 28px rgb(91 97 232 / 22%);
+  --shadow-inset: inset 0 1px 0 rgb(255 255 255 / 78%);
+
+  --control-height: 46px;
+  --control-height-sm: 40px;
+  --page-max: 1680px;
+  --content-max: 1320px;
+
+  --motion-fast: 140ms;
+  --motion-base: 200ms;
+  --motion-slow: 320ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 [data-theme='dark'] {
   color-scheme: dark;
 
-  --surface-canvas: #0d1117;
-  --surface-panel: #151b23;
-  --surface-elevated: #1b222c;
-  --surface-muted: #1e2631;
-  --surface-muted-strong: #2a3441;
-  --surface-panel-translucent: rgb(21 27 35 / 90%);
+  --surface-canvas: #0c0f16;
+  --surface-canvas-deep: #090c12;
+  --surface-panel: #121721;
+  --surface-panel-strong: #151b26;
+  --surface-elevated: #181e2a;
+  --surface-muted: #1a202c;
+  --surface-muted-strong: #242c3a;
+  --surface-glass: rgb(18 23 33 / 76%);
+  --surface-panel-translucent: rgb(15 20 29 / 82%);
+  --surface-inverse: #f4f6fb;
 
-  --border-subtle: #293441;
-  --border-default: #3a4655;
+  --canvas-gradient:
+    radial-gradient(circle at 8% 2%, rgb(103 111 255 / 14%), transparent 30rem),
+    radial-gradient(circle at 90% 0%, rgb(14 165 233 / 8%), transparent 27rem);
+  --panel-gradient: linear-gradient(145deg, rgb(21 27 38 / 98%), rgb(16 21 30 / 94%));
+  --accent-gradient: linear-gradient(135deg, #7a80ff 0%, #666df4 55%, #575ee6 100%);
 
-  --text-primary: #f3f6f9;
-  --text-secondary: #c2cad4;
-  --text-muted: #8f9baa;
+  --border-subtle: #242c39;
+  --border-default: #313b4b;
+  --border-strong: #465266;
+  --border-accent: rgb(122 128 255 / 34%);
 
-  --accent-solid: #6f93ff;
-  --accent-solid-hover: #86a4ff;
-  --accent-on-solid: #0b1635;
-  --accent-soft: #1c2b50;
-  --accent-text: #a8bcff;
+  --text-primary: #f2f4f8;
+  --text-secondary: #bdc5d2;
+  --text-muted: #8d98aa;
+  --text-faint: #667287;
+  --text-on-inverse: #121722;
 
-  --danger-solid: #ed6a72;
-  --danger-soft: #3a1d22;
-  --danger-border: #6d343b;
-  --danger-text: #ffabb0;
+  --accent-solid: #7278f5;
+  --accent-solid-hover: #8388ff;
+  --accent-on-solid: #ffffff;
+  --accent-soft: #22284b;
+  --accent-soft-strong: #2a315d;
+  --accent-text: #adb1ff;
+  --accent-glow: rgb(114 120 245 / 24%);
+  --accent-cyan: #38bdf8;
+  --accent-violet: #a78bfa;
 
-  --focus-ring: #8ca8ff;
-  --focus-soft: rgb(111 147 255 / 18%);
-  --status-dot: #8f9baa;
+  --success-solid: #37bd89;
+  --success-soft: #123128;
+  --success-text: #77ddb4;
+  --warning-solid: #e7a33b;
+  --warning-soft: #382810;
+  --warning-text: #f1bf6a;
 
-  --shadow-sm: 0 1px 2px rgb(0 0 0 / 24%);
-  --shadow-lg: 0 20px 48px rgb(0 0 0 / 38%);
+  --danger-solid: #ef6672;
+  --danger-soft: #3a1d24;
+  --danger-border: #68313b;
+  --danger-text: #ffabb4;
+
+  --focus-ring: #969aff;
+  --focus-soft: rgb(122 128 255 / 20%);
+  --status-dot: #909bad;
+
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 22%);
+  --shadow-sm: 0 8px 24px rgb(0 0 0 / 20%);
+  --shadow-md: 0 18px 46px rgb(0 0 0 / 28%);
+  --shadow-lg: 0 30px 80px rgb(0 0 0 / 42%);
+  --shadow-accent: 0 14px 34px rgb(54 59 172 / 32%);
+  --shadow-inset: inset 0 1px 0 rgb(255 255 255 / 4%);
 }
