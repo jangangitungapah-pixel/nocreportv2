@@ -11,7 +11,9 @@ export function ImpactListEditor({ fields, register, append, remove, move }) {
               Optional
             </span>
           </div>
-          <p className="mt-1 text-xs text-[var(--text-muted)]">Hidden from the report when empty.</p>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">
+            Hidden from the report when empty.
+          </p>
         </div>
         <Button tone="secondary" onClick={() => append({ value: '' })}>
           <UiIcon name="plus" size={16} />
