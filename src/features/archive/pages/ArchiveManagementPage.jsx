@@ -164,8 +164,8 @@ export function ArchiveManagementPage() {
             <h2 className="mt-1 text-xl font-bold">Archive & Restore</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-secondary)]">
               Archive resolved Tickets out of normal operational views, or restore archived Tickets
-              back to Resolved. Every mutation uses the current Ticket revision and is enforced again
-              by Firestore Security Rules.
+              back to Resolved. Every mutation uses the current Ticket revision and is enforced
+              again by Firestore Security Rules.
             </p>
           </div>
           <div className="rounded-lg bg-[var(--surface-muted)] px-3 py-2 text-xs font-semibold text-[var(--text-secondary)]">
