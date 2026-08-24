@@ -2,29 +2,30 @@
 
 **Project:** `nocreportv2`  
 **Date:** 2026-08-24  
-**Phase:** T8 — Firebase Deployment & MVP Release
-**Production URL:** `https://nocreportv2.web.app`
+**Phase:** T8 — Firebase Deployment & MVP Release  
+**Production URL:** `https://nocreportv2.web.app`  
+**Final Result:** PASS — MVP RELEASED
 
 ## Confirmed deployment evidence
 
 The project owner confirmed from the production workstation that the Firebase deployment completed successfully and Firebase Hosting is live.
 
-This confirmation is accepted as operator evidence for the following T8 release facts:
+Accepted deployment facts:
 
 - the intended production Firebase project was reachable by the authenticated Firebase CLI;
 - the release command completed successfully;
-- Firestore Security Rules were deployed as part of the full release command;
-- Firestore indexes were deployed as part of the full release command;
+- Firestore Security Rules were deployed;
+- Firestore indexes were deployed;
 - Firebase Hosting deployment succeeded;
 - the production build completed successfully on Windows after the Node 24 cross-platform build fix.
 
 ## Repository validation evidence
 
-GitHub Actions Quality #570 completed successfully on commit `4c66ad557dba0ccd28c5739634abcb79a060d606`.
+GitHub Actions Quality #590 completed successfully on release commit `3623afdf4078d390f268107e5257fe313cb30ce1`.
 
 That run covered committed formatting verification, lint, unit/component tests, Firebase Emulator integration, Firestore Security Rules role-matrix tests, security/repository hygiene, T8 release preflight, generic production build, Firebase-configured production build, dev-server smoke, real-browser viewport/touch QA, and the Playwright lifecycle/RBAC/responsive/accessibility suite.
 
-The same release-preparation work also corrected the Dashboard loading-state accessibility semantics by assigning the labeled loading container an appropriate `status` role. The corrected state passes the Playwright/axe gate.
+The release-preparation work also corrected the Dashboard loading-state accessibility semantics by assigning the labeled loading container an appropriate `status` role. The corrected state passes the Playwright/axe gate.
 
 ## Public Hosting smoke — PASSED
 
@@ -34,13 +35,13 @@ On 2026-08-24 the project owner ran:
 npm run release:smoke:public
 ```
 
-against the canonical production origin:
+against:
 
 ```text
 https://nocreportv2.web.app
 ```
 
-The public production smoke passed with HTTP 200 responses for the React SPA shell on:
+HTTP 200 React SPA-shell responses were confirmed for:
 
 - `/`
 - `/login`
@@ -49,38 +50,41 @@ The public production smoke passed with HTTP 200 responses for the React SPA she
 - `/running`
 - `/cut-points`
 
-The published production asset requests discovered from the root document also returned HTTP 200, including the main JavaScript/CSS bundles and shared application chunks.
+Published JavaScript/CSS assets discovered from the root document also returned HTTP 200.
 
 Accepted conclusion:
 
 - Firebase Hosting is reachable;
-- SPA rewrites are working for direct route requests;
-- the deployed React shell is being served on all primary routes;
-- production static assets referenced by the shell are reachable.
+- SPA rewrites work for direct route requests;
+- the deployed React shell is served on all primary routes;
+- referenced production static assets are reachable.
 
-This public smoke intentionally does **not** prove authenticated Firebase Auth/Firestore/RBAC behavior or the full NOC lifecycle.
+## Authenticated production acceptance — PASSED
 
-## Evidence intentionally not inferred
+The project owner subsequently confirmed that the complete authenticated production smoke passed against the real production origin and Firebase project.
 
-The following T8 checks remain open until explicitly validated in production:
+Accepted production behavior includes:
 
-- Spark plan/account billing state;
-- configured Firebase Authentication provider(s);
-- successful production login with authorized users;
-- Dashboard production data access after authentication;
-- Ticket create/save lifecycle;
-- Running transition and progress append;
-- browser-local OCR in the deployed origin;
-- coordinate persistence and Cut Point map behavior;
-- Copy Report and Resolve lifecycle;
-- Viewer/Operator/Admin authorization behavior against production Security Rules.
+- authorized login;
+- Dashboard and Firestore access;
+- Ticket create/save and reload persistence;
+- Running transition;
+- Progress append and reload persistence;
+- deployed-browser OCR;
+- verified coordinate persistence;
+- Running Tickets;
+- Cut Point Tracker and map interaction;
+- Copy Report;
+- Resolve lifecycle;
+- signed-out protected-route behavior;
+- Viewer, Operator, and Admin allow/deny behavior against production Security Rules.
 
-## Authenticated production smoke
+The intended Firebase Spark plan/account billing state and required Firebase Authentication provider were explicitly confirmed. No Critical/High production blocker was observed.
 
-Use `docs/07-release/AUTHENTICATED-PRODUCTION-SMOKE.md` for the final T8 acceptance sequence.
+The detailed acceptance record is stored in:
 
-The authenticated smoke must exercise the actual production origin and production Firebase project with authorized test users. Do not substitute Emulator Suite results for this final gate.
+`docs/07-release/AUTHENTICATED-PRODUCTION-SMOKE-EVIDENCE.md`
 
-## Final T8 completion rule
+## Final T8 conclusion
 
-T8 remains **IN PROGRESS — authenticated production smoke pending** until the authenticated production workflow and authorization checklist are accepted. After those checks pass, the canonical tracker can be marked COMPLETE and the release PR can move out of draft state.
+T8 is **COMPLETE**. The canonical tracker records the project as **MVP RELEASED** at `https://nocreportv2.web.app`.
