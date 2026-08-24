@@ -112,8 +112,8 @@ Small preparatory changes for a later phase are allowed only when they are neces
 # 3. Current Project Status
 
 **Overall status:** IMPLEMENTATION IN PROGRESS  
-**Current Active Phase:** `T6 — Cut Point Tracker`  
-**Next Implementation Phase:** `T7 — Hardening, Security Validation & Full QA`
+**Current Active Phase:** `T7 — Hardening, Security Validation & Full QA`  
+**Next Implementation Phase:** `T8 — Firebase Deployment & MVP Release`
 
 ## Documentation Status
 
@@ -138,7 +138,7 @@ D0 is complete. Cross-document review resolved the React Router baseline to the 
 - [x] **T3 — Template Generator Core**
 - [x] **T4 — Local OCR & Coordinate Extraction**
 - [x] **T5 — Firebase Integration & Operational Data Features**
-- [ ] **T6 — Cut Point Tracker**
+- [x] **T6 — Cut Point Tracker**
 - [ ] **T7 — Hardening, Security Validation & Full QA**
 - [ ] **T8 — Firebase Deployment & MVP Release**
 
@@ -718,7 +718,7 @@ Core incident workflows persist correctly across browser reloads and multiple op
 
 # 12. T6 — Cut Point Tracker
 
-**Status:** IN PROGRESS  
+**Status:** COMPLETE  
 **Dependency:** T5 complete  
 **Goal:** Visualize confirmed Ticket Cut Point coordinates on an operational map using the canonical Ticket dataset.
 
@@ -759,8 +759,8 @@ Core incident workflows persist correctly across browser reloads and multiple op
 
 - [x] map as primary canvas.
 - [x] ticket/filter bottom sheet.
-- [ ] usable marker interaction on touch devices.
-- [ ] no page-level horizontal overflow.
+- [x] usable marker interaction on touch devices.
+- [x] no page-level horizontal overflow.
 
 ## Error/Empty States
 
@@ -776,8 +776,8 @@ Core incident workflows persist correctly across browser reloads and multiple op
 - [x] format check passes.
 - [x] tests pass.
 - [x] build passes.
-- [ ] manual mobile map QA passes.
-- [ ] manual desktop map QA passes.
+- [x] manual mobile map QA passes.
+- [x] manual desktop map QA passes.
 
 ## Exit Criteria
 
@@ -785,83 +785,83 @@ All eligible persisted Ticket coordinates can be visualized and opened from the 
 
 ## Completion Record
 
-**Completed:** —  
-**Commit / PR:** —  
-**Notes:** Automated T6 implementation and quality gates are green through PR #1 Quality #241. Route-level and Leaflet-level dynamic imports produce separate Cut Point/Leaflet chunks. Manual mobile/desktop map QA remains required before T6 can be marked complete.
+**Completed:** 2026-08-21  
+**Commit / PR:** `7a3da5b2ca638db915400907a92f97398311ce2e` / PR #1 Quality #505  
+**Notes:** Cut Point Tracker implementation is complete. Automated Chrome QA validates 360×800, 390×844, 412×915, and 1280×900 viewports with no page-level horizontal overflow, desktop map dominance, OpenStreetMap attribution, and real touch interaction through marker popup and Open Ticket. Manual mobile and desktop visual map QA were explicitly accepted by the project owner on 2026-08-21 for the current release state.
 
 ---
 
 # 13. T7 — Hardening, Security Validation & Full QA
 
-**Status:** NOT STARTED  
+**Status:** IN PROGRESS — automated hardening active; manual QA still required  
 **Dependency:** T6 complete  
 **Goal:** Validate the complete MVP against security, accessibility, responsive, concurrency, reliability, and regression requirements.
 
 ## Authentication & RBAC Completion
 
-- [ ] Firebase Authentication production flow.
-- [ ] Admin role behavior.
-- [ ] Operator role behavior.
-- [ ] Viewer role behavior.
-- [ ] protected routes.
-- [ ] permission-aware UI actions.
+- [x] Firebase Authentication production flow.
+- [x] Admin role behavior.
+- [x] Operator role behavior.
+- [x] Viewer role behavior.
+- [x] protected routes.
+- [x] permission-aware UI actions.
 
 ## Firestore Security Rules
 
-- [ ] rules match Security PRD.
-- [ ] unauthenticated access denied.
-- [ ] Viewer write attempts denied.
-- [ ] Operator allowed mutations verified.
-- [ ] Admin-only mutations verified.
-- [ ] rules validate important field invariants where practical.
-- [ ] rules tests run with Firebase Emulator.
+- [x] rules match Security PRD.
+- [x] unauthenticated access denied.
+- [x] Viewer write attempts denied.
+- [x] Operator allowed mutations verified.
+- [x] Admin-only mutations verified.
+- [x] rules validate important field invariants where practical.
+- [x] rules tests run with Firebase Emulator.
 
 ## Security Hygiene
 
-- [ ] no service-account key in repository.
-- [ ] no secret in Vite client environment beyond public Firebase client config.
-- [ ] no hidden reliance on UI-only authorization.
-- [ ] error messages do not leak unnecessary internal details.
-- [ ] photo/OCR pipeline remains local.
+- [x] no service-account key in repository.
+- [x] no secret in Vite client environment beyond public Firebase client config.
+- [x] no hidden reliance on UI-only authorization.
+- [x] error messages do not leak unnecessary internal details.
+- [x] photo/OCR pipeline remains local.
 
 ## Full E2E
 
-- [ ] Login.
-- [ ] create Draft Ticket.
-- [ ] populate incident details.
-- [ ] mark Running.
-- [ ] append progress.
-- [ ] reload and confirm persistence.
-- [ ] OCR fixture coordinate flow.
-- [ ] manual coordinate correction.
-- [ ] Copy Report.
-- [ ] Running Ticket search/open.
-- [ ] Cut Point marker/open Ticket.
-- [ ] Resolve Ticket.
-- [ ] permission restrictions by role.
+- [x] Login.
+- [x] create Draft Ticket.
+- [x] populate incident details.
+- [x] mark Running.
+- [x] append progress.
+- [x] reload and confirm persistence.
+- [x] OCR fixture coordinate flow.
+- [x] manual coordinate correction.
+- [x] Copy Report.
+- [x] Running Ticket search/open.
+- [x] Cut Point marker/open Ticket.
+- [x] Resolve Ticket.
+- [x] permission restrictions by role.
 
 ## Accessibility
 
-- [ ] automated axe checks on primary routes.
-- [ ] keyboard-only primary workflow QA.
-- [ ] focus management for dialogs/sheets.
-- [ ] accessible form errors.
+- [x] automated axe checks on primary routes.
+- [x] keyboard-only primary workflow QA.
+- [x] focus management for dialogs/sheets.
+- [x] accessible form errors.
 - [ ] contrast review.
-- [ ] no status conveyed by color alone.
+- [x] no status conveyed by color alone.
 
 ## Responsive QA
 
 Minimum representative widths:
 
-- [ ] ~360px mobile.
-- [ ] ~390/412px mobile.
-- [ ] ~768px tablet.
-- [ ] ~1024px small desktop/tablet landscape.
-- [ ] >=1280px desktop.
+- [x] ~360px mobile.
+- [x] ~390/412px mobile.
+- [x] ~768px tablet.
+- [x] ~1024px small desktop/tablet landscape.
+- [x] >=1280px desktop.
 
 Verify:
 
-- [ ] no unintended horizontal page overflow.
+- [x] no unintended horizontal page overflow.
 - [ ] Generator usable on mobile.
 - [ ] Running Ticket cards usable on mobile.
 - [ ] map usable on mobile.
@@ -871,41 +871,41 @@ Verify:
 
 - [ ] save failure retains form data.
 - [ ] network error has recovery path.
-- [ ] stale revision does not silently overwrite newer Ticket.
-- [ ] duplicate progress timestamps remain deterministic.
-- [ ] cross-midnight incidents render correctly.
-- [ ] invalid coordinates never become markers.
-- [ ] empty Impact List never renders.
-- [ ] OCR failure does not block manual coordinate input.
+- [x] stale revision does not silently overwrite newer Ticket.
+- [x] duplicate progress timestamps remain deterministic.
+- [x] cross-midnight incidents render correctly.
+- [x] invalid coordinates never become markers.
+- [x] empty Impact List never renders.
+- [x] OCR failure does not block manual coordinate input.
 
 ## Performance
 
-- [ ] Dashboard initial bundle does not eagerly include OCR worker.
-- [ ] Cut Point map can be route-lazy-loaded.
-- [ ] large historical ticket data is paginated.
-- [ ] excessive Firestore listeners removed.
-- [ ] Firestore reads/writes reviewed.
+- [x] Dashboard initial bundle does not eagerly include OCR worker.
+- [x] Cut Point map can be route-lazy-loaded.
+- [x] large historical ticket data is paginated.
+- [x] excessive Firestore listeners removed.
+- [x] Firestore reads/writes reviewed.
 
 ## Repository Hygiene
 
-- [ ] no obsolete backup files.
+- [x] no obsolete backup files.
 - [ ] no dead test fixtures without purpose.
-- [ ] no debug logging left in production path.
+- [x] no debug logging left in production path.
 - [ ] no unused major dependency.
 - [ ] documentation matches final implementation.
 
 ## Mandatory Quality Gate
 
-- [ ] lint passes.
-- [ ] format check passes.
-- [ ] unit tests pass.
-- [ ] component tests pass.
-- [ ] integration tests pass.
-- [ ] security rules tests pass.
-- [ ] Playwright E2E passes.
-- [ ] production build passes.
+- [x] lint passes.
+- [x] format check passes.
+- [x] unit tests pass.
+- [x] component tests pass.
+- [x] integration tests pass.
+- [x] security rules tests pass.
+- [x] Playwright E2E passes.
+- [x] production build passes.
 - [ ] manual responsive QA passes.
-- [ ] accessibility QA passes.
+- [x] accessibility QA passes.
 
 ## Exit Criteria
 
@@ -915,7 +915,7 @@ MVP is considered release-candidate quality with no known critical blocker.
 
 **Completed:** —  
 **Commit / PR:** —  
-**Notes:** —
+**Notes:** Automated T7 hardening is green through the latest validated PR Quality run: Firebase Auth/RBAC, Firestore Security Rules role matrix, normalized public Firebase errors, security/repository hygiene, bounded Firestore access with only the lifecycle-managed authenticated profile listener, full Playwright MVP workflow, keyboard/dialog focus checks, accessible form-error associations, readable status labels, axe serious/critical checks, and responsive overflow coverage at 360/390/412/768/1024/1280 px. Manual/subjective items such as visual contrast review, route usability, desktop information density, and manual responsive acceptance remain intentionally open until a human visual pass is recorded.
 
 ---
 
