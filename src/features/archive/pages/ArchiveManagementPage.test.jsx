@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 
 import { TICKET_STATUS } from '../../../entities/ticket/index.js';
-import { CAPABILITY } from '../../../entities/user/authorization.js';
 import { ArchiveManagementPage } from './ArchiveManagementPage.jsx';
 
 const mocks = vi.hoisted(() => ({
@@ -16,7 +15,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('../../../app/providers/AuthProvider.jsx', () => ({
   useAuth: () => ({
-    can: (capability) => capability === CAPABILITY.ARCHIVE_RESTORE && mocks.canArchiveRestore,
+    can: () => mocks.canArchiveRestore,
     localDevelopmentMode: false,
   }),
 }));
