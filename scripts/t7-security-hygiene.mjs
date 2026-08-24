@@ -2,7 +2,16 @@ import { readdir, readFile } from 'node:fs/promises';
 import { basename, extname, join, relative } from 'node:path';
 
 const ROOT = process.cwd();
-const SCAN_ROOTS = ['src', 'scripts'];
+const SCAN_ROOTS = ['.'];
+const IGNORED_DIRECTORIES = new Set([
+  '.git',
+  'node_modules',
+  'dist',
+  'coverage',
+  'playwright-report',
+  'test-results',
+  '.firebase',
+]);
 const TEXT_EXTENSIONS = new Set([
   '.js',
   '.jsx',
@@ -12,6 +21,9 @@ const TEXT_EXTENSIONS = new Set([
   '.html',
   '.css',
   '.rules',
+  '.md',
+  '.yml',
+  '.yaml',
 ]);
 const FORBIDDEN_FILE_PATTERNS = [
   /(^|\/)(service[-_.]?account|serviceAccount).*\.json$/i,
@@ -26,6 +38,10 @@ const FORBIDDEN_CONTENT = [
   {
     pattern: /["']private_key["']\s*:/,
     message: 'service-account private_key material must never be committed',
+  },
+  {
+    pattern: /["']type["']\s*:\s*["']service_account["']/,
+    message: 'Google service-account credential documents must never be committed',
   },
   {
     pattern: /(?:from\s+|import\s*\()['"]firebase\/storage['"]|getStorage\s*\(/,
@@ -55,8 +71,12 @@ async function walk(directory) {
 
   for (const entry of entries) {
     const absolute = join(directory, entry.name);
-    if (entry.isDirectory()) files.push(...(await walk(absolute)));
-    else files.push(absolute);
+    if (entry.isDirectory()) {
+      if (IGNORED_DIRECTORIES.has(entry.name)) continue;
+      files.push(...(await walk(absolute));
+    } else {
+      files.push(absolute);
+    }
   }
 
   return files;
