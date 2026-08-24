@@ -103,32 +103,42 @@ async function updateWorkplan() {
     'T0 master checklist',
   );
 
-  source = updateSection(source, '# 5. D0 — Documentation Baseline Completion', '# 6. T0 — Repository Foundation', (section) => {
-    let next = section.replace('**Status:** IN PROGRESS', '**Status:** COMPLETE');
-    next = next.replaceAll('- [ ]', '- [x]');
-    next = next.replace('**Completed:** —', '**Completed:** 2026-08-21');
-    next = next.replace(
-      '**Commit / PR:** —',
-      '**Commit / PR:** `6543b9cd92d8f43a8521c107ab970868b4878e4f` + T0 foundation branch',
-    );
-    next = next.replace(
-      '**Notes:** Security & Access Control PRD remains pending.',
-      '**Notes:** Security PRD completed. Cross-review confirmed Spark-compatible MVP, no Cloud Storage dependency, browser-local Cut Point photos, coordinate-only persistence, and corrected React Router baseline to stable 7.x.',
-    );
-    return next;
-  });
+  source = updateSection(
+    source,
+    '# 5. D0 — Documentation Baseline Completion',
+    '# 6. T0 — Repository Foundation',
+    (section) => {
+      let next = section.replace('**Status:** IN PROGRESS', '**Status:** COMPLETE');
+      next = next.replaceAll('- [ ]', '- [x]');
+      next = next.replace('**Completed:** —', '**Completed:** 2026-08-21');
+      next = next.replace(
+        '**Commit / PR:** —',
+        '**Commit / PR:** `6543b9cd92d8f43a8521c107ab970868b4878e4f` + T0 foundation branch',
+      );
+      next = next.replace(
+        '**Notes:** Security & Access Control PRD remains pending.',
+        '**Notes:** Security PRD completed. Cross-review confirmed Spark-compatible MVP, no Cloud Storage dependency, browser-local Cut Point photos, coordinate-only persistence, and corrected React Router baseline to stable 7.x.',
+      );
+      return next;
+    },
+  );
 
-  source = updateSection(source, '# 6. T0 — Repository Foundation', '# 7. T1 — Domain Foundation', (section) => {
-    let next = section.replace('**Status:** NOT STARTED', '**Status:** COMPLETE');
-    next = next.replaceAll('- [ ]', '- [x]');
-    next = next.replace('**Completed:** —', '**Completed:** 2026-08-21');
-    next = next.replace('**Commit / PR:** —', `**Commit / PR:** \`${foundationCommit}\``);
-    next = next.replace(
-      '**Notes:** —',
-      '**Notes:** React/Vite foundation, pinned runtime/dependencies, Tailwind, ESLint, Prettier, Vitest/RTL, environment contract, vertical source directories, generated package lock, dev-server smoke check, and GitHub Actions quality gate completed.',
-    );
-    return next;
-  });
+  source = updateSection(
+    source,
+    '# 6. T0 — Repository Foundation',
+    '# 7. T1 — Domain Foundation',
+    (section) => {
+      let next = section.replace('**Status:** NOT STARTED', '**Status:** COMPLETE');
+      next = next.replaceAll('- [ ]', '- [x]');
+      next = next.replace('**Completed:** —', '**Completed:** 2026-08-21');
+      next = next.replace('**Commit / PR:** —', `**Commit / PR:** \`${foundationCommit}\``);
+      next = next.replace(
+        '**Notes:** —',
+        '**Notes:** React/Vite foundation, pinned runtime/dependencies, Tailwind, ESLint, Prettier, Vitest/RTL, environment contract, vertical source directories, generated package lock, dev-server smoke check, and GitHub Actions quality gate completed.',
+      );
+      return next;
+    },
+  );
 
   source = replaceRequired(
     source,
