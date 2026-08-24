@@ -102,6 +102,19 @@ async function assertNoHorizontalOverflow(page, label) {
   ).toBe(true);
 }
 
+async function assertViewerTicketLoaded(page, ticketId) {
+  await expect(page).toHaveURL(new RegExp(`/generator/${ticketId}$`));
+  await page.waitForFunction(
+    () =>
+      document.body.innerText.includes('Viewer read-only mode') ||
+      document.body.innerText.includes('Ticket could not be loaded'),
+  );
+  const bodyText = await page.locator('body').innerText();
+  expect(bodyText, `Viewer Ticket route did not load read-only content.\n${bodyText}`).toContain(
+    'Viewer read-only mode',
+  );
+}
+
 async function resetProfiles() {
   await clearFirestore();
   for (const account of Object.values(accounts)) await seedProfile(account);
@@ -197,7 +210,7 @@ test.describe.serial('T7 MVP browser workflow', () => {
 
     if (ticketId) {
       await viewerPage.goto(`/generator/${ticketId}`);
-      await expect(viewerPage.getByText('Viewer read-only mode')).toBeVisible();
+      await assertViewerTicketLoaded(viewerPage, ticketId);
       await expect(viewerPage.getByRole('button', { name: 'Copy Report' })).toBeVisible();
       await expect(viewerPage.getByRole('button', { name: 'Save' })).toHaveCount(0);
     }
