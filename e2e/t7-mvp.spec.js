@@ -205,8 +205,6 @@ test.describe.serial('T7 MVP browser workflow', () => {
     const viewerPage = await viewerContext.newPage();
     await login(viewerPage, accounts.viewer);
     await expect(viewerPage.getByRole('link', { name: 'New Ticket' })).toHaveCount(0);
-    await viewerPage.goto('/generator/new');
-    await expect(viewerPage).toHaveURL(/\/dashboard$/);
 
     if (ticketId) {
       await viewerPage.goto(`/generator/${ticketId}`);
@@ -214,6 +212,9 @@ test.describe.serial('T7 MVP browser workflow', () => {
       await expect(viewerPage.getByRole('button', { name: 'Copy Report' })).toBeVisible();
       await expect(viewerPage.getByRole('button', { name: 'Save' })).toHaveCount(0);
     }
+
+    await viewerPage.goto('/generator/new');
+    await expect(viewerPage).toHaveURL(/\/dashboard$/);
     await viewerContext.close();
   });
 
