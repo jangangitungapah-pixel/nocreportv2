@@ -16,6 +16,7 @@
   --surface-glass: rgb(255 255 255 / 76%);
   --surface-panel-translucent: rgb(255 255 255 / 82%);
   --surface-inverse: #171b27;
+  --surface-scrim: rgb(9 12 18 / 56%);
 
   --canvas-gradient:
     radial-gradient(circle at 8% 2%, rgb(91 97 232 / 10%), transparent 27rem),
@@ -53,6 +54,7 @@
   --warning-text: #9b5d05;
 
   --danger-solid: #cc3949;
+  --danger-solid-hover: #b92f3f;
   --danger-soft: #fff0f2;
   --danger-border: #f3c3c9;
   --danger-text: #ad2f3d;
@@ -60,6 +62,8 @@
   --focus-ring: #6268eb;
   --focus-soft: rgb(91 97 232 / 16%);
   --status-dot: #7f8a9e;
+  --scrollbar-thumb: #aeb8c8;
+  --scrollbar-thumb-hover: #8d9aae;
 
   --radius-sm: 10px;
   --radius-md: 14px;
@@ -74,6 +78,7 @@
   --shadow-lg: 0 26px 70px rgb(20 24 36 / 15%);
   --shadow-accent: 0 12px 28px rgb(91 97 232 / 22%);
   --shadow-inset: inset 0 1px 0 rgb(255 255 255 / 78%);
+  --shadow-control: inset 0 1px 0 rgb(255 255 255 / 82%), 0 1px 2px rgb(20 24 36 / 4%);
 
   --control-height: 46px;
   --control-height-sm: 40px;
@@ -99,6 +104,7 @@
   --surface-glass: rgb(18 23 33 / 76%);
   --surface-panel-translucent: rgb(15 20 29 / 82%);
   --surface-inverse: #f4f6fb;
+  --surface-scrim: rgb(3 5 9 / 70%);
 
   --canvas-gradient:
     radial-gradient(circle at 8% 2%, rgb(103 111 255 / 14%), transparent 30rem),
@@ -136,6 +142,7 @@
   --warning-text: #f1bf6a;
 
   --danger-solid: #c94654;
+  --danger-solid-hover: #dc5b68;
   --danger-soft: #3a1d24;
   --danger-border: #68313b;
   --danger-text: #ffabb4;
@@ -143,6 +150,8 @@
   --focus-ring: #969aff;
   --focus-soft: rgb(122 128 255 / 20%);
   --status-dot: #909bad;
+  --scrollbar-thumb: #465266;
+  --scrollbar-thumb-hover: #647187;
 
   --shadow-xs: 0 1px 2px rgb(0 0 0 / 22%);
   --shadow-sm: 0 8px 24px rgb(0 0 0 / 20%);
@@ -150,4 +159,5 @@
   --shadow-lg: 0 30px 80px rgb(0 0 0 / 42%);
   --shadow-accent: 0 14px 34px rgb(54 59 172 / 32%);
   --shadow-inset: inset 0 1px 0 rgb(255 255 255 / 4%);
+  --shadow-control: inset 0 1px 0 rgb(255 255 255 / 5%), 0 1px 2px rgb(0 0 0 / 24%);
 }
