@@ -265,6 +265,11 @@
     animation: ui-dialog-in var(--motion-slow) var(--ease-out) both;
   }
 
+  .ui-toast {
+    transform-origin: top right;
+    animation: ui-toast-in var(--motion-slow) var(--ease-out) both;
+  }
+
   .ui-skeleton {
     position: relative;
     overflow: hidden;
@@ -284,11 +289,7 @@
     animation: ui-skeleton-sweep 1.55s ease-in-out infinite;
   }
 
-  .noc-disclosure {
-    overflow: hidden;
-  }
-
-  .noc-disclosure > summary {
+  details > summary {
     display: flex;
     min-height: 42px;
     list-style: none;
@@ -304,16 +305,16 @@
       color var(--motion-base) ease-out;
   }
 
-  .noc-disclosure > summary::-webkit-details-marker {
+  details > summary::-webkit-details-marker {
     display: none;
   }
 
-  .noc-disclosure > summary::marker {
+  details > summary::marker {
     display: none;
     content: '';
   }
 
-  .noc-disclosure > summary::after {
+  details > summary::after {
     width: 8px;
     height: 8px;
     flex: 0 0 auto;
@@ -324,16 +325,16 @@
     transition: transform var(--motion-base) var(--ease-out);
   }
 
-  .noc-disclosure[open] > summary::after {
+  details[open] > summary::after {
     transform: rotate(225deg) translate(-1px, -1px);
   }
 
-  .noc-disclosure > summary:hover {
+  details > summary:hover {
     background: var(--surface-panel);
     color: var(--text-primary);
   }
 
-  .noc-disclosure > summary:focus-visible {
+  details > summary:focus-visible {
     outline: 2px solid var(--focus-ring);
     outline-offset: 2px;
   }
@@ -343,11 +344,12 @@
   }
 
   .data-table-shell::after {
-    position: absolute;
-    top: 0;
+    position: sticky;
     right: 0;
-    bottom: 0;
-    width: 26px;
+    float: right;
+    width: 24px;
+    height: 100%;
+    margin-left: -24px;
     background: linear-gradient(90deg, transparent, var(--surface-panel));
     content: '';
     pointer-events: none;
@@ -464,6 +466,17 @@
   }
   to {
     transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes ui-toast-in {
+  from {
+    transform: translate3d(12px, -6px, 0) scale(0.975);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0) scale(1);
     opacity: 1;
   }
 }
