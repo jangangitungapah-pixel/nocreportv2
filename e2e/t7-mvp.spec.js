@@ -102,6 +102,26 @@ async function assertNoHorizontalOverflow(page, label) {
   ).toBe(true);
 }
 
+async function createOcrFixtureBuffer(page) {
+  const dataUrl = await page.evaluate(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1600;
+    canvas.height = 900;
+    const context = canvas.getContext('2d');
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = '#111111';
+    context.font = '700 58px Arial, sans-serif';
+    context.fillText('GPS CAMERA', 820, 570);
+    context.font = '700 64px Arial, sans-serif';
+    context.fillText('LATITUDE 3.5244 N', 700, 670);
+    context.fillText('LONGITUDE 98.7691 E', 700, 760);
+    return canvas.toDataURL('image/png');
+  });
+
+  return Buffer.from(dataUrl.split(',')[1], 'base64');
+}
+
 async function assertViewerTicketLoaded(page, ticketId) {
   await expect(page).toHaveURL(new RegExp(`/generator/${ticketId}$`));
 
@@ -146,7 +166,10 @@ test.beforeAll(async () => {
 test.describe.serial('T7 MVP browser workflow', () => {
   let ticketId = null;
 
-  test('Admin completes the Ticket lifecycle through archive and restore', async ({ page, context }) => {
+  test('Admin completes the Ticket lifecycle through OCR, resolve, archive, and restore', async ({
+    page,
+    context,
+  }) => {
     await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
       origin: APP_ORIGIN,
     });
@@ -179,16 +202,29 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await page.getByRole('button', { name: 'Add update' }).click();
     await expect(page.getByText('Team arrived at the Cut Point', { exact: true })).toBeVisible();
 
-    await page.getByLabel('Latitude').fill('-6.917464');
-    await page.getByLabel('Longitude').fill('107.619123');
+    const fixtureBuffer = await createOcrFixtureBuffer(page);
+    await page.getByLabel('Choose Cut Point photo').setInputFiles({
+      name: 't7-coordinate-fixture.png',
+      mimeType: 'image/png',
+      buffer: fixtureBuffer,
+    });
+    await page.getByRole('button', { name: 'Scan coordinates' }).click();
+    const applyCoordinate = page.getByRole('button', { name: /Apply & verify/ });
+    await expect(applyCoordinate).toBeVisible({ timeout: 120000 });
+    await applyCoordinate.click();
+    await expect(page.getByLabel('Latitude')).toHaveValue('3.5244');
+    await expect(page.getByLabel('Longitude')).toHaveValue('98.7691');
+    await expect(page.getByText(/Coordinate applied to editable Latitude\/Longitude fields/)).toBeVisible();
+
+    await page.getByLabel('Longitude').fill('98.7692');
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page.getByText(/Saved to Firestore · revision/)).toBeVisible();
 
     await page.reload();
     await expect(page.getByLabel('Title')).toHaveValue(INCIDENT_TITLE);
     await expect(page.getByText('Team arrived at the Cut Point', { exact: true })).toBeVisible();
-    await expect(page.getByLabel('Latitude')).toHaveValue('-6.917464');
-    await expect(page.getByLabel('Longitude')).toHaveValue('107.619123');
+    await expect(page.getByLabel('Latitude')).toHaveValue('3.5244');
+    await expect(page.getByLabel('Longitude')).toHaveValue('98.7692');
 
     await page.getByRole('button', { name: 'Copy Report' }).click();
     await expect(page.getByText('Report copied')).toBeVisible();
