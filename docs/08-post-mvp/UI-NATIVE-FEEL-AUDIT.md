@@ -1,6 +1,6 @@
 # UI Native-Feel Elimination Audit
 
-**Status:** AUTOMATED QA COMPLETE — VISUAL ACCEPTANCE PENDING  
+**Status:** TEMPLATE GENERATOR COMPACT PASS — AUTOMATED QA RUNNING  
 **Branch:** `feature/ui-native-polish`  
 **Parent:** `feature/smart-template-parser`
 
@@ -42,6 +42,20 @@ The target is a cohesive custom product surface where every visible control belo
 - [x] OCR file input remains visually hidden behind the product-owned drop zone / buttons.
 - [x] Timeline edit/remove/reorder actions use product-owned icons.
 - [x] Long report/OCR text scroll surfaces use custom scrollbars and edge treatment.
+
+### Template Generator compact workspace
+
+- [x] Smart Import reduced from hero treatment to a compact utility module.
+- [x] Smart Import textarea and detection summary reduced in vertical footprint.
+- [x] Generator command surface padding and decorative weight reduced.
+- [x] Core form cards tightened into one dense editor rhythm.
+- [x] Redundant section descriptions suppressed where field-level hints already carry the requirement.
+- [x] Impact editor and empty state compacted.
+- [x] OCR utility visual weight and dropzone footprint reduced.
+- [x] Progress composer/history and zero state compacted.
+- [x] Desktop Report Preview converted to a fixed-width sticky utility rail.
+- [x] Desktop editor/preview ratio rebalanced in favor of input work.
+- [x] Mobile remains single-column with tighter spacing and the same interaction contracts.
 
 ### Operational list pages
 
@@ -88,27 +102,25 @@ The target is a cohesive custom product surface where every visible control belo
 
 ## Automated QA evidence
 
-Compact Dashboard code head: `4e8fffc415ad4df3d63b373231c325aff1f54210`.
+Previous compact Dashboard code head passed **Quality #638 — FULL GREEN**.
 
-**Quality #638: FULL GREEN**
+Template Generator compact-editor pass is now running a fresh full repository Quality gate. Required checks remain:
 
-- [x] Formatting committed.
-- [x] Lint green.
-- [x] Unit/component tests green.
-- [x] Firebase Emulator / Security Rules green.
-- [x] Release preflight green.
-- [x] Generic production build green.
-- [x] Firebase-configured production build green.
-- [x] Dev smoke green.
-- [x] Responsive/touch browser QA green.
-- [x] Playwright Admin lifecycle / RBAC / keyboard / axe green.
-- [x] Source formatting verification green.
-
-This documentation commit follows the validated code head and does not alter application behavior.
+- [ ] Formatting committed.
+- [ ] Lint green.
+- [ ] Unit/component tests green.
+- [ ] Firebase Emulator / Security Rules green.
+- [ ] Release preflight green.
+- [ ] Generic production build green.
+- [ ] Firebase-configured production build green.
+- [ ] Dev smoke green.
+- [ ] Responsive/touch browser QA green.
+- [ ] Playwright Admin lifecycle / RBAC / keyboard / axe green.
+- [ ] Source formatting verification green.
 
 ## Release gate
 
-- [x] Dashboard compact pass automated QA complete.
+- [ ] Template Generator compact pass automated QA complete.
 - [ ] Manual Light/Dark desktop/mobile micro-polish and branding acceptance.
 
-PR #4 remains a draft stacked on `feature/smart-template-parser` until manual visual acceptance is complete.
+PR #4 remains draft. It is temporarily targeted to `main` only to execute the repository Quality workflow and will be retargeted to `feature/smart-template-parser` after validation.
