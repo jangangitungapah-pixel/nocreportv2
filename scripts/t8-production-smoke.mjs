@@ -80,7 +80,9 @@ for (const route of routes) {
 
 const assets = findSameOriginAssets(rootHtml, baseUrl);
 if (assets.length === 0) {
-  throw new Error('Production smoke could not discover any same-origin /assets/ bundles from the root HTML.');
+  throw new Error(
+    'Production smoke could not discover any same-origin /assets/ bundles from the root HTML.',
+  );
 }
 
 for (const assetUrl of assets) {
@@ -89,5 +91,9 @@ for (const assetUrl of assets) {
 }
 
 console.log('T8 public production smoke passed.');
-console.log('This validates Firebase Hosting reachability, SPA rewrites, and published static assets only.');
-console.log('Authenticated Firebase Auth/Firestore/RBAC and full NOC lifecycle smoke still require production-user validation.');
+console.log(
+  'This validates Firebase Hosting reachability, SPA rewrites, and published static assets only.',
+);
+console.log(
+  'Authenticated Firebase Auth/Firestore/RBAC and full NOC lifecycle smoke still require production-user validation.',
+);
