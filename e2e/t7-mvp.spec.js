@@ -103,6 +103,15 @@ async function assertNoHorizontalOverflow(page, label) {
   ).toBe(true);
 }
 
+async function tabUntilFocused(page, locator, maxTabs = 40) {
+  for (let index = 0; index < maxTabs; index += 1) {
+    await page.keyboard.press('Tab');
+    const focused = await locator.evaluate((element) => element === document.activeElement);
+    if (focused) return;
+  }
+  throw new Error(`Keyboard focus did not reach ${await locator.getAttribute('aria-label') || 'target'}.`);
+}
+
 async function createOcrFixtureBuffer(page) {
   const dataUrl = await page.evaluate(() => {
     const canvas = document.createElement('canvas');
@@ -249,7 +258,7 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await expect(page.getByText(INCIDENT_TITLE, { exact: true })).toHaveCount(0);
 
     await page.goto('/archive');
-    await expect(page.getByRole('heading', { name: 'Archive & Restore' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Archive & Restore', level: 2 })).toBeVisible();
     await expect(page.getByText(INCIDENT_TITLE, { exact: true })).toBeVisible();
     await page.getByRole('button', { name: `Archive ${INCIDENT_TT}` }).click();
     await page.getByRole('button', { name: 'Archive Ticket' }).click();
@@ -292,6 +301,41 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await viewerPage.goto('/archive');
     await expect(viewerPage).toHaveURL(/\/dashboard$/);
     await viewerContext.close();
+  });
+
+  test('keyboard navigation and dialog focus management remain usable', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await login(page, accounts.admin);
+    await page.evaluate(() => document.activeElement?.blur());
+
+    const newTicketLink = page.getByRole('link', { name: 'New Ticket' });
+    await tabUntilFocused(page, newTicketLink);
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/\/generator\/new$/);
+
+    const titleInput = page.getByLabel('Title');
+    await tabUntilFocused(page, titleInput, 80);
+    await page.keyboard.type('[T7 KEYBOARD QA]');
+    await expect(titleInput).toHaveValue('[T7 KEYBOARD QA]');
+
+    await page.goto('/archive');
+    const archiveButton = page.getByRole('button', { name: `Archive ${INCIDENT_TT}` });
+    await expect(archiveButton).toBeVisible();
+    await archiveButton.focus();
+    await page.keyboard.press('Enter');
+
+    const dialog = page.getByRole('dialog', { name: 'Archive Ticket?' });
+    await expect(dialog).toBeVisible();
+    const cancelButton = dialog.getByRole('button', { name: 'Cancel' });
+    const confirmButton = dialog.getByRole('button', { name: 'Archive Ticket' });
+    await expect(cancelButton).toBeFocused();
+    await page.keyboard.press('Shift+Tab');
+    await expect(confirmButton).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(cancelButton).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(dialog).toHaveCount(0);
+    await expect(archiveButton).toBeFocused();
   });
 
   test('primary routes pass responsive overflow and serious axe checks', async ({ page }) => {
