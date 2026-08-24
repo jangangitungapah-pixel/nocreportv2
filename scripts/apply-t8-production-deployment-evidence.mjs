@@ -31,15 +31,24 @@ markExact(
   '**Status:** IN PROGRESS — release preparation active',
   '**Status:** IN PROGRESS — production deployed; authenticated smoke pending',
 );
-markExact('- [ ] production Firebase project confirmed.', '- [x] production Firebase project confirmed.');
-markExact('- [ ] Firestore production database configured.', '- [x] Firestore production database configured.');
+markExact(
+  '- [ ] production Firebase project confirmed.',
+  '- [x] production Firebase project confirmed.',
+);
+markExact(
+  '- [ ] Firestore production database configured.',
+  '- [x] Firestore production database configured.',
+);
 markExact('- [ ] Firebase Hosting configured.', '- [x] Firebase Hosting configured.');
 markExact('- [ ] Firestore indexes deployed.', '- [x] Firestore indexes deployed.');
 markExact('- [ ] Firestore Security Rules deployed.', '- [x] Firestore Security Rules deployed.');
 markExact('- [ ] Hosting deployment succeeds.', '- [x] Hosting deployment succeeds.');
 markExact('- [ ] CI green for release commit.', '- [x] CI green for release commit.');
 markExact('- [ ] production build green.', '- [x] production build green.');
-markExact('- [ ] no Critical/High known security issue.', '- [x] no Critical/High known security issue.');
+markExact(
+  '- [ ] no Critical/High known security issue.',
+  '- [x] no Critical/High known security issue.',
+);
 markExact(
   '**Notes:** —',
   '**Notes:** Production Firebase deployment and Hosting were confirmed successful by the project owner on 2026-08-24. Firestore Rules/indexes and Hosting deployment are recorded as complete; Quality #548 is green. Spark-plan/Auth-provider verification and authenticated production workflow/RBAC smoke remain open before T8 can be completed.',
