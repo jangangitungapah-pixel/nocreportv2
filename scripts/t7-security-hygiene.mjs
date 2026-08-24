@@ -3,7 +3,16 @@ import { basename, extname, join, relative } from 'node:path';
 
 const ROOT = process.cwd();
 const SCAN_ROOTS = ['src', 'scripts'];
-const TEXT_EXTENSIONS = new Set(['.js', '.jsx', '.mjs', '.cjs', '.json', '.html', '.css', '.rules']);
+const TEXT_EXTENSIONS = new Set([
+  '.js',
+  '.jsx',
+  '.mjs',
+  '.cjs',
+  '.json',
+  '.html',
+  '.css',
+  '.rules',
+]);
 const FORBIDDEN_FILE_PATTERNS = [
   /(^|\/)(service[-_.]?account|serviceAccount).*\.json$/i,
   /\.(pem|p12|pfx|key)$/i,
@@ -57,7 +66,9 @@ for (const scanRoot of SCAN_ROOTS) {
   const files = await walk(join(ROOT, scanRoot));
   for (const absolute of files) {
     const path = relative(ROOT, absolute).replaceAll('\\', '/');
-    if (FORBIDDEN_FILE_PATTERNS.some((pattern) => pattern.test(path) || pattern.test(basename(path)))) {
+    if (
+      FORBIDDEN_FILE_PATTERNS.some((pattern) => pattern.test(path) || pattern.test(basename(path)))
+    ) {
       violations.push(`${path}: credential-like or obsolete backup file name is not allowed`);
       continue;
     }
