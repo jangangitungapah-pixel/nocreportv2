@@ -69,14 +69,16 @@ describe('Template Generator workflow', () => {
     expect(screen.getByRole('button', { name: 'Resolve Ticket' })).toBeInTheDocument();
   });
 
-  it('adds progress to both timeline and canonical report preview', () => {
+  it('adds progress to both timeline and canonical report preview', async () => {
     renderGenerator();
 
-    fireEvent.change(screen.getByRole('textbox', { name: 'Progress update' }), {
+    const progressInput = screen.getByRole('textbox', { name: 'Progress update' });
+    fireEvent.change(progressInput, {
       target: { value: 'team OTW ke lokasi CP, ETA 75 menit' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Add update' }));
 
+    await waitFor(() => expect(progressInput).toHaveValue(''));
     expect(screen.getByText('team OTW ke lokasi CP, ETA 75 menit')).toBeInTheDocument();
     expect(screen.getByLabelText('Generated NOC report')).toHaveTextContent(
       'team OTW ke lokasi CP, ETA 75 menit',
