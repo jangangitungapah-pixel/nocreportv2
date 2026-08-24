@@ -252,8 +252,10 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await expect(runningTable.getByText(INCIDENT_TITLE, { exact: true })).toBeVisible();
 
     await page.goto('/cut-points');
-    await expect(page.getByText(INCIDENT_TITLE, { exact: true }).first()).toBeVisible();
-    await page.getByRole('button', { name: 'Locate' }).first().click();
+    const incidentCard = page.locator('article').filter({ hasText: INCIDENT_TT });
+    await expect(incidentCard).toBeVisible();
+    await expect(page.locator(`.leaflet-marker-icon[title="${INCIDENT_TT}"]`)).toBeVisible();
+    await incidentCard.getByRole('button', { name: 'Locate' }).click();
     await expect(page.locator('.leaflet-popup')).toContainText(INCIDENT_TT);
 
     await page.goto('/running');
