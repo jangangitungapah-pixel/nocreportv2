@@ -64,7 +64,9 @@ export function ProgressComposer({ onAdd }) {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="spatial-kicker">Progress Timeline</p>
-          <p className="mt-1 text-xs text-[var(--text-muted)]">Add the latest operational update.</p>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">
+            Add the latest operational update.
+          </p>
         </div>
         <span className="spatial-chip hidden min-h-7 px-2.5 text-[10px] sm:inline-flex">
           Ctrl / ⌘ + Enter
