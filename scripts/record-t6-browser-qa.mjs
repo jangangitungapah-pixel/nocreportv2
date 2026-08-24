@@ -6,10 +6,7 @@ const evidenceItems = [
     '- [ ] usable marker interaction on touch devices.',
     '- [x] usable marker interaction on touch devices.',
   ],
-  [
-    '- [ ] no page-level horizontal overflow.',
-    '- [x] no page-level horizontal overflow.',
-  ],
+  ['- [ ] no page-level horizontal overflow.', '- [x] no page-level horizontal overflow.'],
 ];
 
 let tracker = await readFile(trackerPath, 'utf8');
