@@ -30,6 +30,14 @@ export const PRIMARY_NAVIGATION = [
     to: '/cut-points',
     icon: 'M',
   },
+  {
+    key: 'archive',
+    label: 'Archive & Restore',
+    shortLabel: 'Archive',
+    to: '/archive',
+    icon: 'A',
+    requiredCapability: CAPABILITY.ARCHIVE_RESTORE,
+  },
 ];
 
 export function isNavigationItemActive(pathname, item) {
