@@ -1,4 +1,4 @@
-import { Button } from '../../../shared/ui/index.jsx';
+import { Button, UiIcon } from '../../../shared/ui/index.jsx';
 
 export function ReportPreview({ report, onCopy, copyPending = false }) {
   return (
@@ -13,7 +13,7 @@ export function ReportPreview({ report, onCopy, copyPending = false }) {
             </p>
           </div>
           <Button onClick={onCopy} disabled={copyPending}>
-            <span aria-hidden="true">⧉</span>
+            <UiIcon name="copy" size={16} />
             {copyPending ? 'Copying…' : 'Copy Report'}
           </Button>
         </div>
