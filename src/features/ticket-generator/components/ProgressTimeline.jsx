@@ -139,7 +139,9 @@ export function ProgressTimeline({ entries, onUpdate, onRemove }) {
                   <time className="pt-0.5 font-mono text-[11px] font-bold tabular-nums text-[var(--accent-text)]">
                     {formatProgressTime(entry.occurredAt)}
                   </time>
-                  <p className="text-sm font-medium leading-5 text-[var(--text-primary)]">{entry.text}</p>
+                  <p className="text-sm font-medium leading-5 text-[var(--text-primary)]">
+                    {entry.text}
+                  </p>
                   <div className="flex gap-1 opacity-100 transition sm:opacity-60 sm:group-hover:opacity-100">
                     <IconButton label="Edit progress update" onClick={() => beginEdit(entry)}>
                       <UiIcon name="edit" size={16} />
