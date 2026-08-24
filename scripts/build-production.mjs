@@ -1,5 +1,6 @@
-import { readFile } from 'node:fs/promises';
 import { spawn } from 'node:child_process';
+import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 
 function parseEnv(source) {
   const values = {};
@@ -34,8 +35,12 @@ for (const key of [
   }
 }
 
-const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-const child = spawn(npmCommand, ['run', 'build'], {
+// Do not spawn `npm.cmd` on Windows. Node 24 can reject direct .cmd execution
+// through child_process.spawn() with EINVAL unless a shell is involved. Running
+// Vite's JavaScript CLI with the current Node executable is shell-free and works
+// consistently on Windows, macOS, and Linux.
+const viteCli = fileURLToPath(new URL('../node_modules/vite/bin/vite.js', import.meta.url));
+const child = spawn(process.execPath, [viteCli, 'build'], {
   stdio: 'inherit',
   env: {
     ...process.env,
