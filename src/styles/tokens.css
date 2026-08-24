@@ -28,9 +28,9 @@
   --border-accent: rgb(91 97 232 / 28%);
 
   --text-primary: #171b27;
-  --text-secondary: #4f596b;
-  --text-muted: #768095;
-  --text-faint: #9aa3b4;
+  --text-secondary: #465166;
+  --text-muted: #606b7d;
+  --text-faint: #6f7a8c;
   --text-on-inverse: #f8f9fc;
 
   --accent-solid: #5b61e8;
@@ -111,9 +111,9 @@
   --border-accent: rgb(122 128 255 / 34%);
 
   --text-primary: #f2f4f8;
-  --text-secondary: #bdc5d2;
-  --text-muted: #8d98aa;
-  --text-faint: #667287;
+  --text-secondary: #c7ced9;
+  --text-muted: #a0aabd;
+  --text-faint: #8b96aa;
   --text-on-inverse: #121722;
 
   --accent-solid: #7278f5;
