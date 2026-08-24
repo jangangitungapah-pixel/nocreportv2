@@ -65,7 +65,11 @@ describe('ArchiveManagementPage', () => {
     mocks.archiveTicket.mockReset();
     mocks.restoreTicket.mockReset();
     mocks.pushToast.mockReset();
-    mocks.listTickets.mockResolvedValue({ items: [resolvedTicket], nextCursor: null, hasMore: false });
+    mocks.listTickets.mockResolvedValue({
+      items: [resolvedTicket],
+      nextCursor: null,
+      hasMore: false,
+    });
     mocks.archiveTicket.mockResolvedValue({ ticket: { ...resolvedTicket, status: 'ARCHIVED' } });
     mocks.restoreTicket.mockResolvedValue({ ticket: { ...archivedTicket, status: 'RESOLVED' } });
   });
