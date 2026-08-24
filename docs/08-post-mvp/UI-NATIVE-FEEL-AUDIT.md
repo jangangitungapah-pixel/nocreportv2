@@ -1,6 +1,6 @@
 # UI Native-Feel Elimination Audit
 
-**Status:** TEMPLATE GENERATOR COMPACT PASS — AUTOMATED QA RUNNING  
+**Status:** AUTOMATED QA COMPLETE — VISUAL ACCEPTANCE PENDING  
 **Branch:** `feature/ui-native-polish`  
 **Parent:** `feature/smart-template-parser`
 
@@ -102,25 +102,28 @@ The target is a cohesive custom product surface where every visible control belo
 
 ## Automated QA evidence
 
-Previous compact Dashboard code head passed **Quality #638 — FULL GREEN**.
+Template Generator compact-editor product head: `919b5928633fdc0917bf154c2eda1d3dcca67747`.
 
-Template Generator compact-editor pass is now running a fresh full repository Quality gate. Required checks remain:
+**Quality #644: FULL GREEN**
 
-- [ ] Formatting committed.
-- [ ] Lint green.
-- [ ] Unit/component tests green.
-- [ ] Firebase Emulator / Security Rules green.
-- [ ] Release preflight green.
-- [ ] Generic production build green.
-- [ ] Firebase-configured production build green.
-- [ ] Dev smoke green.
-- [ ] Responsive/touch browser QA green.
-- [ ] Playwright Admin lifecycle / RBAC / keyboard / axe green.
-- [ ] Source formatting verification green.
+- [x] Formatting committed.
+- [x] Lint green.
+- [x] Unit/component tests green — 114 passed in the standard suite.
+- [x] Firebase Emulator repository integration green.
+- [x] Security Rules role matrix green.
+- [x] Release preflight green.
+- [x] Generic production build green.
+- [x] Firebase-configured production build green.
+- [x] Dev smoke green.
+- [x] Responsive/touch browser QA green.
+- [x] Playwright Admin lifecycle / RBAC / keyboard / axe green.
+- [x] Source formatting verification green.
+
+Quality #639 had already passed every functional/browser gate and only identified uncommitted Prettier output. That exact formatter output was persisted before Quality #644.
 
 ## Release gate
 
-- [ ] Template Generator compact pass automated QA complete.
+- [x] Template Generator compact pass automated QA complete.
 - [ ] Manual Light/Dark desktop/mobile micro-polish and branding acceptance.
 
-PR #4 remains draft. It is temporarily targeted to `main` only to execute the repository Quality workflow and will be retargeted to `feature/smart-template-parser` after validation.
+PR #4 remains a draft stacked on `feature/smart-template-parser` until manual visual acceptance is complete.
