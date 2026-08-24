@@ -166,9 +166,13 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await page.locator('#cut-point').fill('KM 12 from Bandung hub');
 
     await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page).toHaveURL(/\/generator\/[A-Za-z0-9_-]+$/);
+    await page.waitForURL((url) => {
+      const pathname = new URL(url).pathname;
+      return /^\/generator\/[^/]+$/.test(pathname) && pathname !== '/generator/new';
+    });
     ticketId = new URL(page.url()).pathname.split('/').at(-1);
     expect(ticketId).toBeTruthy();
+    expect(ticketId).not.toBe('new');
 
     await page.getByRole('button', { name: 'Mark Running' }).click();
     await expect(page.getByText('Ticket marked Running')).toBeVisible();
