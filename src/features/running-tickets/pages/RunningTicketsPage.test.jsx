@@ -92,7 +92,8 @@ describe('RunningTicketsPage operational actions', () => {
     expect(await screen.findAllByText('[MANDAU] LINK DOWN')).toHaveLength(2);
     expect(screen.getAllByText('[BANDUNG] SECOND LINK')).toHaveLength(2);
 
-    fireEvent.change(screen.getByLabelText('Coordinate filter'), { target: { value: 'with' } });
+    fireEvent.click(screen.getByRole('combobox', { name: 'Coordinate filter' }));
+    fireEvent.click(screen.getByRole('option', { name: 'With coordinates' }));
     expect(screen.queryAllByText('[BANDUNG] SECOND LINK')).toHaveLength(0);
 
     fireEvent.change(screen.getByRole('textbox', { name: /Search Running Tickets/ }), {
