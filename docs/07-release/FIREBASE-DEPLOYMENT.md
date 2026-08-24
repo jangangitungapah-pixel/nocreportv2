@@ -4,6 +4,7 @@
 
 - Firebase project: `nocreportv2`
 - Hosting output: `dist`
+- Production URL: `https://nocreportv2.web.app`
 - Deployment scope: Firebase Hosting + Cloud Firestore Security Rules + Cloud Firestore indexes
 - Intended billing path: Firebase Spark-compatible MVP
 - Explicitly excluded: Cloud Storage, Cloud Functions, Cloud Run, App Hosting, server-side OCR, and paid Google Maps APIs
@@ -108,9 +109,35 @@ This performs:
 4. Firestore indexes deployment;
 5. Firebase Hosting deployment.
 
-## Production smoke test
+## Public production smoke — PASSED 2026-08-24
 
-After deployment, validate the real Hosting URL with an authorized Admin account and, where available, Operator and Viewer accounts.
+After deployment, the project owner ran:
+
+```bash
+npm run release:smoke:public
+```
+
+against:
+
+```text
+https://nocreportv2.web.app
+```
+
+The smoke passed for `/`, `/login`, `/dashboard`, `/generator/new`, `/running`, and `/cut-points`, with HTTP 200 SPA-shell responses. Same-origin production assets discovered from the root document also returned HTTP 200.
+
+This validates Firebase Hosting reachability, SPA rewrites, and published static assets only. It does not validate authenticated Firebase Auth/Firestore/RBAC behavior.
+
+Detailed operator evidence is recorded in `docs/07-release/PRODUCTION-DEPLOYMENT-EVIDENCE.md`.
+
+## Authenticated production smoke
+
+The remaining final T8 gate is the authenticated production lifecycle and authorization smoke.
+
+Use the canonical checklist:
+
+```text
+docs/07-release/AUTHENTICATED-PRODUCTION-SMOKE.md
+```
 
 Required smoke path:
 
