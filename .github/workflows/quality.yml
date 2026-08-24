@@ -15,23 +15,35 @@ permissions:
 jobs:
   quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 35
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
           cache: npm
 
+      - name: Set up Java for Firebase Emulator
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
       - name: Install dependencies
         run: npm ci
 
-      - name: Format source
+      - name: Install T7 browser QA dependencies
+        run: npm install --no-save --package-lock=false @playwright/test@1.62.1 @axe-core/playwright@4.13.0
+
+      - name: Apply T7 reliability hardening
         if: github.event_name != 'pull_request'
+        run: node scripts/apply-t7-reliability-hardening.mjs
+
+      - name: Format source
         run: npm run format
 
       - name: Format check
@@ -43,8 +55,20 @@ jobs:
       - name: Unit and component tests
         run: npm test
 
+      - name: Firebase emulator integration tests
+        run: npm run test:firebase:emulator
+
+      - name: T7 security hygiene
+        run: node scripts/t7-security-hygiene.mjs
+
+      - name: T8 Firebase release preflight
+        run: npm run release:preflight
+
       - name: Production build
         run: npm run build
+
+      - name: Production Firebase-configured build
+        run: npm run build:production
 
       - name: Dev server smoke test
         shell: bash
@@ -63,25 +87,59 @@ jobs:
           cat /tmp/nocreport-vite.log
           exit 1
 
-      - name: Finalize D0 and T0 tracker
-        if: github.event_name != 'pull_request'
-        run: node scripts/finalize-t0.mjs
+      - name: T6 real-browser viewport and touch QA
+        run: node scripts/t6-browser-qa.mjs
 
-      - name: Finalize T1 tracker
-        if: github.event_name != 'pull_request'
-        run: node scripts/finalize-t1.mjs
+      - name: T7 Playwright E2E and accessibility QA
+        run: node scripts/test-t7-e2e.mjs
 
-      - name: Finalize T2 tracker
+      - name: Record T6 browser QA evidence
         if: github.event_name != 'pull_request'
-        run: node scripts/finalize-t2.mjs
+        run: node scripts/record-t6-browser-qa.mjs
 
-      - name: Finalize T3 tracker
+      - name: Record T7 automated QA evidence
         if: github.event_name != 'pull_request'
-        run: node scripts/finalize-t3.mjs
+        run: node scripts/record-t7-automated-qa.mjs
 
-      - name: Finalize T4 tracker
+      - name: Verify source formatting is committed
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          git diff --exit-code -- \
+            src \
+            e2e \
+            scripts \
+            index.html \
+            package.json \
+            playwright.config.js \
+            eslint.config.js \
+            vite.config.js \
+            vitest.config.js
+
+      # D0-T5 are already complete in the canonical tracker. Re-running their
+      # historical finalizers on every push is unsafe because those scripts
+      # intentionally expect the phase transition text from their original run.
+      - name: Finalize T6 tracker
         if: github.event_name != 'pull_request'
-        run: node scripts/finalize-t4.mjs
+        run: node scripts/finalize-t6.mjs
+
+      - name: Finalize T7 tracker and activate T8
+        if: github.event_name != 'pull_request'
+        run: node scripts/finalize-t7.mjs
+
+      - name: Apply T8 production deployment evidence
+        if: github.event_name != 'pull_request'
+        run: node scripts/apply-t8-production-deployment-evidence.mjs
+
+      - name: Finalize T8 release
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          if [ -f docs/07-release/AUTHENTICATED-PRODUCTION-SMOKE-EVIDENCE.md ]; then
+            node scripts/finalize-t8.mjs
+          else
+            echo "Authenticated production evidence is not present; T8 remains open."
+          fi
 
       - name: Persist validated formatting and phase tracker
         if: github.event_name != 'pull_request'
@@ -89,8 +147,11 @@ jobs:
         run: |
           git add -- \
             src \
+            e2e \
+            scripts \
             index.html \
             package.json \
+            playwright.config.js \
             eslint.config.js \
             vite.config.js \
             vitest.config.js \
