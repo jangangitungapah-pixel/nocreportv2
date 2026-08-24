@@ -25,6 +25,16 @@
   outline-offset: 3px;
 }
 
+.leaflet-control-attribution a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.leaflet-control-attribution a:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
 .noc-map-popup {
   display: grid;
   gap: 0.35rem;
