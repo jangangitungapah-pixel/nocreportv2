@@ -150,14 +150,26 @@ describeEmulator.sequential('Firestore Security Rules role matrix', () => {
     );
   });
 
-  it('allows Viewer reads but denies Ticket mutation', async () => {
+  it('allows Viewer Ticket and Progress reads but denies Ticket mutation', async () => {
     const db = getFirestoreClient();
     await signInAs(accounts.admin);
     await setDoc(doc(db, 'tickets', 'viewer-readable'), ticketDocument(accounts.admin.uid));
+    await setDoc(doc(db, 'tickets', 'viewer-readable', 'progress', 'progress-1'), {
+      text: 'Viewer-readable progress',
+      occurredAt: new Date('2026-08-21T00:30:00.000Z'),
+      createdAt: new Date('2026-08-21T00:31:00.000Z'),
+      createdBy: accounts.admin.uid,
+      updatedAt: new Date('2026-08-21T00:31:00.000Z'),
+      updatedBy: accounts.admin.uid,
+    });
 
     await signInAs(accounts.viewer);
     const snapshot = await getDocs(collection(db, 'tickets'));
     expect(snapshot.docs.map((item) => item.id)).toContain('viewer-readable');
+    const progressSnapshot = await getDocs(
+      collection(db, 'tickets', 'viewer-readable', 'progress'),
+    );
+    expect(progressSnapshot.docs.map((item) => item.id)).toContain('progress-1');
     await expectPermissionDenied(() =>
       setDoc(doc(db, 'tickets', 'viewer-write'), ticketDocument(accounts.viewer.uid)),
     );
