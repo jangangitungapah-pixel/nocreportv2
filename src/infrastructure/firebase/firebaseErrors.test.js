@@ -46,4 +46,19 @@ describe('Firebase error normalization', () => {
   it('uses the supplied fallback for unknown SDK failures', () => {
     expect(normalizeFirebaseError(new Error('unknown'), 'QUERY_ERROR').code).toBe('QUERY_ERROR');
   });
+
+  it('does not expose raw Firebase/server messages through the normalized public error', () => {
+    const rawMessage =
+      'permission denied at projects/internal-prod/databases/(default)/documents/private/path';
+    const source = Object.assign(new Error(rawMessage), {
+      code: 'firestore/permission-denied',
+    });
+
+    const error = normalizeFirebaseError(source);
+
+    expect(error.code).toBe('PERMISSION_DENIED');
+    expect(error.message).toBe('The Firebase operation could not be completed.');
+    expect(error.message).not.toContain(rawMessage);
+    expect(error.details).toEqual({ firebaseCode: 'firestore/permission-denied' });
+  });
 });
