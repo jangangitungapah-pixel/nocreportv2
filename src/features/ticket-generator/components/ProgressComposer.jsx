@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import { Button, DateTimeField, Textarea } from '../../../shared/ui/index.jsx';
+import { Button, DateTimeField, Textarea, UiIcon } from '../../../shared/ui/index.jsx';
 
 function toInputValue(date) {
   const pad = (value) => String(value).padStart(2, '0');
@@ -98,7 +98,7 @@ export function ProgressComposer({ onAdd }) {
           }}
         />
         <Button className="lg:mb-px" disabled={submitting} onClick={() => void submit()}>
-          <span aria-hidden="true">＋</span>
+          <UiIcon name="plus" size={16} />
           {submitting ? 'Adding…' : 'Add update'}
         </Button>
       </div>
