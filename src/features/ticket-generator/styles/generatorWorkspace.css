@@ -23,21 +23,15 @@ div.space-y-6:has(#ticket-title)
   display: none;
 }
 
-div.space-y-6:has(#ticket-title)
-  > section.spatial-panel-elevated:first-child
-  > div.relative {
+div.space-y-6:has(#ticket-title) > section.spatial-panel-elevated:first-child > div.relative {
   gap: 0.75rem !important;
 }
 
-div.space-y-6:has(#ticket-title)
-  > section.spatial-panel-elevated:first-child
-  p.mt-3 {
+div.space-y-6:has(#ticket-title) > section.spatial-panel-elevated:first-child p.mt-3 {
   margin-top: 0.35rem !important;
 }
 
-div.space-y-6:has(#ticket-title)
-  > section.spatial-panel-elevated:first-child
-  p.mt-1 {
+div.space-y-6:has(#ticket-title) > section.spatial-panel-elevated:first-child p.mt-1 {
   margin-top: 0.15rem !important;
   line-height: 1.35rem !important;
 }
@@ -51,7 +45,11 @@ div.space-y-6:has(#ticket-title) > div.grid {
   gap: 1rem !important;
 }
 
-div.space-y-6:has(#ticket-title) > div.grid > div.min-w-0.space-y-6 > :not([hidden]) ~ :not([hidden]) {
+div.space-y-6:has(#ticket-title)
+  > div.grid
+  > div.min-w-0.space-y-6
+  > :not([hidden])
+  ~ :not([hidden]) {
   margin-top: 0.9rem !important;
 }
 
