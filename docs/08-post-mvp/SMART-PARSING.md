@@ -1,6 +1,6 @@
 # Smart Parsing — Template Generator
 
-**Status:** IMPLEMENTED — QA PENDING  
+**Status:** IMPLEMENTED — AUTOMATED QA COMPLETE  
 **Branch:** `feature/smart-template-parser`  
 **Parent:** `feature/ui-overhaul-v2`
 
@@ -66,3 +66,20 @@ The Smart Import panel provides:
 - long Progress Timeline is tested;
 - canonical `Title :`, `Impact List :`, `Dispatch Time`, and `Root Cause` labels are tested;
 - Template Generator integration verifies parsed values populate the live form, Impact editor, Progress Timeline, and report preview.
+
+## QA evidence
+
+Quality **#622** passed on code head `ca4c0a9fef3455e6adeee947ed1964d8b953f6b5` after the temporary formatter/QA helper workflow was removed.
+
+Passed gates:
+
+- source formatting + committed-format verification;
+- lint;
+- unit and component tests including smart parser fixtures and Generator integration;
+- Firebase Emulator integration and Security Rules;
+- repository/security hygiene;
+- Firebase release preflight;
+- generic and Firebase-configured production builds;
+- dev smoke;
+- real-browser responsive/touch QA;
+- Playwright Ticket lifecycle/RBAC/keyboard/accessibility QA.
