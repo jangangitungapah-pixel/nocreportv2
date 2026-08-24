@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { analyzeCoordinateOcrText } from '../../../infrastructure/ocr/coordinateCandidates.js';
-import { recognizeImageText } from '../../../infrastructure/ocr/ocrClient.js';
 import { validateOcrImageFile } from '../../../infrastructure/ocr/imageValidation.js';
 import { Button } from '../../../shared/ui/index.jsx';
 
@@ -89,6 +88,7 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
     setSourceLabel('');
 
     try {
+      const { recognizeImageText } = await import('../../../infrastructure/ocr/ocrClient.js');
       const result = await recognizeImageText(file, { onProgress: setProgress });
       const nextAnalysis = result.analysis ?? analyzeCoordinateOcrText(result.text);
       setAnalysis(nextAnalysis);
