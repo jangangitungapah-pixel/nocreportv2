@@ -1,4 +1,4 @@
-import { Button, IconButton, TextInput } from '../../../shared/ui/index.jsx';
+import { Button, IconButton, TextInput, UiIcon } from '../../../shared/ui/index.jsx';
 
 export function ImpactListEditor({ fields, register, append, remove, move }) {
   return (
@@ -12,9 +12,7 @@ export function ImpactListEditor({ fields, register, append, remove, move }) {
           </p>
         </div>
         <Button tone="secondary" onClick={() => append({ value: '' })}>
-          <span className="text-base leading-none" aria-hidden="true">
-            +
-          </span>
+          <UiIcon name="plus" size={16} />
           Add impact
         </Button>
       </div>
@@ -48,17 +46,17 @@ export function ImpactListEditor({ fields, register, append, remove, move }) {
                   disabled={index === 0}
                   onClick={() => move(index, index - 1)}
                 >
-                  ↑
+                  <UiIcon name="arrowUp" size={16} />
                 </IconButton>
                 <IconButton
                   label={`Move Impact ${index + 1} down`}
                   disabled={index === fields.length - 1}
                   onClick={() => move(index, index + 1)}
                 >
-                  ↓
+                  <UiIcon name="arrowDown" size={16} />
                 </IconButton>
                 <IconButton label={`Remove Impact ${index + 1}`} onClick={() => remove(index)}>
-                  ×
+                  <UiIcon name="close" size={16} />
                 </IconButton>
               </div>
             </div>
