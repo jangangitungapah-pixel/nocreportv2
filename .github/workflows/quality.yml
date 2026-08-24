@@ -127,6 +127,10 @@ jobs:
         if: github.event_name != 'pull_request'
         run: node scripts/finalize-t7.mjs
 
+      - name: Apply T8 production deployment evidence
+        if: github.event_name != 'pull_request'
+        run: node scripts/apply-t8-production-deployment-evidence.mjs
+
       - name: Persist validated formatting and phase tracker
         if: github.event_name != 'pull_request'
         shell: bash
