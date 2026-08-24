@@ -60,15 +60,19 @@ export function ProgressComposer({ onAdd }) {
   };
 
   return (
-    <section className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-5 shadow-[var(--shadow-sm)]">
-      <div>
-        <h3 className="text-sm font-bold">Progress Timeline</h3>
-        <p className="mt-1 text-xs leading-5 text-[var(--text-muted)]">
-          Add operational updates quickly. Ctrl/Cmd + Enter submits the current update.
-        </p>
+    <section className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-4 shadow-[var(--shadow-sm)] md:p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="spatial-kicker">Live timeline</p>
+          <h3 className="mt-1.5 text-base font-bold">Progress Timeline</h3>
+          <p className="mt-1 text-xs leading-5 text-[var(--text-muted)]">
+            Add operational updates quickly. Ctrl/Cmd + Enter submits the current update.
+          </p>
+        </div>
+        <span className="spatial-chip hidden sm:inline-flex">Ctrl / ⌘ + Enter</span>
       </div>
 
-      <div className="mt-4 grid gap-3 lg:grid-cols-[210px_minmax(0,1fr)_auto] lg:items-end">
+      <div className="mt-4 grid gap-3 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-panel-strong)] p-3 lg:grid-cols-[210px_minmax(0,1fr)_auto] lg:items-end lg:p-4">
         <DateTimeField
           id="progress-time"
           label="Event time"
@@ -94,6 +98,7 @@ export function ProgressComposer({ onAdd }) {
           }}
         />
         <Button className="lg:mb-px" disabled={submitting} onClick={() => void submit()}>
+          <span aria-hidden="true">＋</span>
           {submitting ? 'Adding…' : 'Add update'}
         </Button>
       </div>
