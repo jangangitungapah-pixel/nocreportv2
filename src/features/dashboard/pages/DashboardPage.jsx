@@ -41,7 +41,7 @@ function MetricCard({ label, value, hint }) {
 
 function DashboardSkeleton() {
   return (
-    <div className="space-y-5" aria-label="Loading Dashboard">
+    <div className="space-y-5" role="status" aria-label="Loading Dashboard">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }, (_, index) => (
           <Skeleton key={index} className="h-32" />
