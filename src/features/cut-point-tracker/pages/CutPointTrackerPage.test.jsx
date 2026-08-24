@@ -101,9 +101,8 @@ describe('CutPointTrackerPage', () => {
     renderPage();
     await screen.findByText('[MANDAU] LINK DOWN');
 
-    fireEvent.change(screen.getByLabelText('Cut Point status filter'), {
-      target: { value: 'RESOLVED' },
-    });
+    fireEvent.click(screen.getByRole('combobox', { name: 'Ticket status' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Resolved' }));
     expect(screen.queryByText('[MANDAU] LINK DOWN')).not.toBeInTheDocument();
     expect(screen.getByText('[BANDUNG] RESOLVED LINK')).toBeInTheDocument();
 
