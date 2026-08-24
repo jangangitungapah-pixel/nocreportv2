@@ -35,6 +35,21 @@ async function loadCutPointTrackerRoute() {
   return { Component: CutPointTrackerPage };
 }
 
+async function loadArchiveRoute() {
+  const { ArchiveManagementPage } =
+    await import('../features/archive/pages/ArchiveManagementPage.jsx');
+
+  function ArchiveRoute() {
+    return (
+      <ProtectedRoute allowedRoles={[USER_ROLE.ADMIN]}>
+        <ArchiveManagementPage />
+      </ProtectedRoute>
+    );
+  }
+
+  return { Component: ArchiveRoute };
+}
+
 export const routeObjects = [
   {
     path: '/login',
@@ -52,6 +67,7 @@ export const routeObjects = [
           { path: '/generator/:ticketId', lazy: loadTicketRoute },
           { path: '/running', element: <RunningTicketsPage /> },
           { path: '/cut-points', lazy: loadCutPointTrackerRoute },
+          { path: '/archive', lazy: loadArchiveRoute },
         ],
       },
     ],
