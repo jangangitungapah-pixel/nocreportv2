@@ -15,9 +15,9 @@ function normalizeBaseUrl(value) {
 }
 
 async function fetchChecked(url, expectedContentType) {
-  const response = await fetch(url, {
+  const response = await globalThis.fetch(url, {
     redirect: 'follow',
-    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    signal: globalThis.AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     headers: {
       'user-agent': 'nocreportv2-t8-production-smoke/1.0',
       accept: '*/*',
