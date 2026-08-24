@@ -104,15 +104,32 @@ async function assertNoHorizontalOverflow(page, label) {
 
 async function assertViewerTicketLoaded(page, ticketId) {
   await expect(page).toHaveURL(new RegExp(`/generator/${ticketId}$`));
-  await page.waitForFunction(
-    () =>
-      document.body.innerText.includes('Viewer read-only mode') ||
-      document.body.innerText.includes('Ticket could not be loaded'),
-  );
-  const bodyText = await page.locator('body').innerText();
-  expect(bodyText, `Viewer Ticket route did not load read-only content.\n${bodyText}`).toContain(
-    'Viewer read-only mode',
-  );
+
+  const outcome = await Promise.race([
+    page
+      .getByText('Viewer read-only mode', { exact: true })
+      .waitFor({ state: 'visible', timeout: 8000 })
+      .then(() => 'viewer'),
+    page
+      .getByText('Ticket could not be loaded', { exact: true })
+      .waitFor({ state: 'visible', timeout: 8000 })
+      .then(() => 'error'),
+    page.waitForTimeout(8500).then(() => 'timeout'),
+  ]);
+
+  if (outcome !== 'viewer') {
+    const bodyText = await page.locator('body').innerText();
+    const stage = bodyText.includes('Checking session…')
+      ? 'auth-session'
+      : bodyText.includes('Loading Ticket')
+        ? 'ticket-load'
+        : outcome === 'error'
+          ? 'ticket-error'
+          : 'unknown';
+    throw new Error(
+      `Viewer Ticket route failed at stage=${stage}, outcome=${outcome}, url=${page.url()}\n${bodyText}`,
+    );
+  }
 }
 
 async function resetProfiles() {
