@@ -4,13 +4,17 @@ React/Vite web app for creating, persisting, searching, and resolving NOC incide
 
 ## Current project state
 
-The implementation is currently in **T8 — Firebase Deployment & MVP Release**. T0–T7 are complete. T7 closed after Quality #525 passed the full automated gate and the project owner accepted the remaining manual visual/responsive QA on 2026-08-24.
+The planned MVP is **RELEASED**. T0–T8 are complete, with the production application live at:
 
-The real Firebase release has now been executed successfully against project `nocreportv2`, including Firebase Hosting. Quality #548 is green on the cross-platform Windows production-build fix. T8 remains open only for the remaining production smoke and authorization acceptance; successful deployment alone does not imply that authenticated workflows have been validated.
+```text
+https://nocreportv2.web.app
+```
 
-T8 release support includes a deterministic production Firebase build, a fail-fast Spark-compatible release preflight, explicit Hosting/Firestore deployment commands, a public Hosting/SPA smoke checker, and a production deployment/smoke-test runbook.
+The Firebase release to project `nocreportv2` includes Firebase Hosting, Cloud Firestore Security Rules, and Firestore indexes. The public production smoke passed for the primary SPA routes and published static assets. The project owner subsequently accepted the full authenticated production smoke, including login, Dashboard/Firestore access, Ticket create/save and reload persistence, Running transition, Progress persistence, deployed-browser OCR, verified coordinate persistence, Running Tickets, Cut Point Tracker, Copy Report, Resolve, signed-out protection, and the Admin/Operator/Viewer RBAC matrix.
 
-The canonical phase tracker lives at `docs/06-workplan/IMPLEMENTATION-WORKPLAN.md`. The T8 release runbook lives at `docs/07-release/FIREBASE-DEPLOYMENT.md`, and the operator-confirmed deployment evidence is recorded at `docs/07-release/PRODUCTION-DEPLOYMENT-EVIDENCE.md`.
+The intended Firebase Spark plan/account billing state and required Firebase Authentication provider were explicitly confirmed for release acceptance. No Critical/High production blocker remained at T8 acceptance.
+
+The canonical phase tracker lives at `docs/06-workplan/IMPLEMENTATION-WORKPLAN.md`. Release procedures and evidence live under `docs/07-release/`.
 
 ## Technology baseline
 
@@ -121,9 +125,11 @@ GitHub Actions additionally runs:
 
 - T7 security/repository hygiene scanning
 - T8 Firebase release preflight
+- production and Firebase-configured production builds
 - dev-server smoke testing
 - real-browser Cut Point viewport/touch QA
 - Playwright MVP E2E, responsive, keyboard/focus, and accessibility QA
+- guarded T8 finalization after authenticated production evidence exists
 
 ## Firestore development and validation
 
@@ -138,9 +144,9 @@ npm run firebase:deploy:indexes
 npm run firebase:deploy:firestore
 ```
 
-## T8 production release
+## Production release
 
-Run the repository release preflight and deterministic production build before any deploy:
+Run the repository release preflight and deterministic production build before a deploy:
 
 ```bash
 npm run release:preflight
@@ -154,17 +160,20 @@ npm run firebase:deploy:hosting
 npm run firebase:deploy:release
 ```
 
-`firebase:deploy:hosting` validates and builds before deploying Hosting. `firebase:deploy:release` validates and builds before deploying Firestore Security Rules, Firestore indexes, and Hosting together.
-
-After deployment, validate the public Hosting shell, SPA rewrites, and published assets:
+Validate the public Hosting shell, SPA rewrites, and published assets after deployment:
 
 ```bash
 npm run release:smoke:public
 ```
 
-The smoke command defaults to `https://nocreportv2.web.app`. Override it with `T8_PRODUCTION_URL` when a different Hosting origin or custom domain is the canonical production URL. This public smoke does not replace authenticated Firebase Auth/Firestore/RBAC workflow validation.
+The smoke command defaults to `https://nocreportv2.web.app`. It validates the public Hosting/SPA layer and does not replace authenticated Firebase Auth/Firestore/RBAC workflow validation.
 
-The complete account-side preparation, Firebase CLI authentication, deployment procedure, production smoke checklist, Spark quota notes, and known limitations are documented in `docs/07-release/FIREBASE-DEPLOYMENT.md`.
+The full release procedure, public deployment evidence, and authenticated acceptance evidence are documented in:
+
+- `docs/07-release/FIREBASE-DEPLOYMENT.md`
+- `docs/07-release/PRODUCTION-DEPLOYMENT-EVIDENCE.md`
+- `docs/07-release/AUTHENTICATED-PRODUCTION-SMOKE.md`
+- `docs/07-release/AUTHENTICATED-PRODUCTION-SMOKE-EVIDENCE.md`
 
 ## Data and reliability behavior
 
@@ -189,5 +198,7 @@ Source-of-truth documents:
 - `docs/06-workplan/IMPLEMENTATION-WORKPLAN.md`
 - `docs/07-release/FIREBASE-DEPLOYMENT.md`
 - `docs/07-release/PRODUCTION-DEPLOYMENT-EVIDENCE.md`
+- `docs/07-release/AUTHENTICATED-PRODUCTION-SMOKE.md`
+- `docs/07-release/AUTHENTICATED-PRODUCTION-SMOKE-EVIDENCE.md`
 
-If implementation and documentation diverge, the relevant PRD/TDD must be reconciled before the phase is finalized.
+If implementation and documentation diverge, the relevant PRD/TDD must be reconciled before a future release is accepted.
