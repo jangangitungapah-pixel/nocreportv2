@@ -163,6 +163,74 @@
     background-image: radial-gradient(var(--border-default) 0.7px, transparent 0.7px);
     background-size: 18px 18px;
   }
+
+  /* Generator-specific surface upgrade without coupling visual work to persistence logic. */
+  .space-y-5 > section.rounded-xl:first-child:has([data-status]) {
+    position: sticky;
+    top: 5.25rem;
+    z-index: 20;
+    border-color: var(--border-subtle);
+    border-radius: var(--radius-xl);
+    background: var(--surface-panel-translucent);
+    box-shadow: var(--shadow-md), var(--shadow-inset);
+    backdrop-filter: blur(20px);
+  }
+
+  section:has(#ticket-title),
+  section:has(#occur-at),
+  section:has(#pic),
+  section:has(#latitude) {
+    border-color: var(--border-subtle);
+    border-radius: var(--radius-xl);
+    background: var(--panel-gradient);
+    box-shadow: var(--shadow-sm), var(--shadow-inset);
+  }
+
+  section:has(#ticket-title) > .mb-4,
+  section:has(#occur-at) > .mb-4,
+  section:has(#pic) > .mb-4,
+  section:has(#latitude) > .mb-4 {
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.9rem;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  section:has(#ticket-title) > .mb-4 > h3,
+  section:has(#occur-at) > .mb-4 > h3,
+  section:has(#pic) > .mb-4 > h3,
+  section:has(#latitude) > .mb-4 > h3 {
+    font-size: 1rem;
+    letter-spacing: -0.025em;
+  }
+
+  section:has(#ticket-title) > .mb-4::before,
+  section:has(#occur-at) > .mb-4::before,
+  section:has(#pic) > .mb-4::before,
+  section:has(#latitude) > .mb-4::before {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: var(--accent-text);
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  section:has(#ticket-title) > .mb-4::before {
+    content: 'Incident identity';
+  }
+
+  section:has(#occur-at) > .mb-4::before {
+    content: 'Timing';
+  }
+
+  section:has(#pic) > .mb-4::before {
+    content: 'Ownership & diagnosis';
+  }
+
+  section:has(#latitude) > .mb-4::before {
+    content: 'Verified location';
+  }
 }
 
 [data-status='RUNNING'] {
@@ -179,6 +247,13 @@
 
 [data-status='DRAFT'] {
   --status-dot: var(--warning-solid);
+}
+
+@media (max-width: 767px) {
+  .space-y-5 > section.rounded-xl:first-child:has([data-status]) {
+    position: relative;
+    top: auto;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
