@@ -37,27 +37,25 @@ function MarkerCard({ marker, selected, onLocate }) {
         </div>
         <StatusBadge status={marker.status} />
       </div>
-      <dl className="mt-3 grid gap-2 text-xs">
-        <div>
+      <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
+        <div className="col-span-2">
           <dt className="font-semibold text-[var(--text-muted)]">Cut Point</dt>
           <dd className="mt-0.5 line-clamp-2 text-[var(--text-secondary)]">
             {marker.cutPoint || '—'}
           </dd>
         </div>
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <dt className="font-semibold text-[var(--text-muted)]">PIC</dt>
-            <dd className="mt-0.5 truncate text-[var(--text-secondary)]">{marker.pic || '—'}</dd>
-          </div>
-          <div>
-            <dt className="font-semibold text-[var(--text-muted)]">Coordinate</dt>
-            <dd className="mt-0.5 font-mono text-[var(--text-secondary)]">
-              {marker.coordinateLabel}
-            </dd>
-          </div>
+        <div>
+          <dt className="font-semibold text-[var(--text-muted)]">PIC</dt>
+          <dd className="mt-0.5 truncate text-[var(--text-secondary)]">{marker.pic || '—'}</dd>
+        </div>
+        <div>
+          <dt className="font-semibold text-[var(--text-muted)]">Coordinate</dt>
+          <dd className="mt-0.5 font-mono text-[var(--text-secondary)]">
+            {marker.coordinateLabel}
+          </dd>
         </div>
         {marker.latestProgress ? (
-          <div>
+          <div className="col-span-2">
             <dt className="font-semibold text-[var(--text-muted)]">Latest update</dt>
             <dd className="mt-0.5 line-clamp-2 text-[var(--text-secondary)]">
               {marker.latestProgress}
