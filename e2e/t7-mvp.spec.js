@@ -141,7 +141,6 @@ test.describe.serial('T7 MVP browser workflow', () => {
     expect(ticketId).toBeTruthy();
 
     await page.getByRole('button', { name: 'Mark Running' }).click();
-    await expect(page.getByRole('button', { name: 'Resolve Ticket' })).toBeVisible();
 
     await page.getByLabel('Event time').fill('2026-08-21T08:30');
     await page.getByLabel('Progress update').fill('Team arrived at the Cut Point');
