@@ -1,0 +1,85 @@
+name: Smart Parser QA
+
+on:
+  push:
+    branches:
+      - feature/smart-template-parser
+
+permissions:
+  contents: write
+
+jobs:
+  quality:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Set up Java for Firebase Emulator
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install browser QA dependencies
+        run: npm install --no-save --package-lock=false @playwright/test@1.62.1 @axe-core/playwright@4.13.0
+
+      - name: Format source
+        run: npm run format
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit and component tests
+        run: npm test
+
+      - name: Firebase emulator integration tests
+        run: npm run test:firebase:emulator
+
+      - name: Security hygiene
+        run: node scripts/t7-security-hygiene.mjs
+
+      - name: Firebase release preflight
+        run: npm run release:preflight
+
+      - name: Production build
+        run: npm run build
+
+      - name: Production Firebase-configured build
+        run: npm run build:production
+
+      - name: Real-browser viewport and touch QA
+        run: node scripts/t6-browser-qa.mjs
+
+      - name: Playwright E2E and accessibility QA
+        run: node scripts/test-t7-e2e.mjs
+
+      - name: Persist exact formatter output
+        if: always()
+        shell: bash
+        run: |
+          if git diff --quiet -- src e2e scripts index.html package.json playwright.config.js eslint.config.js vite.config.js vitest.config.js; then
+            echo "No formatter changes to persist."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- src e2e scripts index.html package.json playwright.config.js eslint.config.js vite.config.js vitest.config.js
+          git commit -m "chore(parser): persist exact Prettier output"
+          git push
