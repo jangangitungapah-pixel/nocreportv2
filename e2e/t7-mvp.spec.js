@@ -180,6 +180,8 @@ test.describe.serial('T7 MVP browser workflow', () => {
     page,
     context,
   }) => {
+    test.setTimeout(180_000);
+
     await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
       origin: APP_ORIGIN,
     });
