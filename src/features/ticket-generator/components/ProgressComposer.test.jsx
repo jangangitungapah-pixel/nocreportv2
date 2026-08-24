@@ -1,7 +1,11 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { ProgressComposer } from './ProgressComposer.jsx';
+
+afterEach(() => {
+  cleanup();
+});
 
 describe('ProgressComposer persistence acknowledgement', () => {
   it('keeps the operator draft when persistence reports failure', async () => {
