@@ -51,7 +51,7 @@ source = updateSection(
     next = next.replace('**Completed:** —', '**Completed:** 2026-08-21');
     next = next.replace(
       '**Commit / PR:** —',
-      `**Commit / PR:** \`${commitReference}\` / PR #1 Quality #259`,
+      `**Commit / PR:** \`${commitReference}\` / PR #1 Quality #505`,
     );
     next = next.replace(
       /\*\*Notes:\*\*.*?(?=\n\n---)/s,
