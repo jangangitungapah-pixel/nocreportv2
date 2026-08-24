@@ -60,9 +60,9 @@ export function ProgressTimeline({ entries, onUpdate, onRemove }) {
 
   if (sorted.length === 0) {
     return (
-      <div className="flex items-center gap-3 rounded-[var(--radius-xl)] border border-dashed border-[var(--border-default)] bg-[var(--surface-panel)] p-5 text-sm text-[var(--text-secondary)] shadow-[var(--shadow-xs)]">
+      <div className="generator-progress-empty flex items-center gap-2 rounded-xl border border-dashed border-[var(--border-default)] bg-[var(--surface-panel)] px-3 py-2.5 text-xs font-medium text-[var(--text-muted)] shadow-[var(--shadow-xs)]">
         <span
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[var(--surface-muted)] text-xs font-black text-[var(--text-muted)]"
+          className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-[var(--surface-muted)] text-[10px] font-black"
           aria-hidden="true"
         >
           0
@@ -73,18 +73,18 @@ export function ProgressTimeline({ entries, onUpdate, onRemove }) {
   }
 
   return (
-    <section className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-4 shadow-[var(--shadow-sm)] md:p-5">
+    <section className="generator-progress-history rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-4 shadow-[var(--shadow-xs)]">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="spatial-kicker">Incident history</p>
-          <h3 className="mt-1.5 text-base font-bold">Recorded Progress</h3>
+          <p className="spatial-kicker">Recorded Progress</p>
+          <p className="mt-1 text-xs text-[var(--text-muted)]">Incident history and corrections.</p>
         </div>
-        <span className="spatial-chip">{sorted.length} updates</span>
+        <span className="spatial-chip min-h-7 px-2.5 text-[10px]">{sorted.length} updates</span>
       </div>
 
-      <div className="relative mt-5 space-y-1">
+      <div className="relative mt-3 space-y-0.5">
         <span
-          className="absolute bottom-3 left-[21px] top-3 w-px bg-[var(--border-subtle)]"
+          className="absolute bottom-2 left-[16px] top-2 w-px bg-[var(--border-subtle)]"
           aria-hidden="true"
         />
         {sorted.map((entry) => {
@@ -96,19 +96,19 @@ export function ProgressTimeline({ entries, onUpdate, onRemove }) {
           return (
             <div key={entry.id} className="relative">
               {showGroup ? (
-                <div className="relative z-10 flex items-center gap-3 pb-2 pt-4 first:pt-0">
-                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] text-[9px] font-black text-[var(--accent-text)] shadow-[var(--shadow-xs)]">
+                <div className="relative z-10 flex items-center gap-2 pb-1.5 pt-3 first:pt-0">
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] text-[8px] font-black text-[var(--accent-text)] shadow-[var(--shadow-xs)]">
                     DAY
                   </span>
-                  <p className="text-[11px] font-extrabold uppercase tracking-[0.12em] text-[var(--text-muted)]">
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-muted)]">
                     {group}
                   </p>
                 </div>
               ) : null}
 
               {editing ? (
-                <div className="relative z-10 ml-14 rounded-2xl border border-[var(--border-accent)] bg-[var(--accent-soft)] p-3.5 shadow-[var(--shadow-xs)]">
-                  <div className="grid gap-3 md:grid-cols-[210px_minmax(0,1fr)]">
+                <div className="relative z-10 ml-10 rounded-xl border border-[var(--border-accent)] bg-[var(--accent-soft)] p-3 shadow-[var(--shadow-xs)]">
+                  <div className="grid gap-2.5 md:grid-cols-[200px_minmax(0,1fr)]">
                     <DateTimeField
                       id={`edit-progress-time-${entry.id}`}
                       label="Event time"
@@ -127,7 +127,7 @@ export function ProgressTimeline({ entries, onUpdate, onRemove }) {
                       }}
                     />
                   </div>
-                  <div className="mt-3 flex flex-wrap justify-end gap-2">
+                  <div className="mt-2.5 flex flex-wrap justify-end gap-2">
                     <Button tone="secondary" onClick={cancelEdit}>
                       Cancel
                     </Button>
@@ -135,14 +135,12 @@ export function ProgressTimeline({ entries, onUpdate, onRemove }) {
                   </div>
                 </div>
               ) : (
-                <div className="group relative z-10 ml-14 grid gap-2 rounded-2xl border border-transparent px-3 py-2.5 transition-[background-color,border-color] duration-200 hover:border-[var(--border-subtle)] hover:bg-[var(--surface-muted)] sm:grid-cols-[68px_minmax(0,1fr)_auto] sm:items-start">
-                  <time className="pt-1 font-mono text-xs font-bold tabular-nums text-[var(--accent-text)]">
+                <div className="group relative z-10 ml-10 grid gap-1.5 rounded-xl border border-transparent px-2.5 py-2 transition-[background-color,border-color] duration-200 hover:border-[var(--border-subtle)] hover:bg-[var(--surface-muted)] sm:grid-cols-[64px_minmax(0,1fr)_auto] sm:items-start">
+                  <time className="pt-0.5 font-mono text-[11px] font-bold tabular-nums text-[var(--accent-text)]">
                     {formatProgressTime(entry.occurredAt)}
                   </time>
-                  <p className="pt-0.5 text-sm font-medium leading-6 text-[var(--text-primary)]">
-                    {entry.text}
-                  </p>
-                  <div className="flex gap-1 opacity-100 transition sm:opacity-70 sm:group-hover:opacity-100">
+                  <p className="text-sm font-medium leading-5 text-[var(--text-primary)]">{entry.text}</p>
+                  <div className="flex gap-1 opacity-100 transition sm:opacity-60 sm:group-hover:opacity-100">
                     <IconButton label="Edit progress update" onClick={() => beginEdit(entry)}>
                       <UiIcon name="edit" size={16} />
                     </IconButton>
