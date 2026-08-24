@@ -111,8 +111,8 @@ Small preparatory changes for a later phase are allowed only when they are neces
 
 # 3. Current Project Status
 
-**Overall status:** IMPLEMENTATION IN PROGRESS  
-**Current Active Phase:** `T8 — Firebase Deployment & MVP Release`  
+**Overall status:** MVP RELEASED  
+**Current Active Phase:** `— MVP COMPLETE`  
 **Next Implementation Phase:** `— (T8 is the final planned MVP phase)`
 
 ## Documentation Status
@@ -140,7 +140,7 @@ D0 is complete. Cross-document review resolved the React Router baseline to the 
 - [x] **T5 — Firebase Integration & Operational Data Features**
 - [x] **T6 — Cut Point Tracker**
 - [x] **T7 — Hardening, Security Validation & Full QA**
-- [ ] **T8 — Firebase Deployment & MVP Release**
+- [x] **T8 — Firebase Deployment & MVP Release**
 
 ---
 
@@ -921,7 +921,7 @@ MVP is considered release-candidate quality with no known critical blocker.
 
 # 14. T8 — Firebase Deployment & MVP Release
 
-**Status:** IN PROGRESS — release preparation active  
+**Status:** COMPLETE  
 **Dependency:** T7 complete  
 **Goal:** Deploy the validated application to the intended Firebase Spark-compatible production environment.
 
@@ -929,12 +929,12 @@ Deployment is intentionally last. Development must not be shaped around prematur
 
 ## Firebase Project Preparation
 
-- [ ] production Firebase project confirmed.
-- [ ] Spark Plan confirmed where required.
+- [x] production Firebase project confirmed.
+- [x] Spark Plan confirmed where required.
 - [x] current Firebase quotas/pricing rechecked before release.
-- [ ] Firestore production database configured.
-- [ ] Firebase Authentication providers configured.
-- [ ] Firebase Hosting configured.
+- [x] Firestore production database configured.
+- [x] Firebase Authentication providers configured.
+- [x] Firebase Hosting configured.
 - [x] no Cloud Storage dependency created.
 - [x] no Blaze-only production dependency accidentally introduced.
 
@@ -942,24 +942,24 @@ Deployment is intentionally last. Development must not be shaped around prematur
 
 - [x] production environment values configured safely.
 - [x] SPA Hosting rewrite configured.
-- [ ] Firestore indexes deployed.
-- [ ] Firestore Security Rules deployed.
-- [ ] Hosting deployment succeeds.
+- [x] Firestore indexes deployed.
+- [x] Firestore Security Rules deployed.
+- [x] Hosting deployment succeeds.
 
 ## Production Smoke Test
 
-- [ ] login works.
-- [ ] Dashboard loads.
-- [ ] create/save Ticket works.
-- [ ] mark Running works.
-- [ ] progress append works.
-- [ ] OCR works in deployed browser context.
-- [ ] coordinate save works.
-- [ ] Running Ticket works.
-- [ ] Cut Point map works.
-- [ ] Copy Report works.
-- [ ] Resolve works.
-- [ ] unauthorized behavior remains blocked.
+- [x] login works.
+- [x] Dashboard loads.
+- [x] create/save Ticket works.
+- [x] mark Running works.
+- [x] progress append works.
+- [x] OCR works in deployed browser context.
+- [x] coordinate save works.
+- [x] Running Ticket works.
+- [x] Cut Point map works.
+- [x] Copy Report works.
+- [x] Resolve works.
+- [x] unauthorized behavior remains blocked.
 
 ## Release Documentation
 
@@ -968,15 +968,15 @@ Deployment is intentionally last. Development must not be shaped around prematur
 - [x] Firebase emulator instructions updated.
 - [x] deployment instructions documented.
 - [x] known limitations documented.
-- [ ] final implementation status recorded in this tracker.
+- [x] final implementation status recorded in this tracker.
 
 ## Mandatory Quality Gate
 
-- [ ] CI green for release commit.
-- [ ] production build green.
-- [ ] production smoke test green.
-- [ ] no Critical/High known security issue.
-- [ ] no known blocker for primary NOC reporting workflow.
+- [x] CI green for release commit.
+- [x] production build green.
+- [x] production smoke test green.
+- [x] no Critical/High known security issue.
+- [x] no known blocker for primary NOC reporting workflow.
 
 ## Exit Criteria
 
@@ -984,10 +984,10 @@ The MVP is deployed to Firebase Hosting and the primary end-to-end NOC report wo
 
 ## Completion Record
 
-**Completed:** —  
-**Commit / PR:** —  
-**Production URL:** —  
-**Notes:** —
+**Completed:** 2026-08-24  
+**Commit / PR:** `3623afdf4078d390f268107e5257fe313cb30ce1` / PR #1 Quality #590  
+**Production URL:** `https://nocreportv2.web.app`  
+**Notes:** T8 complete. Firebase Hosting, Firestore Security Rules, and indexes were deployed to project `nocreportv2`; public Hosting/SPA smoke passed; authenticated production acceptance validated login, Dashboard/Firestore access, Ticket create/save, Running, Progress persistence, deployed-browser OCR, verified coordinate persistence, Running Tickets, Cut Point Tracker, Copy Report, Resolve, and the production Viewer/Operator/Admin authorization matrix. Spark plan/account state and the required Firebase Authentication provider were confirmed. No Critical/High production blocker remained at release acceptance.
 
 ---
 
