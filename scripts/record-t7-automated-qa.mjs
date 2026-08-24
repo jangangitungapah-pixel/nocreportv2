@@ -45,6 +45,7 @@ tracker = updateSection(
       'no service-account key in repository.',
       'no secret in Vite client environment beyond public Firebase client config.',
       'no hidden reliance on UI-only authorization.',
+      'error messages do not leak unnecessary internal details.',
       'photo/OCR pipeline remains local.',
       'Login.',
       'create Draft Ticket.',
@@ -79,6 +80,7 @@ tracker = updateSection(
       'Dashboard initial bundle does not eagerly include OCR worker.',
       'Cut Point map can be route-lazy-loaded.',
       'large historical ticket data is paginated.',
+      'excessive Firestore listeners removed.',
       'Firestore reads/writes reviewed.',
       'no obsolete backup files.',
       'no debug logging left in production path.',
@@ -99,7 +101,7 @@ tracker = updateSection(
 
     next = next.replace(
       '**Notes:** —',
-      '**Notes:** Automated T7 hardening is green through the latest validated PR Quality run: Firebase Auth/RBAC, Firestore Security Rules role matrix, security/repository hygiene, full Playwright MVP workflow, keyboard/dialog focus checks, accessible form-error associations, readable status labels, axe serious/critical checks, and responsive overflow coverage at 360/390/412/768/1024/1280 px. Manual/subjective items such as visual contrast review, route usability, desktop information density, and manual responsive acceptance remain intentionally open until a human visual pass is recorded.',
+      '**Notes:** Automated T7 hardening is green through the latest validated PR Quality run: Firebase Auth/RBAC, Firestore Security Rules role matrix, normalized public Firebase errors, security/repository hygiene, bounded Firestore access with only the lifecycle-managed authenticated profile listener, full Playwright MVP workflow, keyboard/dialog focus checks, accessible form-error associations, readable status labels, axe serious/critical checks, and responsive overflow coverage at 360/390/412/768/1024/1280 px. Manual/subjective items such as visual contrast review, route usability, desktop information density, and manual responsive acceptance remain intentionally open until a human visual pass is recorded.',
     );
     return next;
   },
