@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
 @import 'tailwindcss';
 @import './tokens.css';
 
@@ -9,15 +10,11 @@
   html {
     min-width: 320px;
     background: var(--surface-canvas);
-    font-family:
-      Inter,
-      ui-sans-serif,
-      system-ui,
-      -apple-system,
-      BlinkMacSystemFont,
-      'Segoe UI',
-      sans-serif;
+    font-family: var(--font-body);
+    font-synthesis: none;
     text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
@@ -25,7 +22,29 @@
     min-width: 320px;
     min-height: 100vh;
     overflow-x: hidden;
-    background: var(--surface-canvas);
+    background-color: var(--surface-canvas);
+    background-image: var(--canvas-gradient);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    line-height: 1.5;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+  }
+
+  code,
+  kbd,
+  samp,
+  pre,
+  .font-mono {
+    font-family: var(--font-mono);
   }
 
   button,
@@ -42,22 +61,124 @@
   select {
     -webkit-tap-highlight-color: transparent;
   }
+
+  ::selection {
+    background: var(--accent-soft-strong);
+    color: var(--text-primary);
+  }
+
+  :focus-visible {
+    scroll-margin: 5rem;
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: var(--radius-pill);
+    background: var(--border-strong);
+    background-clip: padding-box;
+  }
+}
+
+@layer components {
+  .spatial-panel {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-xl);
+    background: var(--panel-gradient);
+    box-shadow: var(--shadow-sm), var(--shadow-inset);
+  }
+
+  .spatial-panel-elevated {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-2xl);
+    background: var(--surface-elevated);
+    box-shadow: var(--shadow-md), var(--shadow-inset);
+  }
+
+  .spatial-panel-muted {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    background: var(--surface-muted);
+  }
+
+  .spatial-kicker {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .spatial-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.7rem, 2.7vw, 2.75rem);
+    line-height: 1.04;
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    color: var(--text-primary);
+  }
+
+  .spatial-description {
+    max-width: 48rem;
+    font-size: 0.925rem;
+    line-height: 1.7;
+    color: var(--text-secondary);
+  }
+
+  .spatial-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-default), transparent);
+  }
+
+  .spatial-chip {
+    display: inline-flex;
+    min-height: 32px;
+    align-items: center;
+    gap: 0.45rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-pill);
+    background: var(--surface-glass);
+    padding: 0 0.75rem;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    box-shadow: var(--shadow-xs);
+    backdrop-filter: blur(14px);
+  }
+
+  .spatial-dot-grid {
+    background-image: radial-gradient(var(--border-default) 0.7px, transparent 0.7px);
+    background-size: 18px 18px;
+  }
 }
 
 [data-status='RUNNING'] {
-  --status-dot: #22a06b;
+  --status-dot: var(--success-solid);
 }
 
 [data-status='RESOLVED'] {
-  --status-dot: #3b82f6;
+  --status-dot: var(--accent-cyan);
 }
 
 [data-status='ARCHIVED'] {
-  --status-dot: #8b5cf6;
+  --status-dot: var(--accent-violet);
 }
 
 [data-status='DRAFT'] {
-  --status-dot: #d97706;
+  --status-dot: var(--warning-solid);
 }
 
 @media (prefers-reduced-motion: reduce) {
