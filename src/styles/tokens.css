@@ -48,6 +48,7 @@
   --success-text: #0b7650;
   --warning-solid: #d98916;
   --warning-soft: #fff6df;
+  --warning-border: #f0d49d;
   --warning-text: #9b5d05;
 
   --danger-solid: #d44553;
@@ -130,6 +131,7 @@
   --success-text: #77ddb4;
   --warning-solid: #e7a33b;
   --warning-soft: #382810;
+  --warning-border: #6e5221;
   --warning-text: #f1bf6a;
 
   --danger-solid: #ef6672;
