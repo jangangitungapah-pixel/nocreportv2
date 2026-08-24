@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 
-import { Button, Textarea } from '../../../shared/ui/index.jsx';
+import { Button, Textarea, UiIcon } from '../../../shared/ui/index.jsx';
 import { parseSmartReport } from '../lib/smartReportParser.js';
 
 const FIELD_LABELS = {
@@ -78,7 +78,7 @@ export function SmartPasteParser({ onApply }) {
                 </p>
               </div>
               <Button disabled={!parsed.canApply} onClick={apply}>
-                <span aria-hidden="true">↳</span>
+                <UiIcon name="generator" size={16} />
                 Fill generator
               </Button>
             </div>
