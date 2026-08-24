@@ -6,9 +6,11 @@ React/Vite web app for creating, persisting, searching, and resolving NOC incide
 
 The implementation is currently in **T8 — Firebase Deployment & MVP Release**. T0–T7 are complete. T7 closed after Quality #525 passed the full automated gate and the project owner accepted the remaining manual visual/responsive QA on 2026-08-24.
 
-T8 release preparation now includes a deterministic production Firebase build, a fail-fast Spark-compatible release preflight, explicit Hosting/Firestore deployment commands, and a production deployment/smoke-test runbook. Actual production Firebase console verification, deployment, and production smoke acceptance remain intentionally open until they are executed against the real `nocreportv2` project.
+The real Firebase release has now been executed successfully against project `nocreportv2`, including Firebase Hosting. Quality #548 is green on the cross-platform Windows production-build fix. T8 remains open only for the remaining production smoke and authorization acceptance; successful deployment alone does not imply that authenticated workflows have been validated.
 
-The canonical phase tracker lives at `docs/06-workplan/IMPLEMENTATION-WORKPLAN.md`. The T8 release runbook lives at `docs/07-release/FIREBASE-DEPLOYMENT.md`.
+T8 release support includes a deterministic production Firebase build, a fail-fast Spark-compatible release preflight, explicit Hosting/Firestore deployment commands, a public Hosting/SPA smoke checker, and a production deployment/smoke-test runbook.
+
+The canonical phase tracker lives at `docs/06-workplan/IMPLEMENTATION-WORKPLAN.md`. The T8 release runbook lives at `docs/07-release/FIREBASE-DEPLOYMENT.md`, and the operator-confirmed deployment evidence is recorded at `docs/07-release/PRODUCTION-DEPLOYMENT-EVIDENCE.md`.
 
 ## Technology baseline
 
@@ -154,6 +156,14 @@ npm run firebase:deploy:release
 
 `firebase:deploy:hosting` validates and builds before deploying Hosting. `firebase:deploy:release` validates and builds before deploying Firestore Security Rules, Firestore indexes, and Hosting together.
 
+After deployment, validate the public Hosting shell, SPA rewrites, and published assets:
+
+```bash
+npm run release:smoke:public
+```
+
+The smoke command defaults to `https://nocreportv2.web.app`. Override it with `T8_PRODUCTION_URL` when a different Hosting origin or custom domain is the canonical production URL. This public smoke does not replace authenticated Firebase Auth/Firestore/RBAC workflow validation.
+
 The complete account-side preparation, Firebase CLI authentication, deployment procedure, production smoke checklist, Spark quota notes, and known limitations are documented in `docs/07-release/FIREBASE-DEPLOYMENT.md`.
 
 ## Data and reliability behavior
@@ -178,5 +188,6 @@ Source-of-truth documents:
 - `docs/05-security/SECURITY-ACCESS-CONTROL-PRD.md`
 - `docs/06-workplan/IMPLEMENTATION-WORKPLAN.md`
 - `docs/07-release/FIREBASE-DEPLOYMENT.md`
+- `docs/07-release/PRODUCTION-DEPLOYMENT-EVIDENCE.md`
 
 If implementation and documentation diverge, the relevant PRD/TDD must be reconciled before the phase is finalized.
