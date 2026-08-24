@@ -110,30 +110,9 @@ jobs:
             vite.config.js \
             vitest.config.js
 
-      - name: Finalize D0 and T0 tracker
-        if: github.event_name != 'pull_request'
-        run: node scripts/finalize-t0.mjs
-
-      - name: Finalize T1 tracker
-        if: github.event_name != 'pull_request'
-        run: node scripts/finalize-t1.mjs
-
-      - name: Finalize T2 tracker
-        if: github.event_name != 'pull_request'
-        run: node scripts/finalize-t2.mjs
-
-      - name: Finalize T3 tracker
-        if: github.event_name != 'pull_request'
-        run: node scripts/finalize-t3.mjs
-
-      - name: Finalize T4 tracker
-        if: github.event_name != 'pull_request'
-        run: node scripts/finalize-t4.mjs
-
-      - name: Finalize T5 tracker
-        if: github.event_name != 'pull_request'
-        run: node scripts/finalize-t5.mjs
-
+      # D0-T5 are already complete in the canonical tracker. Re-running their
+      # historical finalizers on every push is unsafe because those scripts
+      # intentionally expect the phase transition text from their original run.
       - name: Finalize T6 tracker
         if: github.event_name != 'pull_request'
         run: node scripts/finalize-t6.mjs
