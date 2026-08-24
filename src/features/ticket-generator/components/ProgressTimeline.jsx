@@ -1,7 +1,13 @@
 import { useState } from 'react';
 
 import { formatProgressTime, sortProgressTimeline } from '../../../entities/ticket/index.js';
-import { Button, DateTimeField, IconButton, Textarea } from '../../../shared/ui/index.jsx';
+import {
+  Button,
+  DateTimeField,
+  IconButton,
+  Textarea,
+  UiIcon,
+} from '../../../shared/ui/index.jsx';
 
 function toInputValue(value) {
   const date = value instanceof Date ? value : new Date(value);
@@ -144,10 +150,10 @@ export function ProgressTimeline({ entries, onUpdate, onRemove }) {
                   </p>
                   <div className="flex gap-1 opacity-100 transition sm:opacity-70 sm:group-hover:opacity-100">
                     <IconButton label="Edit progress update" onClick={() => beginEdit(entry)}>
-                      ✎
+                      <UiIcon name="edit" size={16} />
                     </IconButton>
                     <IconButton label="Remove progress update" onClick={() => onRemove(entry.id)}>
-                      ×
+                      <UiIcon name="close" size={16} />
                     </IconButton>
                   </div>
                 </div>
