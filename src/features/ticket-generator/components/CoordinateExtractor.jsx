@@ -14,18 +14,20 @@ function CandidateButton({ candidate, label, onApply }) {
   return (
     <button
       type="button"
-      className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg border border-[var(--border-default)] bg-[var(--surface-panel)] px-3 py-2 text-left text-sm transition hover:border-[var(--accent-solid)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+      className="group flex min-h-12 w-full items-center justify-between gap-3 rounded-2xl border border-[var(--border-default)] bg-[var(--surface-panel)] px-3.5 py-3 text-left text-sm shadow-[var(--shadow-xs)] transition-[transform,background-color,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-[var(--border-accent)] hover:bg-[var(--surface-panel-strong)] hover:shadow-[var(--shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
       onClick={() => onApply(candidate)}
     >
-      <span>
-        <span className="block text-xs font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+      <span className="min-w-0">
+        <span className="block text-[10px] font-extrabold uppercase tracking-[0.11em] text-[var(--text-muted)]">
           {label}
         </span>
-        <span className="mt-1 block font-mono font-semibold text-[var(--text-primary)]">
+        <span className="mt-1.5 block truncate font-mono text-xs font-bold text-[var(--text-primary)]">
           {candidate.formatted}
         </span>
       </span>
-      <span className="shrink-0 text-xs font-bold text-[var(--accent-text)]">Apply & verify</span>
+      <span className="shrink-0 rounded-xl bg-[var(--accent-soft)] px-2.5 py-2 text-[10px] font-extrabold text-[var(--accent-text)] transition group-hover:bg-[var(--accent-soft-strong)]">
+        Apply & verify
+      </span>
     </button>
   );
 }
@@ -133,25 +135,27 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
       : null;
 
   return (
-    <section className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-5 shadow-[var(--shadow-sm)]">
+    <section className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-4 shadow-[var(--shadow-sm)] md:p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 className="text-sm font-bold">Cut Point Photo OCR</h3>
-          <p className="mt-1 max-w-2xl text-xs leading-5 text-[var(--text-muted)]">
-            The image stays in this browser session. It is not uploaded or stored; only coordinates
-            can move to the Ticket data model after verification.
+        <div className="max-w-2xl">
+          <p className="spatial-kicker">Browser-local utility</p>
+          <h3 className="mt-1.5 text-base font-bold">Cut Point Photo OCR</h3>
+          <p className="mt-1 text-xs leading-5 text-[var(--text-muted)]">
+            The image stays in this browser session. It is never uploaded or stored; only a verified
+            coordinate can move into the Ticket data model.
           </p>
         </div>
-        <span className="rounded-full bg-[var(--success-soft)] px-2.5 py-1 text-[11px] font-bold text-[var(--success-text)]">
+        <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--success-soft)] px-3 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--success-text)]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--success-solid)]" aria-hidden="true" />
           Local only
         </span>
       </div>
 
       <div
-        className={`mt-4 rounded-xl border border-dashed p-4 transition ${
+        className={`relative mt-4 overflow-hidden rounded-2xl border border-dashed p-4 transition-[background-color,border-color,box-shadow] duration-200 md:p-5 ${
           dragActive
-            ? 'border-[var(--accent-solid)] bg-[var(--accent-soft)]'
-            : 'border-[var(--border-default)] bg-[var(--surface-muted)]'
+            ? 'border-[var(--accent-solid)] bg-[var(--accent-soft)] shadow-[0_0_0_4px_var(--focus-soft)]'
+            : 'border-[var(--border-default)] bg-[var(--surface-panel-strong)]'
         }`}
         onDragEnter={(event) => {
           event.preventDefault();
@@ -180,25 +184,42 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
           onChange={(event) => selectFile(event.target.files?.[0])}
         />
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className="grid gap-4 sm:grid-cols-[176px_minmax(0,1fr)] sm:items-center">
           {previewUrl ? (
-            <img
-              src={previewUrl}
-              alt="Local Cut Point preview"
-              className="h-28 w-full rounded-lg border border-[var(--border-subtle)] object-cover sm:w-40"
-            />
+            <div className="relative overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] shadow-[var(--shadow-sm)]">
+              <img
+                src={previewUrl}
+                alt="Local Cut Point preview"
+                className="h-32 w-full object-cover sm:h-28"
+              />
+              <span className="absolute bottom-2 left-2 rounded-lg bg-[#090c12]/70 px-2 py-1 text-[9px] font-extrabold uppercase tracking-[0.08em] text-white backdrop-blur">
+                Local preview
+              </span>
+            </div>
           ) : (
-            <div className="grid h-28 w-full place-items-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-panel)] text-xs font-semibold text-[var(--text-muted)] sm:w-40">
-              No image
+            <div className="grid h-32 w-full place-items-center rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] sm:h-28">
+              <div className="text-center">
+                <span
+                  className="mx-auto grid h-9 w-9 place-items-center rounded-xl bg-[var(--surface-panel)] text-sm font-black text-[var(--text-muted)] shadow-[var(--shadow-xs)]"
+                  aria-hidden="true"
+                >
+                  +
+                </span>
+                <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+                  No image
+                </p>
+              </div>
             </div>
           )}
 
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">{file ? file.name : 'Drop a geotag photo here'}</p>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-bold">
+              {file ? file.name : 'Drop a geotag photo here'}
+            </p>
             <p className="mt-1 text-xs leading-5 text-[var(--text-muted)]">
               JPG, PNG, or WebP · maximum 15 MB · mobile photo picker supported
             </p>
-            <div className="mt-3 flex flex-wrap gap-2">
+            <div className="mt-4 flex flex-wrap gap-2">
               <Button tone="secondary" onClick={() => inputRef.current?.click()}>
                 Choose image
               </Button>
@@ -211,14 +232,16 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
       </div>
 
       {phase === 'processing' ? (
-        <div className="mt-4 rounded-lg bg-[var(--surface-muted)] p-3" aria-live="polite">
-          <div className="flex items-center justify-between gap-3 text-xs font-semibold">
+        <div className="mt-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3.5" aria-live="polite">
+          <div className="flex items-center justify-between gap-3 text-xs font-bold">
             <span>{progress.status || 'Starting OCR worker…'}</span>
-            <span className="tabular-nums">{formatPercent(progress.progress)}</span>
+            <span className="font-mono tabular-nums text-[var(--accent-text)]">
+              {formatPercent(progress.progress)}
+            </span>
           </div>
-          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[var(--border-subtle)]">
+          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[var(--border-subtle)]">
             <div
-              className="h-full rounded-full bg-[var(--accent-solid)] transition-[width]"
+              className="h-full rounded-full bg-[var(--accent-solid)] transition-[width] duration-200"
               style={{ width: formatPercent(progress.progress) }}
             />
           </div>
@@ -226,14 +249,14 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
       ) : null}
 
       {error ? (
-        <div className="mt-4 rounded-lg border border-[var(--danger-border)] bg-[var(--danger-soft)] p-3 text-sm text-[var(--danger-text)]">
+        <div className="mt-4 rounded-2xl border border-[var(--danger-border)] bg-[var(--danger-soft)] p-3.5 text-sm font-medium leading-6 text-[var(--danger-text)]">
           {error}
         </div>
       ) : null}
 
       {phase === 'detected' && successfulCandidate ? (
-        <div className="mt-4 space-y-2">
-          <p className="text-xs font-semibold text-[var(--text-secondary)]">
+        <div className="mt-4 space-y-2.5 rounded-2xl border border-[var(--border-accent)] bg-[var(--accent-soft)] p-3.5">
+          <p className="text-xs font-semibold leading-5 text-[var(--text-secondary)]">
             Coordinate candidate detected
             {sourceLabel ? ` from ${sourceLabel}` : ''}
             {Number.isFinite(confidence) ? ` · OCR confidence ${Math.round(confidence)}%` : ''}.
@@ -248,8 +271,8 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
       ) : null}
 
       {phase === 'ambiguous' ? (
-        <div className="mt-4 space-y-2">
-          <p className="text-sm font-semibold text-[var(--danger-text)]">
+        <div className="mt-4 space-y-2.5 rounded-2xl border border-[var(--warning-border)] bg-[var(--warning-soft)] p-3.5">
+          <p className="text-sm font-bold text-[var(--warning-text)]">
             Coordinate result requires verification. Choose the correct Latitude/Longitude pair.
           </p>
           {analysis.candidates.map((candidate, index) => (
@@ -264,13 +287,19 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
       ) : null}
 
       {phase === 'verified' ? (
-        <div className="mt-4 rounded-lg bg-[var(--success-soft)] p-3 text-sm font-semibold text-[var(--success-text)]">
+        <div className="mt-4 flex items-center gap-3 rounded-2xl border border-[var(--border-subtle)] bg-[var(--success-soft)] p-3.5 text-sm font-semibold text-[var(--success-text)]">
+          <span
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-[var(--surface-panel)] text-xs font-black shadow-[var(--shadow-xs)]"
+            aria-hidden="true"
+          >
+            ✓
+          </span>
           Coordinate applied to editable Latitude/Longitude fields. Review them before Save.
         </div>
       ) : null}
 
       {phase === 'not_found' || phase === 'invalid' ? (
-        <div className="mt-4 rounded-lg border border-[var(--border-default)] bg-[var(--surface-muted)] p-3 text-sm text-[var(--text-secondary)]">
+        <div className="mt-4 rounded-2xl border border-[var(--border-default)] bg-[var(--surface-muted)] p-3.5 text-sm leading-6 text-[var(--text-secondary)]">
           {phase === 'not_found'
             ? 'No supported coordinate pattern was detected after region-first and full-image OCR. Enter Latitude/Longitude manually or try another photo.'
             : 'OCR found coordinate-like text, but the resulting location is invalid. Please correct it manually.'}
@@ -278,28 +307,28 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
       ) : null}
 
       {analysis?.normalizedText ? (
-        <details className="mt-4 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3">
-          <summary className="cursor-pointer text-xs font-semibold text-[var(--text-secondary)]">
+        <details className="mt-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3.5">
+          <summary className="cursor-pointer text-xs font-bold text-[var(--text-secondary)]">
             Review OCR text{sourceLabel ? ` · ${sourceLabel}` : ''}
           </summary>
-          <pre className="mt-3 max-h-44 overflow-auto whitespace-pre-wrap break-words text-xs leading-5 text-[var(--text-secondary)]">
+          <pre className="mt-3 max-h-44 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-[var(--surface-panel)] p-3 font-mono text-[11px] leading-5 text-[var(--text-secondary)]">
             {analysis.normalizedText}
           </pre>
         </details>
       ) : null}
 
       {attempts.length > 1 ? (
-        <details className="mt-3 rounded-lg border border-[var(--border-subtle)] p-3">
-          <summary className="cursor-pointer text-xs font-semibold text-[var(--text-muted)]">
+        <details className="mt-3 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-panel-strong)] p-3.5">
+          <summary className="cursor-pointer text-xs font-bold text-[var(--text-muted)]">
             OCR attempts ({attempts.length})
           </summary>
           <div className="mt-3 space-y-3">
             {attempts.map((attempt) => (
-              <div key={attempt.id} className="rounded-lg bg-[var(--surface-muted)] p-3">
+              <div key={attempt.id} className="rounded-xl bg-[var(--surface-muted)] p-3">
                 <p className="text-xs font-bold text-[var(--text-secondary)]">
                   {attempt.label} · {Math.round(attempt.confidence || 0)}%
                 </p>
-                <pre className="mt-2 max-h-32 overflow-auto whitespace-pre-wrap break-words text-xs leading-5 text-[var(--text-muted)]">
+                <pre className="mt-2 max-h-32 overflow-auto whitespace-pre-wrap break-words font-mono text-[11px] leading-5 text-[var(--text-muted)]">
                   {attempt.text || '(no text)'}
                 </pre>
               </div>
