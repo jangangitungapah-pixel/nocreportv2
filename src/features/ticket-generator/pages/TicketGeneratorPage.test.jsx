@@ -3,10 +3,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 
 import { AppProviders } from '../../../app/providers/AppProviders.jsx';
-import { routeObjects } from '../../../app/router.jsx';
+import { TicketGeneratorPage } from './TicketGeneratorPage.jsx';
 
 function renderGenerator() {
-  const router = createMemoryRouter(routeObjects, { initialEntries: ['/generator/new'] });
+  const router = createMemoryRouter(
+    [{ path: '/generator/new', element: <TicketGeneratorPage /> }],
+    { initialEntries: ['/generator/new'] },
+  );
   return render(
     <AppProviders>
       <RouterProvider router={router} />
