@@ -9,6 +9,7 @@ function currentPageLabel(pathname) {
   if (pathname.startsWith('/generator')) return 'Template Generator';
   if (pathname.startsWith('/running')) return 'Running Ticket';
   if (pathname.startsWith('/cut-points')) return 'Cut Point Tracker';
+  if (pathname.startsWith('/archive')) return 'Archive & Restore';
   return 'Dashboard';
 }
 
