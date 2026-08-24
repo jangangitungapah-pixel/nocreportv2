@@ -26,6 +26,7 @@ import { ImpactListEditor } from '../components/ImpactListEditor.jsx';
 import { ProgressComposer } from '../components/ProgressComposer.jsx';
 import { ProgressTimeline } from '../components/ProgressTimeline.jsx';
 import { ReportPreview } from '../components/ReportPreview.jsx';
+import { SmartPasteParser } from '../components/SmartPasteParser.jsx';
 import { DEFAULT_TICKET_FORM, buildTicketFromForm } from '../lib/formToTicket.js';
 import {
   createTicketEditor,
@@ -122,6 +123,31 @@ function persistenceMessage(error, fallback) {
   return fallback;
 }
 
+function createImportedProgressId(index) {
+  if (typeof window !== 'undefined' && typeof window.crypto?.randomUUID === 'function') {
+    return window.crypto.randomUUID();
+  }
+
+  return `smart-import-${Date.now()}-${index}-${Math.random().toString(16).slice(2)}`;
+}
+
+function toImportedProgressEntries(progress) {
+  const createdAt = new Date();
+  return progress
+    .map((entry, index) => {
+      const occurredAt = new Date(entry.occurredAt);
+      if (Number.isNaN(occurredAt.getTime()) || !entry.text?.trim()) return null;
+      return {
+        id: createImportedProgressId(index),
+        occurredAt,
+        text: entry.text.trim(),
+        createdAt,
+        createdBy: null,
+      };
+    })
+    .filter(Boolean);
+}
+
 function GeneratorLoading() {
   return (
     <div className="space-y-6" aria-label="Loading Ticket">
@@ -171,7 +197,10 @@ export function TicketGeneratorPage() {
     mode: 'onBlur',
   });
 
-  const { fields, append, remove, move } = useFieldArray({ control, name: 'impactList' });
+  const { fields, append, remove, move, replace } = useFieldArray({
+    control,
+    name: 'impactList',
+  });
   const watchedValues = useWatch({ control });
   const statusDirty = status !== savedStatus;
   const hasUnsavedChanges = isDirty || progressDirty || statusDirty;
@@ -550,6 +579,39 @@ export function TicketGeneratorPage() {
     }
   };
 
+  const applySmartParseResult = (parsed) => {
+    const scalarFields = ['title', 'occurAt', 'dispatchAt', 'pic', 'rootcause', 'cutPoint'];
+    for (const field of scalarFields) {
+      if (!parsed.detectedFields.includes(field)) continue;
+      setValue(field, parsed.values[field] ?? '', {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      });
+    }
+
+    if (parsed.detectedFields.includes('impactList')) {
+      replace(parsed.values.impactList);
+      setValue('impactList', parsed.values.impactList, {
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    }
+
+    if (parsed.detectedFields.includes('progress')) {
+      const importedProgress = toImportedProgressEntries(parsed.progress);
+      setProgressEntries(importedProgress);
+      setProgressDirty(importedProgress.length > 0);
+    }
+
+    clearErrors();
+    pushToast({
+      title: 'Smart import applied',
+      message: `${parsed.stats.fieldCount} fields, ${parsed.stats.impactCount} impacts, and ${parsed.stats.progressCount} progress updates filled into this draft.`,
+      tone: 'success',
+    });
+  };
+
   const applyExtractedCoordinate = (candidate) => {
     setValue('latitude', String(candidate.latitude), {
       shouldDirty: true,
@@ -651,6 +713,8 @@ export function TicketGeneratorPage() {
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(380px,0.75fr)] 2xl:grid-cols-[minmax(0,1.55fr)_minmax(420px,0.72fr)]">
         <div className="min-w-0 space-y-6">
+          {!routeTicketId ? <SmartPasteParser onApply={applySmartParseResult} /> : null}
+
           <FieldSection
             title="Ticket Identity"
             description="The complete operational Title remains the source of truth for report output."
