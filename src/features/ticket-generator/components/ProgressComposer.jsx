@@ -22,8 +22,11 @@ export function ProgressComposer({ onAdd }) {
   const [occurredAt, setOccurredAt] = useState(initialTime);
   const [text, setText] = useState('');
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const submit = () => {
+  const submit = async () => {
+    if (submitting) return;
+
     const normalizedText = text.trim();
     const date = new Date(occurredAt);
 
@@ -37,15 +40,23 @@ export function ProgressComposer({ onAdd }) {
       return;
     }
 
-    onAdd({
+    const entry = {
       id: createLocalId(),
       occurredAt: date,
       text: normalizedText,
       createdAt: new Date(),
       createdBy: null,
-    });
-    setText('');
-    setError('');
+    };
+
+    setSubmitting(true);
+    try {
+      const accepted = await onAdd(entry);
+      if (accepted === false) return;
+      setText('');
+      setError('');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -78,12 +89,12 @@ export function ProgressComposer({ onAdd }) {
           onKeyDown={(event) => {
             if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
               event.preventDefault();
-              submit();
+              void submit();
             }
           }}
         />
-        <Button className="lg:mb-px" onClick={submit}>
-          Add update
+        <Button className="lg:mb-px" disabled={submitting} onClick={() => void submit()}>
+          {submitting ? 'Adding…' : 'Add update'}
         </Button>
       </div>
     </section>
