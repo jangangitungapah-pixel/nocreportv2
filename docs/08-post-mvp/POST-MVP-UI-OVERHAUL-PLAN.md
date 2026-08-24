@@ -1,7 +1,7 @@
 # Post-MVP UI Overhaul Plan
 
 **Document ID:** NOCREPORT-POSTMVP-UI-001  
-**Status:** ACTIVE  
+**Status:** IMPLEMENTED — QA / VISUAL ACCEPTANCE PENDING  
 **Branch:** `feature/ui-overhaul-v2`  
 **Production baseline:** `main` / MVP RELEASED
 
@@ -38,62 +38,70 @@ The target direction is a **spatial operations cockpit**: modern, youthful, calm
 
 ### UI-0 — Design system foundation
 
-- [ ] expand semantic color tokens for light/dark modes;
-- [ ] add typography, spacing, radius, elevation, motion, control, and layout tokens;
-- [ ] modernize global typography/background/scrollbar/selection behavior;
-- [ ] modernize Button, IconButton, fields, status badges, empty/error states, skeletons, and dialogs;
-- [ ] preserve accessibility/focus behavior.
+- [x] expand semantic color tokens for light/dark modes;
+- [x] add typography, spacing, radius, elevation, motion, control, and layout tokens;
+- [x] modernize global typography/background/scrollbar/selection behavior;
+- [x] modernize Button, IconButton, fields, status badges, empty/error states, skeletons, and dialogs;
+- [x] preserve accessibility/focus behavior.
 
 ### UI-1 — Application shell
 
-- [ ] modernize desktop navigation rail;
-- [ ] modernize sticky top bar;
-- [ ] modernize mobile bottom navigation;
-- [ ] improve workspace/profile presentation;
-- [ ] keep responsive/protected-route behavior unchanged.
+- [x] modernize desktop navigation rail;
+- [x] modernize sticky top bar;
+- [x] modernize mobile bottom navigation;
+- [x] improve workspace/profile presentation;
+- [x] keep responsive/protected-route behavior unchanged.
 
 ### UI-2 — Dashboard
 
-- [ ] spatial hero/overview composition;
-- [ ] stronger KPI cards and data hierarchy;
-- [ ] refreshed recent-ticket activity surface;
-- [ ] improved local-preview messaging.
+- [x] spatial hero/overview composition;
+- [x] stronger KPI cards and data hierarchy;
+- [x] refreshed recent-ticket activity surface;
+- [x] improved local-preview messaging.
 
 ### UI-3 — Template Generator & Ticket Viewer
 
-- [ ] redesign form sections and report workspace;
-- [ ] improve long-form input comfort and section hierarchy;
-- [ ] modernize progress timeline, OCR/coordinate surfaces, preview, and lifecycle actions;
-- [ ] preserve save/revision/OCR behavior.
+- [x] redesign form sections and report workspace;
+- [x] improve long-form input comfort and section hierarchy;
+- [x] modernize progress timeline, OCR/coordinate surfaces, preview, and lifecycle actions;
+- [x] preserve save/revision/OCR behavior.
 
 ### UI-4 — Running Tickets & Archive
 
-- [ ] redesign filter/search controls;
-- [ ] modernize desktop table/data grid;
-- [ ] modernize mobile ticket cards;
-- [ ] improve quick-action hierarchy and scanability.
+- [x] redesign filter/search controls;
+- [x] modernize desktop table/data grid;
+- [x] modernize mobile ticket cards;
+- [x] improve quick-action hierarchy and scanability.
 
 ### UI-5 — Cut Point Tracker
 
-- [ ] modernize map/list workspace framing;
-- [ ] modernize filter/list/bottom-sheet surfaces;
-- [ ] improve marker-detail and map-control visual integration;
-- [ ] preserve Leaflet/touch behavior.
+- [x] modernize map/list workspace framing;
+- [x] modernize filter/list/bottom-sheet surfaces;
+- [x] improve marker-detail and map-control visual integration;
+- [x] preserve Leaflet/touch behavior.
 
 ### UI-6 — Authentication
 
-- [ ] redesign Login into a polished production entry experience;
-- [ ] preserve Firebase authentication behavior and error handling.
+- [x] redesign Login into a polished production entry experience;
+- [x] preserve Firebase authentication behavior and error handling.
 
 ### UI-7 — Full visual QA & release readiness
 
-- [ ] format/lint/unit/component tests green;
-- [ ] Firebase Emulator/security tests green;
-- [ ] production build green;
-- [ ] browser responsive/touch gate green;
-- [ ] Playwright lifecycle/RBAC/accessibility gate green;
+- [ ] format/lint/unit/component tests green on the final overhaul head;
+- [ ] Firebase Emulator/security tests green on the final overhaul head;
+- [ ] production build green on the final overhaul head;
+- [ ] browser responsive/touch gate green on the final overhaul head;
+- [ ] Playwright lifecycle/RBAC/accessibility gate green on the final overhaul head;
 - [ ] manual light/dark desktop/mobile visual QA accepted;
 - [ ] PR ready for merge to `main` only after acceptance.
+
+## Implementation notes
+
+- Presentation components and semantic tokens were overhauled first so pages share one coherent visual language.
+- Generator persistence, optimistic revision handling, Ticket transitions, report formatting, and OCR contracts were intentionally left unchanged.
+- Running Tickets, Archive, Cut Point Tracker, Dashboard, Login, Viewer, and supporting states now use the spatial design system.
+- The previous muted-text palette failed the serious WCAG color-contrast gate during Playwright QA; semantic text contrast was raised centrally in the token layer instead of patched page-by-page.
+- `main` remains the released production baseline until this draft PR completes QA and receives explicit visual acceptance.
 
 ## Non-goals
 
