@@ -49,7 +49,10 @@ source = updateSection(
     let next = section.replace('**Status:** IN PROGRESS', '**Status:** COMPLETE');
     next = next.replaceAll('- [ ]', '- [x]');
     next = next.replace('**Completed:** —', '**Completed:** 2026-08-21');
-    next = next.replace('**Commit / PR:** —', `**Commit / PR:** \`${commitReference}\` / PR #1 Quality #259`);
+    next = next.replace(
+      '**Commit / PR:** —',
+      `**Commit / PR:** \`${commitReference}\` / PR #1 Quality #259`,
+    );
     next = next.replace(
       /\*\*Notes:\*\*.*?(?=\n\n---)/s,
       '**Notes:** Cut Point Tracker implementation is complete. Automated Chrome QA validates 360×800, 390×844, 412×915, and 1280×900 viewports with no page-level horizontal overflow, desktop map dominance, OpenStreetMap attribution, and real touch interaction through marker popup and Open Ticket. Manual mobile and desktop visual map QA were explicitly accepted by the project owner on 2026-08-21 for the current release state.',
