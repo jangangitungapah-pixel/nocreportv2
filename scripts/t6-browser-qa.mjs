@@ -143,11 +143,7 @@ async function setViewport(session, width, height) {
 async function navigate(session, url, readyExpression) {
   await session.send('Page.navigate', { url });
   await waitFor(
-    () =>
-      evaluate(
-        session,
-        `document.readyState === 'complete' && Boolean(${readyExpression})`,
-      ),
+    () => evaluate(session, `document.readyState === 'complete' && Boolean(${readyExpression})`),
     `page ${url}`,
   );
 }
@@ -258,7 +254,10 @@ async function runMarkerTouchQa(session) {
     })()`,
   );
 
-  assert(marker.width >= 44 && marker.height >= 44, `Marker touch target is ${marker.width}x${marker.height}.`);
+  assert(
+    marker.width >= 44 && marker.height >= 44,
+    `Marker touch target is ${marker.width}x${marker.height}.`,
+  );
   assert(marker.title === 'INC-QA-001', 'Marker title metadata is missing.');
   assert(marker.tabindex === '0', 'Leaflet keyboard marker must remain focusable.');
 
@@ -282,7 +281,10 @@ async function runMarkerTouchQa(session) {
     })()`,
   );
   assert(popup.text.includes('INC-QA-001'), 'Touched marker popup did not show the Ticket number.');
-  assert(popup.text.includes('Jakarta QA splice point'), 'Touched marker popup did not show Cut Point details.');
+  assert(
+    popup.text.includes('Jakarta QA splice point'),
+    'Touched marker popup did not show Cut Point details.',
+  );
 
   await dispatchTouch(session, popup.buttonX, popup.buttonY);
   await waitFor(
