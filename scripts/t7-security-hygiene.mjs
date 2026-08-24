@@ -1,5 +1,5 @@
 import { readdir, readFile } from 'node:fs/promises';
-import { extname, join, relative } from 'node:path';
+import { basename, extname, join, relative } from 'node:path';
 
 const ROOT = process.cwd();
 const SCAN_ROOTS = ['src', 'scripts'];
@@ -7,6 +7,7 @@ const TEXT_EXTENSIONS = new Set(['.js', '.jsx', '.mjs', '.cjs', '.json', '.html'
 const FORBIDDEN_FILE_PATTERNS = [
   /(^|\/)(service[-_.]?account|serviceAccount).*\.json$/i,
   /\.(pem|p12|pfx|key)$/i,
+  /(?:\.bak|\.backup|\.orig|\.rej|~)$/i,
 ];
 const FORBIDDEN_CONTENT = [
   {
@@ -24,6 +25,16 @@ const FORBIDDEN_CONTENT = [
   {
     pattern: /dangerouslySetInnerHTML\s*=/,
     message: 'dangerouslySetInnerHTML requires an explicit security review before use',
+  },
+];
+const PRODUCTION_DEBUG_PATTERNS = [
+  {
+    pattern: /\bconsole\.(?:log|debug)\s*\(/,
+    message: 'debug console output is not allowed in production source',
+  },
+  {
+    pattern: /\bdebugger\s*;/,
+    message: 'debugger statements are not allowed in production source',
   },
 ];
 
@@ -46,8 +57,8 @@ for (const scanRoot of SCAN_ROOTS) {
   const files = await walk(join(ROOT, scanRoot));
   for (const absolute of files) {
     const path = relative(ROOT, absolute).replaceAll('\\', '/');
-    if (FORBIDDEN_FILE_PATTERNS.some((pattern) => pattern.test(path))) {
-      violations.push(`${path}: sensitive credential-like file name is not allowed`);
+    if (FORBIDDEN_FILE_PATTERNS.some((pattern) => pattern.test(path) || pattern.test(basename(path)))) {
+      violations.push(`${path}: credential-like or obsolete backup file name is not allowed`);
       continue;
     }
 
@@ -55,6 +66,12 @@ for (const scanRoot of SCAN_ROOTS) {
     const content = await readFile(absolute, 'utf8');
     for (const rule of FORBIDDEN_CONTENT) {
       if (rule.pattern.test(content)) violations.push(`${path}: ${rule.message}`);
+    }
+
+    if (path.startsWith('src/')) {
+      for (const rule of PRODUCTION_DEBUG_PATTERNS) {
+        if (rule.pattern.test(content)) violations.push(`${path}: ${rule.message}`);
+      }
     }
   }
 }
@@ -74,4 +91,4 @@ if (violations.length) {
   process.exit(1);
 }
 
-console.log('T7 security hygiene gate passed.');
+console.log('T7 security and repository hygiene gate passed.');
