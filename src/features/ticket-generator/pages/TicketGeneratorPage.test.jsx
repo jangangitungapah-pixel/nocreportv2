@@ -27,6 +27,52 @@ describe('Template Generator workflow', () => {
     vi.restoreAllMocks();
   });
 
+  it('smart-pastes an existing report into generator fields and Progress Timeline', async () => {
+    renderGenerator();
+
+    fireEvent.change(screen.getByRole('textbox', { name: 'Existing report' }), {
+      target: {
+        value: `*[MANDAU] LINK DOWN AT DWDM 100315_RASUNA <> 100399_CANGKUDU [TT : INC-20260822-00015684]*
+Impact
+1. ❌ [FLP_3rd_MANDAU][Open - Major] DOWN - IMPACTED-LINK
+Occur Time = 22/08/2026 13:16
+Dispacth Time = 22/08/2026 13:54
+PIC =
+Rootcause = Still Investigation
+Cut Point = Still Investigation
+
+Update Progress
+13:55 We Already Open TT MDU-20260822-0000037367 & Coordinated with team
+14:08 team prepare tools`,
+      },
+    });
+
+    expect(screen.getByText('7 fields · 1 impacts · 2 progress updates')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Fill generator' }));
+
+    expect(screen.getByRole('textbox', { name: /Title/ })).toHaveValue(
+      '[MANDAU] LINK DOWN AT DWDM 100315_RASUNA <> 100399_CANGKUDU [TT : INC-20260822-00015684]',
+    );
+    expect(screen.getByLabelText('Occur Time')).toHaveValue('2026-08-22T13:16');
+    expect(screen.getByLabelText('Dispatch Time')).toHaveValue('2026-08-22T13:54');
+    expect(screen.getByRole('textbox', { name: 'PIC' })).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: 'Rootcause' })).toHaveValue('Still Investigation');
+    expect(screen.getByRole('textbox', { name: 'Cut Point' })).toHaveValue('Still Investigation');
+    expect(screen.getByRole('textbox', { name: 'Impact 1' })).toHaveValue(
+      '❌ [FLP_3rd_MANDAU][Open - Major] DOWN - IMPACTED-LINK',
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByText('We Already Open TT MDU-20260822-0000037367 & Coordinated with team'),
+      ).toBeInTheDocument();
+    });
+    expect(screen.getByText('team prepare tools')).toBeInTheDocument();
+    expect(screen.getByLabelText('Generated NOC report')).toHaveTextContent(
+      'INC-20260822-00015684',
+    );
+  });
+
   it('keeps Impact List hidden until the user adds a populated impact', () => {
     renderGenerator();
 
