@@ -146,10 +146,7 @@ test.beforeAll(async () => {
 test.describe.serial('T7 MVP browser workflow', () => {
   let ticketId = null;
 
-  test('Admin creates, persists, reopens, maps, copies, and resolves a Ticket', async ({
-    page,
-    context,
-  }) => {
+  test('Admin completes the Ticket lifecycle through archive and restore', async ({ page, context }) => {
     await context.grantPermissions(['clipboard-read', 'clipboard-write'], {
       origin: APP_ORIGIN,
     });
@@ -213,6 +210,21 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await incidentRow.getByRole('button', { name: `Resolve ${INCIDENT_TT}` }).click();
     await expect(page.getByText('Ticket resolved')).toBeVisible();
     await expect(page.getByText(INCIDENT_TITLE, { exact: true })).toHaveCount(0);
+
+    await page.goto('/archive');
+    await expect(page.getByRole('heading', { name: 'Archive & Restore' })).toBeVisible();
+    await expect(page.getByText(INCIDENT_TITLE, { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: `Archive ${INCIDENT_TT}` }).click();
+    await page.getByRole('button', { name: 'Archive Ticket' }).click();
+    await expect(page.getByText('Ticket archived')).toBeVisible();
+    await expect(page.getByText(INCIDENT_TITLE, { exact: true })).toHaveCount(0);
+
+    await page.getByRole('button', { name: 'Archived' }).click();
+    await expect(page.getByText(INCIDENT_TITLE, { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: `Restore ${INCIDENT_TT}` }).click();
+    await page.getByRole('button', { name: 'Restore Ticket' }).click();
+    await expect(page.getByText('Ticket restored')).toBeVisible();
+    await expect(page.getByText(INCIDENT_TITLE, { exact: true })).toHaveCount(0);
   });
 
   test('Operator and Viewer UI restrictions match the role matrix', async ({ browser }) => {
@@ -220,12 +232,16 @@ test.describe.serial('T7 MVP browser workflow', () => {
     const operatorPage = await operatorContext.newPage();
     await login(operatorPage, accounts.operator);
     await expect(operatorPage.getByRole('link', { name: 'New Ticket' })).toBeVisible();
+    await expect(operatorPage.getByRole('link', { name: 'Archive & Restore' })).toHaveCount(0);
+    await operatorPage.goto('/archive');
+    await expect(operatorPage).toHaveURL(/\/dashboard$/);
     await operatorContext.close();
 
     const viewerContext = await browser.newContext();
     const viewerPage = await viewerContext.newPage();
     await login(viewerPage, accounts.viewer);
     await expect(viewerPage.getByRole('link', { name: 'New Ticket' })).toHaveCount(0);
+    await expect(viewerPage.getByRole('link', { name: 'Archive & Restore' })).toHaveCount(0);
 
     if (ticketId) {
       await viewerPage.goto(`/generator/${ticketId}`);
@@ -236,12 +252,14 @@ test.describe.serial('T7 MVP browser workflow', () => {
 
     await viewerPage.goto('/generator/new');
     await expect(viewerPage).toHaveURL(/\/dashboard$/);
+    await viewerPage.goto('/archive');
+    await expect(viewerPage).toHaveURL(/\/dashboard$/);
     await viewerContext.close();
   });
 
   test('primary routes pass responsive overflow and serious axe checks', async ({ page }) => {
     await login(page, accounts.admin);
-    const routes = ['/dashboard', '/generator/new', '/running', '/cut-points'];
+    const routes = ['/dashboard', '/generator/new', '/running', '/cut-points', '/archive'];
     const viewports = [
       { width: 360, height: 800 },
       { width: 390, height: 844 },
