@@ -10,7 +10,8 @@ const inlineAlertVariants = cva(
       tone: {
         info: 'border-[var(--border-accent)] bg-[var(--accent-soft)] text-[var(--text-secondary)]',
         success: 'border-transparent bg-[var(--success-soft)] text-[var(--success-text)]',
-        warning: 'border-[var(--warning-border)] bg-[var(--warning-soft)] text-[var(--warning-text)]',
+        warning:
+          'border-[var(--warning-border)] bg-[var(--warning-soft)] text-[var(--warning-text)]',
         danger: 'border-[var(--danger-border)] bg-[var(--danger-soft)] text-[var(--danger-text)]',
       },
     },
@@ -27,14 +28,7 @@ const ICON_BY_TONE = Object.freeze({
   danger: 'error',
 });
 
-export function InlineAlert({
-  tone = 'info',
-  title = null,
-  children,
-  className,
-  role,
-  ...props
-}) {
+export function InlineAlert({ tone = 'info', title = null, children, className, role, ...props }) {
   return (
     <div
       role={role}
