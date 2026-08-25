@@ -3,7 +3,7 @@
 **Source PRD:** `docs/08-post-mvp/UI-DENSITY-PRD.md`  
 **Branch:** `feature/ui-density-system`  
 **PR:** #6  
-**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 NEXT
+**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 IN PROGRESS
 
 ## MEGA-0 — Dependency activation and design-system foundation
 
@@ -58,6 +58,20 @@ The browser gate specifically revalidated the keyboard focus contract that initi
 
 The primitive ownership layer is now canonical. Remaining eligible production dropdown/popover/tab/scroll/toggle surfaces will migrate through these wrappers as their owning page/workspace is rebuilt in MEGA-2 through MEGA-8. This is intentional gradual migration: feature pages must not import raw Radix APIs, and proven compatibility code is removed only when the owning surface reaches parity.
 
+## MEGA-2 — Feedback, command, and application shell
+
+- [x] Custom toast rendering replaced by Sonner while preserving the existing `useToast()` compatibility API for gradual feature migration.
+- [x] Global cmdk Command Palette implemented with `Ctrl/Cmd + K` shortcut.
+- [x] Command navigation is capability-filtered using the canonical RBAC `can(...)` contract.
+- [x] Desktop sidebar compacted to workstation density and migrated to Lucide navigation icons.
+- [x] Account/workspace controls moved into a Radix Dropdown Menu.
+- [x] Topbar compacted and includes a visible command trigger.
+- [x] Theme/navigation controls use Lucide through the canonical `AppIcon` adapter.
+- [x] Mobile navigation compacted while retaining 44px touch targets and safe-area handling.
+- [ ] Route-aware shared PageHeader architecture finalized.
+- [x] Unit/component regression coverage added for global command shortcut behavior.
+- [ ] Full repository Quality workflow green on final MEGA-2 product/code head.
+
 ### Activated foundation paths
 
 - `src/shared/lib/cn.js`
@@ -68,6 +82,7 @@ The primitive ownership layer is now canonical. Remaining eligible production dr
 - `src/shared/ui/dependencyRegistry.js`
 - `src/shared/ui/primitives.jsx`
 - `src/styles/tokens.css`
+- `src/app/components/CommandPalette.jsx`
 - `docs/08-post-mvp/UI-MEGA-MIGRATION.md`
 
 ## Remaining phases
