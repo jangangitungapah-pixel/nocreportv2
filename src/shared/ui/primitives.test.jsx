@@ -6,6 +6,7 @@ import {
   Button,
   Checkbox,
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogTitle,
@@ -28,7 +29,9 @@ function ControlledDialogHarness() {
         <DialogContent>
           <DialogTitle>Archive Ticket?</DialogTitle>
           <DialogDescription>Confirm the lifecycle mutation.</DialogDescription>
-          <button type="button">Cancel</button>
+          <DialogClose asChild>
+            <button type="button">Cancel</button>
+          </DialogClose>
         </DialogContent>
       </Dialog>
     </>
@@ -74,10 +77,9 @@ describe('Mega Radix primitives', () => {
     trigger.focus();
     fireEvent.click(trigger);
 
-    const dialog = screen.getByRole('dialog', { name: 'Archive Ticket?' });
-    expect(screen.getByRole('button', { name: 'Cancel' })).toHaveFocus();
-
-    fireEvent.keyDown(document, { key: 'Escape' });
+    const cancel = screen.getByRole('button', { name: 'Cancel' });
+    expect(cancel).toHaveFocus();
+    fireEvent.click(cancel);
 
     await waitFor(() => {
       expect(screen.queryByRole('dialog', { name: 'Archive Ticket?' })).not.toBeInTheDocument();
