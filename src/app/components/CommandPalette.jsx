@@ -48,7 +48,7 @@ export function CommandPalette({ open: controlledOpen, onOpenChange }) {
       open={open}
       onOpenChange={setOpen}
       label="Command palette"
-      className="fixed left-1/2 top-[18vh] z-[121] w-[calc(100%-1.5rem)] max-w-xl -translate-x-1/2 overflow-hidden rounded-[var(--radius-dialog)] border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] shadow-[var(--shadow-lg)]"
+      contentClassName="fixed left-1/2 top-[18vh] z-[121] w-[calc(100%-1.5rem)] max-w-xl -translate-x-1/2 overflow-hidden rounded-[var(--radius-dialog)] border border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] shadow-[var(--shadow-lg)] outline-none"
       overlayClassName="fixed inset-0 z-[120] bg-[var(--surface-scrim)] backdrop-blur-sm"
     >
       <div className="flex h-[var(--control-height-touch)] items-center gap-2 border-b border-[var(--border-subtle)] px-3">
