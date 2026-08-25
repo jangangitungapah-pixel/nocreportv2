@@ -29,9 +29,24 @@ function formatDateTime(value) {
 
 const METRIC_META = Object.freeze([
   { key: 'runningCount', label: 'Running', hint: 'active now', accent: 'var(--success-solid)' },
-  { key: 'ticketsTodayCount', label: 'Today', hint: 'occurred today', accent: 'var(--accent-solid)' },
-  { key: 'resolvedTodayCount', label: 'Resolved', hint: 'resolved today', accent: 'var(--accent-cyan)' },
-  { key: 'cutPointCount', label: 'Cut Points', hint: 'with coordinates', accent: 'var(--accent-violet)' },
+  {
+    key: 'ticketsTodayCount',
+    label: 'Today',
+    hint: 'occurred today',
+    accent: 'var(--accent-solid)',
+  },
+  {
+    key: 'resolvedTodayCount',
+    label: 'Resolved',
+    hint: 'resolved today',
+    accent: 'var(--accent-cyan)',
+  },
+  {
+    key: 'cutPointCount',
+    label: 'Cut Points',
+    hint: 'with coordinates',
+    accent: 'var(--accent-violet)',
+  },
 ]);
 
 function MetricStrip({ summary }) {
@@ -114,7 +129,10 @@ function RecentActivity({ tickets }) {
     >
       <div className="flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3 md:px-4">
         <div className="flex min-w-0 items-center gap-2.5">
-          <h3 id="dashboard-recent-heading" className="text-sm font-bold text-[var(--text-primary)]">
+          <h3
+            id="dashboard-recent-heading"
+            className="text-sm font-bold text-[var(--text-primary)]"
+          >
             Recently updated
           </h3>
           <span className="font-mono text-[10px] font-semibold text-[var(--text-faint)]">
@@ -129,7 +147,9 @@ function RecentActivity({ tickets }) {
       {tickets.length === 0 ? (
         <div className="grid min-h-36 place-items-center px-4 py-7 text-center">
           <div>
-            <p className="text-sm font-semibold text-[var(--text-secondary)]">No persisted Tickets yet.</p>
+            <p className="text-sm font-semibold text-[var(--text-secondary)]">
+              No persisted Tickets yet.
+            </p>
             <p className="mt-1 text-xs text-[var(--text-muted)]">
               Recent operational activity will appear here.
             </p>
@@ -188,7 +208,9 @@ export function DashboardPage() {
         title="Operational overview"
         eyebrow="Dashboard"
         description={
-          localDevelopmentMode ? 'Cloud data unavailable in local preview.' : 'Live ticket pulse and recent activity.'
+          localDevelopmentMode
+            ? 'Cloud data unavailable in local preview.'
+            : 'Live ticket pulse and recent activity.'
         }
         actions={
           canCreateTicket ? (
