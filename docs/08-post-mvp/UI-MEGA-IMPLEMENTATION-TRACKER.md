@@ -3,7 +3,7 @@
 **Source PRD:** `docs/08-post-mvp/UI-DENSITY-PRD.md`  
 **Branch:** `feature/ui-density-system`  
 **PR:** #6  
-**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 COMPLETE · MEGA-3 COMPLETE · MEGA-4 COMPLETE · MEGA-5 COMPLETE · MEGA-6 COMPLETE · MEGA-7 IN PROGRESS
+**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 COMPLETE · MEGA-3 COMPLETE · MEGA-4 COMPLETE · MEGA-5 COMPLETE · MEGA-6 COMPLETE · MEGA-7 COMPLETE · MEGA-8 IN PROGRESS
 
 ## MEGA-0 — Dependency activation and design-system foundation
 
@@ -227,18 +227,48 @@ The browser acceptance validates the desktop 35/65 resizable incident-list/map w
 
 ## MEGA-7 — Archive & Restore
 
-- [ ] Replace the authenticated hero with the shared compact `PageHeader` and dense archive metadata.
-- [ ] Replace the manual Resolved/Archived switch with shared Radix Tabs.
-- [ ] Migrate the desktop collection to the shared TanStack Table v9 `DataTable` and drive mobile from the same row model.
-- [ ] Preserve bounded cursor pagination at 25 Tickets per page and the existing Load More contract.
-- [ ] Preserve Admin-only capability gating and do not change Firestore Security Rules outcomes.
-- [ ] Canonicalize Open/Review navigation to read-only `/tickets/:ticketId` and stop creating compatibility `/generator/:ticketId` links.
-- [ ] Preserve optimistic revision-protected Archive/Restore mutations and controlled `ConfirmDialog` confirmation/focus behavior.
-- [ ] Flatten mobile Archive rows and preserve touch-safe explicit Archive/Restore actions without nested metadata-card bloat.
-- [ ] Remove page-specific action class strings in favor of shared Button/AppIcon/data-workspace primitives.
-- [ ] Add regression coverage for Tabs semantics, bounded pagination/cursor continuation, canonical read-only navigation, archive/restore revisions, and RBAC.
-- [ ] Complete real-browser desktop/mobile density, touch, keyboard/dialog-focus, overflow, lifecycle, and axe acceptance.
-- [ ] Full repository Quality workflow green on final MEGA-7 product/code head.
+- [x] Replace the authenticated hero with the shared compact `PageHeader` and dense archive metadata.
+- [x] Replace the manual Resolved/Archived switch with shared Radix Tabs.
+- [x] Migrate the desktop collection to the shared TanStack Table v9 `DataTable` and drive mobile from the same row model.
+- [x] Preserve bounded cursor pagination at 25 Tickets per page and the existing Load More contract.
+- [x] Preserve Admin-only capability gating and do not change Firestore Security Rules outcomes.
+- [x] Canonicalize Open/Review navigation to read-only `/tickets/:ticketId` and stop creating compatibility `/generator/:ticketId` links.
+- [x] Preserve optimistic revision-protected Archive/Restore mutations and controlled `ConfirmDialog` confirmation/focus behavior.
+- [x] Flatten mobile Archive rows and preserve touch-safe explicit Archive/Restore actions without nested metadata-card bloat.
+- [x] Remove page-specific action class strings in favor of shared Button/AppIcon/data-workspace primitives.
+- [x] Add regression coverage for Tabs semantics, bounded pagination/cursor continuation, canonical read-only navigation, archive/restore revisions, and RBAC.
+- [x] Complete real-browser desktop/mobile density, touch, keyboard/dialog-focus, overflow, lifecycle, and axe acceptance.
+- [x] Full repository Quality workflow green on final MEGA-7 product/code head.
+
+### MEGA-7 implementation notes
+
+- Resolved and Archived share the same bounded repository contract and TanStack row model. Scope changes are presentation-only and never create a second Ticket dataset.
+- The Firestore query remains bounded to 25 Tickets per page and cursor continuation preserves the existing Load More semantics.
+- Review/title links now consistently open `/tickets/:ticketId`. Lifecycle mutation remains an explicit Admin-only action with optimistic revision checks.
+- Radix Tabs own Resolved/Archived semantics and are paired with real `TabsContent` nodes so `aria-controls` targets remain valid under axe.
+- Desktop uses the shared `DataTable`; mobile renders flattened touch-safe rows from the same table row model.
+
+### MEGA-7 automated QA evidence
+
+**Quality #722 — FULL GREEN** on final MEGA-7 product/code head `2120d0a5125359704747c0b4d50d3115e2bc032b` (run ID `32909157254`).
+
+Validated gates: Prettier + committed-format verification, ESLint, 143 unit/component tests with 13 emulator-only skips, Firebase Emulator repository integration (6/6), Firestore Security Rules role matrix (7/7), T7 security hygiene, T8 release preflight, generic + Firebase-configured production builds, dev smoke, T6 real-browser viewport/touch QA, and 4/4 Playwright lifecycle/RBAC/keyboard/overflow/axe scenarios.
+
+The browser acceptance revalidates the complete Admin lifecycle through Archive and Restore, Operator/Viewer mutation restrictions, controlled dialog keyboard focus/return, Archive responsive overflow across the six mandatory viewport widths, and serious/critical axe cleanliness after the Radix Tabs content relationship fix.
+
+## MEGA-8 — Login + edge states
+
+- [ ] Rebuild Login around canonical BrandIdentity, shared controls, and the canonical CVA `Button` rather than page-owned action classes.
+- [ ] Add restrained Motion entrance behavior that respects reduced-motion preference.
+- [ ] Introduce shared compact inline alert/error styling and use it for Login authentication/profile failures.
+- [ ] Preserve Firebase Authentication, destination redirect, account-disabled handling, and local-preview behavior without changing auth/RBAC semantics.
+- [ ] Compact and rebrand the protected-route auth-session loading state without changing redirect outcomes.
+- [ ] Clean up Not Found into a compact recovery state with shared polymorphic Button navigation.
+- [ ] Normalize Login/loading/not-found edge geometry for laptop and 360/390/412 mobile viewports without giant empty regions or custom action-class duplication.
+- [ ] Migrate remaining old icon/toast/component usage owned by these edge surfaces to the canonical primitive layer; repository-wide dead legacy removal remains MEGA-9 audit scope.
+- [ ] Add dedicated Login/edge regression coverage for required fields, pending/disabled submit, auth errors, destination redirect, local preview, and protected-route behavior.
+- [ ] Add real-browser unauthenticated Login responsive/keyboard/overflow/axe acceptance.
+- [ ] Full repository Quality workflow green on final MEGA-8 product/code head.
 
 ## Remaining phases
 
@@ -248,7 +278,7 @@ The browser acceptance validates the desktop 35/65 resizable incident-list/map w
 - [x] MEGA-4 — Dashboard + Running Tickets
 - [x] MEGA-5 — Ticket Detail + Template Generator
 - [x] MEGA-6 — Cut Point Tracker
-- [ ] MEGA-7 — Archive & Restore
+- [x] MEGA-7 — Archive & Restore
 - [ ] MEGA-8 — Login + edge states
 - [ ] MEGA-9 — Legacy elimination audit
 - [ ] MEGA-10 — Full QA and release readiness
