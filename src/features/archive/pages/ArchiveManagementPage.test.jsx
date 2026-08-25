@@ -37,6 +37,7 @@ const resolvedTicket = {
   title: '[T7] RESOLVED LINK DOWN',
   externalTtNumber: 'INC-20260824-00000001',
   status: TICKET_STATUS.RESOLVED,
+  pic: 'Resolved PIC',
   updatedAt: new Date('2026-08-24T07:00:00.000Z'),
   revision: 7,
 };
@@ -56,6 +57,10 @@ function renderPage() {
       <ArchiveManagementPage />
     </MemoryRouter>,
   );
+}
+
+function firstButton(name) {
+  return screen.getAllByRole('button', { name })[0];
 }
 
 describe('ArchiveManagementPage', () => {
@@ -78,18 +83,30 @@ describe('ArchiveManagementPage', () => {
     cleanup();
   });
 
-  it('loads a bounded Resolved page and archives with the current revision', async () => {
+  it('loads a bounded Resolved workspace with canonical read-only review navigation', async () => {
     renderPage();
 
-    await expect(screen.findByText(resolvedTicket.title)).resolves.toBeInTheDocument();
+    expect(await screen.findAllByText(resolvedTicket.title)).not.toHaveLength(0);
     expect(mocks.listTickets).toHaveBeenCalledWith({
       statuses: [TICKET_STATUS.RESOLVED],
       limit: 25,
     });
+    expect(screen.getByRole('tab', { name: 'Resolved' })).toHaveAttribute('data-state', 'active');
 
-    fireEvent.click(
-      screen.getByRole('button', { name: `Archive ${resolvedTicket.externalTtNumber}` }),
-    );
+    const reviewLinks = screen.getAllByRole('link', { name: resolvedTicket.title });
+    expect(reviewLinks).not.toHaveLength(0);
+    for (const link of reviewLinks) {
+      expect(link).toHaveAttribute('href', `/tickets/${resolvedTicket.id}`);
+    }
+    expect(screen.queryByRole('link', { name: 'Open' })).not.toBeInTheDocument();
+  });
+
+  it('archives with the current revision through the controlled confirmation dialog', async () => {
+    renderPage();
+    await screen.findAllByText(resolvedTicket.title);
+
+    fireEvent.click(firstButton(`Archive ${resolvedTicket.externalTtNumber}`));
+    expect(screen.getByRole('dialog', { name: 'Archive Ticket?' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Archive Ticket' }));
 
     await waitFor(() => {
@@ -104,24 +121,23 @@ describe('ArchiveManagementPage', () => {
     );
   });
 
-  it('loads Archived Tickets on demand and restores them to Resolved', async () => {
+  it('uses Radix Tabs to load Archived Tickets and restores them to Resolved', async () => {
     mocks.listTickets
       .mockResolvedValueOnce({ items: [resolvedTicket], nextCursor: null, hasMore: false })
       .mockResolvedValueOnce({ items: [archivedTicket], nextCursor: null, hasMore: false });
 
     renderPage();
-    await screen.findByText(resolvedTicket.title);
-    fireEvent.click(screen.getByRole('button', { name: 'Archived' }));
+    await screen.findAllByText(resolvedTicket.title);
+    fireEvent.click(screen.getByRole('tab', { name: 'Archived' }));
 
-    await screen.findByText(archivedTicket.title);
+    await screen.findAllByText(archivedTicket.title);
+    expect(screen.getByRole('tab', { name: 'Archived' })).toHaveAttribute('data-state', 'active');
     expect(mocks.listTickets).toHaveBeenLastCalledWith({
       statuses: [TICKET_STATUS.ARCHIVED],
       limit: 25,
     });
 
-    fireEvent.click(
-      screen.getByRole('button', { name: `Restore ${archivedTicket.externalTtNumber}` }),
-    );
+    fireEvent.click(firstButton(`Restore ${archivedTicket.externalTtNumber}`));
     fireEvent.click(screen.getByRole('button', { name: 'Restore Ticket' }));
 
     await waitFor(() => {
@@ -134,6 +150,33 @@ describe('ArchiveManagementPage', () => {
     expect(mocks.pushToast).toHaveBeenCalledWith(
       expect.objectContaining({ title: 'Ticket restored', tone: 'success' }),
     );
+  });
+
+  it('continues the bounded 25-ticket query with the repository cursor', async () => {
+    const nextResolved = {
+      ...resolvedTicket,
+      id: 'ticket-resolved-2',
+      externalTtNumber: 'INC-20260824-00000003',
+      title: '[T7] SECOND RESOLVED LINK',
+      revision: 3,
+    };
+    const cursor = { updatedAt: resolvedTicket.updatedAt, id: resolvedTicket.id };
+
+    mocks.listTickets
+      .mockResolvedValueOnce({ items: [resolvedTicket], nextCursor: cursor, hasMore: true })
+      .mockResolvedValueOnce({ items: [nextResolved], nextCursor: null, hasMore: false });
+
+    renderPage();
+    await screen.findAllByText(resolvedTicket.title);
+    fireEvent.click(screen.getByRole('button', { name: 'Load more' }));
+
+    await screen.findAllByText(nextResolved.title);
+    expect(mocks.listTickets).toHaveBeenLastCalledWith({
+      statuses: [TICKET_STATUS.RESOLVED],
+      limit: 25,
+      cursor,
+    });
+    expect(screen.queryByRole('button', { name: 'Load more' })).not.toBeInTheDocument();
   });
 
   it('does not query lifecycle data without Archive/Restore capability', () => {
