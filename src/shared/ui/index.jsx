@@ -1,197 +1,33 @@
 import { forwardRef, useEffect, useId, useImperativeHandle, useRef, useState } from 'react';
 
+import { cn } from '../lib/cn.js';
+import { AppIcon } from './icon.jsx';
 import {
+  Button as CanonicalButton,
   Dialog as RadixDialog,
   DialogContent as RadixDialogContent,
   DialogDescription as RadixDialogDescription,
   DialogTitle as RadixDialogTitle,
 } from './primitives.jsx';
 
-function joinClassNames(...values) {
-  return values.filter(Boolean).join(' ');
-}
-
-export function UiIcon({ name, size = 18, className = '' }) {
-  const commonProps = {
-    width: size,
-    height: size,
-    viewBox: '0 0 24 24',
-    fill: 'none',
-    stroke: 'currentColor',
-    strokeWidth: 1.9,
-    strokeLinecap: 'round',
-    strokeLinejoin: 'round',
-    className,
-    'aria-hidden': true,
-  };
-
-  const paths = {
-    plus: (
-      <>
-        <path d="M12 5v14" />
-        <path d="M5 12h14" />
-      </>
-    ),
-    close: (
-      <>
-        <path d="m6.5 6.5 11 11" />
-        <path d="m17.5 6.5-11 11" />
-      </>
-    ),
-    copy: (
-      <>
-        <rect x="8" y="8" width="11" height="11" rx="2.5" />
-        <path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8" />
-      </>
-    ),
-    edit: (
-      <>
-        <path d="M13.5 6.5 17.5 10.5" />
-        <path d="m4.5 19.5 4.2-.8L18.4 9a2.1 2.1 0 0 0 0-3l-.4-.4a2.1 2.1 0 0 0-3 0l-9.7 9.7-.8 4.2Z" />
-      </>
-    ),
-    arrowUp: (
-      <>
-        <path d="M12 19V5" />
-        <path d="m6.5 10.5 5.5-5.5 5.5 5.5" />
-      </>
-    ),
-    arrowDown: (
-      <>
-        <path d="M12 5v14" />
-        <path d="m17.5 13.5-5.5 5.5-5.5-5.5" />
-      </>
-    ),
-    chevronDown: <path d="m7 9.5 5 5 5-5" />,
-    chevronUp: <path d="m7 14.5 5-5 5 5" />,
-    check: <path d="m6.5 12.5 3.5 3.5 7.5-8" />,
-    calendar: (
-      <>
-        <rect x="3.5" y="5" width="17" height="15.5" rx="3" />
-        <path d="M8 3.5V7" />
-        <path d="M16 3.5V7" />
-        <path d="M3.5 9h17" />
-        <path d="M8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01" />
-      </>
-    ),
-    sun: (
-      <>
-        <circle cx="12" cy="12" r="3.5" />
-        <path d="M12 2.75v2M12 19.25v2M2.75 12h2M19.25 12h2M5.46 5.46l1.42 1.42M17.12 17.12l1.42 1.42M18.54 5.46l-1.42 1.42M6.88 17.12l-1.42 1.42" />
-      </>
-    ),
-    moon: <path d="M20 15.2A8.2 8.2 0 0 1 8.8 4a8.3 8.3 0 1 0 11.2 11.2Z" />,
-    refresh: (
-      <>
-        <path d="M19 7.5V4l-2.2 2.2A8 8 0 1 0 20 12" />
-        <path d="M19 4h-3.5" />
-      </>
-    ),
-    search: (
-      <>
-        <circle cx="10.8" cy="10.8" r="6.3" />
-        <path d="m15.5 15.5 4 4" />
-      </>
-    ),
-    dashboard: (
-      <>
-        <rect x="3.5" y="3.5" width="7" height="7" rx="2" />
-        <rect x="13.5" y="3.5" width="7" height="4.5" rx="2" />
-        <rect x="13.5" y="11" width="7" height="9.5" rx="2" />
-        <rect x="3.5" y="13.5" width="7" height="7" rx="2" />
-      </>
-    ),
-    generator: (
-      <>
-        <path d="M7 3.5h7l4 4v13H7a2 2 0 0 1-2-2v-13a2 2 0 0 1 2-2Z" />
-        <path d="M14 3.5v4h4M8.5 12h6M8.5 16h4" />
-      </>
-    ),
-    running: (
-      <>
-        <path d="M3.5 12h4l2-5 4.2 10 2.1-5h4.7" />
-        <path d="M4 5.5h16M4 18.5h16" opacity=".35" />
-      </>
-    ),
-    map: (
-      <>
-        <path d="m3.5 6.5 5-2 7 2.5 5-2v12.5l-5 2-7-2.5-5 2Z" />
-        <path d="M8.5 4.5V17M15.5 7v12" />
-      </>
-    ),
-    archive: (
-      <>
-        <path d="M4 7.5h16v11A2.5 2.5 0 0 1 17.5 21h-11A2.5 2.5 0 0 1 4 18.5Z" />
-        <path d="M3 4h18v3.5H3ZM9 12h6" />
-      </>
-    ),
-    info: (
-      <>
-        <circle cx="12" cy="12" r="9" />
-        <path d="M12 10.5v6M12 7.25h.01" />
-      </>
-    ),
-    warning: (
-      <>
-        <path d="M10.3 4.2 2.8 17.3A2 2 0 0 0 4.5 20h15a2 2 0 0 0 1.7-2.7L13.7 4.2a2 2 0 0 0-3.4 0Z" />
-        <path d="M12 9v4M12 16.5h.01" />
-      </>
-    ),
-    error: (
-      <>
-        <circle cx="12" cy="12" r="9" />
-        <path d="m9 9 6 6M15 9l-6 6" />
-      </>
-    ),
-  };
-
-  return <svg {...commonProps}>{paths[name] ?? paths.info}</svg>;
-}
-
-export const Button = forwardRef(function Button(
-  { children, className = '', tone = 'primary', type = 'button', ...props },
-  ref,
-) {
-  const toneClass =
-    tone === 'primary'
-      ? 'border border-transparent bg-[var(--accent-solid)] text-[var(--accent-on-solid)] shadow-[var(--shadow-accent)] hover:-translate-y-0.5 hover:bg-[var(--accent-solid-hover)] hover:shadow-[var(--shadow-md)] active:translate-y-0'
-      : tone === 'danger'
-        ? 'border border-transparent bg-[var(--danger-solid)] text-white shadow-[var(--shadow-sm)] hover:-translate-y-0.5 hover:bg-[var(--danger-solid-hover)] hover:shadow-[var(--shadow-md)] active:translate-y-0'
-        : 'border border-[var(--border-subtle)] bg-[var(--surface-panel)] text-[var(--text-primary)] shadow-[var(--shadow-xs)] hover:-translate-y-0.5 hover:border-[var(--border-default)] hover:bg-[var(--surface-panel-strong)] hover:shadow-[var(--shadow-sm)] active:translate-y-0';
-
-  return (
-    <button
-      ref={ref}
-      type={type}
-      className={joinClassNames(
-        'ui-button relative isolate inline-flex min-h-[var(--control-height)] select-none items-center justify-center gap-2 overflow-hidden rounded-xl px-4 text-sm font-bold tracking-[-0.01em] transition-[transform,background-color,border-color,box-shadow,color,opacity] duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-canvas)] active:scale-[0.985] disabled:translate-y-0 disabled:scale-100 disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none',
-        toneClass,
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </button>
-  );
-});
+export const Button = CanonicalButton;
 
 export const IconButton = forwardRef(function IconButton(
-  { label, children, className = '', ...props },
+  { label, children, className, tone = 'secondary', ...props },
   ref,
 ) {
   return (
-    <button
+    <CanonicalButton
       ref={ref}
       type="button"
+      tone={tone}
+      size="icon"
       aria-label={label}
-      className={joinClassNames(
-        'ui-icon-button inline-flex min-h-11 min-w-11 select-none items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-glass)] text-[var(--text-secondary)] shadow-[var(--shadow-xs)] backdrop-blur-xl transition-[transform,background-color,border-color,box-shadow,color,opacity] duration-200 ease-out hover:-translate-y-0.5 hover:border-[var(--border-default)] hover:bg-[var(--surface-panel)] hover:text-[var(--text-primary)] hover:shadow-[var(--shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-canvas)] active:scale-[0.94] disabled:translate-y-0 disabled:scale-100 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none',
-        className,
-      )}
+      className={className}
       {...props}
     >
       {children}
-    </button>
+    </CanonicalButton>
   );
 });
 
@@ -226,10 +62,10 @@ function fieldDescription(id, hint, error) {
 }
 
 const inputClass =
-  'ui-control min-h-[var(--control-height)] w-full appearance-none rounded-xl border bg-[var(--surface-panel-strong)] px-3.5 text-sm font-medium text-[var(--text-primary)] shadow-[var(--shadow-xs)] outline-none transition-[background-color,border-color,box-shadow,color] duration-200 placeholder:font-normal placeholder:text-[var(--text-faint)] hover:border-[var(--border-strong)] focus:border-[var(--accent-solid)] focus:bg-[var(--surface-panel)] focus:ring-4 focus:ring-[var(--focus-soft)] disabled:cursor-not-allowed disabled:bg-[var(--surface-muted)] disabled:text-[var(--text-muted)] disabled:opacity-65 read-only:bg-[var(--surface-muted)] read-only:text-[var(--text-secondary)]';
+  'ui-control min-h-[var(--control-height)] w-full appearance-none rounded-[var(--radius-control)] border bg-[var(--surface-panel-strong)] px-3.5 text-sm font-medium text-[var(--text-primary)] shadow-[var(--shadow-xs)] outline-none transition-[background-color,border-color,box-shadow,color] duration-[var(--motion-base)] placeholder:font-normal placeholder:text-[var(--text-faint)] hover:border-[var(--border-strong)] focus:border-[var(--accent-solid)] focus:bg-[var(--surface-panel)] focus:ring-4 focus:ring-[var(--focus-soft)] disabled:cursor-not-allowed disabled:bg-[var(--surface-muted)] disabled:text-[var(--text-muted)] disabled:opacity-65 read-only:bg-[var(--surface-muted)] read-only:text-[var(--text-secondary)]';
 
 export const TextInput = forwardRef(function TextInput(
-  { id, label, hint, error, required = false, className = '', ...props },
+  { id, label, hint, error, required = false, className, ...props },
   ref,
 ) {
   return (
@@ -239,7 +75,7 @@ export const TextInput = forwardRef(function TextInput(
         id={id}
         aria-invalid={Boolean(error)}
         aria-describedby={fieldDescription(id, hint, error)}
-        className={joinClassNames(
+        className={cn(
           inputClass,
           error ? 'border-[var(--danger-solid)]' : 'border-[var(--border-default)]',
           className,
@@ -251,7 +87,7 @@ export const TextInput = forwardRef(function TextInput(
 });
 
 export const Textarea = forwardRef(function Textarea(
-  { id, label, hint, error, required = false, className = '', ...props },
+  { id, label, hint, error, required = false, className, ...props },
   ref,
 ) {
   return (
@@ -261,8 +97,9 @@ export const Textarea = forwardRef(function Textarea(
         id={id}
         aria-invalid={Boolean(error)}
         aria-describedby={fieldDescription(id, hint, error)}
-        className={joinClassNames(
-          'ui-control ui-textarea min-h-28 w-full resize-none rounded-xl border bg-[var(--surface-panel-strong)] px-3.5 py-3 text-sm font-medium leading-6 text-[var(--text-primary)] shadow-[var(--shadow-xs)] outline-none transition-[background-color,border-color,box-shadow,color] duration-200 placeholder:font-normal placeholder:text-[var(--text-faint)] hover:border-[var(--border-strong)] focus:border-[var(--accent-solid)] focus:bg-[var(--surface-panel)] focus:ring-4 focus:ring-[var(--focus-soft)] disabled:cursor-not-allowed disabled:bg-[var(--surface-muted)] disabled:text-[var(--text-muted)] disabled:opacity-65',
+        className={cn(
+          inputClass,
+          'ui-textarea min-h-28 resize-none py-3 leading-6',
           error ? 'border-[var(--danger-solid)]' : 'border-[var(--border-default)]',
           className,
         )}
@@ -273,7 +110,7 @@ export const Textarea = forwardRef(function Textarea(
 });
 
 export const DateTimeField = forwardRef(function DateTimeField(
-  { id, label, hint, error, required = false, className = '', disabled = false, ...props },
+  { id, label, hint, error, required = false, className, disabled = false, ...props },
   forwardedRef,
 ) {
   const inputRef = useRef(null);
@@ -287,7 +124,7 @@ export const DateTimeField = forwardRef(function DateTimeField(
     try {
       input.showPicker?.();
     } catch {
-      // Browser privacy/activation rules may block showPicker; focus still keeps the field usable.
+      // Browser activation/privacy rules may block showPicker; focused native input remains usable.
     }
   };
 
@@ -301,7 +138,7 @@ export const DateTimeField = forwardRef(function DateTimeField(
           disabled={disabled}
           aria-invalid={Boolean(error)}
           aria-describedby={fieldDescription(id, hint, error)}
-          className={joinClassNames(
+          className={cn(
             inputClass,
             'ui-datetime-input pr-12 tabular-nums',
             error ? 'border-[var(--danger-solid)]' : 'border-[var(--border-default)]',
@@ -314,10 +151,10 @@ export const DateTimeField = forwardRef(function DateTimeField(
           tabIndex={disabled ? -1 : 0}
           disabled={disabled}
           aria-label={`Open ${label} picker`}
-          className="ui-field-trigger absolute right-1.5 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-lg border border-transparent text-[var(--text-muted)] transition-[background-color,border-color,color,transform] duration-200 hover:border-[var(--border-subtle)] hover:bg-[var(--surface-muted)] hover:text-[var(--accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] active:scale-95 disabled:pointer-events-none disabled:opacity-35"
+          className="ui-field-trigger absolute right-1.5 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-[var(--radius-control)] border border-transparent text-[var(--text-muted)] transition-[background-color,border-color,color,transform] duration-[var(--motion-base)] hover:border-[var(--border-subtle)] hover:bg-[var(--surface-muted)] hover:text-[var(--accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] active:scale-95 disabled:pointer-events-none disabled:opacity-35"
           onClick={openPicker}
         >
-          <UiIcon name="calendar" size={17} />
+          <AppIcon name="calendar" size={17} />
         </button>
       </div>
     </FieldFrame>
@@ -334,7 +171,7 @@ export function SelectField({
   error,
   required = false,
   disabled = false,
-  className = '',
+  className,
 }) {
   const listId = useId();
   const rootRef = useRef(null);
@@ -422,7 +259,7 @@ export function SelectField({
   };
 
   return (
-    <div ref={rootRef} className={joinClassNames('relative grid gap-2', className)}>
+    <div ref={rootRef} className={cn('relative grid gap-2', className)}>
       <label
         id={`${id}-label`}
         htmlFor={id}
@@ -448,8 +285,8 @@ export function SelectField({
         aria-invalid={Boolean(error)}
         aria-activedescendant={open ? `${listId}-option-${activeIndex}` : undefined}
         disabled={disabled}
-        className={joinClassNames(
-          'ui-control ui-select-trigger flex min-h-[var(--control-height)] w-full items-center justify-between gap-3 rounded-xl border bg-[var(--surface-panel-strong)] px-3.5 text-left text-sm font-semibold text-[var(--text-primary)] shadow-[var(--shadow-xs)] outline-none transition-[background-color,border-color,box-shadow,transform] duration-200 hover:border-[var(--border-strong)] focus:border-[var(--accent-solid)] focus:bg-[var(--surface-panel)] focus:ring-4 focus:ring-[var(--focus-soft)] active:scale-[0.995] disabled:cursor-not-allowed disabled:bg-[var(--surface-muted)] disabled:text-[var(--text-muted)] disabled:opacity-65',
+        className={cn(
+          'ui-control ui-select-trigger flex min-h-[var(--control-height)] w-full items-center justify-between gap-3 rounded-[var(--radius-control)] border bg-[var(--surface-panel-strong)] px-3.5 text-left text-sm font-semibold text-[var(--text-primary)] shadow-[var(--shadow-xs)] outline-none transition-[background-color,border-color,box-shadow,transform] duration-[var(--motion-base)] hover:border-[var(--border-strong)] focus:border-[var(--accent-solid)] focus:bg-[var(--surface-panel)] focus:ring-4 focus:ring-[var(--focus-soft)] active:scale-[0.995] disabled:cursor-not-allowed disabled:bg-[var(--surface-muted)] disabled:text-[var(--text-muted)] disabled:opacity-65',
           error ? 'border-[var(--danger-solid)]' : 'border-[var(--border-default)]',
         )}
         onClick={() => {
@@ -459,12 +296,13 @@ export function SelectField({
       >
         <span className="min-w-0 truncate">{selected?.label ?? 'Select…'}</span>
         <span
-          className={joinClassNames(
-            'grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-[var(--surface-muted)] text-[var(--text-muted)] transition-[transform,background-color,color] duration-200',
-            open ? 'rotate-180 bg-[var(--accent-soft)] text-[var(--accent-text)]' : '',
+          className={cn(
+            'grid h-7 w-7 shrink-0 place-items-center rounded-[var(--radius-control)] bg-[var(--surface-muted)] text-[var(--text-muted)] transition-[transform,background-color,color] duration-[var(--motion-base)]',
+            open && 'rotate-180 bg-[var(--accent-soft)] text-[var(--accent-text)]',
           )}
+          aria-hidden="true"
         >
-          <UiIcon name="chevronDown" size={16} />
+          <AppIcon name="chevronDown" size={16} />
         </span>
       </button>
 
@@ -473,7 +311,7 @@ export function SelectField({
           id={listId}
           role="listbox"
           aria-labelledby={`${id}-label`}
-          className="ui-select-popover absolute left-0 right-0 top-[calc(100%+0.45rem)] z-[75] max-h-72 overflow-auto rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-elevated)] p-1.5 shadow-[var(--shadow-lg)] backdrop-blur-xl"
+          className="ui-select-popover absolute left-0 right-0 top-[calc(100%+0.45rem)] z-[75] max-h-72 overflow-auto rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-elevated)] p-1.5 shadow-[var(--shadow-lg)] backdrop-blur-xl"
         >
           {options.map((option, index) => {
             const selectedOption = option.value === value;
@@ -486,8 +324,8 @@ export function SelectField({
                 role="option"
                 aria-selected={selectedOption}
                 disabled={option.disabled}
-                className={joinClassNames(
-                  'flex min-h-11 w-full items-center justify-between gap-3 rounded-xl px-3 text-left text-sm font-semibold transition-[background-color,color,transform] duration-150 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40',
+                className={cn(
+                  'flex min-h-11 w-full items-center justify-between gap-3 rounded-[var(--radius-control)] px-3 text-left text-sm font-semibold transition-[background-color,color] duration-[var(--motion-fast)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40',
                   selectedOption
                     ? 'bg-[var(--accent-soft)] text-[var(--accent-text)]'
                     : active
@@ -500,8 +338,11 @@ export function SelectField({
               >
                 <span className="min-w-0 truncate">{option.label}</span>
                 {selectedOption ? (
-                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-[var(--surface-panel)] text-[var(--accent-text)] shadow-[var(--shadow-xs)]">
-                    <UiIcon name="check" size={15} />
+                  <span
+                    className="grid h-6 w-6 shrink-0 place-items-center rounded-[var(--radius-control)] bg-[var(--surface-panel)] text-[var(--accent-text)] shadow-[var(--shadow-xs)]"
+                    aria-hidden="true"
+                  >
+                    <AppIcon name="check" size={15} />
                   </span>
                 ) : null}
               </button>
@@ -548,21 +389,17 @@ export function StatusBadge({ status }) {
 
 export function EmptyState({ title, description, action = null }) {
   return (
-    <div className="spatial-panel relative overflow-hidden p-8 text-center md:p-10">
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_center,var(--accent-glow),transparent_68%)] opacity-60"
-        aria-hidden="true"
-      />
-      <div className="relative mx-auto max-w-xl">
+    <div className="rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-5 text-center shadow-[var(--shadow-xs)]">
+      <div className="mx-auto max-w-xl">
         <span
-          className="mx-auto grid h-11 w-11 place-items-center rounded-2xl border border-[var(--border-accent)] bg-[var(--accent-soft)] text-[var(--accent-text)] shadow-[var(--shadow-sm)]"
+          className="mx-auto grid h-10 w-10 place-items-center rounded-[var(--radius-control)] border border-[var(--border-accent)] bg-[var(--accent-soft)] text-[var(--accent-text)]"
           aria-hidden="true"
         >
-          <UiIcon name="info" size={19} />
+          <AppIcon name="info" size={18} />
         </span>
-        <h2 className="mt-4 text-lg font-bold text-[var(--text-primary)]">{title}</h2>
-        <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">{description}</p>
-        {action ? <div className="mt-6">{action}</div> : null}
+        <h2 className="mt-3 text-sm font-bold text-[var(--text-primary)]">{title}</h2>
+        <p className="mt-1.5 text-[12px] leading-5 text-[var(--text-secondary)]">{description}</p>
+        {action ? <div className="mt-4">{action}</div> : null}
       </div>
     </div>
   );
@@ -572,22 +409,22 @@ export function ErrorState({ title = 'Something went wrong', description, onRetr
   return (
     <div
       role="alert"
-      className="rounded-2xl border border-[var(--danger-border)] bg-[var(--danger-soft)] p-5 shadow-[var(--shadow-xs)]"
+      className="rounded-[var(--radius-panel)] border border-[var(--danger-border)] bg-[var(--danger-soft)] p-4 shadow-[var(--shadow-xs)]"
     >
       <div className="flex gap-3">
         <span
-          className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[var(--surface-panel)] text-[var(--danger-text)] shadow-[var(--shadow-xs)]"
+          className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-[var(--radius-control)] bg-[var(--surface-panel)] text-[var(--danger-text)] shadow-[var(--shadow-xs)]"
           aria-hidden="true"
         >
-          <UiIcon name="error" size={18} />
+          <AppIcon name="error" size={18} />
         </span>
         <div className="min-w-0 flex-1">
           <h2 className="text-sm font-bold text-[var(--danger-text)]">{title}</h2>
-          <p className="mt-1 text-sm leading-6 text-[var(--text-secondary)]">{description}</p>
+          <p className="mt-1 text-[12px] leading-5 text-[var(--text-secondary)]">{description}</p>
           {onRetry ? (
-            <Button tone="secondary" className="mt-4" onClick={onRetry}>
+            <CanonicalButton tone="secondary" size="sm" className="mt-3" onClick={onRetry}>
               Try again
-            </Button>
+            </CanonicalButton>
           ) : null}
         </div>
       </div>
@@ -595,11 +432,11 @@ export function ErrorState({ title = 'Something went wrong', description, onRetr
   );
 }
 
-export function Skeleton({ className = '' }) {
+export function Skeleton({ className }) {
   return (
     <div
       aria-hidden="true"
-      className={joinClassNames('ui-skeleton rounded-2xl bg-[var(--surface-muted)]', className)}
+      className={cn('ui-skeleton rounded-[var(--radius-panel)] bg-[var(--surface-muted)]', className)}
     />
   );
 }
@@ -623,29 +460,29 @@ export function ConfirmDialog({
       }}
     >
       <RadixDialogContent
-        className="w-full max-w-md rounded-[var(--radius-2xl)] p-5 md:p-6"
+        className="w-full max-w-md"
         onOpenAutoFocus={(event) => {
           event.preventDefault();
           cancelRef.current?.focus();
         }}
       >
         <span
-          className="mb-5 block h-1.5 w-12 rounded-full bg-[var(--accent-solid)] shadow-[0_0_18px_var(--accent-glow)]"
+          className="mb-4 block h-1 w-10 rounded-full bg-[var(--accent-solid)]"
           aria-hidden="true"
         />
-        <RadixDialogTitle className="text-xl font-bold text-[var(--text-primary)]">
+        <RadixDialogTitle className="text-lg font-bold text-[var(--text-primary)]">
           {title}
         </RadixDialogTitle>
-        <RadixDialogDescription className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
+        <RadixDialogDescription className="mt-2 text-[13px] leading-6 text-[var(--text-secondary)]">
           {description}
         </RadixDialogDescription>
-        <div className="mt-7 flex flex-wrap justify-end gap-2">
-          <Button ref={cancelRef} tone="secondary" onClick={onClose}>
+        <div className="mt-6 flex flex-wrap justify-end gap-2">
+          <CanonicalButton ref={cancelRef} tone="secondary" size="sm" onClick={onClose}>
             Cancel
-          </Button>
-          <Button tone={tone} onClick={onConfirm}>
+          </CanonicalButton>
+          <CanonicalButton tone={tone} size="sm" onClick={onConfirm}>
             {confirmLabel}
-          </Button>
+          </CanonicalButton>
         </div>
       </RadixDialogContent>
     </RadixDialog>
