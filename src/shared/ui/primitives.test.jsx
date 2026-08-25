@@ -1,6 +1,6 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useState } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
   Button,
@@ -16,6 +16,10 @@ import {
   TabsList,
   TabsTrigger,
 } from './primitives.jsx';
+
+afterEach(() => {
+  cleanup();
+});
 
 function ControlledDialogHarness() {
   const [open, setOpen] = useState(false);
