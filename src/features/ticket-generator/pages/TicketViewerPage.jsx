@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
+import { PageHeader } from '../../../app/components/PageHeader.jsx';
 import { useAuth } from '../../../app/providers/AuthProvider.jsx';
 import { useToast } from '../../../app/providers/ToastProvider.jsx';
 import {
@@ -9,12 +10,24 @@ import {
   formatTicketReport,
 } from '../../../entities/ticket/index.js';
 import { CAPABILITY } from '../../../entities/user/authorization.js';
-import { ErrorState, Skeleton, StatusBadge, UiIcon } from '../../../shared/ui/index.jsx';
+import { AppIcon } from '../../../shared/ui/icon.jsx';
+import { Button } from '../../../shared/ui/primitives.jsx';
+import { ErrorState, Skeleton, StatusBadge } from '../../../shared/ui/index.jsx';
 import { ReportPreview } from '../components/ReportPreview.jsx';
 import { loadTicketEditor } from '../lib/persistenceService.js';
 
-const editLinkClass =
-  'inline-flex min-h-[var(--control-height)] select-none items-center justify-center gap-2 rounded-xl bg-[var(--accent-solid)] px-4 text-sm font-bold text-[var(--accent-on-solid)] shadow-[var(--shadow-accent)] transition-[transform,background-color,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:bg-[var(--accent-solid-hover)] hover:shadow-[var(--shadow-md)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-canvas)] active:scale-[0.985] active:translate-y-0';
+function DetailItem({ label, value }) {
+  return (
+    <div className="border-t border-[var(--border-subtle)] py-3 first:border-t-0 md:first:border-t">
+      <dt className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)]">
+        {label}
+      </dt>
+      <dd className="mt-1 whitespace-pre-wrap text-[13px] font-semibold leading-5 text-[var(--text-secondary)]">
+        {value || '—'}
+      </dd>
+    </div>
+  );
+}
 
 async function copyPlainText(text) {
   if (navigator.clipboard?.writeText) {
@@ -32,19 +45,6 @@ async function copyPlainText(text) {
   const copied = document.execCommand('copy');
   document.body.removeChild(textarea);
   if (!copied) throw new Error('Clipboard copy failed.');
-}
-
-function Detail({ label, value }) {
-  return (
-    <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-panel-strong)] p-3.5">
-      <dt className="text-[10px] font-extrabold uppercase tracking-[0.11em] text-[var(--text-muted)]">
-        {label}
-      </dt>
-      <dd className="mt-2 whitespace-pre-wrap text-sm font-medium leading-6 text-[var(--text-secondary)]">
-        {value || '—'}
-      </dd>
-    </div>
-  );
 }
 
 export function TicketViewerPage() {
@@ -105,12 +105,12 @@ export function TicketViewerPage() {
 
   if (loading) {
     return (
-      <div
-        className="grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(340px,2fr)]"
-        aria-label="Loading Ticket"
-      >
-        <Skeleton className="h-[34rem]" />
-        <Skeleton className="h-[34rem]" />
+      <div className="grid gap-3" aria-label="Loading Ticket">
+        <Skeleton className="h-14" />
+        <div className="grid gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)]">
+          <Skeleton className="h-[32rem]" />
+          <Skeleton className="h-[32rem]" />
+        </div>
       </div>
     );
   }
@@ -131,99 +131,99 @@ export function TicketViewerPage() {
       : '—';
 
   return (
-    <div className="space-y-5 md:space-y-6">
-      <section className="spatial-panel-elevated relative overflow-hidden p-5 md:p-6">
-        <div
-          className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-[var(--accent-glow)] blur-3xl"
-          aria-hidden="true"
-        />
-        <div className="relative flex flex-wrap items-start justify-between gap-5">
-          <div className="min-w-0 max-w-4xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="spatial-kicker">Ticket detail</p>
-              <StatusBadge status={ticket.status} />
-              <span className="spatial-chip">Read only</span>
-            </div>
-            <p className="mt-3 font-mono text-[11px] font-bold text-[var(--text-muted)]">
-              {ticket.externalTtNumber || 'No TT detected'}
-            </p>
-            <h2 className="mt-2 break-words font-[var(--font-display)] text-2xl font-bold leading-tight tracking-[-0.04em] md:text-3xl">
-              {ticket.title || 'Untitled Ticket'}
-            </h2>
-          </div>
+    <div className="grid gap-3">
+      <PageHeader
+        title={ticket.externalTtNumber || 'Ticket Detail'}
+        eyebrow="Read-only inspection"
+        description={ticket.title || 'Untitled Ticket'}
+        actions={
+          <>
+            <Button tone="secondary" size="sm" onClick={copyReport} disabled={copyPending}>
+              <AppIcon name="copy" size={14} />
+              {copyPending ? 'Copying…' : 'Copy Report'}
+            </Button>
+            {canEdit ? (
+              <Button asChild tone="primary" size="sm">
+                <Link to={`/generator/${ticketId}/edit`}>
+                  <AppIcon name="edit" size={14} />
+                  Edit Ticket
+                </Link>
+              </Button>
+            ) : null}
+          </>
+        }
+      />
 
-          {canEdit ? (
-            <Link to={`/generator/${ticketId}/edit`} className={editLinkClass}>
-              <UiIcon name="edit" size={16} />
-              Edit Ticket
-            </Link>
-          ) : null}
-        </div>
-      </section>
+      <div
+        className="flex min-h-9 flex-wrap items-center gap-2 border-b border-[var(--border-subtle)] pb-2"
+        aria-label="Ticket review metadata"
+      >
+        <StatusBadge status={ticket.status} />
+        <span className="inline-flex min-h-6 items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-2.5 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
+          <AppIcon name="info" size={12} />
+          Read only
+        </span>
+        <span className="font-mono text-[10px] font-semibold text-[var(--text-faint)]">
+          Revision {ticket.revision}
+        </span>
+        <span className="ml-auto hidden text-[10px] font-medium text-[var(--text-faint)] sm:inline">
+          Persisted inspection · no mutation controls
+        </span>
+      </div>
 
-      <section className="rounded-2xl border border-[var(--border-accent)] bg-[var(--accent-soft)] p-4 text-sm text-[var(--accent-text)] shadow-[var(--shadow-xs)]">
-        <div className="flex gap-3">
-          <span
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[var(--surface-panel)] text-[var(--accent-text)] shadow-[var(--shadow-xs)]"
-            aria-hidden="true"
-          >
-            <UiIcon name="info" size={17} />
-          </span>
-          <div>
-            <p className="font-bold">Safe review mode</p>
-            <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
-              {canEdit
-                ? 'This page only reads persisted Ticket data. Nothing here can change fields, progress, status, or coordinates. Choose Edit Ticket when you intentionally want to modify it.'
-                : 'This page only reads persisted Ticket data. Nothing here can change fields, progress, status, or coordinates, and your role does not expose editing controls.'}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(340px,2fr)]">
-        <div className="space-y-5">
-          <section className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-4 shadow-[var(--shadow-sm)] md:p-5">
-            <div className="flex items-center justify-between gap-3">
+      <div className="grid min-w-0 gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)]">
+        <div className="grid min-w-0 content-start gap-3">
+          <section className="overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+            <header className="flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
               <div>
-                <p className="spatial-kicker">Incident detail</p>
-                <h3 className="mt-1.5 text-base font-bold">Operational context</h3>
+                <p className="text-[9px] font-extrabold uppercase tracking-[0.12em] text-[var(--text-faint)]">
+                  Incident data
+                </p>
+                <h3 className="text-xs font-bold text-[var(--text-primary)]">Operational context</h3>
               </div>
-              <span className="spatial-chip">Revision {ticket.revision}</span>
-            </div>
-
-            <dl className="mt-5 grid gap-3 md:grid-cols-2">
-              <Detail label="Occur Time" value={formatDateTime(ticket.occurAt)} />
-              <Detail label="Dispatch Time" value={formatDateTime(ticket.dispatchAt)} />
-              <Detail label="PIC" value={ticket.pic} />
-              <Detail label="Rootcause" value={ticket.rootcause} />
-              <Detail label="Cut Point" value={ticket.cutPoint} />
-              <Detail label="Coordinate" value={coordinate} />
+              <span className="text-[10px] font-semibold text-[var(--text-faint)]">6 fields</span>
+            </header>
+            <dl className="grid px-3 md:grid-cols-2 md:gap-x-5 xl:grid-cols-3">
+              <DetailItem label="Occur Time" value={formatDateTime(ticket.occurAt)} />
+              <DetailItem label="Dispatch Time" value={formatDateTime(ticket.dispatchAt)} />
+              <DetailItem label="PIC" value={ticket.pic} />
+              <DetailItem label="Rootcause" value={ticket.rootcause} />
+              <DetailItem label="Cut Point" value={ticket.cutPoint} />
+              <DetailItem label="Coordinate" value={coordinate} />
             </dl>
           </section>
 
-          <section className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-4 shadow-[var(--shadow-sm)] md:p-5">
-            <div className="flex items-center justify-between gap-3">
+          <section className="overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+            <header className="flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
               <div>
-                <p className="spatial-kicker">Incident history</p>
-                <h3 className="mt-1.5 text-base font-bold">Progress Timeline</h3>
+                <p className="text-[9px] font-extrabold uppercase tracking-[0.12em] text-[var(--text-faint)]">
+                  Incident history
+                </p>
+                <h3 className="text-xs font-bold text-[var(--text-primary)]">Progress Timeline</h3>
               </div>
-              <span className="spatial-chip">{progress.length} update(s)</span>
-            </div>
+              <span className="font-mono text-[10px] font-semibold text-[var(--text-faint)]">
+                {progress.length} update{progress.length === 1 ? '' : 's'}
+              </span>
+            </header>
+
             {progress.length ? (
-              <ol className="relative mt-5 space-y-2 before:absolute before:bottom-4 before:left-[18px] before:top-4 before:w-px before:bg-[var(--border-subtle)]">
-                {progress.map((entry) => (
-                  <li key={entry.id} className="relative grid grid-cols-[38px_minmax(0,1fr)] gap-3">
+              <ol className="divide-y divide-[var(--border-subtle)]">
+                {progress.map((entry, index) => (
+                  <li
+                    key={entry.id}
+                    className="grid grid-cols-[32px_minmax(0,1fr)] gap-2.5 px-3 py-2.5"
+                  >
                     <span
-                      className="relative z-10 mt-1 grid h-9 w-9 place-items-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] text-[9px] font-black text-[var(--accent-text)] shadow-[var(--shadow-xs)]"
+                      className="mt-0.5 grid h-7 w-7 place-items-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-muted)] font-mono text-[9px] font-black text-[var(--accent-text)]"
                       aria-hidden="true"
                     >
-                      ·
+                      {index + 1}
                     </span>
-                    <div className="rounded-2xl bg-[var(--surface-muted)] p-3.5">
-                      <p className="text-[10px] font-extrabold uppercase tracking-[0.09em] text-[var(--text-muted)]">
+                    <div className="min-w-0">
+                      <time className="font-mono text-[10px] font-bold text-[var(--text-faint)]">
                         {formatDateTime(entry.occurredAt)}
-                      </p>
-                      <p className="mt-1.5 whitespace-pre-wrap text-sm font-medium leading-6 text-[var(--text-secondary)]">
+                      </time>
+                      <p className="mt-0.5 whitespace-pre-wrap text-[13px] font-medium leading-5 text-[var(--text-secondary)]">
                         {entry.text}
                       </p>
                     </div>
@@ -231,7 +231,7 @@ export function TicketViewerPage() {
                 ))}
               </ol>
             ) : (
-              <p className="mt-5 rounded-2xl bg-[var(--surface-muted)] p-4 text-sm font-medium text-[var(--text-muted)]">
+              <p className="px-3 py-5 text-center text-xs font-medium text-[var(--text-muted)]">
                 No progress update recorded.
               </p>
             )}
