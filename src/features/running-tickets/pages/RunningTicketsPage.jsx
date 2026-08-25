@@ -127,8 +127,8 @@ function TicketActions({ ticket, canMutate, copyPending, resolvePending, onCopy,
 
   return (
     <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-      <Link to={`/generator/${ticket.id}`} className={actionClass}>
-        Open
+      <Link to={`/tickets/${ticket.id}`} className={actionClass}>
+        Review
       </Link>
       {canMutate ? (
         <Link to={`/generator/${ticket.id}#progress-text`} className={actionClass}>
@@ -178,7 +178,12 @@ function TicketCard({ ticket, canMutate, copyPending, resolvePending, onCopy, on
         </p>
       </div>
       <h3 className="mt-3 pl-1 text-sm font-bold leading-6 tracking-[-0.015em]">
-        {ticket.title || 'Untitled ticket'}
+        <Link
+          to={`/tickets/${ticket.id}`}
+          className="rounded-sm transition-colors hover:text-[var(--accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+        >
+          {ticket.title || 'Untitled ticket'}
+        </Link>
       </h3>
       <dl className="mt-4 grid gap-2.5 pl-1 text-xs sm:grid-cols-2">
         {[
@@ -479,7 +484,12 @@ export function RunningTicketsPage() {
                         </p>
                       </div>
                       <p className="mt-1.5 line-clamp-2 font-bold tracking-[-0.01em]">
-                        {ticket.title || 'Untitled ticket'}
+                        <Link
+                          to={`/tickets/${ticket.id}`}
+                          className="rounded-sm transition-colors hover:text-[var(--accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                        >
+                          {ticket.title || 'Untitled ticket'}
+                        </Link>
                       </p>
                       <p className="mt-1.5 text-xs text-[var(--text-muted)]">
                         Occur {formatDateTime(ticket.occurAt) || '—'}

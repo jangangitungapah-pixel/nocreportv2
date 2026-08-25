@@ -135,11 +135,11 @@ async function createOcrFixtureBuffer(page) {
 }
 
 async function assertViewerTicketLoaded(page, ticketId) {
-  await expect(page).toHaveURL(new RegExp(`/generator/${ticketId}$`));
+  await expect(page).toHaveURL(new RegExp(`/tickets/${ticketId}$`));
 
   const outcome = await Promise.race([
     page
-      .getByText('Viewer read-only mode', { exact: true })
+      .getByText('Safe review mode', { exact: true })
       .waitFor({ state: 'visible', timeout: 8000 })
       .then(() => 'viewer'),
     page
@@ -298,10 +298,11 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await expect(viewerPage.getByRole('link', { name: 'Archive & Restore' })).toHaveCount(0);
 
     if (ticketId) {
-      await viewerPage.goto(`/generator/${ticketId}`);
+      await viewerPage.goto(`/tickets/${ticketId}`);
       await assertViewerTicketLoaded(viewerPage, ticketId);
       await expect(viewerPage.getByRole('button', { name: 'Copy Report' })).toBeVisible();
       await expect(viewerPage.getByRole('button', { name: 'Save' })).toHaveCount(0);
+      await expect(viewerPage.getByRole('link', { name: 'Edit Ticket' })).toHaveCount(0);
     }
 
     await viewerPage.goto('/generator/new');

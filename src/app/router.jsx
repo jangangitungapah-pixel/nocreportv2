@@ -23,6 +23,12 @@ async function loadNewTicketRoute() {
   return { Component: NewTicketRoute };
 }
 
+async function loadTicketDetailRoute() {
+  const { TicketViewerPage } =
+    await import('../features/ticket-generator/pages/TicketViewerPage.jsx');
+  return { Component: TicketViewerPage };
+}
+
 async function loadTicketRoute() {
   const { TicketRoutePage } =
     await import('../features/ticket-generator/pages/TicketRoutePage.jsx');
@@ -64,6 +70,8 @@ export const routeObjects = [
           { index: true, element: <Navigate to="/dashboard" replace /> },
           { path: '/dashboard', element: <DashboardPage /> },
           { path: '/generator/new', lazy: loadNewTicketRoute },
+          { path: '/tickets/:ticketId', lazy: loadTicketDetailRoute },
+          { path: '/generator/:ticketId/edit', lazy: loadTicketRoute },
           { path: '/generator/:ticketId', lazy: loadTicketRoute },
           { path: '/running', element: <RunningTicketsPage /> },
           { path: '/cut-points', lazy: loadCutPointTrackerRoute },
