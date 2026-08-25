@@ -46,9 +46,10 @@ describe('application shell', () => {
 
     fireEvent.keyDown(document, { key: 'k', ctrlKey: true });
 
-    expect(screen.getByRole('dialog', { name: 'Command palette' })).toBeInTheDocument();
-    expect(screen.getByText('Template Generator')).toBeInTheDocument();
-    expect(screen.getByText('Archive & Restore')).toBeInTheDocument();
+    const palette = screen.getByRole('dialog', { name: 'Command palette' });
+    expect(palette).toBeInTheDocument();
+    expect(within(palette).getByText('Template Generator')).toBeInTheDocument();
+    expect(within(palette).getByText('Archive & Restore')).toBeInTheDocument();
   });
 
   it('persists a user-selected dark theme', () => {
