@@ -3,7 +3,7 @@
 **Source PRD:** `docs/08-post-mvp/UI-DENSITY-PRD.md`  
 **Branch:** `feature/ui-density-system`  
 **PR:** #6  
-**Status:** MEGA-0 COMPLETE — QUALITY GREEN · MEGA-1 NEXT
+**Status:** MEGA-0 COMPLETE · MEGA-1 IN PROGRESS — AUTOMATED QA RUNNING
 
 ## MEGA-0 — Dependency activation and design-system foundation
 
@@ -18,26 +18,35 @@
 - [x] Foundation regression tests added for `cn()` and Lucide icon vocabulary.
 - [x] Full repository Quality workflow green on final MEGA-0 product/code head.
 
-### Automated QA evidence
+### MEGA-0 automated QA evidence
 
 **Quality #654 — FULL GREEN** on MEGA-0 product/code head `95dee7d51a82b9763fb578627f97a9863740276f`.
 
-Validated gates:
+Validated gates: Prettier + committed-format verification, ESLint, 120 unit/component tests, Firebase Emulator repository integration, Firestore Security Rules role matrix, repository/security hygiene with all 31 production dependencies referenced, release preflight, generic + Firebase-configured production builds, dev smoke, responsive/touch QA, and Playwright lifecycle/RBAC/keyboard/overflow/axe accessibility.
 
-- Prettier formatting and committed-format verification;
-- ESLint;
-- 120 unit/component tests passed, 13 skipped emulator-only cases in the standard suite;
-- Firebase Emulator repository integration — 6 passed;
-- Firestore Security Rules role matrix — 7 passed;
-- T7 repository/security hygiene — all 31 production dependencies referenced;
-- Firebase release preflight;
-- generic production build;
-- Firebase-configured production build;
-- dev-server smoke;
-- real-browser responsive/touch QA at 360×800, 390×844, 412×915, and 1280×900 plus marker touch QA;
-- Playwright Admin lifecycle, Operator/Viewer RBAC, keyboard/focus, overflow, and serious/critical axe accessibility checks — 4 passed.
+## MEGA-1 — Headless primitive migration
 
-Quality #650 first exposed a lint-only test fixture issue. Quality #651 then exposed the repository rule requiring every production dependency to have an application-source reference. MEGA-0 answered that with an explicit dependency capability registry rather than weakening the hygiene gate. Quality #652 passed every functional/browser gate and identified only uncommitted Prettier output. Exact formatter output was committed before final Quality #654.
+- [x] Shared styled Radix primitive module created at `src/shared/ui/primitives.jsx`.
+- [x] Radix Dialog wrapper foundation.
+- [x] Dropdown Menu wrapper foundation.
+- [x] Popover wrapper foundation.
+- [x] Tooltip wrapper foundation.
+- [x] Tabs wrapper foundation.
+- [x] Scroll Area wrapper foundation.
+- [x] Separator wrapper foundation.
+- [x] Checkbox wrapper foundation.
+- [x] Switch wrapper foundation.
+- [x] Toggle Group wrapper foundation.
+- [x] Slot-powered polymorphic Button/Link foundation.
+- [x] Primitive regression coverage added for Slot composition, Dialog semantics/Escape, Tabs, Checkbox, and Switch.
+- [ ] Migrate production ConfirmDialog/focus ownership to Radix after wrapper parity is green.
+- [ ] Migrate other eligible production overlay/menu/tab surfaces as owning pages are rebuilt.
+- [ ] Remove superseded bespoke overlay logic after parity.
+- [ ] Full repository Quality workflow green on MEGA-1 wrapper head.
+
+### Compatibility rule
+
+MEGA-1 intentionally introduces the dependency-backed primitive layer before deleting compatibility code. Existing production surfaces stay on the proven implementation until the new wrappers pass repository Quality, after which production migrations can happen incrementally without mixing raw Radix APIs into feature pages.
 
 ### Activated foundation paths
 
@@ -47,12 +56,9 @@ Quality #650 first exposed a lint-only test fixture issue. Quality #651 then exp
 - `src/shared/ui/variants.js`
 - `src/shared/ui/foundation.js`
 - `src/shared/ui/dependencyRegistry.js`
+- `src/shared/ui/primitives.jsx`
 - `src/styles/tokens.css`
 - `docs/08-post-mvp/UI-MEGA-MIGRATION.md`
-
-### Compatibility note
-
-MEGA-0 intentionally does not remove the legacy `UiIcon`, bespoke dialog/listbox, custom toast provider, or page-level action class strings yet. Those remain temporary compatibility paths until their owning MEGA phases migrate them. New overhaul work should prefer the activated foundation.
 
 ## Remaining phases
 
