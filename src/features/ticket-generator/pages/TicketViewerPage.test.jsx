@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
@@ -68,7 +68,7 @@ function renderPage() {
   );
 }
 
-describe('TicketViewerPage safe review mode', () => {
+describe('TicketViewerPage read-only inspection workspace', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     testState.canEdit = true;
@@ -79,25 +79,31 @@ describe('TicketViewerPage safe review mode', () => {
     cleanup();
   });
 
-  it('renders persisted Ticket data without editor controls and exposes an explicit Edit Ticket action', async () => {
+  it('renders persisted Ticket data as a dense read-only workspace with an explicit Edit Ticket action', async () => {
     renderPage();
 
     expect(await screen.findByText('[MANDAU] LINK DOWN')).toBeInTheDocument();
-    expect(screen.getByText('Safe review mode')).toBeInTheDocument();
+    const reviewMeta = screen.getByRole('generic', { name: 'Ticket review metadata' });
+    expect(within(reviewMeta).getByText('Read only')).toBeInTheDocument();
+    expect(within(reviewMeta).getByText('Revision 7')).toBeInTheDocument();
+    expect(screen.getByText('Operational context')).toBeInTheDocument();
     expect(screen.getByText('Team OTW to Cut Point')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Title')).not.toBeInTheDocument();
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
 
     const editLink = screen.getByRole('link', { name: 'Edit Ticket' });
     expect(editLink).toHaveAttribute('href', '/generator/ticket-1/edit');
   });
 
-  it('does not expose Edit Ticket when the current role cannot edit Tickets', async () => {
+  it('keeps Viewer structurally read-only and omits the explicit edit mutation path', async () => {
     testState.canEdit = false;
     renderPage();
 
     expect(await screen.findByText('[MANDAU] LINK DOWN')).toBeInTheDocument();
+    expect(screen.getByText('Read only')).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Edit Ticket' })).not.toBeInTheDocument();
-    expect(screen.getByText(/your role does not expose editing controls/i)).toBeInTheDocument();
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Copy Report' })).toBeInTheDocument();
   });
 });
