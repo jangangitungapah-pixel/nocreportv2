@@ -1,7 +1,9 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useFieldArray, useForm, useWatch } from 'react-hook-form';
-import { useBlocker, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, useBlocker, useLocation, useNavigate, useParams } from 'react-router-dom';
 
+import { PageHeader } from '../../../app/components/PageHeader.jsx';
 import { useAuth } from '../../../app/providers/AuthProvider.jsx';
 import { useToast } from '../../../app/providers/ToastProvider.jsx';
 import {
@@ -11,8 +13,10 @@ import {
   validateCoordinatePair,
   validateTicketTransition,
 } from '../../../entities/ticket/index.js';
+import { AppIcon } from '../../../shared/ui/icon.jsx';
+import { Button } from '../../../shared/ui/primitives.jsx';
+import { ResizableWorkspace } from '../../../shared/ui/ResizableWorkspace.jsx';
 import {
-  Button,
   ConfirmDialog,
   DateTimeField,
   ErrorState,
@@ -38,30 +42,113 @@ import {
   saveTicketEditorCore,
 } from '../lib/persistenceService.js';
 import { ticketToFormValues } from '../lib/ticketToForm.js';
-import { validateTicketForm } from '../schemas/ticketFormSchema.js';
+import { ticketFormSchema } from '../schemas/ticketFormSchema.js';
 
-function FieldSection({ title, description, children }) {
+function EditorSection({ title, meta, children, className = '' }) {
   return (
-    <section className="spatial-panel relative overflow-hidden p-5 md:p-6">
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,var(--border-accent),transparent)]"
-        aria-hidden="true"
-      />
-      <div className="mb-5 flex gap-3">
-        <span
-          className="mt-1 h-8 w-1 shrink-0 rounded-full bg-[var(--accent-solid)] shadow-[0_0_18px_var(--accent-glow)]"
-          aria-hidden="true"
-        />
-        <div className="min-w-0">
-          <h3 className="text-base font-bold text-[var(--text-primary)]">{title}</h3>
-          {description ? (
-            <p className="mt-1 max-w-3xl text-xs leading-5 text-[var(--text-muted)]">
-              {description}
-            </p>
-          ) : null}
-        </div>
+    <section className={`border-b border-[var(--border-subtle)] px-3 py-3 last:border-b-0 md:px-4 ${className}`}>
+      <div className="mb-2.5 flex min-h-6 items-center justify-between gap-3">
+        <h3 className="text-[12px] font-extrabold tracking-[-0.01em] text-[var(--text-primary)]">
+          {title}
+        </h3>
+        {meta ? (
+          <span className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)]">
+            {meta}
+          </span>
+        ) : null}
       </div>
       {children}
+    </section>
+  );
+}
+
+function GeneratorCommandBar({
+  status,
+  ticket,
+  revision,
+  routeTicketId,
+  hasUnsavedChanges,
+  persistPending,
+  copyPending,
+  localDevelopmentMode,
+  onTransition,
+  onCopy,
+}) {
+  return (
+    <section className="sticky top-2 z-20 flex min-h-12 flex-wrap items-center gap-2 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[color-mix(in_srgb,var(--surface-panel)_94%,transparent)] px-2.5 py-2 shadow-[var(--shadow-sm)] backdrop-blur-xl">
+      <div className="flex min-w-0 flex-1 items-center gap-2.5">
+        <StatusBadge status={status} />
+        <div className="min-w-0">
+          <p className="truncate font-mono text-[10.5px] font-bold text-[var(--text-secondary)]">
+            {ticket.externalTtNumber ?? 'TT not detected'}
+          </p>
+          <p className="truncate text-[9.5px] font-semibold text-[var(--text-faint)]">
+            {localDevelopmentMode
+              ? 'Local preview'
+              : routeTicketId
+                ? `Revision ${revision}`
+                : 'New cloud Ticket'}
+          </p>
+        </div>
+        <span
+          className={`hidden min-h-6 items-center gap-1.5 rounded-full border px-2 text-[9px] font-extrabold uppercase tracking-[0.08em] sm:inline-flex ${
+            hasUnsavedChanges
+              ? 'border-[var(--warning-border)] bg-[var(--warning-soft)] text-[var(--warning-text)]'
+              : 'border-[var(--border-subtle)] bg-[var(--surface-muted)] text-[var(--text-muted)]'
+          }`}
+        >
+          <span
+            className={`h-1.5 w-1.5 rounded-full ${
+              hasUnsavedChanges ? 'bg-[var(--warning-solid)]' : 'bg-[var(--success-solid)]'
+            }`}
+            aria-hidden="true"
+          />
+          {hasUnsavedChanges ? 'Unsaved' : 'Saved'}
+        </span>
+      </div>
+
+      <div className="ml-auto flex flex-wrap items-center justify-end gap-1.5">
+        {routeTicketId ? (
+          <Button asChild tone="ghost" size="sm">
+            <Link to={`/tickets/${routeTicketId}`}>
+              <AppIcon name="info" size={14} />
+              Review
+            </Link>
+          </Button>
+        ) : null}
+        <Button tone="secondary" size="sm" disabled={copyPending} onClick={onCopy}>
+          <AppIcon name="copy" size={14} />
+          {copyPending ? 'Copying…' : 'Copy'}
+        </Button>
+        <Button
+          form="ticket-editor-form"
+          type="submit"
+          tone="secondary"
+          size="sm"
+          disabled={persistPending}
+        >
+          <AppIcon name="check" size={14} />
+          {persistPending ? 'Saving…' : 'Save'}
+        </Button>
+        {status === TICKET_STATUS.DRAFT ? (
+          <Button
+            size="sm"
+            disabled={persistPending}
+            onClick={() => onTransition(TICKET_STATUS.RUNNING)}
+          >
+            Mark Running
+          </Button>
+        ) : null}
+        {status === TICKET_STATUS.RUNNING ? (
+          <Button
+            size="sm"
+            disabled={persistPending}
+            onClick={() => onTransition(TICKET_STATUS.RESOLVED)}
+          >
+            Resolve Ticket
+          </Button>
+        ) : null}
+      </div>
     </section>
   );
 }
@@ -82,19 +169,14 @@ async function copyPlainText(text) {
   const copied = document.execCommand('copy');
   document.body.removeChild(textarea);
 
-  if (!copied) {
-    throw new Error('Clipboard copy failed.');
-  }
+  if (!copied) throw new Error('Clipboard copy failed.');
 }
 
 function coordinateSummary(latitude, longitude) {
   const lat = String(latitude ?? '').trim();
   const lng = String(longitude ?? '').trim();
 
-  if (!lat && !lng) {
-    return { valid: true, text: 'No coordinate recorded yet.' };
-  }
-
+  if (!lat && !lng) return { valid: true, text: 'No coordinate recorded yet.' };
   if (!lat || !lng) {
     return { valid: false, text: 'Latitude and Longitude must be provided together.' };
   }
@@ -127,7 +209,6 @@ function createImportedProgressId(index) {
   if (typeof window !== 'undefined' && typeof window.crypto?.randomUUID === 'function') {
     return window.crypto.randomUUID();
   }
-
   return `smart-import-${Date.now()}-${index}-${Math.random().toString(16).slice(2)}`;
 }
 
@@ -150,15 +231,12 @@ function toImportedProgressEntries(progress) {
 
 function GeneratorLoading() {
   return (
-    <div className="space-y-6" aria-label="Loading Ticket">
-      <Skeleton className="h-28 rounded-[var(--radius-2xl)]" />
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(380px,0.75fr)]">
-        <div className="space-y-6">
-          <Skeleton className="h-48" />
-          <Skeleton className="h-48" />
-          <Skeleton className="h-64" />
-        </div>
-        <Skeleton className="h-[38rem]" />
+    <div className="grid gap-3" aria-label="Loading Ticket">
+      <Skeleton className="h-14" />
+      <Skeleton className="h-12" />
+      <div className="grid gap-3 xl:grid-cols-[minmax(0,1.5fr)_minmax(340px,0.7fr)]">
+        <Skeleton className="h-[36rem]" />
+        <Skeleton className="h-[36rem]" />
       </div>
     </div>
   );
@@ -191,10 +269,14 @@ export function TicketGeneratorPage() {
     clearErrors,
     setError,
     setValue,
+    trigger,
+    handleSubmit,
     formState: { errors, isDirty },
   } = useForm({
     defaultValues: { ...DEFAULT_TICKET_FORM, impactList: [] },
     mode: 'onBlur',
+    resolver: zodResolver(ticketFormSchema),
+    shouldFocusError: true,
   });
 
   const { fields, append, remove, move, replace } = useFieldArray({
@@ -258,7 +340,7 @@ export function TicketGeneratorPage() {
     if (pendingNavigationTicketId && !hasUnsavedChanges) {
       const nextId = pendingNavigationTicketId;
       setPendingNavigationTicketId(null);
-      navigate(`/generator/${nextId}`, { replace: true });
+      navigate(`/generator/${nextId}/edit`, { replace: true });
     }
   }, [hasUnsavedChanges, navigate, pendingNavigationTicketId]);
 
@@ -273,37 +355,25 @@ export function TicketGeneratorPage() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasUnsavedChanges]);
 
-  const applySchemaErrors = (issues) => {
-    clearErrors();
-    for (const issue of issues) {
-      const field = issue.path?.[0];
-      if (typeof field === 'string') {
-        setError(field, { type: 'manual', message: issue.message });
-      }
-    }
+  const notifyInvalidForm = () => {
+    pushToast({
+      title: 'Check the form',
+      message: 'Some fields need attention before this action can continue.',
+      tone: 'error',
+    });
   };
 
-  const validateFormState = () => {
-    const values = getValues();
-    const validation = validateTicketForm(values);
-
-    if (!validation.success) {
-      applySchemaErrors(validation.error.issues);
-      pushToast({
-        title: 'Check the form',
-        message: 'Some fields need attention before this action can continue.',
-        tone: 'error',
-      });
+  const validateFormState = async () => {
+    const valid = await trigger(undefined, { shouldFocus: true });
+    if (!valid) {
+      notifyInvalidForm();
       return null;
     }
-
-    clearErrors();
-    return validation.data;
+    return getValues();
   };
 
-  const saveTicket = async () => {
-    const values = validateFormState();
-    if (!values || persistPending) return;
+  const persistCoreTicket = async (values) => {
+    if (persistPending) return;
 
     if (localDevelopmentMode) {
       reset(values);
@@ -374,17 +444,25 @@ export function TicketGeneratorPage() {
     }
   };
 
+  const submitTicket = handleSubmit(persistCoreTicket, notifyInvalidForm);
+
   const transitionTo = async (targetStatus) => {
-    const values = validateFormState();
+    const values = await validateFormState();
     if (!values || persistPending) return;
 
     const candidate = buildTicketFromForm(values, { status, progress: progressEntries, revision });
     const transition = validateTicketTransition(candidate, targetStatus);
 
     if (!transition.valid) {
+      let shouldFocus = true;
       for (const issue of transition.errors) {
         if (issue.field && issue.field !== 'status') {
-          setError(issue.field, { type: 'manual', message: issue.message });
+          setError(
+            issue.field,
+            { type: 'manual', message: issue.message },
+            { shouldFocus },
+          );
+          shouldFocus = false;
         }
       }
       pushToast({
@@ -455,11 +533,7 @@ export function TicketGeneratorPage() {
     setCopyPending(true);
     try {
       await copyPlainText(report);
-      pushToast({
-        title: 'Report copied',
-        message: 'Plain text is ready to paste.',
-        tone: 'success',
-      });
+      pushToast({ title: 'Report copied', message: 'Plain text is ready to paste.', tone: 'success' });
     } catch {
       pushToast({
         title: 'Copy failed',
@@ -489,11 +563,7 @@ export function TicketGeneratorPage() {
       setRevision(result.ticketRevision);
       setProgressEntries((current) => [...current, result.progress]);
       setProgressDirty(false);
-      pushToast({
-        title: 'Progress added',
-        message: 'Timeline update persisted.',
-        tone: 'success',
-      });
+      pushToast({ title: 'Progress added', message: 'Timeline update persisted.', tone: 'success' });
       return true;
     } catch (error) {
       pushToast({
@@ -592,10 +662,7 @@ export function TicketGeneratorPage() {
 
     if (parsed.detectedFields.includes('impactList')) {
       replace(parsed.values.impactList);
-      setValue('impactList', parsed.values.impactList, {
-        shouldDirty: true,
-        shouldTouch: true,
-      });
+      setValue('impactList', parsed.values.impactList, { shouldDirty: true, shouldTouch: true });
     }
 
     if (parsed.detectedFields.includes('progress')) {
@@ -634,9 +701,7 @@ export function TicketGeneratorPage() {
     });
   };
 
-  if (loadingTicket) {
-    return <GeneratorLoading />;
-  }
+  if (loadingTicket) return <GeneratorLoading />;
 
   if (loadError) {
     return (
@@ -651,204 +716,180 @@ export function TicketGeneratorPage() {
     );
   }
 
-  return (
-    <div className="space-y-6">
-      <section className="spatial-panel-elevated relative overflow-hidden p-4 md:p-5">
-        <div
-          className="pointer-events-none absolute -right-16 -top-20 h-52 w-52 rounded-full bg-[var(--accent-glow)] blur-3xl"
-          aria-hidden="true"
-        />
-        <div className="relative flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="spatial-kicker">Ticket workspace</span>
-              <StatusBadge status={status} />
-              <span
-                className={`spatial-chip ${hasUnsavedChanges ? 'border-[var(--border-accent)] bg-[var(--accent-soft)] text-[var(--accent-text)]' : ''}`}
-              >
-                <span
-                  className={`h-1.5 w-1.5 rounded-full ${hasUnsavedChanges ? 'bg-[var(--warning-solid)]' : 'bg-[var(--success-solid)]'}`}
-                  aria-hidden="true"
-                />
-                {hasUnsavedChanges ? 'Unsaved changes' : 'Up to date'}
-              </span>
-            </div>
-            <p className="mt-3 truncate font-mono text-sm font-bold tracking-[-0.01em] text-[var(--text-primary)] md:text-base">
-              {ticket.externalTtNumber ?? 'New ticket — TT number not detected'}
-            </p>
-            <p className="mt-1 text-xs leading-5 text-[var(--text-muted)]">
-              {hasUnsavedChanges
-                ? 'Keep working, then save when the operational data is ready.'
-                : localDevelopmentMode
-                  ? 'Session state saved · local preview mode'
-                  : routeTicketId
-                    ? `Saved to Firestore · revision ${revision}`
-                    : 'New cloud Ticket not saved yet'}
-            </p>
+  const editor = (
+    <div className="grid min-w-0 gap-3">
+      {!routeTicketId ? <SmartPasteParser onApply={applySmartParseResult} /> : null}
+
+      <form
+        id="ticket-editor-form"
+        className="overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
+        onSubmit={submitTicket}
+        noValidate
+      >
+        <EditorSection title="Ticket Identity" meta="Required for Running">
+          <TextInput
+            id="ticket-title"
+            label="Title"
+            required
+            placeholder="[MANDAU] LINK DOWN ... [TT : INC-...]"
+            error={errors.title?.message}
+            {...register('title')}
+          />
+          <div className="mt-2 flex items-center justify-between gap-3 border-t border-[var(--border-subtle)] pt-2 text-[10px]">
+            <span className="font-semibold text-[var(--text-faint)]">Detected TT</span>
+            <strong className="truncate font-mono text-[var(--text-secondary)]">
+              {ticket.externalTtNumber ?? 'Not detected'}
+            </strong>
           </div>
+        </EditorSection>
 
-          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap xl:justify-end">
-            <Button tone="secondary" disabled={persistPending} onClick={saveTicket}>
-              {persistPending ? 'Saving…' : 'Save'}
-            </Button>
-            {status === TICKET_STATUS.DRAFT ? (
-              <Button disabled={persistPending} onClick={() => transitionTo(TICKET_STATUS.RUNNING)}>
-                Mark Running
-              </Button>
-            ) : null}
-            {status === TICKET_STATUS.RUNNING ? (
-              <Button
-                disabled={persistPending}
-                onClick={() => transitionTo(TICKET_STATUS.RESOLVED)}
-              >
-                Resolve Ticket
-              </Button>
-            ) : null}
-            <Button tone="secondary" disabled title="Admin archive permission is enforced in T7">
-              Archive
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(380px,0.75fr)] 2xl:grid-cols-[minmax(0,1.55fr)_minmax(420px,0.72fr)]">
-        <div className="min-w-0 space-y-6">
-          {!routeTicketId ? <SmartPasteParser onApply={applySmartParseResult} /> : null}
-
-          <FieldSection
-            title="Ticket Identity"
-            description="The complete operational Title remains the source of truth for report output."
-          >
-            <TextInput
-              id="ticket-title"
-              label="Title"
-              required
-              placeholder="[MANDAU] LINK DOWN ... [TT : INC-...]"
-              error={errors.title?.message}
-              {...register('title')}
+        <EditorSection title="Incident Timing" meta="Operational clock">
+          <div className="grid gap-3 md:grid-cols-2">
+            <DateTimeField
+              id="occur-at"
+              label="Occur Time"
+              hint="Required to mark Running"
+              error={errors.occurAt?.message}
+              {...register('occurAt')}
             />
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-3.5 py-3 text-xs text-[var(--text-secondary)]">
-              <span className="font-semibold">Detected TT</span>
-              <strong className="font-mono text-[var(--text-primary)]">
-                {ticket.externalTtNumber ?? 'Not detected'}
-              </strong>
-            </div>
-          </FieldSection>
+            <DateTimeField
+              id="dispatch-at"
+              label="Dispatch Time"
+              error={errors.dispatchAt?.message}
+              {...register('dispatchAt')}
+            />
+          </div>
+        </EditorSection>
 
-          <ImpactListEditor
-            fields={fields}
-            register={register}
-            append={append}
-            remove={remove}
-            move={move}
-          />
+        <EditorSection title="Assignment & Diagnosis">
+          <div className="grid gap-3 md:grid-cols-2">
+            <TextInput
+              id="pic"
+              label="PIC"
+              placeholder="Agus (majalengka)"
+              error={errors.pic?.message}
+              {...register('pic')}
+            />
+            <TextInput
+              id="rootcause"
+              label="Rootcause"
+              placeholder="impact forest burning"
+              error={errors.rootcause?.message}
+              {...register('rootcause')}
+            />
+          </div>
+          <div className="mt-3">
+            <Textarea
+              id="cut-point"
+              label="Cut Point"
+              rows={3}
+              placeholder="OTDR FO CUT at KM 24 from majalengka..."
+              error={errors.cutPoint?.message}
+              {...register('cutPoint')}
+            />
+          </div>
+        </EditorSection>
 
-          <FieldSection
-            title="Incident Timing"
-            description="Occur Time is required before the ticket can become Running."
+        <EditorSection title="Cut Point Coordinate" meta="Operator verified">
+          <div className="grid gap-3 md:grid-cols-2">
+            <TextInput
+              id="latitude"
+              label="Latitude"
+              inputMode="decimal"
+              placeholder="-6.12345"
+              error={errors.latitude?.message}
+              {...register('latitude')}
+            />
+            <TextInput
+              id="longitude"
+              label="Longitude"
+              inputMode="decimal"
+              placeholder="107.12345"
+              error={errors.longitude?.message}
+              {...register('longitude')}
+            />
+          </div>
+          <div
+            className={`mt-2.5 border-l-2 px-2.5 py-1.5 text-[11px] leading-5 ${
+              coordinate.valid
+                ? 'border-[var(--border-default)] text-[var(--text-muted)]'
+                : 'border-[var(--danger-solid)] bg-[var(--danger-soft)] text-[var(--danger-text)]'
+            }`}
           >
-            <div className="grid gap-4 md:grid-cols-2">
-              <DateTimeField
-                id="occur-at"
-                label="Occur Time"
-                hint="Required to mark Running"
-                error={errors.occurAt?.message}
-                {...register('occurAt')}
-              />
-              <DateTimeField
-                id="dispatch-at"
-                label="Dispatch Time"
-                hint="May be unknown during early Draft"
-                error={errors.dispatchAt?.message}
-                {...register('dispatchAt')}
-              />
-            </div>
-          </FieldSection>
-
-          <FieldSection
-            title="Assignment & Diagnosis"
-            description="Keep ownership, root cause, and physical Cut Point context together for faster handover scanning."
-          >
-            <div className="grid gap-4 md:grid-cols-2">
-              <TextInput
-                id="pic"
-                label="PIC"
-                placeholder="Agus (majalengka)"
-                error={errors.pic?.message}
-                {...register('pic')}
-              />
-              <TextInput
-                id="rootcause"
-                label="Rootcause"
-                placeholder="impact forest burning"
-                error={errors.rootcause?.message}
-                {...register('rootcause')}
-              />
-            </div>
-            <div className="mt-4">
-              <Textarea
-                id="cut-point"
-                label="Cut Point"
-                rows={3}
-                placeholder="OTDR FO CUT at KM 24 from majalengka..."
-                error={errors.cutPoint?.message}
-                {...register('cutPoint')}
-              />
-            </div>
-          </FieldSection>
-
-          <CoordinateExtractor onApplyCoordinate={applyExtractedCoordinate} />
-
-          <FieldSection
-            title="Cut Point Coordinate"
-            description="Latitude and Longitude remain editable even after OCR so the operator is always the final authority."
-          >
-            <div className="grid gap-4 md:grid-cols-2">
-              <TextInput
-                id="latitude"
-                label="Latitude"
-                inputMode="decimal"
-                placeholder="-6.12345"
-                error={errors.latitude?.message}
-                {...register('latitude')}
-              />
-              <TextInput
-                id="longitude"
-                label="Longitude"
-                inputMode="decimal"
-                placeholder="107.12345"
-                error={errors.longitude?.message}
-                {...register('longitude')}
-              />
-            </div>
-            <div
-              className={`mt-4 rounded-xl border px-3.5 py-3 text-xs leading-5 ${
-                coordinate.valid
-                  ? 'border-[var(--border-subtle)] bg-[var(--surface-muted)] text-[var(--text-secondary)]'
-                  : 'border-[var(--danger-border)] bg-[var(--danger-soft)] text-[var(--danger-text)]'
-              }`}
-            >
-              <span className="font-semibold">Normalized coordinate:</span> {coordinate.text}
-            </div>
+            <span className="font-semibold">Normalized:</span> {coordinate.text}
             {ticket.coordinate ? (
-              <p className="mt-2 text-xs leading-5 text-[var(--text-muted)]">
-                Source:{' '}
-                {ticket.coordinate.source === 'ocr' ? 'Local photo OCR · verified' : 'Manual entry'}
+              <span className="ml-1.5 text-[var(--text-faint)]">
+                · {ticket.coordinate.source === 'ocr' ? 'Local OCR verified' : 'Manual entry'}
                 {ticket.coordinate.detectedFormat ? ` · ${ticket.coordinate.detectedFormat}` : ''}
-              </p>
+              </span>
             ) : null}
-          </FieldSection>
+          </div>
+        </EditorSection>
+      </form>
 
-          <ProgressComposer onAdd={addProgress} />
-          <ProgressTimeline
-            entries={progressEntries}
-            onUpdate={updateProgress}
-            onRemove={setRemoveProgressId}
-          />
-        </div>
+      <ImpactListEditor
+        fields={fields}
+        register={register}
+        append={append}
+        remove={remove}
+        move={move}
+      />
+      <CoordinateExtractor onApplyCoordinate={applyExtractedCoordinate} />
+      <ProgressComposer onAdd={addProgress} />
+      <ProgressTimeline
+        entries={progressEntries}
+        onUpdate={updateProgress}
+        onRemove={setRemoveProgressId}
+      />
+    </div>
+  );
 
-        <ReportPreview report={report} onCopy={copyReport} copyPending={copyPending} />
-      </div>
+  const preview = (
+    <ReportPreview
+      report={report}
+      onCopy={copyReport}
+      copyPending={copyPending}
+      fill
+      showCopyAction={false}
+    />
+  );
+
+  return (
+    <div className="grid gap-3">
+      <PageHeader
+        title={routeTicketId ? 'Edit Ticket' : 'New Ticket'}
+        eyebrow="Template Generator"
+        description={
+          routeTicketId
+            ? ticket.title || ticket.externalTtNumber || 'Explicit mutation workspace'
+            : 'Build, validate, and preview the canonical NOC report before persistence.'
+        }
+      />
+
+      <GeneratorCommandBar
+        status={status}
+        ticket={ticket}
+        revision={revision}
+        routeTicketId={routeTicketId}
+        hasUnsavedChanges={hasUnsavedChanges}
+        persistPending={persistPending}
+        copyPending={copyPending}
+        localDevelopmentMode={localDevelopmentMode}
+        onTransition={transitionTo}
+        onCopy={copyReport}
+      />
+
+      <ResizableWorkspace
+        id="generator-editor-preview"
+        primaryId="editor"
+        secondaryId="preview"
+        primaryDefault={64}
+        primaryMin="500px"
+        secondaryMin="320px"
+        primary={editor}
+        secondary={preview}
+        className="h-[calc(100vh-10.5rem)] min-h-[620px]"
+      />
 
       <ConfirmDialog
         open={blocker.state === 'blocked'}
