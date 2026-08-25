@@ -71,6 +71,7 @@ export const routeObjects = [
           { path: '/dashboard', element: <DashboardPage /> },
           { path: '/generator/new', lazy: loadNewTicketRoute },
           { path: '/tickets/:ticketId', lazy: loadTicketDetailRoute },
+          { path: '/generator/:ticketId/edit', lazy: loadTicketRoute },
           { path: '/generator/:ticketId', lazy: loadTicketRoute },
           { path: '/running', element: <RunningTicketsPage /> },
           { path: '/cut-points', lazy: loadCutPointTrackerRoute },
