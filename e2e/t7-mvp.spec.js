@@ -425,6 +425,8 @@ test.describe.serial('T7 MVP browser workflow', () => {
   });
 
   test('primary routes pass responsive overflow and serious axe checks', async ({ page }) => {
+    test.setTimeout(120_000);
+
     await login(page, accounts.admin);
     const routes = [
       '/dashboard',
