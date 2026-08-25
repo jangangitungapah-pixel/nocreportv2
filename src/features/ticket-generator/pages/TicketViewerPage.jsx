@@ -238,7 +238,12 @@ export function TicketViewerPage() {
           </section>
         </div>
 
-        <ReportPreview report={report} onCopy={copyReport} copyPending={copyPending} />
+        <ReportPreview
+          report={report}
+          onCopy={copyReport}
+          copyPending={copyPending}
+          showCopyAction={false}
+        />
       </div>
     </div>
   );
