@@ -334,14 +334,21 @@ export function RunningTicketsPage() {
         id: 'occurAt',
         accessorFn: (ticket) => dateMillis(ticket.occurAt),
         header: 'Occur',
-        meta: { label: 'Occur', cellClassName: 'whitespace-nowrap text-[11px] text-[var(--text-muted)]' },
+        meta: {
+          label: 'Occur',
+          cellClassName: 'whitespace-nowrap text-[11px] text-[var(--text-muted)]',
+        },
         cell: ({ row }) => formatDateTime(row.original.occurAt) || '—',
       },
       {
         id: 'latestProgress',
         accessorFn: (ticket) => ticket.latestProgress?.text ?? '',
         header: 'Latest Progress',
-        meta: { label: 'Latest Progress', headerClassName: 'min-w-[220px]', cellClassName: 'max-w-[320px]' },
+        meta: {
+          label: 'Latest Progress',
+          headerClassName: 'min-w-[220px]',
+          cellClassName: 'max-w-[320px]',
+        },
         cell: ({ row }) => (
           <p className="line-clamp-2 text-[11.5px] leading-4.5 text-[var(--text-secondary)]">
             {row.original.latestProgress?.text || '—'}
@@ -352,7 +359,11 @@ export function RunningTicketsPage() {
         id: 'cutPoint',
         accessorFn: (ticket) => ticket.cutPoint ?? '',
         header: 'Cut Point',
-        meta: { label: 'Cut Point', headerClassName: 'min-w-[180px]', cellClassName: 'max-w-[240px]' },
+        meta: {
+          label: 'Cut Point',
+          headerClassName: 'min-w-[180px]',
+          cellClassName: 'max-w-[240px]',
+        },
         cell: ({ row }) => (
           <div className="flex items-start gap-1.5">
             <span
@@ -364,7 +375,8 @@ export function RunningTicketsPage() {
               aria-hidden="true"
             />
             <p className="line-clamp-2 text-[11.5px] leading-4.5 text-[var(--text-secondary)]">
-              {row.original.cutPoint || (row.original.hasCoordinates ? 'Coordinate available' : '—')}
+              {row.original.cutPoint ||
+                (row.original.hasCoordinates ? 'Coordinate available' : '—')}
             </p>
           </div>
         ),
@@ -373,7 +385,10 @@ export function RunningTicketsPage() {
         id: 'updatedAt',
         accessorFn: (ticket) => dateMillis(ticket.updatedAt),
         header: 'Updated',
-        meta: { label: 'Updated', cellClassName: 'whitespace-nowrap text-[11px] text-[var(--text-muted)]' },
+        meta: {
+          label: 'Updated',
+          cellClassName: 'whitespace-nowrap text-[11px] text-[var(--text-muted)]',
+        },
         cell: ({ row }) => formatDateTime(row.original.updatedAt) || '—',
       },
       {
