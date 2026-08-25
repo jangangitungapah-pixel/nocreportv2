@@ -25,7 +25,8 @@ export function NotFoundPage() {
               Page not found
             </h1>
             <p className="mt-2 text-[13px] leading-6 text-[var(--text-secondary)]">
-              The requested NOC workspace route does not exist or has moved. Return to the operational overview and continue from there.
+              The requested NOC workspace route does not exist or has moved. Return to the
+              operational overview and continue from there.
             </p>
           </div>
         </div>
