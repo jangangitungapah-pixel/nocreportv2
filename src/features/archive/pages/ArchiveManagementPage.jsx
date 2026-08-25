@@ -9,7 +9,13 @@ import { CAPABILITY } from '../../../entities/user/authorization.js';
 import { firestoreTicketRepository } from '../../../infrastructure/firebase/index.js';
 import { DataTable } from '../../../shared/data-workspace/index.js';
 import { AppIcon } from '../../../shared/ui/icon.jsx';
-import { Button, Tabs, TabsList, TabsTrigger } from '../../../shared/ui/primitives.jsx';
+import {
+  Button,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '../../../shared/ui/primitives.jsx';
 import { ConfirmDialog, ErrorState, StatusBadge } from '../../../shared/ui/index.jsx';
 
 const PAGE_SIZE = 25;
@@ -253,7 +259,11 @@ export function ArchiveManagementPage() {
         accessorKey: 'title',
         header: 'Incident',
         enableHiding: false,
-        meta: { label: 'Incident', headerClassName: 'min-w-[300px]', cellClassName: 'max-w-[520px]' },
+        meta: {
+          label: 'Incident',
+          headerClassName: 'min-w-[300px]',
+          cellClassName: 'max-w-[520px]',
+        },
         cell: ({ row }) => (
           <Link
             to={`/tickets/${row.original.id}`}
@@ -322,44 +332,16 @@ export function ArchiveManagementPage() {
 
   const currentLabel = view === VIEW.ARCHIVED ? 'Archived' : 'Resolved';
   const emptyTitle =
-    view === VIEW.ARCHIVED ? 'No archived Tickets in this page set' : 'No resolved Tickets to archive';
+    view === VIEW.ARCHIVED
+      ? 'No archived Tickets in this page set'
+      : 'No resolved Tickets to archive';
   const emptyDescription =
     view === VIEW.ARCHIVED
       ? 'Archived Tickets will appear here while they remain in lifecycle history.'
       : 'Tickets become eligible here after they are marked Resolved.';
 
-  return (
-    <div className="grid gap-3">
-      <PageHeader
-        title="Archive & Restore"
-        eyebrow="Admin lifecycle controls"
-        description="Revision-safe historical Ticket lifecycle management."
-      />
-
-      <div
-        className="flex min-h-9 flex-wrap items-center gap-2 border-b border-[var(--border-subtle)] pb-2"
-        role="group"
-        aria-label="Archive workspace summary"
-      >
-        <span className="inline-flex min-h-6 items-center rounded-full border border-[var(--border-accent)] bg-[var(--accent-soft)] px-2.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-[var(--accent-text)]">
-          Admin only
-        </span>
-        <span className="text-[10px] font-semibold text-[var(--text-muted)]">
-          <strong className="font-mono text-[var(--text-primary)]">{tickets.length}</strong> loaded
-        </span>
-        <span className="text-[10px] font-semibold text-[var(--text-muted)]">25 / page</span>
-        <span className="ml-auto hidden text-[10px] font-medium text-[var(--text-faint)] sm:inline">
-          {currentLabel} lifecycle view · bounded cursor pagination
-        </span>
-      </div>
-
-      <Tabs value={view} onValueChange={setView}>
-        <TabsList aria-label="Archive view">
-          <TabsTrigger value={VIEW.RESOLVED}>Resolved</TabsTrigger>
-          <TabsTrigger value={VIEW.ARCHIVED}>Archived</TabsTrigger>
-        </TabsList>
-      </Tabs>
-
+  const workspace = (
+    <>
       {localDevelopmentMode ? (
         <div className="border-l-2 border-[var(--accent-solid)] bg-[var(--accent-soft)] px-3 py-2 text-[10.5px] leading-5 text-[var(--text-secondary)]">
           <span className="font-extrabold text-[var(--accent-text)]">Local preview.</span> Archive data
@@ -407,6 +389,54 @@ export function ArchiveManagementPage() {
           </Button>
         </div>
       ) : null}
+    </>
+  );
+
+  return (
+    <div className="grid gap-3">
+      <PageHeader
+        title="Archive & Restore"
+        eyebrow="Admin lifecycle controls"
+        description="Revision-safe historical Ticket lifecycle management."
+      />
+
+      <div
+        className="flex min-h-9 flex-wrap items-center gap-2 border-b border-[var(--border-subtle)] pb-2"
+        role="group"
+        aria-label="Archive workspace summary"
+      >
+        <span className="inline-flex min-h-6 items-center rounded-full border border-[var(--border-accent)] bg-[var(--accent-soft)] px-2.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-[var(--accent-text)]">
+          Admin only
+        </span>
+        <span className="text-[10px] font-semibold text-[var(--text-muted)]">
+          <strong className="font-mono text-[var(--text-primary)]">{tickets.length}</strong> loaded
+        </span>
+        <span className="text-[10px] font-semibold text-[var(--text-muted)]">25 / page</span>
+        <span className="ml-auto hidden text-[10px] font-medium text-[var(--text-faint)] sm:inline">
+          {currentLabel} lifecycle view · bounded cursor pagination
+        </span>
+      </div>
+
+      <Tabs value={view} onValueChange={setView} className="grid gap-3">
+        <TabsList aria-label="Archive view">
+          <TabsTrigger value={VIEW.RESOLVED}>Resolved</TabsTrigger>
+          <TabsTrigger value={VIEW.ARCHIVED}>Archived</TabsTrigger>
+        </TabsList>
+        <TabsContent
+          value={VIEW.RESOLVED}
+          forceMount
+          className="mt-0 data-[state=inactive]:hidden"
+        >
+          {view === VIEW.RESOLVED ? workspace : null}
+        </TabsContent>
+        <TabsContent
+          value={VIEW.ARCHIVED}
+          forceMount
+          className="mt-0 data-[state=inactive]:hidden"
+        >
+          {view === VIEW.ARCHIVED ? workspace : null}
+        </TabsContent>
+      </Tabs>
 
       <ConfirmDialog
         open={Boolean(pendingAction)}
