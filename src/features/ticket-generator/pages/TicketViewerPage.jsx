@@ -1,15 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
+import { useAuth } from '../../../app/providers/AuthProvider.jsx';
 import { useToast } from '../../../app/providers/ToastProvider.jsx';
 import {
   formatCoordinatePair,
   formatDateTime,
   formatTicketReport,
 } from '../../../entities/ticket/index.js';
-import { ErrorState, Skeleton, StatusBadge } from '../../../shared/ui/index.jsx';
+import { CAPABILITY } from '../../../entities/user/authorization.js';
+import { ErrorState, Skeleton, StatusBadge, UiIcon } from '../../../shared/ui/index.jsx';
 import { ReportPreview } from '../components/ReportPreview.jsx';
 import { loadTicketEditor } from '../lib/persistenceService.js';
+
+const editLinkClass =
+  'inline-flex min-h-[var(--control-height)] select-none items-center justify-center gap-2 rounded-xl bg-[var(--accent-solid)] px-4 text-sm font-bold text-[var(--accent-on-solid)] shadow-[var(--shadow-accent)] transition-[transform,background-color,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:bg-[var(--accent-solid-hover)] hover:shadow-[var(--shadow-md)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-canvas)] active:scale-[0.985] active:translate-y-0';
 
 async function copyPlainText(text) {
   if (navigator.clipboard?.writeText) {
@@ -44,12 +49,14 @@ function Detail({ label, value }) {
 
 export function TicketViewerPage() {
   const { ticketId } = useParams();
+  const { can } = useAuth();
   const { pushToast } = useToast();
   const [ticket, setTicket] = useState(null);
   const [progress, setProgress] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [copyPending, setCopyPending] = useState(false);
+  const canEdit = can(CAPABILITY.EDIT_TICKET);
 
   const loadTicket = useCallback(async () => {
     setLoading(true);
@@ -133,8 +140,9 @@ export function TicketViewerPage() {
         <div className="relative flex flex-wrap items-start justify-between gap-5">
           <div className="min-w-0 max-w-4xl">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="spatial-kicker">Read-only incident view</p>
+              <p className="spatial-kicker">Ticket detail</p>
               <StatusBadge status={ticket.status} />
+              <span className="spatial-chip">Read only</span>
             </div>
             <p className="mt-3 font-mono text-[11px] font-bold text-[var(--text-muted)]">
               {ticket.externalTtNumber || 'No TT detected'}
@@ -143,23 +151,30 @@ export function TicketViewerPage() {
               {ticket.title || 'Untitled Ticket'}
             </h2>
           </div>
-          <span className="spatial-chip">Viewer mode</span>
+
+          {canEdit ? (
+            <Link to={`/generator/${ticketId}/edit`} className={editLinkClass}>
+              <UiIcon name="edit" size={16} />
+              Edit Ticket
+            </Link>
+          ) : null}
         </div>
       </section>
 
       <section className="rounded-2xl border border-[var(--border-accent)] bg-[var(--accent-soft)] p-4 text-sm text-[var(--accent-text)] shadow-[var(--shadow-xs)]">
         <div className="flex gap-3">
           <span
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[var(--surface-panel)] text-xs font-black shadow-[var(--shadow-xs)]"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[var(--surface-panel)] text-[var(--accent-text)] shadow-[var(--shadow-xs)]"
             aria-hidden="true"
           >
-            R
+            <UiIcon name="info" size={17} />
           </span>
           <div>
-            <p className="font-bold">Viewer read-only mode</p>
+            <p className="font-bold">Safe review mode</p>
             <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
-              You can inspect this Ticket and copy the generated report. Ticket, progress,
-              lifecycle, and coordinate mutations are disabled for the Viewer role.
+              {canEdit
+                ? 'This page only reads persisted Ticket data. Nothing here can change fields, progress, status, or coordinates. Choose Edit Ticket when you intentionally want to modify it.'
+                : 'This page only reads persisted Ticket data. Nothing here can change fields, progress, status, or coordinates, and your role does not expose editing controls.'}
             </p>
           </div>
         </div>
