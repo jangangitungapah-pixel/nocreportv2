@@ -79,7 +79,7 @@ function DashboardSkeleton() {
 function RecentTicketRow({ ticket }) {
   return (
     <Link
-      to={`/generator/${ticket.id}`}
+      to={`/tickets/${ticket.id}`}
       className="group grid select-none gap-3 border-t border-[var(--border-subtle)] px-4 py-3.5 transition-[background-color,transform] duration-150 first:border-t-0 hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)] active:scale-[0.997] md:grid-cols-[minmax(0,1fr)_120px_150px] md:items-center md:px-5"
     >
       <div className="min-w-0">
