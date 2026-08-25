@@ -79,6 +79,7 @@ async function openActionsFor(ttNumber) {
 describe('RunningTicketsPage operational workspace', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.localStorage.clear();
     authState.canCreate = true;
     authState.canMutate = true;
     firestoreTicketRepository.listRunningTickets.mockResolvedValue([
@@ -95,6 +96,7 @@ describe('RunningTicketsPage operational workspace', () => {
 
   afterEach(() => {
     cleanup();
+    window.localStorage.clear();
     vi.restoreAllMocks();
   });
 
