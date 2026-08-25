@@ -94,10 +94,10 @@ describe('shared UI primitives', () => {
     expect(cancel).toHaveFocus();
 
     resolve.focus();
-    fireEvent.keyDown(document, { key: 'Tab' });
+    fireEvent.keyDown(resolve, { key: 'Tab' });
     expect(cancel).toHaveFocus();
 
-    fireEvent.keyDown(document, { key: 'Escape' });
+    fireEvent.keyDown(dialog, { key: 'Escape' });
     fireEvent.click(resolve);
     fireEvent.click(cancel);
 
