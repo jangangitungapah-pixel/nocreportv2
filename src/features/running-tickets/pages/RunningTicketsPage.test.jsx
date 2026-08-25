@@ -102,15 +102,21 @@ describe('RunningTicketsPage operational actions', () => {
     expect(screen.getByText('No tickets match your filters')).toBeInTheDocument();
   });
 
-  it('exposes Add Progress as a direct deep link to the persisted Ticket composer', async () => {
+  it('opens review links in read-only Ticket detail while keeping Add Progress in the editor', async () => {
     renderPage();
     await screen.findAllByText('[MANDAU] LINK DOWN');
 
-    const links = screen.getAllByRole('link', { name: 'Add Progress' });
-    expect(links[0]).toHaveAttribute('href', '/generator/ticket-1#progress-text');
+    const reviewLinks = screen.getAllByRole('link', { name: 'Review' });
+    expect(reviewLinks[0]).toHaveAttribute('href', '/tickets/ticket-1');
+
+    const ticketTitleLinks = screen.getAllByRole('link', { name: '[MANDAU] LINK DOWN' });
+    expect(ticketTitleLinks[0]).toHaveAttribute('href', '/tickets/ticket-1');
+
+    const progressLinks = screen.getAllByRole('link', { name: 'Add Progress' });
+    expect(progressLinks[0]).toHaveAttribute('href', '/generator/ticket-1#progress-text');
   });
 
-  it('keeps Viewer actions read-only while preserving Open and Copy Report', async () => {
+  it('keeps Viewer actions read-only while preserving Review and Copy Report', async () => {
     authState.canCreate = false;
     authState.canMutate = false;
 
@@ -120,7 +126,7 @@ describe('RunningTicketsPage operational actions', () => {
     expect(screen.queryByRole('link', { name: 'New Ticket' })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Add Progress' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Resolve INC-/ })).not.toBeInTheDocument();
-    expect(screen.getAllByRole('link', { name: 'Open' }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('link', { name: 'Review' }).length).toBeGreaterThan(0);
     expect(screen.getAllByRole('button', { name: /Copy report for INC-/ }).length).toBeGreaterThan(
       0,
     );
