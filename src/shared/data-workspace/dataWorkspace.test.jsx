@@ -170,6 +170,7 @@ describe('MEGA-3 data workspace foundation', () => {
         initialOffset={0}
         observeElementRect={observeElementRect}
         observeElementOffset={observeElementOffset}
+        measureElement={() => 40}
         className="h-60"
         renderItem={(item) => <div>Virtual incident {item.index}</div>}
       />,
