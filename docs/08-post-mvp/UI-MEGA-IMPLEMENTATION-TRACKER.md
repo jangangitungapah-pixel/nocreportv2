@@ -3,7 +3,7 @@
 **Source PRD:** `docs/08-post-mvp/UI-DENSITY-PRD.md`  
 **Branch:** `feature/ui-density-system`  
 **PR:** #6  
-**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 COMPLETE · MEGA-3 IN PROGRESS
+**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 COMPLETE · MEGA-3 COMPLETE · MEGA-4 IN PROGRESS
 
 ## MEGA-0 — Dependency activation and design-system foundation
 
@@ -61,7 +61,7 @@ The primitive ownership layer is now canonical. Remaining eligible production dr
 ## MEGA-2 — Feedback, command, and application shell
 
 - [x] Custom toast rendering replaced by Sonner while preserving the existing `useToast()` compatibility API for gradual feature migration.
-- [x] Global cmdk Command Palette implemented with `Ctrl/Cmd + K` shortcut.
+- [x] Global cmdk Command Palette implemented with `Ctrl/Cmd+K` shortcut.
 - [x] Command navigation is capability-filtered using the canonical RBAC `can(...)` contract.
 - [x] Desktop sidebar compacted to workstation density and migrated to Lucide navigation icons.
 - [x] Account/workspace controls moved into a Radix Dropdown Menu.
@@ -89,7 +89,13 @@ Validated gates: Prettier + committed-format verification, ESLint, 129 unit/comp
 - [x] TanStack Virtual variable-height integration activated on the bounded Cut Point long-list production path when more than 24 mapped incidents are visible.
 - [x] Shared table/list loading skeletons and empty states.
 - [x] Regression coverage for sorting, filtering, visibility, responsive fallback parity, row actions, state normalization, virtualization behavior, and Cut Point read-only review navigation.
-- [ ] Full repository Quality workflow green on final MEGA-3 product/code head.
+- [x] Full repository Quality workflow green on final MEGA-3 product/code head.
+
+### MEGA-3 automated QA evidence
+
+**Quality #691 — FULL GREEN** on MEGA-3 product/code head `2d4cf8174268c50f05e55e89cbd80f6fc9ba79ee` (run ID `32896701496`).
+
+Validated gates: Prettier + committed-format verification, ESLint, 135 unit/component tests, Firebase Emulator repository integration, Firestore Security Rules role matrix, T7 security hygiene, T8 release preflight, generic + Firebase-configured production builds, dev smoke, 360/390/412/1280 responsive + touch QA, and 4/4 Playwright lifecycle/RBAC/keyboard/focus/overflow/axe accessibility scenarios.
 
 ### MEGA-3 implementation notes
 
@@ -121,11 +127,26 @@ Validated gates: Prettier + committed-format verification, ESLint, 129 unit/comp
 - `src/app/navigation.js`
 - `docs/08-post-mvp/UI-MEGA-MIGRATION.md`
 
+## MEGA-4 — Dashboard + Running Tickets
+
+- [ ] Rebuild Dashboard around the compact shared `PageHeader` rather than an authenticated hero panel.
+- [ ] Replace card-heavy Dashboard KPIs with a flat metric strip targeting ~76–96px desktop height.
+- [ ] Rebuild recent Dashboard activity into dense operational rows with TT, title, status, updated time, and read-only Ticket Detail navigation.
+- [ ] Migrate Running Tickets desktop collection to the shared TanStack Table v9 `DataTable`.
+- [ ] Keep Running query bounded while preserving search, coordinate filtering, lifecycle mutations, canonical Copy Report, and optimistic revision protection.
+- [ ] Provide sticky compact desktop rows with operational columns and Radix column visibility controls.
+- [ ] Move repeated Running row actions into the canonical Radix row-action menu while keeping destructive Resolve explicit and labeled.
+- [ ] Canonicalize Add Progress navigation to `/generator/:ticketId/edit#progress-text`; Review/title remain `/tickets/:ticketId`.
+- [ ] Flatten Running mobile incidents; remove nested metadata tile grids and preserve touch-safe contextual actions.
+- [ ] Add regression coverage for Dashboard density/navigation and Running DataTable/mobile/RBAC/action behavior.
+- [ ] Validate at least six useful Running incident rows can fit the initial 1280×900 operational viewport when data exists.
+- [ ] Full repository Quality workflow green on final MEGA-4 product/code head.
+
 ## Remaining phases
 
 - [x] MEGA-1 — Headless primitive migration
 - [x] MEGA-2 — Feedback, command, and application shell
-- [ ] MEGA-3 — Data workspace foundation
+- [x] MEGA-3 — Data workspace foundation
 - [ ] MEGA-4 — Dashboard + Running Tickets
 - [ ] MEGA-5 — Ticket Detail + Template Generator
 - [ ] MEGA-6 — Cut Point Tracker
