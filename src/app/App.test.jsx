@@ -62,8 +62,8 @@ describe('application shell', () => {
     expect(screen.getByRole('button', { name: 'Switch to light mode' })).toBeInTheDocument();
   });
 
-  it('supports the lazy ticket editor route', async () => {
-    renderRoute('/generator/ticket-123');
+  it('supports the canonical explicit ticket editor route', async () => {
+    renderRoute('/generator/ticket-123/edit');
 
     expect(await screen.findByRole('heading', { name: 'Template Generator' })).toBeInTheDocument();
     expect(await screen.findByText('Ticket Identity')).toBeInTheDocument();
