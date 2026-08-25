@@ -83,7 +83,7 @@ describe('TicketViewerPage read-only inspection workspace', () => {
     renderPage();
 
     expect(await screen.findByText('[MANDAU] LINK DOWN')).toBeInTheDocument();
-    const reviewMeta = screen.getByRole('generic', { name: 'Ticket review metadata' });
+    const reviewMeta = screen.getByLabelText('Ticket review metadata');
     expect(within(reviewMeta).getByText('Read only')).toBeInTheDocument();
     expect(within(reviewMeta).getByText('Revision 7')).toBeInTheDocument();
     expect(screen.getByText('Operational context')).toBeInTheDocument();
