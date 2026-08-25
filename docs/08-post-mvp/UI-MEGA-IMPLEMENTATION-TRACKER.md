@@ -3,7 +3,7 @@
 **Source PRD:** `docs/08-post-mvp/UI-DENSITY-PRD.md`  
 **Branch:** `feature/ui-density-system`  
 **PR:** #6  
-**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 COMPLETE · MEGA-3 COMPLETE · MEGA-4 COMPLETE · MEGA-5 COMPLETE · MEGA-6 IN PROGRESS
+**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 COMPLETE · MEGA-3 COMPLETE · MEGA-4 COMPLETE · MEGA-5 COMPLETE · MEGA-6 COMPLETE · MEGA-7 IN PROGRESS
 
 ## MEGA-0 — Dependency activation and design-system foundation
 
@@ -206,8 +206,8 @@ The browser gate explicitly validates canonical post-create `/generator/:ticketI
 - [x] Provide a mobile map + incident-list flow with no desktop resize affordance or overlay-sheet card bloat.
 - [x] Migrate refresh/retry/error actions to shared Button + Lucide AppIcon and ensure map/loading regions have valid ARIA semantics.
 - [x] Add regression coverage for Toggle Group filtering, marker focus, read-only navigation, bounded query, responsive resize behavior, and map geometry invalidation.
-- [ ] Complete real-browser desktop/mobile workspace, touch, overflow, keyboard, and axe acceptance.
-- [ ] Full repository Quality workflow green on final MEGA-6 product/code head.
+- [x] Complete real-browser desktop/mobile workspace, touch, overflow, keyboard, and axe acceptance.
+- [x] Full repository Quality workflow green on final MEGA-6 product/code head.
 
 ### MEGA-6 implementation notes
 
@@ -217,6 +217,29 @@ The browser gate explicitly validates canonical post-create `/generator/:ticketI
 - Only verified, geographically valid Ticket coordinates become map markers. Marker focus and list/map review navigation remain anchored to `/tickets/:ticketId`.
 - TanStack Virtual remains desktop-only for meaningful long lists (>24 mapped incidents); mobile intentionally renders the normal dense list for touch ergonomics.
 
+### MEGA-6 automated QA evidence
+
+**Quality #716 — FULL GREEN** on final MEGA-6 product/code head `0d9736d2326caafd3b62e95863bffcdd3cda5fb3` (run ID `32907140022`).
+
+Validated gates: Prettier + committed-format verification, ESLint, 141 unit/component tests with 13 emulator-only skips, Firebase Emulator repository integration (6/6), Firestore Security Rules role matrix (7/7), T7 security hygiene, T8 release preflight, generic + Firebase-configured production builds, dev smoke, T6 real-browser viewport/touch QA, and 4/4 Playwright lifecycle/RBAC/keyboard/overflow/axe scenarios.
+
+The browser acceptance validates the desktop 35/65 resizable incident-list/map workspace at 1280×900, keyboard-accessible separator behavior, no resize affordance below 1280px, mobile map-first flow at 360/390/412, marker touch/focus behavior, canonical read-only `/tickets/:ticketId` navigation, no horizontal overflow, and serious/critical axe cleanliness.
+
+## MEGA-7 — Archive & Restore
+
+- [ ] Replace the authenticated hero with the shared compact `PageHeader` and dense archive metadata.
+- [ ] Replace the manual Resolved/Archived switch with shared Radix Tabs.
+- [ ] Migrate the desktop collection to the shared TanStack Table v9 `DataTable` and drive mobile from the same row model.
+- [ ] Preserve bounded cursor pagination at 25 Tickets per page and the existing Load More contract.
+- [ ] Preserve Admin-only capability gating and do not change Firestore Security Rules outcomes.
+- [ ] Canonicalize Open/Review navigation to read-only `/tickets/:ticketId` and stop creating compatibility `/generator/:ticketId` links.
+- [ ] Preserve optimistic revision-protected Archive/Restore mutations and controlled `ConfirmDialog` confirmation/focus behavior.
+- [ ] Flatten mobile Archive rows and preserve touch-safe explicit Archive/Restore actions without nested metadata-card bloat.
+- [ ] Remove page-specific action class strings in favor of shared Button/AppIcon/data-workspace primitives.
+- [ ] Add regression coverage for Tabs semantics, bounded pagination/cursor continuation, canonical read-only navigation, archive/restore revisions, and RBAC.
+- [ ] Complete real-browser desktop/mobile density, touch, keyboard/dialog-focus, overflow, lifecycle, and axe acceptance.
+- [ ] Full repository Quality workflow green on final MEGA-7 product/code head.
+
 ## Remaining phases
 
 - [x] MEGA-1 — Headless primitive migration
@@ -224,7 +247,7 @@ The browser gate explicitly validates canonical post-create `/generator/:ticketI
 - [x] MEGA-3 — Data workspace foundation
 - [x] MEGA-4 — Dashboard + Running Tickets
 - [x] MEGA-5 — Ticket Detail + Template Generator
-- [ ] MEGA-6 — Cut Point Tracker
+- [x] MEGA-6 — Cut Point Tracker
 - [ ] MEGA-7 — Archive & Restore
 - [ ] MEGA-8 — Login + edge states
 - [ ] MEGA-9 — Legacy elimination audit
