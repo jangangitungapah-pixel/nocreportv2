@@ -74,6 +74,54 @@ async function seedProfile(account) {
   );
 }
 
+async function seedRunningDensityTickets(count = 5) {
+  for (let index = 0; index < count; index += 1) {
+    const suffix = String(index + 2).padStart(2, '0');
+    const ticketId = `t7-density-${suffix}`;
+    const ttNumber = `INC-20260821-000700${suffix}`;
+    const occurAt = new Date(Date.UTC(2026, 7, 21, 8, index + 1));
+    const updatedAt = new Date(Date.UTC(2026, 7, 21, 9, index + 1));
+    const url = `${FIRESTORE_ORIGIN}/v1/projects/${PROJECT_ID}/databases/(default)/documents/tickets/${ticketId}`;
+
+    await requireOk(
+      await globalThis.fetch(url, {
+        method: 'PATCH',
+        headers: {
+          Authorization: 'Bearer owner',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fields: {
+            schemaVersion: { integerValue: '1' },
+            title: { stringValue: `[T7-DENSITY-${suffix}] Running incident` },
+            externalTtNumber: { stringValue: ttNumber },
+            status: { stringValue: 'RUNNING' },
+            revision: { integerValue: '1' },
+            occurAt: { timestampValue: occurAt.toISOString() },
+            dispatchAt: { timestampValue: occurAt.toISOString() },
+            pic: { stringValue: `Density PIC ${suffix}` },
+            rootcause: { stringValue: 'Density viewport fixture' },
+            cutPoint: { stringValue: `Density Cut Point ${suffix}` },
+            hasCoordinates: { booleanValue: false },
+            latestProgress: {
+              mapValue: {
+                fields: {
+                  progressId: { stringValue: `density-progress-${suffix}` },
+                  occurredAt: { timestampValue: updatedAt.toISOString() },
+                  text: { stringValue: `Density progress ${suffix} is being coordinated.` },
+                },
+              },
+            },
+            createdAt: { timestampValue: occurAt.toISOString() },
+            updatedAt: { timestampValue: updatedAt.toISOString() },
+          },
+        }),
+      }),
+      `Seed Running density Ticket ${suffix}`,
+    );
+  }
+}
+
 async function login(page, account) {
   await page.goto('/login');
   await page.getByLabel('Email').fill(account.email);
@@ -100,6 +148,19 @@ async function assertNoHorizontalOverflow(page, label) {
   expect(
     metrics.documentWidth <= metrics.viewport + 1 && metrics.bodyWidth <= metrics.viewport + 1,
     `${label} overflowed horizontally: ${JSON.stringify(metrics)}`,
+  ).toBe(true);
+}
+
+async function assertSixRunningRowsAboveFold(page) {
+  const rows = page.locator('[data-testid="data-table-desktop"] tbody tr');
+  await expect(rows).toHaveCount(6);
+  const sixthRow = rows.nth(5);
+  await expect(sixthRow).toBeVisible();
+  const box = await sixthRow.boundingBox();
+  expect(box, 'Sixth Running row must have measurable browser geometry').not.toBeNull();
+  expect(
+    box.y + box.height <= 900,
+    `Sixth Running row must remain above the 1280x900 fold: ${JSON.stringify(box)}`,
   ).toBe(true);
 }
 
@@ -245,9 +306,12 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await page.getByRole('button', { name: 'Copy Report' }).click();
     await expect(page.getByText('Report copied')).toBeVisible();
 
+    await seedRunningDensityTickets(5);
+    await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/running');
     const runningTable = page.getByRole('table');
     await expect(runningTable.getByText(INCIDENT_TITLE, { exact: true })).toBeVisible();
+    await assertSixRunningRowsAboveFold(page);
     await page.getByRole('textbox', { name: /Search Running Tickets/ }).fill('00070001');
     await expect(runningTable.getByText(INCIDENT_TITLE, { exact: true })).toBeVisible();
 
@@ -261,7 +325,8 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await page.goto('/running');
     const incidentRow = page.getByRole('row').filter({ hasText: INCIDENT_TT });
     await expect(incidentRow).toBeVisible();
-    await incidentRow.getByRole('button', { name: `Resolve ${INCIDENT_TT}` }).click();
+    await incidentRow.getByRole('button', { name: `Actions for ${INCIDENT_TT}` }).click();
+    await page.getByRole('menuitem', { name: 'Resolve Ticket' }).click();
     await expect(page.getByText('Ticket resolved')).toBeVisible();
     await expect(page.getByText(INCIDENT_TITLE, { exact: true })).toHaveCount(0);
 
