@@ -31,7 +31,7 @@ const mapClient = {
   destroy: vi.fn(),
 };
 
-let resizeObserverCallback = null;
+let mapResizeObserverCallback = null;
 
 function mockViewport({ desktop = false } = {}) {
   Object.defineProperty(window, 'matchMedia', {
@@ -79,15 +79,19 @@ describe('CutPointTrackerPage', () => {
     vi.clearAllMocks();
     window.localStorage.clear();
     mockViewport();
-    resizeObserverCallback = null;
+    mapResizeObserverCallback = null;
     vi.stubGlobal(
       'ResizeObserver',
       class ResizeObserverMock {
         constructor(callback) {
-          resizeObserverCallback = callback;
+          this.callback = callback;
         }
 
-        observe() {}
+        observe(element) {
+          if (element?.getAttribute?.('aria-label') === 'Cut Point map') {
+            mapResizeObserverCallback = this.callback;
+          }
+        }
 
         unobserve() {}
 
@@ -178,11 +182,11 @@ describe('CutPointTrackerPage', () => {
     expect(screen.getByRole('region', { name: 'Cut Point map' })).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(resizeObserverCallback).toEqual(expect.any(Function));
+      expect(mapResizeObserverCallback).toEqual(expect.any(Function));
       expect(mapClient.invalidateSize).toHaveBeenCalledTimes(1);
     });
 
-    resizeObserverCallback([]);
+    mapResizeObserverCallback([]);
     await waitFor(() => {
       expect(mapClient.invalidateSize).toHaveBeenCalledTimes(2);
     });
