@@ -46,7 +46,9 @@ import { ticketFormSchema } from '../schemas/ticketFormSchema.js';
 
 function EditorSection({ title, meta, children, className = '' }) {
   return (
-    <section className={`border-b border-[var(--border-subtle)] px-3 py-3 last:border-b-0 md:px-4 ${className}`}>
+    <section
+      className={`border-b border-[var(--border-subtle)] px-3 py-3 last:border-b-0 md:px-4 ${className}`}
+    >
       <div className="mb-2.5 flex min-h-6 items-center justify-between gap-3">
         <h3 className="text-[12px] font-extrabold tracking-[-0.01em] text-[var(--text-primary)]">
           {title}
@@ -529,7 +531,11 @@ export function TicketGeneratorPage() {
     setCopyPending(true);
     try {
       await copyPlainText(report);
-      pushToast({ title: 'Report copied', message: 'Plain text is ready to paste.', tone: 'success' });
+      pushToast({
+        title: 'Report copied',
+        message: 'Plain text is ready to paste.',
+        tone: 'success',
+      });
     } catch {
       pushToast({
         title: 'Copy failed',
@@ -559,7 +565,11 @@ export function TicketGeneratorPage() {
       setRevision(result.ticketRevision);
       setProgressEntries((current) => [...current, result.progress]);
       setProgressDirty(false);
-      pushToast({ title: 'Progress added', message: 'Timeline update persisted.', tone: 'success' });
+      pushToast({
+        title: 'Progress added',
+        message: 'Timeline update persisted.',
+        tone: 'success',
+      });
       return true;
     } catch (error) {
       pushToast({
