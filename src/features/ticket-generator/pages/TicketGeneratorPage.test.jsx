@@ -5,6 +5,23 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { AppProviders } from '../../../app/providers/AppProviders.jsx';
 import { TicketGeneratorPage } from './TicketGeneratorPage.jsx';
 
+function mockViewport({ desktop = false } = {}) {
+  Object.defineProperty(window, 'matchMedia', {
+    configurable: true,
+    writable: true,
+    value: vi.fn().mockImplementation((query) => ({
+      matches: desktop && query === '(min-width: 1280px)',
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+}
+
 function renderGenerator() {
   const router = createMemoryRouter(
     [{ path: '/generator/new', element: <TicketGeneratorPage /> }],
@@ -20,11 +37,31 @@ function renderGenerator() {
 describe('Template Generator workflow', () => {
   beforeEach(() => {
     window.localStorage.clear();
+    mockViewport();
   });
 
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
+  });
+
+  it('renders the compact command bar without the old disabled Archive placeholder', () => {
+    renderGenerator();
+
+    expect(screen.getByRole('heading', { name: 'New Ticket' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Copy Report' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Mark Running' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Archive' })).not.toBeInTheDocument();
+  });
+
+  it('activates the keyboard-accessible resizable editor/preview split at desktop width', () => {
+    mockViewport({ desktop: true });
+    renderGenerator();
+
+    expect(screen.getByRole('separator')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: /Title/ })).toBeInTheDocument();
+    expect(screen.getByLabelText('Generated NOC report')).toBeInTheDocument();
   });
 
   it('smart-pastes an existing report into generator fields and Progress Timeline', async () => {
@@ -92,13 +129,15 @@ Update Progress
     expect(screen.getByText('INC-20260818-00015849', { selector: 'strong' })).toBeInTheDocument();
   });
 
-  it('blocks Running status until Title and Occur Time exist', () => {
+  it('blocks Running status until Title and Occur Time exist through the shared validation contract', async () => {
     renderGenerator();
 
     fireEvent.click(screen.getByRole('button', { name: 'Mark Running' }));
 
-    expect(screen.getAllByText('Title is required.').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Occur Time is required.').length).toBeGreaterThan(0);
+    await waitFor(() => {
+      expect(screen.getAllByText('Title is required.').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('Occur Time is required.').length).toBeGreaterThan(0);
+    });
     expect(screen.getByText('Draft')).toBeInTheDocument();
 
     fireEvent.change(screen.getByRole('textbox', { name: /Title/ }), {
@@ -109,9 +148,11 @@ Update Progress
     });
     fireEvent.click(screen.getByRole('button', { name: 'Mark Running' }));
 
-    expect(
-      screen.getByText('Running', { selector: 'span[data-status="RUNNING"]' }),
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.getByText('Running', { selector: 'span[data-status="RUNNING"]' }),
+      ).toBeInTheDocument();
+    });
     expect(screen.getByRole('button', { name: 'Resolve Ticket' })).toBeInTheDocument();
   });
 
@@ -131,7 +172,7 @@ Update Progress
     );
   });
 
-  it('rejects invalid manual coordinates before Save', () => {
+  it('rejects invalid manual coordinates through the Zod-backed form resolver before Save', async () => {
     renderGenerator();
 
     fireEvent.change(screen.getByRole('textbox', { name: 'Latitude' }), {
@@ -142,7 +183,9 @@ Update Progress
     });
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
-    expect(screen.getByText('Latitude must be between -90 and 90.')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Latitude must be between -90 and 90.')).toBeInTheDocument();
+    });
     expect(screen.getByText(/outside a valid geographic range/)).toBeInTheDocument();
   });
 
