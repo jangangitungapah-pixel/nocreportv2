@@ -3,7 +3,7 @@
 **Source PRD:** `docs/08-post-mvp/UI-DENSITY-PRD.md`  
 **Branch:** `feature/ui-density-system`  
 **PR:** #6  
-**Status:** MEGA-0 IMPLEMENTED — AUTOMATED QA RUNNING
+**Status:** MEGA-0 COMPLETE — QUALITY GREEN · MEGA-1 NEXT
 
 ## MEGA-0 — Dependency activation and design-system foundation
 
@@ -16,7 +16,28 @@
 - [x] Canonical foundation entrypoint added at `src/shared/ui/foundation.js`.
 - [x] Temporary legacy compatibility documented.
 - [x] Foundation regression tests added for `cn()` and Lucide icon vocabulary.
-- [ ] Full repository Quality workflow green on final MEGA-0 head.
+- [x] Full repository Quality workflow green on final MEGA-0 product/code head.
+
+### Automated QA evidence
+
+**Quality #654 — FULL GREEN** on MEGA-0 product/code head `95dee7d51a82b9763fb578627f97a9863740276f`.
+
+Validated gates:
+
+- Prettier formatting and committed-format verification;
+- ESLint;
+- 120 unit/component tests passed, 13 skipped emulator-only cases in the standard suite;
+- Firebase Emulator repository integration — 6 passed;
+- Firestore Security Rules role matrix — 7 passed;
+- T7 repository/security hygiene — all 31 production dependencies referenced;
+- Firebase release preflight;
+- generic production build;
+- Firebase-configured production build;
+- dev-server smoke;
+- real-browser responsive/touch QA at 360×800, 390×844, 412×915, and 1280×900 plus marker touch QA;
+- Playwright Admin lifecycle, Operator/Viewer RBAC, keyboard/focus, overflow, and serious/critical axe accessibility checks — 4 passed.
+
+Quality #650 first exposed a lint-only test fixture issue. Quality #651 then exposed the repository rule requiring every production dependency to have an application-source reference. MEGA-0 answered that with an explicit dependency capability registry rather than weakening the hygiene gate. Quality #652 passed every functional/browser gate and identified only uncommitted Prettier output. Exact formatter output was committed before final Quality #654.
 
 ### Activated foundation paths
 
@@ -25,6 +46,7 @@
 - `src/shared/ui/icon.jsx`
 - `src/shared/ui/variants.js`
 - `src/shared/ui/foundation.js`
+- `src/shared/ui/dependencyRegistry.js`
 - `src/styles/tokens.css`
 - `docs/08-post-mvp/UI-MEGA-MIGRATION.md`
 
