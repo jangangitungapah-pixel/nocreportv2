@@ -331,18 +331,20 @@ test.describe.serial('T7 MVP browser workflow', () => {
 
     await page.goto('/archive');
     await expect(page.getByRole('heading', { name: 'Archive & Restore', level: 2 })).toBeVisible();
-    await expect(page.getByText(INCIDENT_TITLE, { exact: true })).toBeVisible();
+    const resolvedArchiveTable = page.getByRole('table');
+    await expect(resolvedArchiveTable.getByText(INCIDENT_TITLE, { exact: true })).toBeVisible();
     await page.getByRole('button', { name: `Archive ${INCIDENT_TT}` }).click();
     await page.getByRole('button', { name: 'Archive Ticket' }).click();
     await expect(page.getByText('Ticket archived')).toBeVisible();
-    await expect(page.getByText(INCIDENT_TITLE, { exact: true })).toHaveCount(0);
+    await expect(resolvedArchiveTable.getByText(INCIDENT_TITLE, { exact: true })).toHaveCount(0);
 
-    await page.getByRole('button', { name: 'Archived' }).click();
-    await expect(page.getByText(INCIDENT_TITLE, { exact: true })).toBeVisible();
+    await page.getByRole('tab', { name: 'Archived' }).click();
+    const archivedTable = page.getByRole('table');
+    await expect(archivedTable.getByText(INCIDENT_TITLE, { exact: true })).toBeVisible();
     await page.getByRole('button', { name: `Restore ${INCIDENT_TT}` }).click();
     await page.getByRole('button', { name: 'Restore Ticket' }).click();
     await expect(page.getByText('Ticket restored')).toBeVisible();
-    await expect(page.getByText(INCIDENT_TITLE, { exact: true })).toHaveCount(0);
+    await expect(archivedTable.getByText(INCIDENT_TITLE, { exact: true })).toHaveCount(0);
   });
 
   test('Operator and Viewer UI restrictions match the role matrix', async ({ browser }) => {
