@@ -4,7 +4,10 @@ function SkeletonBar({ className }) {
   return (
     <span
       aria-hidden="true"
-      className={cn('block animate-pulse rounded-[5px] bg-[var(--surface-muted-strong)]', className)}
+      className={cn(
+        'block animate-pulse rounded-[5px] bg-[var(--surface-muted-strong)]',
+        className,
+      )}
     />
   );
 }
