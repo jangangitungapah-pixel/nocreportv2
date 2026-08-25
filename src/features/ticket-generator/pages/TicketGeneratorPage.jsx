@@ -118,7 +118,7 @@ function GeneratorCommandBar({
         ) : null}
         <Button tone="secondary" size="sm" disabled={copyPending} onClick={onCopy}>
           <AppIcon name="copy" size={14} />
-          {copyPending ? 'Copying…' : 'Copy'}
+          {copyPending ? 'Copying…' : 'Copy Report'}
         </Button>
         <Button
           form="ticket-editor-form"
@@ -457,11 +457,7 @@ export function TicketGeneratorPage() {
       let shouldFocus = true;
       for (const issue of transition.errors) {
         if (issue.field && issue.field !== 'status') {
-          setError(
-            issue.field,
-            { type: 'manual', message: issue.message },
-            { shouldFocus },
-          );
+          setError(issue.field, { type: 'manual', message: issue.message }, { shouldFocus });
           shouldFocus = false;
         }
       }
