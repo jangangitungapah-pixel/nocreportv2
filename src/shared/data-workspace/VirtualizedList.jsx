@@ -9,8 +9,8 @@ import { cn } from '../lib/cn.js';
  * The component owns only viewport/render mechanics. Consumers keep control of
  * item identity, selection, navigation, and mutations. Dynamic measurement is
  * enabled so incident rows can safely grow when titles or progress wrap.
- * Optional observer adapters support deterministic SSR/test environments while
- * production defaults continue to come from the TanStack React adapter.
+ * Optional measurement/observer adapters support deterministic SSR/test
+ * environments while production defaults continue to come from TanStack.
  */
 export function VirtualizedList({
   items,
@@ -25,6 +25,7 @@ export function VirtualizedList({
   initialOffset,
   observeElementRect,
   observeElementOffset,
+  measureElement,
 }) {
   const scrollRef = useRef(null);
   const resolvedEstimateSize =
@@ -40,6 +41,7 @@ export function VirtualizedList({
     initialOffset,
     ...(observeElementRect ? { observeElementRect } : {}),
     ...(observeElementOffset ? { observeElementOffset } : {}),
+    ...(measureElement ? { measureElement } : {}),
   });
 
   return (
