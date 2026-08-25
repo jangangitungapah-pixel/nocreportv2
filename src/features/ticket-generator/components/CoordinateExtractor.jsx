@@ -26,7 +26,9 @@ function CandidateButton({ candidate, label, onApply }) {
           {candidate.formatted}
         </span>
       </span>
-      <span className="shrink-0 text-[10px] font-extrabold text-[var(--accent-text)]">Apply & verify</span>
+      <span className="shrink-0 text-[10px] font-extrabold text-[var(--accent-text)]">
+        Apply & verify
+      </span>
     </button>
   );
 }
@@ -208,10 +210,15 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
         </div>
 
         {phase === 'processing' ? (
-          <div className="mt-2.5 border-l-2 border-[var(--accent-solid)] px-2.5 py-1.5" aria-live="polite">
+          <div
+            className="mt-2.5 border-l-2 border-[var(--accent-solid)] px-2.5 py-1.5"
+            aria-live="polite"
+          >
             <div className="flex items-center justify-between gap-3 text-[10px] font-bold">
               <span>{progress.status || 'Starting OCR worker…'}</span>
-              <span className="font-mono text-[var(--accent-text)]">{formatPercent(progress.progress)}</span>
+              <span className="font-mono text-[var(--accent-text)]">
+                {formatPercent(progress.progress)}
+              </span>
             </div>
             <div className="mt-1.5 h-1 overflow-hidden bg-[var(--border-subtle)]">
               <div
@@ -232,9 +239,14 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
           <div className="mt-2.5 overflow-hidden border border-[var(--border-accent)] bg-[var(--accent-soft)]">
             <p className="px-3 py-2 text-[10.5px] font-medium leading-4 text-[var(--text-secondary)]">
               Coordinate detected{sourceLabel ? ` from ${sourceLabel}` : ''}
-              {Number.isFinite(confidence) ? ` · OCR confidence ${Math.round(confidence)}%` : ''}. Verify before applying.
+              {Number.isFinite(confidence) ? ` · OCR confidence ${Math.round(confidence)}%` : ''}.
+              Verify before applying.
             </p>
-            <CandidateButton candidate={successfulCandidate} label={analysis.format} onApply={applyCandidate} />
+            <CandidateButton
+              candidate={successfulCandidate}
+              label={analysis.format}
+              onApply={applyCandidate}
+            />
           </div>
         ) : null}
 
