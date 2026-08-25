@@ -9,4 +9,4 @@ class TestResizeObserver {
 }
 
 globalThis.ResizeObserver ??= TestResizeObserver;
-HTMLElement.prototype.scrollIntoView ??= () => undefined;
+globalThis.HTMLElement.prototype.scrollIntoView ??= () => undefined;
