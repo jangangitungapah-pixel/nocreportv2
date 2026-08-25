@@ -20,6 +20,7 @@ export function VirtualizedList({
   className,
   itemClassName,
   initialRect,
+  initialOffset,
 }) {
   const scrollRef = useRef(null);
   const resolvedEstimateSize =
@@ -32,6 +33,7 @@ export function VirtualizedList({
     getItemKey: (index) => getItemKey?.(items[index], index) ?? index,
     overscan,
     initialRect,
+    initialOffset,
   });
 
   return (
