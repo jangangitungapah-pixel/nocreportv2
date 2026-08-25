@@ -15,7 +15,13 @@ import {
   ToggleGroupItem,
 } from '../../../shared/ui/primitives.jsx';
 import { ResizableWorkspace } from '../../../shared/ui/ResizableWorkspace.jsx';
-import { EmptyState, ErrorState, Skeleton, StatusBadge, TextInput } from '../../../shared/ui/index.jsx';
+import {
+  EmptyState,
+  ErrorState,
+  Skeleton,
+  StatusBadge,
+  TextInput,
+} from '../../../shared/ui/index.jsx';
 import { buildCutPointMarkers, filterCutPointMarkers } from '../lib/mapData.js';
 
 const VIRTUALIZATION_THRESHOLD = 24;
@@ -30,7 +36,9 @@ function MarkerRow({ marker, selected, onLocate }) {
   return (
     <article
       className={`relative border-b border-[var(--border-subtle)] px-3 py-2.5 transition-colors last:border-b-0 ${
-        selected ? 'bg-[var(--accent-soft)]' : 'bg-[var(--surface-panel)] hover:bg-[var(--surface-muted)]'
+        selected
+          ? 'bg-[var(--accent-soft)]'
+          : 'bg-[var(--surface-panel)] hover:bg-[var(--surface-muted)]'
       }`}
       data-selected={selected ? 'true' : 'false'}
     >
@@ -239,10 +247,11 @@ export function CutPointTrackerPage() {
 
   useEffect(() => {
     const host = mapHostRef.current;
-    if (!host || typeof ResizeObserver === 'undefined') return undefined;
+    const ResizeObserverApi = globalThis.ResizeObserver;
+    if (!host || typeof ResizeObserverApi !== 'function') return undefined;
 
     let animationFrame = null;
-    const observer = new ResizeObserver(() => {
+    const observer = new ResizeObserverApi(() => {
       const invalidate = () => {
         animationFrame = null;
         mapClientRef.current?.invalidateSize();
@@ -291,7 +300,10 @@ export function CutPointTrackerPage() {
           <p className="text-[9px] font-extrabold uppercase tracking-[0.12em] text-[var(--text-faint)]">
             Mapped incidents
           </p>
-          <h2 id="mapped-incidents-heading" className="text-xs font-extrabold text-[var(--text-primary)]">
+          <h2
+            id="mapped-incidents-heading"
+            className="text-xs font-extrabold text-[var(--text-primary)]"
+          >
             Incident list
           </h2>
         </div>
