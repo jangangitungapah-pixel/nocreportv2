@@ -3,7 +3,7 @@
 **Source PRD:** `docs/08-post-mvp/UI-DENSITY-PRD.md`  
 **Branch:** `feature/ui-density-system`  
 **PR:** #6  
-**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 COMPLETE · MEGA-3 COMPLETE · MEGA-4 COMPLETE · MEGA-5 NEXT
+**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 COMPLETE · MEGA-3 COMPLETE · MEGA-4 COMPLETE · MEGA-5 IN PROGRESS
 
 ## MEGA-0 — Dependency activation and design-system foundation
 
@@ -157,6 +157,32 @@ Validated gates: Prettier + committed-format verification, ESLint, 135 unit/comp
 Validated gates: Prettier + committed-format verification, ESLint, 137 unit/component tests with 13 emulator-only skips in the normal unit pass, Firebase Emulator repository integration, Firestore Security Rules role matrix, T7 security hygiene, T8 release preflight, generic + Firebase-configured production builds, dev smoke, real-browser responsive/touch QA, and 4/4 Playwright lifecycle/RBAC/keyboard/focus/overflow/axe scenarios.
 
 The browser lifecycle gate seeds six Running incidents, renders the production Running workspace at `1280×900`, measures the sixth desktop TanStack row using real browser geometry, and asserts that the row bottom remains within the initial 900px viewport. This closes the MEGA-4 dense-workstation acceptance criterion with browser evidence rather than a DOM-count approximation.
+
+## MEGA-5 — Ticket Detail + Template Generator
+
+- [x] Rebuild Ticket Detail around the shared compact `PageHeader` and a read-only inspection hierarchy.
+- [x] Remove the oversized Safe Review panel and flatten operational context into a definition grid.
+- [x] Compact Ticket Detail Progress Timeline and keep Copy/Edit route separation explicit.
+- [x] Enforce the `/tickets/:ticketId` mutation boundary structurally: no editable form controls, with regression coverage.
+- [x] Activate Zod-backed React Hook Form resolver validation in the Template Generator.
+- [x] Add a reusable persistent `react-resizable-panels` v4 workspace and activate it for desktop Generator editor/preview resizing.
+- [x] Replace the Generator hero command panel with a compact sticky command bar for Save, lifecycle, Copy Report, revision, and unsaved state.
+- [x] Canonicalize post-create navigation to `/generator/:ticketId/edit` instead of the compatibility route.
+- [x] Compact Smart Import while preserving browser-local parsing, explicit Fill Generator, and no auto-save.
+- [x] Flatten Impact, OCR, Progress composer, and Progress history utility surfaces without changing persistence semantics.
+- [x] Preserve OCR local-only privacy, explicit coordinate Apply & verify, revision-safe mutations, canonical report output, and deep-link Progress focus behavior.
+- [x] Preserve a mobile single-column fallback with no desktop resize affordance.
+- [x] Add regression coverage for Ticket Detail structural read-only behavior, Generator command bar, Zod resolver validation, canonical report parity, and desktop resizable separator activation.
+- [ ] Complete real-browser desktop/mobile workspace and keyboard acceptance for the final MEGA-5 product head.
+- [ ] Full repository Quality workflow green on final MEGA-5 product/code head.
+
+### MEGA-5 implementation notes
+
+- Existing persistence functions remain the mutation boundary. `saveTicketEditorCore`, revision-aware status transitions, and Progress append/update/remove flows were not replaced by UI-specific persistence logic.
+- Generator validation now converges on `zodResolver(ticketFormSchema)` inside React Hook Form. Lifecycle transitions still apply their domain transition checks after schema-valid form normalization.
+- `ResizableWorkspace` owns desktop panel geometry and local display-preference persistence; below the desktop breakpoint it renders a normal single-column flow and no resize separator.
+- Ticket Detail owns no mutation controls other than the explicit navigation CTA into `/generator/:ticketId/edit`; Copy Report remains a read-only utility.
+- Smart Import and OCR remain browser-local utilities and never auto-persist imported or scanned values.
 
 ## Remaining phases
 
