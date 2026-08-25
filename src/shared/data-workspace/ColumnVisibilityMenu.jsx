@@ -1,11 +1,5 @@
 import { AppIcon } from '../ui/icon.jsx';
-import {
-  Button,
-  Checkbox,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '../ui/primitives.jsx';
+import { Button, Checkbox, Popover, PopoverContent, PopoverTrigger } from '../ui/primitives.jsx';
 
 function columnLabel(column) {
   const metaLabel = column.columnDef?.meta?.label;
@@ -24,12 +18,7 @@ function columnLabel(column) {
  * chooser behaves like a small configuration surface: toggling several columns
  * keeps the popover open and does not blur the user's context.
  */
-export function ColumnVisibilityMenu({
-  table,
-  label = 'Columns',
-  align = 'end',
-  className,
-}) {
+export function ColumnVisibilityMenu({ table, label = 'Columns', align = 'end', className }) {
   const columns = table.getAllLeafColumns().filter((column) => column.getCanHide());
 
   if (columns.length === 0) return null;
