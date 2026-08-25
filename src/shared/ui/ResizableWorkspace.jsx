@@ -55,7 +55,12 @@ export function ResizableWorkspace({
   });
 
   if (!isDesktop) {
-    return <div className={cn('grid gap-3', mobileClassName)}>{primary}{secondary}</div>;
+    return (
+      <div className={cn('grid gap-3', mobileClassName)}>
+        {primary}
+        {secondary}
+      </div>
+    );
   }
 
   return (
