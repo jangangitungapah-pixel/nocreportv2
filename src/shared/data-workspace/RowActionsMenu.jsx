@@ -1,3 +1,5 @@
+import { Fragment } from 'react';
+
 import { AppIcon } from '../ui/icon.jsx';
 import {
   DropdownMenu,
@@ -32,7 +34,7 @@ export function RowActionsMenu({ actions, label = 'Open row actions', align = 'e
       </DropdownMenuTrigger>
       <DropdownMenuContent align={align} className="min-w-44">
         {visibleActions.map((action, index) => (
-          <span key={action.key ?? action.label}>
+          <Fragment key={action.key ?? action.label}>
             {action.separatorBefore && index > 0 ? <DropdownMenuSeparator /> : null}
             <DropdownMenuItem
               danger={Boolean(action.danger)}
@@ -45,7 +47,7 @@ export function RowActionsMenu({ actions, label = 'Open row actions', align = 'e
               {action.icon ? <AppIcon name={action.icon} size={14} /> : null}
               <span>{action.label}</span>
             </DropdownMenuItem>
-          </span>
+          </Fragment>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
