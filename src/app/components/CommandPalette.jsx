@@ -21,9 +21,7 @@ export function CommandPalette({ open: controlledOpen, onOpenChange }) {
 
   const navigationCommands = useMemo(
     () =>
-      PRIMARY_NAVIGATION.filter(
-        (item) => !item.requiredCapability || can(item.requiredCapability),
-      ),
+      PRIMARY_NAVIGATION.filter((item) => !item.requiredCapability || can(item.requiredCapability)),
     [can],
   );
 
