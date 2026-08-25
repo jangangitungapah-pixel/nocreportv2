@@ -238,10 +238,7 @@ export function DataTable({
                     {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
-                        className={cn(
-                          'px-3 leading-5',
-                          cell.column.columnDef?.meta?.cellClassName,
-                        )}
+                        className={cn('px-3 leading-5', cell.column.columnDef?.meta?.cellClassName)}
                       >
                         <table.FlexRender cell={cell} />
                       </td>
