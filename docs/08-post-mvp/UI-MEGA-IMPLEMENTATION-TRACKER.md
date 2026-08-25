@@ -129,18 +129,26 @@ Validated gates: Prettier + committed-format verification, ESLint, 135 unit/comp
 
 ## MEGA-4 — Dashboard + Running Tickets
 
-- [ ] Rebuild Dashboard around the compact shared `PageHeader` rather than an authenticated hero panel.
-- [ ] Replace card-heavy Dashboard KPIs with a flat metric strip targeting ~76–96px desktop height.
-- [ ] Rebuild recent Dashboard activity into dense operational rows with TT, title, status, updated time, and read-only Ticket Detail navigation.
-- [ ] Migrate Running Tickets desktop collection to the shared TanStack Table v9 `DataTable`.
-- [ ] Keep Running query bounded while preserving search, coordinate filtering, lifecycle mutations, canonical Copy Report, and optimistic revision protection.
-- [ ] Provide sticky compact desktop rows with operational columns and Radix column visibility controls.
-- [ ] Move repeated Running row actions into the canonical Radix row-action menu while keeping destructive Resolve explicit and labeled.
-- [ ] Canonicalize Add Progress navigation to `/generator/:ticketId/edit#progress-text`; Review/title remain `/tickets/:ticketId`.
-- [ ] Flatten Running mobile incidents; remove nested metadata tile grids and preserve touch-safe contextual actions.
-- [ ] Add regression coverage for Dashboard density/navigation and Running DataTable/mobile/RBAC/action behavior.
+- [x] Rebuild Dashboard around the compact shared `PageHeader` rather than an authenticated hero panel.
+- [x] Replace card-heavy Dashboard KPIs with a flat metric strip targeting ~76–96px desktop height.
+- [x] Rebuild recent Dashboard activity into dense operational rows with TT, title, status, updated time, and read-only Ticket Detail navigation.
+- [x] Migrate Running Tickets desktop collection to the shared TanStack Table v9 `DataTable`.
+- [x] Keep Running query bounded while preserving search, coordinate filtering, lifecycle mutations, canonical Copy Report, and optimistic revision protection.
+- [x] Provide sticky compact desktop rows with operational columns and Radix column visibility controls.
+- [x] Move repeated Running row actions into the canonical Radix row-action menu while keeping destructive Resolve explicit and labeled.
+- [x] Canonicalize Add Progress navigation to `/generator/:ticketId/edit#progress-text`; Review/title remain `/tickets/:ticketId`.
+- [x] Flatten Running mobile incidents; remove nested metadata tile grids and preserve touch-safe contextual actions.
+- [x] Add regression coverage for Dashboard density/navigation and Running DataTable/mobile/RBAC/action behavior.
 - [ ] Validate at least six useful Running incident rows can fit the initial 1280×900 operational viewport when data exists.
 - [ ] Full repository Quality workflow green on final MEGA-4 product/code head.
+
+### MEGA-4 implementation notes
+
+- Running Tickets continues to use the existing bounded `listRunningTickets({ limit: 100 })` repository query; filtering and sorting remain UI-only view behavior.
+- Desktop sorting is now owned by TanStack Table headers rather than a duplicated page-specific sort selector.
+- Dashboard and Running authenticated hero surfaces were removed in favor of the shared compact PageHeader system.
+- Running desktop and mobile representations share the same TanStack row model. Mobile uses a feature-specific flattened incident presentation rather than nested metadata tiles.
+- Review remains read-only. Explicit mutation entry uses `/generator/:ticketId/edit`, while the legacy route remains only as compatibility infrastructure until MEGA-9.
 
 ## Remaining phases
 
