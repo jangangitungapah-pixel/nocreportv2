@@ -105,7 +105,7 @@ export function TicketViewerPage() {
 
   if (loading) {
     return (
-      <div className="grid gap-3" aria-label="Loading Ticket">
+      <div className="grid gap-3" role="status" aria-live="polite" aria-label="Loading Ticket">
         <Skeleton className="h-14" />
         <div className="grid gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)]">
           <Skeleton className="h-[32rem]" />
@@ -156,6 +156,7 @@ export function TicketViewerPage() {
 
       <div
         className="flex min-h-9 flex-wrap items-center gap-2 border-b border-[var(--border-subtle)] pb-2"
+        role="group"
         aria-label="Ticket review metadata"
       >
         <StatusBadge status={ticket.status} />
