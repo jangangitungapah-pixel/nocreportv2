@@ -3,7 +3,7 @@
 **Source PRD:** `docs/08-post-mvp/UI-DENSITY-PRD.md`  
 **Branch:** `feature/ui-density-system`  
 **PR:** #6  
-**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 IN PROGRESS
+**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 COMPLETE · MEGA-3 IN PROGRESS
 
 ## MEGA-0 — Dependency activation and design-system foundation
 
@@ -68,9 +68,28 @@ The primitive ownership layer is now canonical. Remaining eligible production dr
 - [x] Topbar compacted and includes a visible command trigger.
 - [x] Theme/navigation controls use Lucide through the canonical `AppIcon` adapter.
 - [x] Mobile navigation compacted while retaining 44px touch targets and safe-area handling.
-- [ ] Route-aware shared PageHeader architecture finalized.
-- [x] Unit/component regression coverage added for global command shortcut behavior.
-- [ ] Full repository Quality workflow green on final MEGA-2 product/code head.
+- [x] Route-aware shared `PageHeader` architecture finalized with canonical route metadata and override support.
+- [x] Unit/component regression coverage added for global command shortcut behavior, capability filtering, and PageHeader route metadata.
+- [x] Full repository Quality workflow green on final MEGA-2 product/code head.
+
+### MEGA-2 automated QA evidence
+
+**Quality #678 — FULL GREEN** on MEGA-2 product/code head `aabe8492015c9a638939883f7358a87810a8e621` (run ID `32894252426`).
+
+Validated gates: Prettier + committed-format verification, ESLint, 129 unit/component tests, Firebase Emulator repository integration, Firestore Security Rules role matrix, T7 security hygiene, T8 release preflight, generic + Firebase-configured production builds, dev smoke, responsive/touch QA, and Playwright lifecycle/RBAC/keyboard/focus/overflow/axe accessibility.
+
+## MEGA-3 — Data workspace foundation
+
+- [ ] Shared TanStack Table v9 DataTable architecture.
+- [ ] Sorting/filter/column-visibility state helpers.
+- [ ] Radix Checkbox column visibility menu.
+- [ ] Canonical row-action Dropdown Menu pattern.
+- [ ] Dense desktop one-line/two-line row variants.
+- [ ] Compact mobile list fallback with equivalent primary actions.
+- [ ] TanStack Virtual integration on a meaningful long-list foundation/demo path suitable for later Cut Point/Running adoption.
+- [ ] Shared table/list loading skeletons and empty states.
+- [ ] Regression coverage for sorting, visibility, responsive fallback, row actions, and virtualization behavior.
+- [ ] Full repository Quality workflow green on final MEGA-3 product/code head.
 
 ### Activated foundation paths
 
@@ -83,12 +102,14 @@ The primitive ownership layer is now canonical. Remaining eligible production dr
 - `src/shared/ui/primitives.jsx`
 - `src/styles/tokens.css`
 - `src/app/components/CommandPalette.jsx`
+- `src/app/components/PageHeader.jsx`
+- `src/app/navigation.js`
 - `docs/08-post-mvp/UI-MEGA-MIGRATION.md`
 
 ## Remaining phases
 
 - [x] MEGA-1 — Headless primitive migration
-- [ ] MEGA-2 — Feedback, command, and application shell
+- [x] MEGA-2 — Feedback, command, and application shell
 - [ ] MEGA-3 — Data workspace foundation
 - [ ] MEGA-4 — Dashboard + Running Tickets
 - [ ] MEGA-5 — Ticket Detail + Template Generator
