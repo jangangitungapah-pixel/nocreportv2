@@ -41,6 +41,16 @@ describe('application shell', () => {
     ).toBeInTheDocument();
   });
 
+  it('opens the global command palette from the keyboard shortcut', () => {
+    renderRoute();
+
+    fireEvent.keyDown(document, { key: 'k', ctrlKey: true });
+
+    expect(screen.getByRole('dialog', { name: 'Command palette' })).toBeInTheDocument();
+    expect(screen.getByText('Template Generator')).toBeInTheDocument();
+    expect(screen.getByText('Archive & Restore')).toBeInTheDocument();
+  });
+
   it('persists a user-selected dark theme', () => {
     renderRoute();
 
