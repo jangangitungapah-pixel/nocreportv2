@@ -30,13 +30,11 @@ export const operationalTableFeatures = tableFeatures({
   },
 });
 
-const {
-  useAppTable: useOperationalTable,
-  createAppColumnHelper: createOperationalColumnHelper,
-} = createTableHook({
-  features: operationalTableFeatures,
-  enableSortingRemoval: true,
-});
+const { useAppTable: useOperationalTable, createAppColumnHelper: createOperationalColumnHelper } =
+  createTableHook({
+    features: operationalTableFeatures,
+    enableSortingRemoval: true,
+  });
 
 /**
  * App-specific TanStack Table v9 hook.
