@@ -91,6 +91,7 @@ describe('ArchiveManagementPage', () => {
       statuses: [TICKET_STATUS.RESOLVED],
       limit: 25,
     });
+    expect(screen.getByRole('tablist', { name: 'Archive view' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Resolved' })).toHaveAttribute('data-state', 'active');
 
     const reviewLinks = screen.getAllByRole('link', { name: resolvedTicket.title });
