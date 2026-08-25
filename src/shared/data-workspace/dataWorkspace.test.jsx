@@ -151,6 +151,14 @@ describe('MEGA-3 data workspace foundation', () => {
 
   it('virtualizes a long variable-height list instead of mounting every item', async () => {
     const items = Array.from({ length: 100 }, (_, index) => ({ id: `row-${index}`, index }));
+    const observeElementRect = (_instance, callback) => {
+      callback({ width: 320, height: 240 });
+      return undefined;
+    };
+    const observeElementOffset = (_instance, callback) => {
+      callback(0);
+      return undefined;
+    };
 
     render(
       <VirtualizedList
@@ -160,6 +168,8 @@ describe('MEGA-3 data workspace foundation', () => {
         overscan={2}
         initialRect={{ width: 320, height: 240 }}
         initialOffset={0}
+        observeElementRect={observeElementRect}
+        observeElementOffset={observeElementOffset}
         className="h-60"
         renderItem={(item) => <div>Virtual incident {item.index}</div>}
       />,
