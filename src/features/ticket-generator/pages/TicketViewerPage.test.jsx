@@ -4,24 +4,26 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
 import { TicketViewerPage } from './TicketViewerPage.jsx';
 
-const authState = vi.hoisted(() => ({ canEdit: true }));
-const pushToast = vi.fn();
-const loadTicketEditor = vi.fn();
+const testState = vi.hoisted(() => ({
+  canEdit: true,
+  pushToast: vi.fn(),
+  loadTicketEditor: vi.fn(),
+}));
 
 vi.mock('../../../app/providers/AuthProvider.jsx', () => ({
   useAuth: () => ({
     can(capability) {
-      return capability === 'ticket:edit' ? authState.canEdit : true;
+      return capability === 'ticket:edit' ? testState.canEdit : true;
     },
   }),
 }));
 
 vi.mock('../../../app/providers/ToastProvider.jsx', () => ({
-  useToast: () => ({ pushToast }),
+  useToast: () => ({ pushToast: testState.pushToast }),
 }));
 
 vi.mock('../lib/persistenceService.js', () => ({
-  loadTicketEditor,
+  loadTicketEditor: testState.loadTicketEditor,
 }));
 
 function createLoadedTicket() {
@@ -69,8 +71,8 @@ function renderPage() {
 describe('TicketViewerPage safe review mode', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    authState.canEdit = true;
-    loadTicketEditor.mockResolvedValue(createLoadedTicket());
+    testState.canEdit = true;
+    testState.loadTicketEditor.mockResolvedValue(createLoadedTicket());
   });
 
   afterEach(() => {
@@ -91,7 +93,7 @@ describe('TicketViewerPage safe review mode', () => {
   });
 
   it('does not expose Edit Ticket when the current role cannot edit Tickets', async () => {
-    authState.canEdit = false;
+    testState.canEdit = false;
     renderPage();
 
     expect(await screen.findByText('[MANDAU] LINK DOWN')).toBeInTheDocument();
