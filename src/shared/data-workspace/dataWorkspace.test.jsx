@@ -118,7 +118,8 @@ describe('MEGA-3 data workspace foundation', () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Actions for INC-1' }));
+    const trigger = screen.getByRole('button', { name: 'Actions for INC-1' });
+    fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false });
     const review = await screen.findByRole('menuitem', { name: 'Review' });
     fireEvent.click(review);
     expect(onReview).toHaveBeenCalledTimes(1);
@@ -158,6 +159,7 @@ describe('MEGA-3 data workspace foundation', () => {
         estimateSize={40}
         overscan={2}
         initialRect={{ width: 320, height: 240 }}
+        initialOffset={0}
         className="h-60"
         renderItem={(item) => <div>Virtual incident {item.index}</div>}
       />,
