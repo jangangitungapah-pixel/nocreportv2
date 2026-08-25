@@ -216,7 +216,10 @@ export const TabsContent = forwardRef(function TabsContent({ className, ...props
   return (
     <TabsPrimitive.Content
       ref={ref}
-      className={cn('mt-3 outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]', className)}
+      className={cn(
+        'mt-3 outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]',
+        className,
+      )}
       {...props}
     />
   );
