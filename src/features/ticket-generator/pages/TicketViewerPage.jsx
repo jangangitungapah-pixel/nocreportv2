@@ -180,7 +180,9 @@ export function TicketViewerPage() {
                 <p className="text-[9px] font-extrabold uppercase tracking-[0.12em] text-[var(--text-faint)]">
                   Incident data
                 </p>
-                <h3 className="text-xs font-bold text-[var(--text-primary)]">Operational context</h3>
+                <h3 className="text-xs font-bold text-[var(--text-primary)]">
+                  Operational context
+                </h3>
               </div>
               <span className="text-[10px] font-semibold text-[var(--text-faint)]">6 fields</span>
             </header>
