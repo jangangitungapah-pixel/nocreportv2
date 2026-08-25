@@ -10,7 +10,8 @@ function showToast({ title, message = '', tone = 'info', duration = 3200 }) {
   };
 
   if (tone === 'success') return toast.success(title, options);
-  if (tone === 'error') return toast.error(title, { ...options, duration: Math.max(duration, 4800) });
+  if (tone === 'error')
+    return toast.error(title, { ...options, duration: Math.max(duration, 4800) });
   if (tone === 'warning') return toast.warning(title, options);
   return toast.info(title, options);
 }
