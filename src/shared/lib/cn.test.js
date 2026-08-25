@@ -4,6 +4,7 @@ import { cn } from './cn.js';
 
 describe('cn', () => {
   it('merges conditional classes and resolves Tailwind conflicts', () => {
-    expect(cn('px-2', false && 'hidden', ['font-bold', 'px-4'])).toBe('font-bold px-4');
+    const showHidden = Math.random() > 2;
+    expect(cn('px-2', showHidden && 'hidden', ['font-bold', 'px-4'])).toBe('font-bold px-4');
   });
 });
