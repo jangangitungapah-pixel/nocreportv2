@@ -7,6 +7,7 @@ import { useAuth } from '../providers/AuthProvider.jsx';
 import { useTheme } from '../providers/ThemeProvider.jsx';
 
 function currentPageLabel(pathname) {
+  if (pathname.startsWith('/tickets')) return 'Ticket Detail';
   if (pathname.startsWith('/generator')) return 'Template Generator';
   if (pathname.startsWith('/running')) return 'Running Ticket';
   if (pathname.startsWith('/cut-points')) return 'Cut Point Tracker';
