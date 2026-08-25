@@ -3,7 +3,7 @@
 **Source PRD:** `docs/08-post-mvp/UI-DENSITY-PRD.md`  
 **Branch:** `feature/ui-density-system`  
 **PR:** #6  
-**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 COMPLETE · MEGA-3 COMPLETE · MEGA-4 COMPLETE · MEGA-5 IN PROGRESS
+**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 COMPLETE · MEGA-3 COMPLETE · MEGA-4 COMPLETE · MEGA-5 COMPLETE · MEGA-6 IN PROGRESS
 
 ## MEGA-0 — Dependency activation and design-system foundation
 
@@ -173,8 +173,8 @@ The browser lifecycle gate seeds six Running incidents, renders the production R
 - [x] Preserve OCR local-only privacy, explicit coordinate Apply & verify, revision-safe mutations, canonical report output, and deep-link Progress focus behavior.
 - [x] Preserve a mobile single-column fallback with no desktop resize affordance.
 - [x] Add regression coverage for Ticket Detail structural read-only behavior, Generator command bar, Zod resolver validation, canonical report parity, and desktop resizable separator activation.
-- [ ] Complete real-browser desktop/mobile workspace and keyboard acceptance for the final MEGA-5 product head.
-- [ ] Full repository Quality workflow green on final MEGA-5 product/code head.
+- [x] Complete real-browser desktop/mobile workspace and keyboard acceptance for the final MEGA-5 product head.
+- [x] Full repository Quality workflow green on final MEGA-5 product/code head.
 
 ### MEGA-5 implementation notes
 
@@ -183,6 +183,31 @@ The browser lifecycle gate seeds six Running incidents, renders the production R
 - `ResizableWorkspace` owns desktop panel geometry and local display-preference persistence; below the desktop breakpoint it renders a normal single-column flow and no resize separator.
 - Ticket Detail owns no mutation controls other than the explicit navigation CTA into `/generator/:ticketId/edit`; Copy Report remains a read-only utility.
 - Smart Import and OCR remain browser-local utilities and never auto-persist imported or scanned values.
+- Ticket Detail loading/review surfaces use explicit valid ARIA roles so the read-only workspace remains clean under serious/critical axe checks.
+
+### MEGA-5 automated QA evidence
+
+**Quality #710 — FULL GREEN** on final MEGA-5 product/code head `0bb09b168b46049c69eaeea7a4985ee0f4df2409` (run ID `32904148874`).
+
+Validated gates: Prettier + committed-format verification, ESLint, 139 unit/component tests with 13 emulator-only skips in the normal unit pass, Firebase Emulator repository integration (6/6), Firestore Security Rules role matrix (7/7), T7 security hygiene, T8 release preflight, generic + Firebase-configured production builds, dev smoke, real-browser responsive/touch QA, and 4/4 Playwright lifecycle/RBAC/keyboard/focus/overflow/axe scenarios.
+
+The browser gate explicitly validates canonical post-create `/generator/:ticketId/edit` navigation, Ticket Detail structural read-only behavior, desktop Generator keyboard-focusable resize separator, mobile no-separator fallback, OCR lifecycle parity, and serious/critical axe accessibility across the primary routes including Ticket Detail.
+
+## MEGA-6 — Cut Point Tracker
+
+- [ ] Replace the authenticated hero with the shared compact `PageHeader` and dense map-workspace metadata.
+- [ ] Activate the shared persistent `ResizableWorkspace` for the desktop mapped-incident list/filter pane and Leaflet map pane.
+- [ ] Replace the legacy status Select with the shared Radix Toggle Group for All/Running/Resolved scope.
+- [ ] Flatten mapped incident cards into dense selectable operational rows without nested metadata tiles.
+- [ ] Preserve the bounded `listCutPointTickets({ statuses: [RUNNING, RESOLVED], limit: 500 })` query and canonical marker-building/filter semantics.
+- [ ] Preserve TanStack Virtual on long mapped lists while reducing the estimate to match dense row geometry; keep mobile touch ergonomics.
+- [ ] Invalidate Leaflet geometry when the resizable map host changes size without changing marker/query semantics.
+- [ ] Keep list and map review navigation on `/tickets/:ticketId`; no implicit editor entry.
+- [ ] Provide a mobile map + incident-list flow with no desktop resize affordance or overlay-sheet card bloat.
+- [ ] Migrate refresh/retry/error actions to shared Button + Lucide AppIcon and ensure map/loading regions have valid ARIA semantics.
+- [ ] Add regression coverage for Toggle Group filtering, marker focus, read-only navigation, bounded query, responsive resize behavior, and map geometry invalidation.
+- [ ] Complete real-browser desktop/mobile workspace, touch, overflow, keyboard, and axe acceptance.
+- [ ] Full repository Quality workflow green on final MEGA-6 product/code head.
 
 ## Remaining phases
 
@@ -190,7 +215,7 @@ The browser lifecycle gate seeds six Running incidents, renders the production R
 - [x] MEGA-2 — Feedback, command, and application shell
 - [x] MEGA-3 — Data workspace foundation
 - [x] MEGA-4 — Dashboard + Running Tickets
-- [ ] MEGA-5 — Ticket Detail + Template Generator
+- [x] MEGA-5 — Ticket Detail + Template Generator
 - [ ] MEGA-6 — Cut Point Tracker
 - [ ] MEGA-7 — Archive & Restore
 - [ ] MEGA-8 — Login + edge states
