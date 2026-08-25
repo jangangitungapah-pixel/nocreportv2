@@ -3,7 +3,7 @@
 **Source PRD:** `docs/08-post-mvp/UI-DENSITY-PRD.md`  
 **Branch:** `feature/ui-density-system`  
 **PR:** #6  
-**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 COMPLETE · MEGA-3 COMPLETE · MEGA-4 COMPLETE · MEGA-5 COMPLETE · MEGA-6 COMPLETE · MEGA-7 COMPLETE · MEGA-8 IN PROGRESS
+**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 COMPLETE · MEGA-3 COMPLETE · MEGA-4 COMPLETE · MEGA-5 COMPLETE · MEGA-6 COMPLETE · MEGA-7 COMPLETE · MEGA-8 COMPLETE · MEGA-9 IN PROGRESS
 
 ## MEGA-0 — Dependency activation and design-system foundation
 
@@ -258,17 +258,50 @@ The browser acceptance revalidates the complete Admin lifecycle through Archive 
 
 ## MEGA-8 — Login + edge states
 
-- [ ] Rebuild Login around canonical BrandIdentity, shared controls, and the canonical CVA `Button` rather than page-owned action classes.
-- [ ] Add restrained Motion entrance behavior that respects reduced-motion preference.
-- [ ] Introduce shared compact inline alert/error styling and use it for Login authentication/profile failures.
-- [ ] Preserve Firebase Authentication, destination redirect, account-disabled handling, and local-preview behavior without changing auth/RBAC semantics.
-- [ ] Compact and rebrand the protected-route auth-session loading state without changing redirect outcomes.
-- [ ] Clean up Not Found into a compact recovery state with shared polymorphic Button navigation.
-- [ ] Normalize Login/loading/not-found edge geometry for laptop and 360/390/412 mobile viewports without giant empty regions or custom action-class duplication.
-- [ ] Migrate remaining old icon/toast/component usage owned by these edge surfaces to the canonical primitive layer; repository-wide dead legacy removal remains MEGA-9 audit scope.
-- [ ] Add dedicated Login/edge regression coverage for required fields, pending/disabled submit, auth errors, destination redirect, local preview, and protected-route behavior.
-- [ ] Add real-browser unauthenticated Login responsive/keyboard/overflow/axe acceptance.
-- [ ] Full repository Quality workflow green on final MEGA-8 product/code head.
+- [x] Rebuild Login around canonical BrandIdentity, shared controls, and the canonical CVA `Button` rather than page-owned action classes.
+- [x] Add restrained Motion entrance behavior that respects reduced-motion preference.
+- [x] Introduce shared compact inline alert/error styling and use it for Login authentication/profile failures.
+- [x] Preserve Firebase Authentication, destination redirect, account-disabled handling, and local-preview behavior without changing auth/RBAC semantics.
+- [x] Compact and rebrand the protected-route auth-session loading state without changing redirect outcomes.
+- [x] Clean up Not Found into a compact recovery state with shared polymorphic Button navigation.
+- [x] Normalize Login/loading/not-found edge geometry for laptop and 360/390/412 mobile viewports without giant empty regions or custom action-class duplication.
+- [x] Migrate remaining old icon/toast/component usage owned by these edge surfaces to the canonical primitive layer; repository-wide dead legacy removal remains MEGA-9 audit scope.
+- [x] Add dedicated Login/edge regression coverage for required fields, pending/disabled submit, auth errors, destination redirect, local preview, and protected-route behavior.
+- [x] Add real-browser unauthenticated Login responsive/keyboard/overflow/axe acceptance.
+- [x] Full repository Quality workflow green on final MEGA-8 product/code head.
+
+### MEGA-8 implementation notes
+
+- Login now uses the canonical BrandIdentity, CVA Button, Lucide AppIcon, shared controls, and the new CVA-backed `InlineAlert`; page-owned action class strings were removed.
+- Login entrance Motion is intentionally restrained and disabled when `useReducedMotion()` requests reduced motion. Firebase sign-in, destination redirect, disabled-account handling, profile-error messaging, and local preview behavior were not changed semantically.
+- ProtectedRoute keeps the existing authentication/RBAC redirect contract while replacing the oversized loading card with a compact branded session status surface.
+- Not Found no longer depends on the legacy EmptyState/custom link-class combination and uses canonical Button/AppIcon recovery navigation.
+- Dedicated unit coverage isolates Login and ProtectedRoute edge contracts, while a separate unauthenticated browser spec keeps Login/404 acceptance independent from the authenticated Ticket lifecycle suite.
+
+### MEGA-8 automated QA evidence
+
+**Quality #727 — FULL GREEN** on final MEGA-8 product/code head `eef5ecd9ccd1b7bd85d47d70e858e29e076ba9ac` (run ID `32911183097`).
+
+Validated gates: committed Prettier formatting, ESLint, **152 unit/component tests** with 13 emulator-only skips, Firebase Emulator repository integration (6/6), Firestore Security Rules role matrix (7/7), T7 security hygiene, T8 release preflight, generic + Firebase-configured production builds, dev smoke, T6 real-browser viewport/touch QA, and **5/5 Playwright** scenarios.
+
+The new browser acceptance validates unauthenticated Login and Not Found at 360/390/412/768/1024/1280 widths, desktop Login keyboard order, mobile/desktop serious-critical axe cleanliness, and horizontal-overflow safety. The existing Admin lifecycle, Operator/Viewer RBAC, keyboard/dialog, and authenticated responsive/axe scenarios remain green.
+
+## MEGA-9 — Legacy elimination audit
+
+- [ ] Eliminate production `UiIcon` legacy usage and remove the manual icon implementation when no runtime consumer remains.
+- [ ] Audit and eliminate superseded custom toast rendering/APIs while preserving Sonner as the single rendering owner.
+- [ ] Audit for bespoke overlay/focus-trap/keyboard-dismiss logic superseded by Radix primitives.
+- [ ] Remove duplicated page-level action class strings when canonical Button/CVA variants already own the semantic action.
+- [ ] Remove obsolete authenticated `spatial-panel-elevated`/hero treatments that survived page rebuilds.
+- [ ] Audit excessive 22–28px operational radii and reduce legacy routine surfaces to semantic radius tokens where appropriate.
+- [ ] Remove routine row/control `hover:translateY` treatment that conflicts with stable dense-workstation geometry.
+- [ ] Audit native visible `<select>` controls and migrate remaining product-owned selectors to canonical headless primitives where appropriate.
+- [ ] Remove residual nested metadata-card patterns from routine authenticated operational surfaces.
+- [ ] Remove obsolete Generator `!important` density overrides where semantic tokens/new component contracts now own the behavior.
+- [ ] Remove the compatibility `/generator/:ticketId` route and any remaining new-code reliance on it after verifying all canonical navigation uses `/tickets/:ticketId` or `/generator/:ticketId/edit`.
+- [ ] Verify every installed UI dependency has an intentional production responsibility and no competing implementation remains without documentation.
+- [ ] Add regression/static audit coverage where useful to prevent reintroduction of eliminated legacy patterns.
+- [ ] Full repository Quality workflow green on final MEGA-9 product/code head.
 
 ## Remaining phases
 
@@ -279,7 +312,7 @@ The browser acceptance revalidates the complete Admin lifecycle through Archive 
 - [x] MEGA-5 — Ticket Detail + Template Generator
 - [x] MEGA-6 — Cut Point Tracker
 - [x] MEGA-7 — Archive & Restore
-- [ ] MEGA-8 — Login + edge states
+- [x] MEGA-8 — Login + edge states
 - [ ] MEGA-9 — Legacy elimination audit
 - [ ] MEGA-10 — Full QA and release readiness
 
