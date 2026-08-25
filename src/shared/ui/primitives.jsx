@@ -51,14 +51,7 @@ export const DialogOverlay = forwardRef(function DialogOverlay({ className, ...p
 });
 
 export const DialogContent = forwardRef(function DialogContent(
-  {
-    className,
-    children,
-    showClose = false,
-    onOpenAutoFocus,
-    onCloseAutoFocus,
-    ...props
-  },
+  { className, children, showClose = false, onOpenAutoFocus, onCloseAutoFocus, ...props },
   ref,
 ) {
   const restoreFocusRef = useRef(null);
