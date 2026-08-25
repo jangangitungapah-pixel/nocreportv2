@@ -168,7 +168,12 @@ export function LoginPage() {
                   </InlineAlert>
                 ) : null}
 
-                <Button className="mt-0.5 w-full" size="touch" type="submit" disabled={pending || loading}>
+                <Button
+                  className="mt-0.5 w-full"
+                  size="touch"
+                  type="submit"
+                  disabled={pending || loading}
+                >
                   {pending || loading ? 'Signing in…' : 'Sign in'}
                 </Button>
               </form>
