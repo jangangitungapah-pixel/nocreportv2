@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -67,7 +67,7 @@ describe('Mega Radix primitives', () => {
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
-  it('restores focus for controlled Dialogs without a Radix trigger', () => {
+  it('restores focus for controlled Dialogs without a Radix trigger', async () => {
     render(<ControlledDialogHarness />);
 
     const trigger = screen.getByRole('button', { name: 'Archive Ticket' });
@@ -77,10 +77,12 @@ describe('Mega Radix primitives', () => {
     const dialog = screen.getByRole('dialog', { name: 'Archive Ticket?' });
     expect(screen.getByRole('button', { name: 'Cancel' })).toHaveFocus();
 
-    fireEvent.keyDown(dialog, { key: 'Escape' });
+    fireEvent.keyDown(document, { key: 'Escape' });
 
-    expect(screen.queryByRole('dialog', { name: 'Archive Ticket?' })).not.toBeInTheDocument();
-    expect(trigger).toHaveFocus();
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog', { name: 'Archive Ticket?' })).not.toBeInTheDocument();
+      expect(trigger).toHaveFocus();
+    });
   });
 
   it('provides semantic tabs and binary controls', () => {
