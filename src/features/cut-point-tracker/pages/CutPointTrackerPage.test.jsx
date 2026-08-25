@@ -144,7 +144,7 @@ describe('CutPointTrackerPage', () => {
     renderPage();
     await screen.findByText('[MANDAU] LINK DOWN');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Resolved' }));
+    fireEvent.click(screen.getByRole('radio', { name: 'Resolved' }));
     expect(screen.queryByText('[MANDAU] LINK DOWN')).not.toBeInTheDocument();
     expect(screen.getByText('[BANDUNG] RESOLVED LINK')).toBeInTheDocument();
 
