@@ -198,11 +198,9 @@ async function createOcrFixtureBuffer(page) {
 async function assertViewerTicketLoaded(page, ticketId) {
   await expect(page).toHaveURL(new RegExp(`/tickets/${ticketId}$`));
 
+  const reviewMeta = page.locator('[aria-label="Ticket review metadata"]');
   const outcome = await Promise.race([
-    page
-      .getByText('Safe review mode', { exact: true })
-      .waitFor({ state: 'visible', timeout: 8000 })
-      .then(() => 'viewer'),
+    reviewMeta.waitFor({ state: 'visible', timeout: 8000 }).then(() => 'viewer'),
     page
       .getByText('Ticket could not be loaded', { exact: true })
       .waitFor({ state: 'visible', timeout: 8000 })
@@ -223,6 +221,9 @@ async function assertViewerTicketLoaded(page, ticketId) {
       `Viewer Ticket route failed at stage=${stage}, outcome=${outcome}, url=${page.url()}\n${bodyText}`,
     );
   }
+
+  await expect(reviewMeta.getByText('Read only')).toBeVisible();
+  await expect(page.getByRole('textbox')).toHaveCount(0);
 }
 
 async function resetProfiles() {
@@ -261,11 +262,9 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await page.locator('#cut-point').fill('KM 12 from Bandung hub');
 
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForURL((url) => {
-      const pathname = new URL(url).pathname;
-      return /^\/generator\/[^/]+$/.test(pathname) && pathname !== '/generator/new';
-    });
-    ticketId = new URL(page.url()).pathname.split('/').at(-1);
+    await page.waitForURL((url) => /^\/generator\/[^/]+\/edit$/.test(new URL(url).pathname));
+    const editorPath = new URL(page.url()).pathname.split('/');
+    ticketId = editorPath.at(-2);
     expect(ticketId).toBeTruthy();
     expect(ticketId).not.toBe('new');
 
@@ -295,7 +294,7 @@ test.describe.serial('T7 MVP browser workflow', () => {
 
     await page.getByLabel('Longitude').fill('98.7692');
     await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page.getByText(/Saved to Firestore · revision/)).toBeVisible();
+    await expect(page.getByText('Ticket saved')).toBeVisible();
 
     await page.reload();
     await expect(page.getByLabel('Title')).toHaveValue(INCIDENT_TITLE);
@@ -387,11 +386,24 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await page.keyboard.press('Enter');
     await expect(page).toHaveURL(/\/generator\/new$/);
 
+    const generatorSeparator = page.getByRole('separator');
+    await expect(generatorSeparator).toBeVisible();
+    await generatorSeparator.focus();
+    await expect(generatorSeparator).toBeFocused();
+    await page.keyboard.press('ArrowLeft');
+    await expect(generatorSeparator).toBeFocused();
+
     const titleInput = page.getByLabel('Title');
-    await tabUntilFocused(page, titleInput, 80);
+    await titleInput.focus();
     await page.keyboard.type('[T7 KEYBOARD QA]');
     await expect(titleInput).toHaveValue('[T7 KEYBOARD QA]');
 
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/generator/new');
+    await expect(page.getByRole('separator')).toHaveCount(0);
+    await assertNoHorizontalOverflow(page, '/generator/new at 390px');
+
+    await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/archive');
     const archiveButton = page.getByRole('button', { name: `Archive ${INCIDENT_TT}` });
     await expect(archiveButton).toBeVisible();
@@ -414,7 +426,14 @@ test.describe.serial('T7 MVP browser workflow', () => {
 
   test('primary routes pass responsive overflow and serious axe checks', async ({ page }) => {
     await login(page, accounts.admin);
-    const routes = ['/dashboard', '/generator/new', '/running', '/cut-points', '/archive'];
+    const routes = [
+      '/dashboard',
+      '/generator/new',
+      '/running',
+      '/cut-points',
+      '/archive',
+      ...(ticketId ? [`/tickets/${ticketId}`] : []),
+    ];
     const viewports = [
       { width: 360, height: 800 },
       { width: 390, height: 844 },
@@ -430,6 +449,12 @@ test.describe.serial('T7 MVP browser workflow', () => {
         await page.goto(route);
         await expect(page.locator('body')).toBeVisible();
         await assertNoHorizontalOverflow(page, `${route} at ${viewport.width}px`);
+
+        if (route === '/generator/new') {
+          const separator = page.getByRole('separator');
+          if (viewport.width >= 1280) await expect(separator).toBeVisible();
+          else await expect(separator).toHaveCount(0);
+        }
       }
     }
 
