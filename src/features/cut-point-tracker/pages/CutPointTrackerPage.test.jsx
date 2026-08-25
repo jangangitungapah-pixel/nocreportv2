@@ -116,11 +116,18 @@ describe('CutPointTrackerPage', () => {
     });
   });
 
-  it('focuses a marker from the responsive Ticket list', async () => {
+  it('focuses a marker from the responsive Ticket list and keeps review read-only', async () => {
     renderPage();
     await screen.findByText('[MANDAU] LINK DOWN');
 
     fireEvent.click(screen.getAllByRole('button', { name: 'Locate' })[0]);
     expect(mapClient.focusMarker).toHaveBeenCalledWith('ticket-1');
+    expect(screen.getAllByRole('link', { name: 'Open Ticket' })[0]).toHaveAttribute(
+      'href',
+      '/tickets/ticket-1',
+    );
+
+    const mapOptions = createLeafletMap.mock.calls[0][0];
+    expect(mapOptions.onOpenTicket).toEqual(expect.any(Function));
   });
 });
