@@ -344,8 +344,8 @@ export function ArchiveManagementPage() {
     <>
       {localDevelopmentMode ? (
         <div className="border-l-2 border-[var(--accent-solid)] bg-[var(--accent-soft)] px-3 py-2 text-[10.5px] leading-5 text-[var(--text-secondary)]">
-          <span className="font-extrabold text-[var(--accent-text)]">Local preview.</span> Archive data
-          is unavailable because lifecycle mutations require Firebase Auth and Firestore.
+          <span className="font-extrabold text-[var(--accent-text)]">Local preview.</span> Archive
+          data is unavailable because lifecycle mutations require Firebase Auth and Firestore.
         </div>
       ) : null}
 
@@ -422,18 +422,10 @@ export function ArchiveManagementPage() {
           <TabsTrigger value={VIEW.RESOLVED}>Resolved</TabsTrigger>
           <TabsTrigger value={VIEW.ARCHIVED}>Archived</TabsTrigger>
         </TabsList>
-        <TabsContent
-          value={VIEW.RESOLVED}
-          forceMount
-          className="mt-0 data-[state=inactive]:hidden"
-        >
+        <TabsContent value={VIEW.RESOLVED} forceMount className="mt-0 data-[state=inactive]:hidden">
           {view === VIEW.RESOLVED ? workspace : null}
         </TabsContent>
-        <TabsContent
-          value={VIEW.ARCHIVED}
-          forceMount
-          className="mt-0 data-[state=inactive]:hidden"
-        >
+        <TabsContent value={VIEW.ARCHIVED} forceMount className="mt-0 data-[state=inactive]:hidden">
           {view === VIEW.ARCHIVED ? workspace : null}
         </TabsContent>
       </Tabs>
