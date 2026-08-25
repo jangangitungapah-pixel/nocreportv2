@@ -195,19 +195,27 @@ The browser gate explicitly validates canonical post-create `/generator/:ticketI
 
 ## MEGA-6 — Cut Point Tracker
 
-- [ ] Replace the authenticated hero with the shared compact `PageHeader` and dense map-workspace metadata.
-- [ ] Activate the shared persistent `ResizableWorkspace` for the desktop mapped-incident list/filter pane and Leaflet map pane.
-- [ ] Replace the legacy status Select with the shared Radix Toggle Group for All/Running/Resolved scope.
-- [ ] Flatten mapped incident cards into dense selectable operational rows without nested metadata tiles.
-- [ ] Preserve the bounded `listCutPointTickets({ statuses: [RUNNING, RESOLVED], limit: 500 })` query and canonical marker-building/filter semantics.
-- [ ] Preserve TanStack Virtual on long mapped lists while reducing the estimate to match dense row geometry; keep mobile touch ergonomics.
-- [ ] Invalidate Leaflet geometry when the resizable map host changes size without changing marker/query semantics.
-- [ ] Keep list and map review navigation on `/tickets/:ticketId`; no implicit editor entry.
-- [ ] Provide a mobile map + incident-list flow with no desktop resize affordance or overlay-sheet card bloat.
-- [ ] Migrate refresh/retry/error actions to shared Button + Lucide AppIcon and ensure map/loading regions have valid ARIA semantics.
-- [ ] Add regression coverage for Toggle Group filtering, marker focus, read-only navigation, bounded query, responsive resize behavior, and map geometry invalidation.
+- [x] Replace the authenticated hero with the shared compact `PageHeader` and dense map-workspace metadata.
+- [x] Activate the shared persistent `ResizableWorkspace` for the desktop mapped-incident list/filter pane and Leaflet map pane.
+- [x] Replace the legacy status Select with the shared Radix Toggle Group for All/Running/Resolved scope.
+- [x] Flatten mapped incident cards into dense selectable operational rows without nested metadata tiles.
+- [x] Preserve the bounded `listCutPointTickets({ statuses: [RUNNING, RESOLVED], limit: 500 })` query and canonical marker-building/filter semantics.
+- [x] Preserve TanStack Virtual on long mapped lists while reducing the estimate to match dense row geometry; keep mobile touch ergonomics.
+- [x] Invalidate Leaflet geometry when the resizable map host changes size without changing marker/query semantics.
+- [x] Keep list and map review navigation on `/tickets/:ticketId`; no implicit editor entry.
+- [x] Provide a mobile map + incident-list flow with no desktop resize affordance or overlay-sheet card bloat.
+- [x] Migrate refresh/retry/error actions to shared Button + Lucide AppIcon and ensure map/loading regions have valid ARIA semantics.
+- [x] Add regression coverage for Toggle Group filtering, marker focus, read-only navigation, bounded query, responsive resize behavior, and map geometry invalidation.
 - [ ] Complete real-browser desktop/mobile workspace, touch, overflow, keyboard, and axe acceptance.
 - [ ] Full repository Quality workflow green on final MEGA-6 product/code head.
+
+### MEGA-6 implementation notes
+
+- `ResizableWorkspace` remains generic and owns only panel geometry/persistence. Leaflet resize invalidation is feature-owned through a `ResizeObserver` on the map host, so the map reacts to any host geometry change without coupling the shared panel primitive to Leaflet.
+- Desktop resizing activates at the shared 1280px breakpoint; tablet/mobile use normal map-first then incident-list flow with no separator.
+- The canonical bounded repository query remains `listCutPointTickets({ statuses: [RUNNING, RESOLVED], limit: 500 })`; status/search filtering remains view-only.
+- Only verified, geographically valid Ticket coordinates become map markers. Marker focus and list/map review navigation remain anchored to `/tickets/:ticketId`.
+- TanStack Virtual remains desktop-only for meaningful long lists (>24 mapped incidents); mobile intentionally renders the normal dense list for touch ergonomics.
 
 ## Remaining phases
 
