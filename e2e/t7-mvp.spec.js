@@ -452,7 +452,7 @@ test.describe.serial('T7 MVP browser workflow', () => {
         await expect(page.locator('body')).toBeVisible();
         await assertNoHorizontalOverflow(page, `${route} at ${viewport.width}px`);
 
-        if (route === '/generator/new') {
+        if (route === '/generator/new' || route === '/cut-points') {
           const separator = page.getByRole('separator');
           if (viewport.width >= 1280) await expect(separator).toBeVisible();
           else await expect(separator).toHaveCount(0);
