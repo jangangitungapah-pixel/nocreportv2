@@ -3,7 +3,7 @@
 **Source PRD:** `docs/08-post-mvp/UI-DENSITY-PRD.md`  
 **Branch:** `feature/ui-density-system`  
 **PR:** #6  
-**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 COMPLETE · MEGA-3 COMPLETE · MEGA-4 IN PROGRESS
+**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 COMPLETE · MEGA-3 COMPLETE · MEGA-4 COMPLETE · MEGA-5 NEXT
 
 ## MEGA-0 — Dependency activation and design-system foundation
 
@@ -139,8 +139,8 @@ Validated gates: Prettier + committed-format verification, ESLint, 135 unit/comp
 - [x] Canonicalize Add Progress navigation to `/generator/:ticketId/edit#progress-text`; Review/title remain `/tickets/:ticketId`.
 - [x] Flatten Running mobile incidents; remove nested metadata tile grids and preserve touch-safe contextual actions.
 - [x] Add regression coverage for Dashboard density/navigation and Running DataTable/mobile/RBAC/action behavior.
-- [ ] Validate at least six useful Running incident rows can fit the initial 1280×900 operational viewport when data exists.
-- [ ] Full repository Quality workflow green on final MEGA-4 product/code head.
+- [x] Validate at least six useful Running incident rows can fit the initial 1280×900 operational viewport when data exists.
+- [x] Full repository Quality workflow green on final MEGA-4 product/code head.
 
 ### MEGA-4 implementation notes
 
@@ -150,12 +150,20 @@ Validated gates: Prettier + committed-format verification, ESLint, 135 unit/comp
 - Running desktop and mobile representations share the same TanStack row model. Mobile uses a feature-specific flattened incident presentation rather than nested metadata tiles.
 - Review remains read-only. Explicit mutation entry uses `/generator/:ticketId/edit`, while the legacy route remains only as compatibility infrastructure until MEGA-9.
 
+### MEGA-4 automated QA evidence
+
+**Quality #697 — FULL GREEN** on MEGA-4 product/code head `6f841dbb1204373977e07bd68f4f96d66ca95620` (run ID `32899074599`).
+
+Validated gates: Prettier + committed-format verification, ESLint, 137 unit/component tests with 13 emulator-only skips in the normal unit pass, Firebase Emulator repository integration, Firestore Security Rules role matrix, T7 security hygiene, T8 release preflight, generic + Firebase-configured production builds, dev smoke, real-browser responsive/touch QA, and 4/4 Playwright lifecycle/RBAC/keyboard/focus/overflow/axe scenarios.
+
+The browser lifecycle gate seeds six Running incidents, renders the production Running workspace at `1280×900`, measures the sixth desktop TanStack row using real browser geometry, and asserts that the row bottom remains within the initial 900px viewport. This closes the MEGA-4 dense-workstation acceptance criterion with browser evidence rather than a DOM-count approximation.
+
 ## Remaining phases
 
 - [x] MEGA-1 — Headless primitive migration
 - [x] MEGA-2 — Feedback, command, and application shell
 - [x] MEGA-3 — Data workspace foundation
-- [ ] MEGA-4 — Dashboard + Running Tickets
+- [x] MEGA-4 — Dashboard + Running Tickets
 - [ ] MEGA-5 — Ticket Detail + Template Generator
 - [ ] MEGA-6 — Cut Point Tracker
 - [ ] MEGA-7 — Archive & Restore
