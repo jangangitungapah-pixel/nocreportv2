@@ -12,18 +12,10 @@ import {
   DropdownMenuTrigger,
 } from '../../shared/ui/primitives.jsx';
 import { CommandPalette } from '../components/CommandPalette.jsx';
+import { PageHeader } from '../components/PageHeader.jsx';
 import { PRIMARY_NAVIGATION, isNavigationItemActive } from '../navigation.js';
 import { useAuth } from '../providers/AuthProvider.jsx';
 import { useTheme } from '../providers/ThemeProvider.jsx';
-
-function currentPageLabel(pathname) {
-  if (pathname.startsWith('/tickets')) return 'Ticket Detail';
-  if (pathname.startsWith('/generator')) return 'Template Generator';
-  if (pathname.startsWith('/running')) return 'Running Ticket';
-  if (pathname.startsWith('/cut-points')) return 'Cut Point Tracker';
-  if (pathname.startsWith('/archive')) return 'Archive & Restore';
-  return 'Dashboard';
-}
 
 function NavigationLink({ item }) {
   const location = useLocation();
@@ -60,7 +52,6 @@ export function AppShell() {
   const [commandOpen, setCommandOpen] = useState(false);
   const { can, firebaseConfigured, localDevelopmentMode, profile, role, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const pageLabel = currentPageLabel(location.pathname);
   const visibleNavigation = PRIMARY_NAVIGATION.filter(
     (item) => !item.requiredCapability || can(item.requiredCapability),
   );
@@ -135,17 +126,7 @@ export function AppShell() {
       <div className="lg:pl-[244px]">
         <header className="sticky top-0 z-30 border-b border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] backdrop-blur-2xl">
           <div className="mx-auto flex min-h-[50px] w-full max-w-[var(--page-max)] items-center justify-between gap-3 px-3 md:px-4 lg:px-5">
-            <div className="flex min-w-0 items-center gap-2.5">
-              <BrandMark size="xs" className="lg:hidden" eager />
-              <div className="min-w-0">
-                <p className="text-[9px] font-extrabold uppercase tracking-[0.14em] text-[var(--accent-text)] lg:hidden">
-                  NOC Report
-                </p>
-                <h1 className="truncate font-[var(--font-display)] text-base font-bold tracking-[-0.025em] md:text-[17px]">
-                  {pageLabel}
-                </h1>
-              </div>
-            </div>
+            <PageHeader variant="shell" leading={<BrandMark size="xs" className="lg:hidden" eager />} />
 
             <div className="flex shrink-0 items-center gap-1.5">
               <span className="hidden items-center gap-1.5 text-[10px] font-bold text-[var(--text-muted)] sm:flex">
