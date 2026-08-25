@@ -56,8 +56,7 @@ export const badgeVariants = cva(
         neutral:
           'border-[var(--border-subtle)] bg-[var(--surface-muted)] text-[var(--text-secondary)]',
         accent: 'border-[var(--border-accent)] bg-[var(--accent-soft)] text-[var(--accent-text)]',
-        success:
-          'border-transparent bg-[var(--success-soft)] text-[var(--success-text)]',
+        success: 'border-transparent bg-[var(--success-soft)] text-[var(--success-text)]',
         warning:
           'border-[var(--warning-border)] bg-[var(--warning-soft)] text-[var(--warning-text)]',
         danger: 'border-[var(--danger-border)] bg-[var(--danger-soft)] text-[var(--danger-text)]',
