@@ -29,22 +29,7 @@ async function loadTicketDetailRoute() {
   return { Component: TicketViewerPage };
 }
 
-async function loadTicketEditRoute() {
-  const { TicketGeneratorPage } =
-    await import('../features/ticket-generator/pages/TicketGeneratorPage.jsx');
-
-  function EditTicketRoute() {
-    return (
-      <ProtectedRoute allowedRoles={[USER_ROLE.ADMIN, USER_ROLE.OPERATOR]}>
-        <TicketGeneratorPage />
-      </ProtectedRoute>
-    );
-  }
-
-  return { Component: EditTicketRoute };
-}
-
-async function loadLegacyTicketRoute() {
+async function loadTicketRoute() {
   const { TicketRoutePage } =
     await import('../features/ticket-generator/pages/TicketRoutePage.jsx');
   return { Component: TicketRoutePage };
@@ -86,8 +71,7 @@ export const routeObjects = [
           { path: '/dashboard', element: <DashboardPage /> },
           { path: '/generator/new', lazy: loadNewTicketRoute },
           { path: '/tickets/:ticketId', lazy: loadTicketDetailRoute },
-          { path: '/generator/:ticketId/edit', lazy: loadTicketEditRoute },
-          { path: '/generator/:ticketId', lazy: loadLegacyTicketRoute },
+          { path: '/generator/:ticketId', lazy: loadTicketRoute },
           { path: '/running', element: <RunningTicketsPage /> },
           { path: '/cut-points', lazy: loadCutPointTrackerRoute },
           { path: '/archive', lazy: loadArchiveRoute },
