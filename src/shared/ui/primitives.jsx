@@ -9,7 +9,7 @@ import * as SwitchPrimitive from '@radix-ui/react-switch';
 import * as TabsPrimitive from '@radix-ui/react-tabs';
 import * as ToggleGroupPrimitive from '@radix-ui/react-toggle-group';
 import * as TooltipPrimitive from '@radix-ui/react-tooltip';
-import { forwardRef } from 'react';
+import { forwardRef, useRef } from 'react';
 
 import { cn } from '../lib/cn.js';
 import { AppIcon } from './icon.jsx';
@@ -51,9 +51,35 @@ export const DialogOverlay = forwardRef(function DialogOverlay({ className, ...p
 });
 
 export const DialogContent = forwardRef(function DialogContent(
-  { className, children, showClose = false, ...props },
+  {
+    className,
+    children,
+    showClose = false,
+    onOpenAutoFocus,
+    onCloseAutoFocus,
+    ...props
+  },
   ref,
 ) {
+  const restoreFocusRef = useRef(null);
+
+  const handleOpenAutoFocus = (event) => {
+    restoreFocusRef.current = document.activeElement;
+    onOpenAutoFocus?.(event);
+  };
+
+  const handleCloseAutoFocus = (event) => {
+    onCloseAutoFocus?.(event);
+    if (event.defaultPrevented) return;
+
+    const restoreTarget = restoreFocusRef.current;
+    restoreFocusRef.current = null;
+    if (restoreTarget?.focus && restoreTarget?.isConnected !== false) {
+      event.preventDefault();
+      restoreTarget.focus();
+    }
+  };
+
   return (
     <DialogPrimitive.Portal>
       <DialogOverlay />
@@ -63,6 +89,8 @@ export const DialogContent = forwardRef(function DialogContent(
           'ui-dialog fixed left-1/2 top-1/2 z-[91] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-[var(--radius-dialog)] border border-[var(--border-subtle)] bg-[var(--surface-elevated)] p-4 text-[var(--text-primary)] shadow-[var(--shadow-lg)] outline-none md:p-5',
           className,
         )}
+        onOpenAutoFocus={handleOpenAutoFocus}
+        onCloseAutoFocus={handleCloseAutoFocus}
         {...props}
       >
         {children}
