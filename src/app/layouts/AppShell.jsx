@@ -126,7 +126,10 @@ export function AppShell() {
       <div className="lg:pl-[244px]">
         <header className="sticky top-0 z-30 border-b border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] backdrop-blur-2xl">
           <div className="mx-auto flex min-h-[50px] w-full max-w-[var(--page-max)] items-center justify-between gap-3 px-3 md:px-4 lg:px-5">
-            <PageHeader variant="shell" leading={<BrandMark size="xs" className="lg:hidden" eager />} />
+            <PageHeader
+              variant="shell"
+              leading={<BrandMark size="xs" className="lg:hidden" eager />}
+            />
 
             <div className="flex shrink-0 items-center gap-1.5">
               <span className="hidden items-center gap-1.5 text-[10px] font-bold text-[var(--text-muted)] sm:flex">
