@@ -173,6 +173,14 @@ describe('CutPointTrackerPage', () => {
     expect(mapOptions.onOpenTicket).toEqual(expect.any(Function));
   });
 
+  it('keeps the responsive Cut Point flow free of desktop resize affordances', async () => {
+    renderPage();
+
+    await screen.findByText('[MANDAU] LINK DOWN');
+    expect(screen.queryByRole('separator')).not.toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Cut Point map' })).toBeInTheDocument();
+  });
+
   it('activates the desktop resizable workspace and invalidates Leaflet on host resize', async () => {
     mockViewport({ desktop: true });
     renderPage();
