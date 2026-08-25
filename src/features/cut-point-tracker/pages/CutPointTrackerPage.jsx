@@ -5,6 +5,7 @@ import { useAuth } from '../../../app/providers/AuthProvider.jsx';
 import { TICKET_STATUS } from '../../../entities/ticket/index.js';
 import { firestoreTicketRepository } from '../../../infrastructure/firebase/index.js';
 import { createLeafletMap, readMapConfig } from '../../../infrastructure/map/index.js';
+import { VirtualizedList } from '../../../shared/data-workspace/index.js';
 import {
   EmptyState,
   ErrorState,
@@ -18,6 +19,7 @@ import { buildCutPointMarkers, filterCutPointMarkers } from '../lib/mapData.js';
 
 const secondaryActionClass =
   'inline-flex min-h-10 select-none items-center justify-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-3 text-xs font-bold text-[var(--text-primary)] shadow-[var(--shadow-xs)] transition-[transform,background-color,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-[var(--border-default)] hover:bg-[var(--surface-panel-strong)] hover:shadow-[var(--shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] active:scale-[0.975] active:translate-y-0';
+const VIRTUALIZATION_THRESHOLD = 24;
 
 const STATUS_OPTIONS = [
   { value: 'ALL', label: 'Running + Resolved' },
@@ -93,7 +95,7 @@ function MarkerCard({ marker, selected, onLocate }) {
         <button type="button" className={secondaryActionClass} onClick={() => onLocate(marker)}>
           Locate
         </button>
-        <Link to={`/generator/${marker.ticketId}`} className={secondaryActionClass}>
+        <Link to={`/tickets/${marker.ticketId}`} className={secondaryActionClass}>
           Open Ticket
         </Link>
       </div>
@@ -171,6 +173,7 @@ export function CutPointTrackerPage() {
     () => filterCutPointMarkers(markers, { search, status }),
     [markers, search, status],
   );
+  const useVirtualizedMarkerList = visibleMarkers.length > VIRTUALIZATION_THRESHOLD;
   visibleMarkersRef.current = visibleMarkers;
 
   useEffect(() => {
@@ -184,7 +187,7 @@ export function CutPointTrackerPage() {
     createLeafletMap({
       container: mapHostRef.current,
       config: readMapConfig(),
-      onOpenTicket: (ticketId) => navigate(`/generator/${ticketId}`),
+      onOpenTicket: (ticketId) => navigate(`/tickets/${ticketId}`),
       onTileError: () => setTileWarning(true),
     })
       .then((client) => {
@@ -262,7 +265,11 @@ export function CutPointTrackerPage() {
       ) : null}
 
       <div className="grid gap-4 md:grid-cols-[350px_minmax(0,1fr)] md:items-start xl:grid-cols-[390px_minmax(0,1fr)]">
-        <section className="order-2 z-[450] -mt-10 rounded-t-[28px] border border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] p-4 shadow-[var(--shadow-lg)] backdrop-blur-2xl md:order-1 md:mt-0 md:max-h-[calc(100vh-11rem)] md:overflow-y-auto md:rounded-[var(--radius-xl)] md:bg-[var(--surface-panel)] md:shadow-[var(--shadow-md)]">
+        <section
+          className={`order-2 z-[450] -mt-10 rounded-t-[28px] border border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] p-4 shadow-[var(--shadow-lg)] backdrop-blur-2xl md:order-1 md:mt-0 md:max-h-[calc(100vh-11rem)] md:rounded-[var(--radius-xl)] md:bg-[var(--surface-panel)] md:shadow-[var(--shadow-md)] ${
+            useVirtualizedMarkerList ? 'md:overflow-hidden' : 'md:overflow-y-auto'
+          }`}
+        >
           <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-[var(--border-default)] md:hidden" />
           <div className="flex items-center justify-between gap-3 pb-4">
             <div>
@@ -325,16 +332,47 @@ export function CutPointTrackerPage() {
           ) : null}
 
           {!loading && !queryError && visibleMarkers.length > 0 ? (
-            <div className="mt-4 grid gap-3">
-              {visibleMarkers.map((marker) => (
-                <MarkerCard
-                  key={marker.ticketId}
-                  marker={marker}
-                  selected={selectedTicketId === marker.ticketId}
-                  onLocate={locateMarker}
+            useVirtualizedMarkerList ? (
+              <>
+                <VirtualizedList
+                  items={visibleMarkers}
+                  getItemKey={(marker) => marker.ticketId}
+                  estimateSize={250}
+                  overscan={3}
+                  ariaLabel="Mapped incident virtualized list"
+                  className="mt-4 hidden h-[calc(100vh-26rem)] min-h-72 max-h-[560px] pr-1 md:block"
+                  itemClassName="pb-3"
+                  renderItem={(marker) => (
+                    <MarkerCard
+                      marker={marker}
+                      selected={selectedTicketId === marker.ticketId}
+                      onLocate={locateMarker}
+                    />
+                  )}
                 />
-              ))}
-            </div>
+                <div className="mt-4 grid gap-3 md:hidden">
+                  {visibleMarkers.map((marker) => (
+                    <MarkerCard
+                      key={marker.ticketId}
+                      marker={marker}
+                      selected={selectedTicketId === marker.ticketId}
+                      onLocate={locateMarker}
+                    />
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="mt-4 grid gap-3">
+                {visibleMarkers.map((marker) => (
+                  <MarkerCard
+                    key={marker.ticketId}
+                    marker={marker}
+                    selected={selectedTicketId === marker.ticketId}
+                    onLocate={locateMarker}
+                  />
+                ))}
+              </div>
+            )
           ) : null}
         </section>
 
