@@ -1,6 +1,6 @@
 # Ticket Detail / Template Generator Separation
 
-**Status:** IMPLEMENTED — AUTOMATED QA PENDING  
+**Status:** IMPLEMENTED — AUTOMATED QA COMPLETE — MANUAL ACCEPTANCE PENDING  
 **Branch:** `feature/ticket-detail-separation`  
 **Parent:** `feature/ui-native-polish`
 
@@ -43,7 +43,29 @@ The Ticket Detail page:
 - [x] Dashboard recent Ticket navigation is tested to use the read-only detail route.
 - [x] Ticket Detail is tested to omit editor controls.
 - [x] Ticket Detail Edit CTA is capability-gated and points to the explicit edit route.
-- [ ] Full repository Quality workflow green on final product/code head.
+- [x] Full repository Quality workflow green on final product/code head.
+
+## Automated QA evidence
+
+**Quality #648 — FULL GREEN** on product/code head `c3ac3cb76c90c2772f0e6fa1ae3c178c41bc9c3b`.
+
+Passed:
+
+- formatting and committed-format verification;
+- lint;
+- 117 unit/component tests;
+- Firebase Emulator repository integration;
+- Firestore Security Rules role matrix;
+- release preflight;
+- generic production build and Firebase-configured production build;
+- dev-server smoke;
+- real-browser responsive/touch QA;
+- Playwright Admin lifecycle;
+- Operator/Viewer RBAC;
+- keyboard/focus behavior;
+- serious/critical axe accessibility checks.
+
+Quality #646 exposed a stale browser-test expectation from the previous Viewer wording. Quality #647 passed every functional/browser gate and identified only a missing final newline in the E2E spec. The exact formatter output was persisted before Quality #648.
 
 ## Guardrails
 
