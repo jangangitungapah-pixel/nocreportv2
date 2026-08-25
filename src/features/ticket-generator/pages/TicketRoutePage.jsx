@@ -1,9 +1,13 @@
-import { useAuth } from '../../../app/providers/AuthProvider.jsx';
-import { CAPABILITY } from '../../../entities/user/authorization.js';
-import { TicketGeneratorPage } from './TicketGeneratorPage.jsx';
-import { TicketViewerPage } from './TicketViewerPage.jsx';
+import { Navigate, useLocation, useParams } from 'react-router-dom';
 
 export function TicketRoutePage() {
-  const { can } = useAuth();
-  return can(CAPABILITY.EDIT_TICKET) ? <TicketGeneratorPage /> : <TicketViewerPage />;
+  const { ticketId } = useParams();
+  const location = useLocation();
+
+  const isProgressEditIntent = location.hash === '#progress-text';
+  const destination = isProgressEditIntent
+    ? `/generator/${ticketId}/edit${location.hash}`
+    : `/tickets/${ticketId}`;
+
+  return <Navigate to={destination} replace />;
 }
