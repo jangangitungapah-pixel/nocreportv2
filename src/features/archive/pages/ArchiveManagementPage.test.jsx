@@ -63,6 +63,12 @@ function firstButton(name) {
   return screen.getAllByRole('button', { name })[0];
 }
 
+function activateTab(name) {
+  const tab = screen.getByRole('tab', { name });
+  fireEvent.mouseDown(tab, { button: 0, ctrlKey: false });
+  fireEvent.click(tab);
+}
+
 describe('ArchiveManagementPage', () => {
   beforeEach(() => {
     mocks.canArchiveRestore = true;
@@ -129,7 +135,7 @@ describe('ArchiveManagementPage', () => {
 
     renderPage();
     await screen.findAllByText(resolvedTicket.title);
-    fireEvent.click(screen.getByRole('tab', { name: 'Archived' }));
+    activateTab('Archived');
 
     await screen.findAllByText(archivedTicket.title);
     expect(screen.getByRole('tab', { name: 'Archived' })).toHaveAttribute('data-state', 'active');
