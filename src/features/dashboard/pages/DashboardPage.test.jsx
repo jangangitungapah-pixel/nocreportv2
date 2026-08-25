@@ -56,7 +56,9 @@ describe('DashboardPage dense operations workspace', () => {
   it('renders the compact metric strip and dense recent activity dataset', async () => {
     renderPage();
 
-    expect(await screen.findByRole('heading', { name: 'Operational overview' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: 'Operational overview' }),
+    ).toBeInTheDocument();
     const metricStrip = screen.getByRole('region', { name: "Today's operational pulse" });
     expect(within(metricStrip).getByText('Running')).toBeInTheDocument();
     expect(within(metricStrip).getByText('Today')).toBeInTheDocument();
