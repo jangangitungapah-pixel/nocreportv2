@@ -1,5 +1,12 @@
 import { forwardRef, useEffect, useId, useImperativeHandle, useRef, useState } from 'react';
 
+import {
+  Dialog as RadixDialog,
+  DialogContent as RadixDialogContent,
+  DialogDescription as RadixDialogDescription,
+  DialogTitle as RadixDialogTitle,
+} from './primitives.jsx';
+
 function joinClassNames(...values) {
   return values.filter(Boolean).join(' ');
 }
@@ -606,80 +613,32 @@ export function ConfirmDialog({
   onClose,
   tone = 'primary',
 }) {
-  const titleId = useId();
-  const descriptionId = useId();
-  const dialogRef = useRef(null);
   const cancelRef = useRef(null);
-  const previousActiveElementRef = useRef(null);
-  const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
-
-  useEffect(() => {
-    if (!open) return undefined;
-
-    previousActiveElementRef.current = document.activeElement;
-    cancelRef.current?.focus();
-
-    const handleKeyDown = (event) => {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        onCloseRef.current?.();
-        return;
-      }
-
-      if (event.key !== 'Tab') return;
-      const focusable = Array.from(
-        dialogRef.current?.querySelectorAll(
-          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-        ) ?? [],
-      );
-      if (focusable.length === 0) return;
-
-      const first = focusable[0];
-      const last = focusable.at(-1);
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      previousActiveElementRef.current?.focus?.();
-    };
-  }, [open]);
-
-  if (!open) return null;
 
   return (
-    <div
-      className="ui-dialog-backdrop fixed inset-0 z-[90] grid place-items-center bg-[#090c12]/55 p-4 backdrop-blur-md"
-      role="presentation"
-      onMouseDown={onClose}
+    <RadixDialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen) onClose?.();
+      }}
     >
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        aria-describedby={descriptionId}
-        className="ui-dialog w-full max-w-md rounded-[var(--radius-2xl)] border border-[var(--border-subtle)] bg-[var(--surface-elevated)] p-5 shadow-[var(--shadow-lg)] md:p-6"
-        onMouseDown={(event) => event.stopPropagation()}
+      <RadixDialogContent
+        className="w-full max-w-md rounded-[var(--radius-2xl)] p-5 md:p-6"
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          cancelRef.current?.focus();
+        }}
       >
         <span
           className="mb-5 block h-1.5 w-12 rounded-full bg-[var(--accent-solid)] shadow-[0_0_18px_var(--accent-glow)]"
           aria-hidden="true"
         />
-        <h2 id={titleId} className="text-xl font-bold text-[var(--text-primary)]">
+        <RadixDialogTitle className="text-xl font-bold text-[var(--text-primary)]">
           {title}
-        </h2>
-        <p id={descriptionId} className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
+        </RadixDialogTitle>
+        <RadixDialogDescription className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
           {description}
-        </p>
+        </RadixDialogDescription>
         <div className="mt-7 flex flex-wrap justify-end gap-2">
           <Button ref={cancelRef} tone="secondary" onClick={onClose}>
             Cancel
@@ -688,7 +647,7 @@ export function ConfirmDialog({
             {confirmLabel}
           </Button>
         </div>
-      </div>
-    </div>
+      </RadixDialogContent>
+    </RadixDialog>
   );
 }
