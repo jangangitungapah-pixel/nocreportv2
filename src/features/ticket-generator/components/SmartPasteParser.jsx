@@ -69,13 +69,18 @@ export function SmartPasteParser({ onApply }) {
                         key={field}
                         className="inline-flex min-h-5 items-center gap-1 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-1.5 text-[9px] font-bold text-[var(--text-secondary)]"
                       >
-                        <span className="h-1 w-1 rounded-full bg-[var(--success-solid)]" aria-hidden="true" />
+                        <span
+                          className="h-1 w-1 rounded-full bg-[var(--success-solid)]"
+                          aria-hidden="true"
+                        />
                         {FIELD_LABELS[field] ?? field}
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <p className="mt-1 text-[10px] text-[var(--text-muted)]">No known labels detected yet.</p>
+                  <p className="mt-1 text-[10px] text-[var(--text-muted)]">
+                    No known labels detected yet.
+                  </p>
                 )}
               </div>
               <Button size="sm" disabled={!parsed.canApply} onClick={apply}>
@@ -89,7 +94,8 @@ export function SmartPasteParser({ onApply }) {
                 className="mt-2 border-l-2 border-[var(--warning-solid)] bg-[var(--warning-soft)] px-2.5 py-1.5 text-[10.5px] leading-5 text-[var(--warning-text)]"
                 role="status"
               >
-                <span className="font-bold">Check before applying:</span> {parsed.warnings.join(' · ')}
+                <span className="font-bold">Check before applying:</span>{' '}
+                {parsed.warnings.join(' · ')}
               </p>
             ) : null}
           </div>
