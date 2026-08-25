@@ -428,12 +428,7 @@ export function CutPointTrackerPage() {
         ) : null}
       </div>
 
-      <div
-        ref={mapHostRef}
-        className="absolute inset-0"
-        role="region"
-        aria-label="Cut Point map"
-      />
+      <div ref={mapHostRef} className="absolute inset-0" role="region" aria-label="Cut Point map" />
 
       {!loading && !queryError && visibleMarkers.length === 0 ? (
         <div className="pointer-events-none absolute inset-x-3 top-12 z-[500] border border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] px-3 py-2 text-[10.5px] font-medium text-[var(--text-secondary)] shadow-[var(--shadow-xs)] backdrop-blur-lg">
@@ -529,8 +524,8 @@ export function CutPointTrackerPage() {
       {localDevelopmentMode ? (
         <div className="border-l-2 border-[var(--accent-solid)] bg-[var(--accent-soft)] px-3 py-2 text-[10.5px] leading-5 text-[var(--text-secondary)]">
           <span className="font-extrabold text-[var(--accent-text)]">Local preview.</span> No
-          persisted Cut Point records are available until Firebase is configured; the map still
-          uses the configured OpenStreetMap-compatible tile source.
+          persisted Cut Point records are available until Firebase is configured; the map still uses
+          the configured OpenStreetMap-compatible tile source.
         </div>
       ) : null}
 
