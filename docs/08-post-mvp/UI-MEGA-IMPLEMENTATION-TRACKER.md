@@ -80,16 +80,23 @@ Validated gates: Prettier + committed-format verification, ESLint, 129 unit/comp
 
 ## MEGA-3 — Data workspace foundation
 
-- [ ] Shared TanStack Table v9 DataTable architecture.
-- [ ] Sorting/filter/column-visibility state helpers.
-- [ ] Radix Checkbox column visibility menu.
-- [ ] Canonical row-action Dropdown Menu pattern.
-- [ ] Dense desktop one-line/two-line row variants.
-- [ ] Compact mobile list fallback with equivalent primary actions.
-- [ ] TanStack Virtual integration on a meaningful long-list foundation/demo path suitable for later Cut Point/Running adoption.
-- [ ] Shared table/list loading skeletons and empty states.
-- [ ] Regression coverage for sorting, visibility, responsive fallback, row actions, and virtualization behavior.
+- [x] Shared TanStack Table v9 DataTable architecture using an app-specific opt-in feature registry.
+- [x] Sorting/filter/column-visibility controlled state helpers with optional local UI-preference persistence.
+- [x] Radix Checkbox column visibility menu.
+- [x] Canonical row-action Dropdown Menu pattern that consumes feature-supplied actions and owns no RBAC/business rules.
+- [x] Dense desktop compact/standard/two-line row variants.
+- [x] Compact mobile list fallback driven by the same filtered/sorted TanStack row model.
+- [x] TanStack Virtual variable-height integration activated on the bounded Cut Point long-list production path when more than 24 mapped incidents are visible.
+- [x] Shared table/list loading skeletons and empty states.
+- [x] Regression coverage for sorting, filtering, visibility, responsive fallback parity, row actions, state normalization, virtualization behavior, and Cut Point read-only review navigation.
 - [ ] Full repository Quality workflow green on final MEGA-3 product/code head.
+
+### MEGA-3 implementation notes
+
+- TanStack Table is used with the v9 API contract (`createTableHook`, opt-in `tableFeatures`, v9 row-model factories), not the deprecated v8 `useReactTable` pattern.
+- Shared data components remain headless with respect to Ticket semantics: Firestore query bounds, lifecycle mutations, RBAC outcomes, and report behavior stay in feature/infrastructure layers.
+- Cut Point virtualization does not change the `limit: 500` bounded query, marker filtering, marker focus, or map dataset. Mobile intentionally keeps a normal list to preserve touch ergonomics.
+- Cut Point review navigation now follows the protected route contract: list and map review actions open `/tickets/:ticketId` rather than entering the editor implicitly.
 
 ### Activated foundation paths
 
@@ -100,6 +107,14 @@ Validated gates: Prettier + committed-format verification, ESLint, 129 unit/comp
 - `src/shared/ui/foundation.js`
 - `src/shared/ui/dependencyRegistry.js`
 - `src/shared/ui/primitives.jsx`
+- `src/shared/data-workspace/tableModel.js`
+- `src/shared/data-workspace/tableState.js`
+- `src/shared/data-workspace/DataTable.jsx`
+- `src/shared/data-workspace/ColumnVisibilityMenu.jsx`
+- `src/shared/data-workspace/RowActionsMenu.jsx`
+- `src/shared/data-workspace/VirtualizedList.jsx`
+- `src/shared/data-workspace/DataWorkspaceStates.jsx`
+- `src/shared/data-workspace/index.js`
 - `src/styles/tokens.css`
 - `src/app/components/CommandPalette.jsx`
 - `src/app/components/PageHeader.jsx`
