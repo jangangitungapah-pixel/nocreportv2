@@ -495,6 +495,7 @@ export function CutPointTrackerPage() {
 
       <div
         className="flex min-h-8 flex-wrap items-center gap-x-3 gap-y-1 border-b border-[var(--border-subtle)] pb-2 text-[9.5px] font-semibold text-[var(--text-muted)]"
+        role="group"
         aria-label="Cut Point workspace summary"
       >
         <span>
