@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import {
@@ -14,6 +15,25 @@ import {
   TabsList,
   TabsTrigger,
 } from './primitives.jsx';
+
+function ControlledDialogHarness() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <button type="button" onClick={() => setOpen(true)}>
+        Archive Ticket
+      </button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogTitle>Archive Ticket?</DialogTitle>
+          <DialogDescription>Confirm the lifecycle mutation.</DialogDescription>
+          <button type="button">Cancel</button>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
 
 describe('Mega Radix primitives', () => {
   it('supports Slot-powered button/link composition', () => {
@@ -45,6 +65,22 @@ describe('Mega Radix primitives', () => {
     expect(dialog).toBeInTheDocument();
     fireEvent.keyDown(dialog, { key: 'Escape' });
     expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it('restores focus for controlled Dialogs without a Radix trigger', () => {
+    render(<ControlledDialogHarness />);
+
+    const trigger = screen.getByRole('button', { name: 'Archive Ticket' });
+    trigger.focus();
+    fireEvent.click(trigger);
+
+    const dialog = screen.getByRole('dialog', { name: 'Archive Ticket?' });
+    expect(screen.getByRole('button', { name: 'Cancel' })).toHaveFocus();
+
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+
+    expect(screen.queryByRole('dialog', { name: 'Archive Ticket?' })).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
   });
 
   it('provides semantic tabs and binary controls', () => {
