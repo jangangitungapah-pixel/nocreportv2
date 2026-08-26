@@ -19,8 +19,12 @@ export function isGeneratorWorkspacePath(pathname) {
 
 export function dispatchGeneratorWorkspaceCommand(command, target = globalThis.window) {
   if (!isGeneratorWorkspaceCommand(command) || !target?.dispatchEvent) return false;
+
+  const CustomEventConstructor = target.CustomEvent ?? globalThis.CustomEvent;
+  if (typeof CustomEventConstructor !== 'function') return false;
+
   target.dispatchEvent(
-    new CustomEvent(GENERATOR_WORKSPACE_COMMAND_EVENT, {
+    new CustomEventConstructor(GENERATOR_WORKSPACE_COMMAND_EVENT, {
       detail: { command },
     }),
   );
