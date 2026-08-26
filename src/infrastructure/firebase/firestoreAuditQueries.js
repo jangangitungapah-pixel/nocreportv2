@@ -1,4 +1,11 @@
-import { collection, documentId, getDocs, limit as firestoreLimit, orderBy, query } from 'firebase/firestore';
+import {
+  collection,
+  documentId,
+  getDocs,
+  limit as firestoreLimit,
+  orderBy,
+  query,
+} from 'firebase/firestore';
 
 import { normalizeFirebaseError } from './firebaseErrors.js';
 import { getFirestoreClient } from './firestoreClient.js';
