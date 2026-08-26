@@ -1,49 +1,14 @@
-name: GEN-F2 page follow-up wiring
+name: GEN-F2 page wiring archive
 
 on:
-  push:
-    branches:
-      - feature/template-generator-features
-    paths:
-      - .github/workflows/gen-f2-page-wire.yml
+  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  follow-up:
+  archived:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5
-        with:
-          ref: feature/template-generator-features
-      - uses: actions/setup-node@v5
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-      - run: npm ci
-      - name: Close metadata-only status transition gap
-        shell: bash
-        run: |
-          python3 <<'PY'
-          from pathlib import Path
-          path = Path('src/features/ticket-generator/pages/TicketGeneratorPage.jsx')
-          text = path.read_text()
-          old = """    if (isDirty) {\n      pushToast({\n        title: 'Save form changes first',\n"""
-          new = """    if (isDirty || featureMetadataDirty) {\n      pushToast({\n        title: 'Save form changes first',\n"""
-          if text.count(old) != 1:
-              raise SystemExit(f'Expected one transition dirty gate, got {text.count(old)}')
-          path.write_text(text.replace(old, new, 1))
-          PY
-      - run: npx prettier --write src/features/ticket-generator/pages/TicketGeneratorPage.jsx
-      - run: npx vitest run src/features/ticket-generator/pages/TicketGeneratorPage.test.jsx src/features/ticket-generator/lib/smartTitle.test.js
-      - name: Commit validated follow-up
-        shell: bash
-        run: |
-          git add src/features/ticket-generator/pages/TicketGeneratorPage.jsx
-          git diff --cached --quiet && exit 0
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "fix(generator): require metadata Save before status transition"
-          git push origin HEAD:feature/template-generator-features
+      - name: Archived one-time wiring workflow
+        run: echo "GEN-F2 page wiring completed in runs 32946510796 and 32946654963. No action is required."
