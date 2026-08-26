@@ -103,7 +103,12 @@ export function isCopyTargetId(value) {
 export function formatCopyTarget(
   targetId,
   ticket = {},
-  { validationFindings = [], relatedTicketCount = 0, now = new Date(), timezone = 'Asia/Jakarta' } = {},
+  {
+    validationFindings = [],
+    relatedTicketCount = 0,
+    now = new Date(),
+    timezone = 'Asia/Jakarta',
+  } = {},
 ) {
   switch (targetId) {
     case COPY_TARGET_IDS.FULL_REPORT:

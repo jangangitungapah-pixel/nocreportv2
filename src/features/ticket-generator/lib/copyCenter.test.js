@@ -74,9 +74,7 @@ describe('copyCenter', () => {
       '10:30 team OTW\n11:30 OTDR complete',
     );
     expect(formatCopyTarget(COPY_TARGET_IDS.COORDINATE, ticket)).toBe('-6.12346, 107.65432');
-    expect(formatCopyTarget(COPY_TARGET_IDS.PRIMARY_TT, ticket)).toBe(
-      'INC-20260826-00000001',
-    );
+    expect(formatCopyTarget(COPY_TARGET_IDS.PRIMARY_TT, ticket)).toBe('INC-20260826-00000001');
     expect(
       formatCopyTarget(COPY_TARGET_IDS.HANDOVER, ticket, {
         now,

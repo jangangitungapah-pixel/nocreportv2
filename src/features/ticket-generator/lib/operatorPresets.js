@@ -40,7 +40,9 @@ function validProfileId(value) {
 function validCopyTarget(value, profileId) {
   if (isCopyTargetId(value)) return value;
   const profileDefault = getTemplateProfile(profileId)?.defaultCopyTarget;
-  return isCopyTargetId(profileDefault) ? profileDefault : DEFAULT_OPERATOR_PRESETS.defaultCopyTarget;
+  return isCopyTargetId(profileDefault)
+    ? profileDefault
+    : DEFAULT_OPERATOR_PRESETS.defaultCopyTarget;
 }
 
 function favoriteSnippetIds(value, validSnippetIds = []) {
@@ -87,7 +89,10 @@ export function sanitizeOperatorPresets(value = {}, { validSnippetIds = [] } = {
   return {
     version: OPERATOR_PRESETS_VERSION,
     templateProfileId: profileId,
-    favoriteProgressSnippetIds: favoriteSnippetIds(value.favoriteProgressSnippetIds, validSnippetIds),
+    favoriteProgressSnippetIds: favoriteSnippetIds(
+      value.favoriteProgressSnippetIds,
+      validSnippetIds,
+    ),
     defaultPic: cleanText(value.defaultPic),
     defaultCopyTarget: validCopyTarget(value.defaultCopyTarget, profileId),
     utilityState: utilityState(value.utilityState),

@@ -1,4 +1,8 @@
-import { formatDateTime, formatProgressTime, sortProgressTimeline } from '../../../entities/ticket/index.js';
+import {
+  formatDateTime,
+  formatProgressTime,
+  sortProgressTimeline,
+} from '../../../entities/ticket/index.js';
 import { deriveTimeIntelligence, formatOperationalDuration } from './timeIntelligence.js';
 
 const EMPTY_VALUE = '—';
@@ -82,7 +86,9 @@ export function formatHandoverSummary(model = {}) {
     }
   }
 
-  const warnings = Array.isArray(model.warnings) ? model.warnings.map(cleanText).filter(Boolean) : [];
+  const warnings = Array.isArray(model.warnings)
+    ? model.warnings.map(cleanText).filter(Boolean)
+    : [];
   if (warnings.length) {
     lines.push('Warnings:');
     for (const warning of warnings) lines.push(`- ${warning}`);
