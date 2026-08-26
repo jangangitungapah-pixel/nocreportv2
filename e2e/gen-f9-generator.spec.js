@@ -254,8 +254,7 @@ test.describe.serial('GEN-F9 integrated Generator hardening', () => {
     await login(page);
     await openNewGenerator(page);
 
-    const draftTitle =
-      '[F9-DRAFT] LINK DOWN [TT : INC-20260827-90090004]';
+    const draftTitle = '[F9-DRAFT] LINK DOWN [TT : INC-20260827-90090004]';
     await page.locator('#ticket-title').fill(draftTitle);
     await page.getByLabel('Occur Time', { exact: true }).fill('2026-08-27T10:00');
     await page.getByLabel('PIC', { exact: true }).fill('F9 Recovery PIC');
@@ -289,7 +288,7 @@ test.describe.serial('GEN-F9 integrated Generator hardening', () => {
 
     await page.getByLabel('PIC', { exact: true }).fill('F9 Revision PIC B');
     await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page.getByText('Ticket saved')).toBeVisible();
+    await expect(page.getByText('Revision 2', { exact: true })).toBeVisible();
     await page.reload();
 
     const history = page.getByLabel('Revision history');
