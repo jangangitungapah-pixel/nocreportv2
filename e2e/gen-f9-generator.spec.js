@@ -286,6 +286,12 @@ test.describe.serial('GEN-F9 integrated Generator hardening', () => {
     await page.getByRole('button', { name: 'Save' }).click();
     await page.waitForURL((url) => /^\/generator\/[^/]+\/edit$/.test(new URL(url).pathname));
 
+    const initialHistory = page.getByLabel('Revision history');
+    await expect(initialHistory.getByText('Ticket created', { exact: true })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByText('Revision 1', { exact: true })).toBeVisible();
+
     await page.getByLabel('PIC', { exact: true }).fill('F9 Revision PIC B');
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page.getByText('Revision 2', { exact: true })).toBeVisible();
