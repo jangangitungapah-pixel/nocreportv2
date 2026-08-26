@@ -3,7 +3,7 @@
 **PRD:** `docs/08-post-mvp/TEMPLATE-GENERATOR-VISUAL-OVERHAUL-PRD.md`  
 **Branch:** `feature/template-generator-visual-overhaul`  
 **Stacked base:** `feature/template-generator-features`  
-**Status:** GUX-0 COMPLETE · GUX-1 COMPLETE · GUX-2 COMPLETE · GUX-3 COMPLETE · GUX-4 COMPLETE · GUX-5 IN PROGRESS
+**Status:** GUX-0 COMPLETE · GUX-1 COMPLETE · GUX-2 COMPLETE · GUX-3 COMPLETE · GUX-4 COMPLETE · GUX-5 COMPLETE · GUX-6 IN PROGRESS
 
 ## Baseline
 
@@ -92,13 +92,17 @@ GUX-4 presentation changes passed targeted Copy Center, handover summary, Operat
 
 ## GUX-5 — Responsive/mobile workspace
 
-- [ ] intentional mobile information ordering.
-- [ ] sticky primary actions remain reachable.
-- [ ] 360x800 green.
-- [ ] 390x844 green.
-- [ ] 412x915 green.
-- [ ] no horizontal overflow.
-- [ ] touch targets safe.
+- [x] intentional mobile information ordering.
+- [x] sticky primary actions remain reachable.
+- [x] 360x800 green.
+- [x] 390x844 green.
+- [x] 412x915 green.
+- [x] no horizontal overflow.
+- [x] touch targets safe.
+
+### GUX-5 automated evidence
+
+GUX-5 passed the dedicated authenticated Chromium matrix at 360x800, 390x844 and 412x915 after presentation-only mobile workspace changes. The browser gate verifies explicit editor-before-live-output ordering, a sticky mobile command surface with reachable Save/transition actions, 44px-class primary action and field targets, and no document/body horizontal overflow before and after deep scrolling and at the live report output. Targeted Generator regression, the full unit/component suite and the production build also remain green. Desktop ResizableWorkspace behavior, form semantics, lifecycle actions, persistence, canonical report content and accessibility labels are unchanged.
 
 ## GUX-6 — Theme, motion and accessibility polish
 

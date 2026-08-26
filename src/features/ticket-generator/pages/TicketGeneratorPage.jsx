@@ -1485,6 +1485,7 @@ export function TicketGeneratorPage() {
         primary={editor}
         secondary={preview}
         className="generator-cockpit-workspace h-[calc(100vh-10.5rem)] min-h-[620px]"
+        mobileClassName="generator-cockpit-mobile-flow"
       />
 
       <ConfirmDialog
