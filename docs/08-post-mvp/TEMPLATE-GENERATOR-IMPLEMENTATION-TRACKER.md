@@ -4,7 +4,7 @@
 **Evidence annex:** `docs/08-post-mvp/TEMPLATE-GENERATOR-EMAIL-IMPORT-ADDENDUM.md`  
 **Branch:** `feature/template-generator-features`  
 **PR:** #7  
-**Status:** GEN-F0 IN PROGRESS
+**Status:** GEN-F0 COMPLETE · GEN-F1 NEXT
 
 ## GEN-F0 — Baseline, contracts and feature skeleton
 
@@ -33,27 +33,69 @@
 - [x] Production Generator form behavior unchanged.
 - [x] Firestore persistence/schema behavior unchanged.
 - [x] RBAC/Security Rules/lifecycle/OCR/canonical report behavior unchanged.
-- [ ] Prettier formatting committed.
-- [ ] ESLint green.
-- [ ] Unit/component suite green.
-- [ ] Firebase Emulator repository tests green.
-- [ ] Firestore Security Rules matrix green.
-- [ ] Repository/dependency hygiene green.
-- [ ] Release preflight green.
-- [ ] Generic + Firebase-configured production builds green.
-- [ ] Dev smoke green.
-- [ ] Real-browser viewport/touch QA green.
-- [ ] Playwright lifecycle/RBAC/keyboard/overflow/axe green.
-- [ ] Final committed-format verifier green on clean head.
-- [ ] PR returned to stacked base `feature/ui-density-system` after clean integration QA.
+- [x] Prettier formatting committed.
+- [x] ESLint green.
+- [x] Unit/component suite green.
+- [x] Firebase Emulator repository tests green.
+- [x] Firestore Security Rules matrix green.
+- [x] Repository/dependency hygiene green.
+- [x] Release preflight green.
+- [x] Generic + Firebase-configured production builds green.
+- [x] Dev smoke green.
+- [x] Real-browser viewport/touch QA green.
+- [x] Playwright lifecycle/RBAC/keyboard/overflow/axe green.
+- [x] Final committed-format verifier green on clean head.
+- [x] PR returned to stacked base `feature/ui-density-system` after clean integration QA.
 
-### GEN-F0 exit criterion
+### GEN-F0 automated QA evidence
 
-GEN-F0 is complete only when the contracts above remain non-invasive to production behavior and the full repository Quality workflow is green on a clean committed head.
+**Quality #747 — FULL GREEN** on final GEN-F0 product/code head `152c82ae1d5d27610c48d9cf3b94d80c6d84efb4` (run ID `32929648966`).
+
+Validated gates:
+
+- committed Prettier formatting + final committed-format verifier;
+- ESLint;
+- **173 unit/component tests passed** with 13 emulator-only skips in the normal unit pass;
+- Firebase Emulator Ticket repository integration **6/6**;
+- Firestore Security Rules matrix **7/7**;
+- T7 repository/security hygiene: all **31 production dependencies referenced**, no committed real fixture/test-data files, legacy UI guard clean;
+- T8 Firebase release preflight;
+- generic + Firebase-configured production builds;
+- dev smoke;
+- T6 browser QA at 360x800, 390x844, 412x915 and 1280x900 plus marker-touch QA;
+- Playwright **6/6** covering Login/recovery, Admin lifecycle, Operator/Viewer RBAC, keyboard/dialog focus, Light/Dark persistence/accessibility, and responsive overflow/serious axe checks.
+
+GEN-F0 intentionally changed no production Generator form behavior, Firestore persistence schema, lifecycle, RBAC, OCR or canonical report formatting. Its deliverable is the tested contract foundation for GEN-F1 and later phases.
+
+## GEN-F1 — Unified Import + Outlook `.msg`
+
+- [ ] Refactor current Smart Report parser behind a `report_text` source adapter with parity tests.
+- [ ] Complete browser `.msg` decoder dependency spike and pin an approved version.
+- [ ] Add local ArrayBuffer `.msg` decoder.
+- [ ] Read top-level Outlook Sent Time from `PR_CLIENT_SUBMIT_TIME` / `0x00390040`.
+- [ ] Convert the Sent instant timezone-aware to `Asia/Jakarta` for Generator `dispatchAt`.
+- [ ] Explicitly reject Delivery Time and quoted body `Sent:` as Dispatch Time fallbacks.
+- [ ] Add email subject parser for FLP and direct MANDAU variants.
+- [ ] Add structured body parser for operational labels.
+- [ ] Add multi-TT reference extraction.
+- [ ] Add ordered multi-point path extraction.
+- [ ] Add sanitized HTML-to-text fallback.
+- [ ] Add `undefined`/blank normalization through the shared GEN-F0 contract.
+- [ ] Add field source/confidence metadata.
+- [ ] Add subject/body conflict detection.
+- [ ] Add filename fallback at lowest confidence only.
+- [ ] Add/selective Apply model without Firestore writes.
+- [ ] Preserve existing Smart Paste behavior through adapter parity.
+- [ ] Add synthetic corpus-inspired `.msg`/decoded-message fixtures only; no real operational email committed.
+- [ ] Verify `.msg` bytes and raw email are never persisted/uploaded.
+- [ ] Full repository Quality green on clean GEN-F1 head.
+
+### GEN-F1 exit criterion
+
+A supported Outlook `.msg` can be decoded locally into the shared Import Candidate, with reliable Sent Time → Dispatch Time behavior and conflict-safe preview/apply semantics, without bypassing the existing Generator Save/persistence boundary.
 
 ## Remaining phases
 
-- [ ] GEN-F1 — Unified Import + Outlook `.msg`
 - [ ] GEN-F2 — Structured alarm metadata + Template Profile + Smart Title
 - [ ] GEN-F3 — Impact Builder + Progress acceleration
 - [ ] GEN-F4 — Validation Center + Time Intelligence
