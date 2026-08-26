@@ -1,4 +1,9 @@
 import { COPY_TARGET_IDS, isCopyTargetId } from './copyCenter.js';
+import {
+  PROGRESS_SNIPPET_FAVORITES_STORAGE_KEY,
+  readProgressSnippetFavorites,
+  writeProgressSnippetFavorites,
+} from './progressSnippets.js';
 import { getTemplateProfile, TEMPLATE_PROFILE_IDS } from './templateProfiles.js';
 
 export const OPERATOR_PRESETS_VERSION = 1;
@@ -100,20 +105,28 @@ export function sanitizeOperatorPresets(value = {}, { validSnippetIds = [] } = {
   };
 }
 
+function defaultsWithLegacyFavorites(target, validSnippetIds) {
+  const legacyFavorites = readProgressSnippetFavorites({ storage: target, validIds: validSnippetIds });
+  return sanitizeOperatorPresets(
+    { favoriteProgressSnippetIds: legacyFavorites },
+    { validSnippetIds },
+  );
+}
+
 export function readOperatorPresets({ storage, validSnippetIds = [] } = {}) {
   const target = storageOrNull(storage);
   if (!target) return sanitizeOperatorPresets({}, { validSnippetIds });
 
   try {
     const raw = target.getItem(OPERATOR_PRESETS_STORAGE_KEY);
-    if (!raw) return sanitizeOperatorPresets({}, { validSnippetIds });
+    if (!raw) return defaultsWithLegacyFavorites(target, validSnippetIds);
     const parsed = JSON.parse(raw);
     if (parsed?.version !== OPERATOR_PRESETS_VERSION) {
-      return sanitizeOperatorPresets({}, { validSnippetIds });
+      return defaultsWithLegacyFavorites(target, validSnippetIds);
     }
     return sanitizeOperatorPresets(parsed, { validSnippetIds });
   } catch {
-    return sanitizeOperatorPresets({}, { validSnippetIds });
+    return defaultsWithLegacyFavorites(target, validSnippetIds);
   }
 }
 
@@ -123,6 +136,7 @@ export function writeOperatorPresets(value, { storage, validSnippetIds = [] } = 
   const next = sanitizeOperatorPresets(value, { validSnippetIds });
   try {
     target.setItem(OPERATOR_PRESETS_STORAGE_KEY, JSON.stringify(next));
+    writeProgressSnippetFavorites(next.favoriteProgressSnippetIds, { storage: target });
     return true;
   } catch {
     return false;
@@ -134,6 +148,7 @@ export function resetOperatorPresets({ storage, validSnippetIds = [] } = {}) {
   if (target) {
     try {
       target.removeItem(OPERATOR_PRESETS_STORAGE_KEY);
+      target.removeItem(PROGRESS_SNIPPET_FAVORITES_STORAGE_KEY);
     } catch {
       // Optional browser-local preferences must never block Generator authoring.
     }
