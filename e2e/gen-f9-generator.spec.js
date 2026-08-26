@@ -236,9 +236,7 @@ test.describe.serial('GEN-F9 integrated Generator hardening', () => {
     const duplicatePanel = page.locator('.generator-duplicate-related');
     await expect(
       duplicatePanel.getByRole('heading', { name: 'Duplicate & Related Tickets' }),
-    ).toBeVisible({
-      timeout: 15_000,
-    });
+    ).toBeVisible({ timeout: 15_000 });
     await expect(duplicatePanel.getByText(duplicate.tt, { exact: true })).toBeVisible();
     await expect(
       duplicatePanel.getByText('Exact external TT match', { exact: true }),
@@ -249,5 +247,69 @@ test.describe.serial('GEN-F9 integrated Generator hardening', () => {
     await expect(page).toHaveURL(/\/generator\/new$/);
     await duplicatePanel.getByRole('button', { name: 'Create anyway' }).click();
     await page.waitForURL((url) => /^\/generator\/[^/]+\/edit$/.test(new URL(url).pathname));
+  });
+
+  test('restores an interrupted local draft without creating a Firestore Ticket', async ({ page }) => {
+    await resetF9Data();
+    await login(page);
+    await openNewGenerator(page);
+
+    const draftTitle =
+      '[F9-DRAFT] LINK DOWN [TT : INC-20260827-90090004]';
+    await page.locator('#ticket-title').fill(draftTitle);
+    await page.getByLabel('Occur Time', { exact: true }).fill('2026-08-27T10:00');
+    await page.getByLabel('PIC', { exact: true }).fill('F9 Recovery PIC');
+    await page.getByLabel('Progress update').fill('Unsubmitted F9 recovery progress');
+
+    await expect
+      .poll(async () => page.evaluate(() => window.localStorage.getItem('nocreport-ticket-draft:new')))
+      .toContain(draftTitle);
+
+    await page.reload();
+    await expect(page.getByLabel('Draft recovery')).toBeVisible();
+    await page.getByRole('button', { name: 'Restore' }).click();
+    await expect(page.locator('#ticket-title')).toHaveValue(draftTitle);
+    await expect(page.getByLabel('PIC', { exact: true })).toHaveValue('F9 Recovery PIC');
+    await expect(page.getByLabel('Progress update')).toHaveValue('Unsubmitted F9 recovery progress');
+    await expect(page).toHaveURL(/\/generator\/new$/);
+  });
+
+  test('records and renders compact revision diff after explicit Ticket save', async ({ page }) => {
+    await resetF9Data();
+    await login(page);
+    await openNewGenerator(page);
+
+    await page
+      .locator('#ticket-title')
+      .fill('[F9-REVISION] LINK DOWN [TT : INC-20260827-90090005]');
+    await page.getByLabel('Occur Time', { exact: true }).fill('2026-08-27T11:00');
+    await page.getByLabel('PIC', { exact: true }).fill('F9 Revision PIC A');
+    await page.getByRole('button', { name: 'Save' }).click();
+    await page.waitForURL((url) => /^\/generator\/[^/]+\/edit$/.test(new URL(url).pathname));
+
+    await page.getByLabel('PIC', { exact: true }).fill('F9 Revision PIC B');
+    await page.getByRole('button', { name: 'Save' }).click();
+    await expect(page.getByText('Ticket saved')).toBeVisible();
+    await page.reload();
+
+    const history = page.getByLabel('Revision history');
+    await expect(history.getByRole('heading', { name: 'Revision History' })).toBeVisible();
+    await expect(history.getByText('Revision 1 → 2', { exact: true })).toBeVisible();
+    await expect(history.getByText('PIC', { exact: true })).toBeVisible();
+    await expect(history.getByText('F9 Revision PIC A → F9 Revision PIC B', { exact: true })).toBeVisible();
+  });
+
+  test('uses Ctrl+S as explicit Generator Save without invoking a lifecycle transition', async ({ page }) => {
+    await resetF9Data();
+    await login(page);
+    await openNewGenerator(page);
+
+    await page
+      .locator('#ticket-title')
+      .fill('[F9-SHORTCUT] LINK DOWN [TT : INC-20260827-90090006]');
+    await page.getByLabel('Occur Time', { exact: true }).fill('2026-08-27T12:00');
+    await page.keyboard.press('Control+S');
+    await page.waitForURL((url) => /^\/generator\/[^/]+\/edit$/.test(new URL(url).pathname));
+    await expect(page.getByText('Draft', { exact: true })).toBeVisible();
   });
 });
