@@ -16,6 +16,10 @@ import {
   validateTicketTransition,
 } from '../../../entities/ticket/index.js';
 import { CAPABILITY } from '../../../entities/user/authorization.js';
+import {
+  GENERATOR_WORKSPACE_COMMAND_EVENT,
+  GENERATOR_WORKSPACE_COMMANDS,
+} from '../../../shared/lib/generatorWorkspaceCommands.js';
 import { AppIcon } from '../../../shared/ui/icon.jsx';
 import { Button } from '../../../shared/ui/primitives.jsx';
 import { ResizableWorkspace } from '../../../shared/ui/ResizableWorkspace.jsx';
@@ -29,8 +33,10 @@ import {
   Textarea,
 } from '../../../shared/ui/index.jsx';
 import { CoordinateExtractor } from '../components/CoordinateExtractor.jsx';
+import { CopyCenter } from '../components/CopyCenter.jsx';
 import { DraftRecoveryNotice } from '../components/DraftRecoveryNotice.jsx';
 import { ImpactListEditor } from '../components/ImpactListEditor.jsx';
+import { OperatorPresetsPanel } from '../components/OperatorPresetsPanel.jsx';
 import { ProgressComposer } from '../components/ProgressComposer.jsx';
 import { ProgressTimeline } from '../components/ProgressTimeline.jsx';
 import { ReportPreview } from '../components/ReportPreview.jsx';
@@ -40,6 +46,13 @@ import { ValidationCenter } from '../components/ValidationCenter.jsx';
 import { clearDraftRecovery, readDraftRecovery, writeDraftRecovery } from '../lib/draftRecovery.js';
 import { DEFAULT_TICKET_FORM, buildTicketFromForm } from '../lib/formToTicket.js';
 import { mergeImpactValues } from '../lib/impactCandidates.js';
+import {
+  readOperatorPresets,
+  resetOperatorPresets,
+  sanitizeOperatorPresets,
+  writeOperatorPresets,
+} from '../lib/operatorPresets.js';
+import { DEFAULT_PROGRESS_SNIPPETS } from '../lib/progressSnippets.js';
 import {
   createTicketEditor,
   loadTicketEditor,
@@ -256,6 +269,9 @@ function topLevelDirtyFields(dirtyFields) {
 const EMPTY_DRAFT_RECOVERY = Object.freeze({ state: 'missing', payload: null });
 const EMPTY_PROGRESS_DRAFT = Object.freeze({ occurredAt: '', text: '' });
 const EMAIL_SENT_TIME_WARNING = 'Email Sent Time was not available; Dispatch Time needs review.';
+const VALID_PROGRESS_SNIPPET_IDS = Object.freeze(
+  DEFAULT_PROGRESS_SNIPPETS.map((snippet) => snippet.id),
+);
 
 function recoveredProgressEntries(entries) {
   if (!Array.isArray(entries)) return [];
@@ -287,6 +303,15 @@ function recoveredImportReview(metadata) {
   };
 }
 
+function focusWorkspaceElement(id) {
+  if (typeof document === 'undefined') return false;
+  const target = document.getElementById(id);
+  if (!target) return false;
+  target.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+  target.focus?.();
+  return true;
+}
+
 function GeneratorLoading() {
   return (
     <div className="grid gap-3" aria-label="Loading Ticket">
@@ -307,6 +332,14 @@ export function TicketGeneratorPage() {
   const { localDevelopmentMode, can } = useAuth();
   const canReadAudit = can?.(CAPABILITY.READ_AUDIT) ?? false;
   const { pushToast } = useToast();
+  const [operatorPresets, setOperatorPresets] = useState(() =>
+    readOperatorPresets({ validSnippetIds: VALID_PROGRESS_SNIPPET_IDS }),
+  );
+  const [selectedCopyTargetId, setSelectedCopyTargetId] = useState(null);
+  const [handoverContext, setHandoverContext] = useState({
+    validationFindings: [],
+    relatedTicketCount: 0,
+  });
   const [status, setStatus] = useState(TICKET_STATUS.DRAFT);
   const [savedStatus, setSavedStatus] = useState(TICKET_STATUS.DRAFT);
   const [progressEntries, setProgressEntries] = useState([]);
@@ -320,7 +353,9 @@ export function TicketGeneratorPage() {
   const [loadError, setLoadError] = useState(null);
   const [pendingNavigationTicketId, setPendingNavigationTicketId] = useState(null);
   const [featureMetadata, setFeatureMetadata] = useState(() =>
-    createEditorFeatureMetadata({ templateProfileId: 'MANDAU_DEFAULT' }),
+    createEditorFeatureMetadata({
+      templateProfileId: routeTicketId ? 'MANDAU_DEFAULT' : operatorPresets.templateProfileId,
+    }),
   );
   const [featureMetadataDirty, setFeatureMetadataDirty] = useState(false);
   const [importReview, setImportReview] = useState(null);
@@ -342,7 +377,11 @@ export function TicketGeneratorPage() {
     handleSubmit,
     formState: { errors, isDirty, dirtyFields },
   } = useForm({
-    defaultValues: { ...DEFAULT_TICKET_FORM, impactList: [] },
+    defaultValues: {
+      ...DEFAULT_TICKET_FORM,
+      impactList: [],
+      ...(!routeTicketId && operatorPresets.defaultPic ? { pic: operatorPresets.defaultPic } : {}),
+    },
     mode: 'onBlur',
     resolver: zodResolver(ticketFormSchema),
     shouldFocusError: true,
@@ -382,6 +421,42 @@ export function TicketGeneratorPage() {
     [importReview, ticket, validationNow, watchedValues],
   );
   const coordinate = coordinateSummary(watchedValues?.latitude, watchedValues?.longitude);
+  const selectedCopyTarget = selectedCopyTargetId ?? operatorPresets.defaultCopyTarget;
+
+  const persistOperatorPresetState = useCallback((nextValue) => {
+    const next = sanitizeOperatorPresets(nextValue, {
+      validSnippetIds: VALID_PROGRESS_SNIPPET_IDS,
+    });
+    setOperatorPresets(next);
+    writeOperatorPresets(next, { validSnippetIds: VALID_PROGRESS_SNIPPET_IDS });
+    return next;
+  }, []);
+
+  const resetOperatorPresetState = useCallback(() => {
+    const next = resetOperatorPresets({ validSnippetIds: VALID_PROGRESS_SNIPPET_IDS });
+    setOperatorPresets(next);
+    setSelectedCopyTargetId(null);
+    pushToast({
+      title: 'Operator presets reset',
+      message: 'Browser-local Generator defaults returned to profile defaults.',
+      tone: 'success',
+    });
+  }, [pushToast]);
+
+  const updateFavoriteSnippetIds = useCallback((ids) => {
+    setOperatorPresets((current) => {
+      const next = sanitizeOperatorPresets(
+        { ...current, favoriteProgressSnippetIds: ids },
+        { validSnippetIds: VALID_PROGRESS_SNIPPET_IDS },
+      );
+      writeOperatorPresets(next, { validSnippetIds: VALID_PROGRESS_SNIPPET_IDS });
+      return next;
+    });
+  }, []);
+
+  const updateHandoverContext = useCallback((context) => {
+    setHandoverContext(context);
+  }, []);
 
   const loadPersistedEditor = useCallback(async () => {
     if (localDevelopmentMode || !routeTicketId) {
@@ -673,6 +748,22 @@ export function TicketGeneratorPage() {
 
   const submitTicket = handleSubmit(persistCoreTicket, notifyInvalidForm);
 
+  useEffect(() => {
+    const handleSaveShortcut = (event) => {
+      if (event.defaultPrevented) return;
+      if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 's') return;
+      const activeElement = document.activeElement;
+      if (activeElement?.closest?.('[role="dialog"], [role="menu"]')) return;
+      const form = document.getElementById('ticket-editor-form');
+      if (!form || typeof form.requestSubmit !== 'function') return;
+      event.preventDefault();
+      form.requestSubmit();
+    };
+
+    document.addEventListener('keydown', handleSaveShortcut);
+    return () => document.removeEventListener('keydown', handleSaveShortcut);
+  }, []);
+
   const transitionTo = async (targetStatus) => {
     const values = await validateFormState();
     if (!values || persistPending) return;
@@ -757,25 +848,64 @@ export function TicketGeneratorPage() {
     }
   };
 
-  const copyReport = async () => {
-    setCopyPending(true);
-    try {
-      await copyPlainText(report);
-      pushToast({
-        title: 'Report copied',
-        message: 'Plain text is ready to paste.',
-        tone: 'success',
-      });
-    } catch {
-      pushToast({
-        title: 'Copy failed',
-        message: 'Your browser did not allow clipboard access.',
-        tone: 'error',
-      });
-    } finally {
-      setCopyPending(false);
-    }
-  };
+  const copyOutput = useCallback(
+    async (text, { title = 'Copied', message = 'Plain text is ready to paste.' } = {}) => {
+      if (copyPending || !text) return false;
+      setCopyPending(true);
+      try {
+        await copyPlainText(text);
+        pushToast({ title, message, tone: 'success' });
+        return true;
+      } catch {
+        pushToast({
+          title: 'Copy failed',
+          message: 'Your browser did not allow clipboard access.',
+          tone: 'error',
+        });
+        return false;
+      } finally {
+        setCopyPending(false);
+      }
+    },
+    [copyPending, pushToast],
+  );
+
+  const copyReport = () =>
+    copyOutput(report, { title: 'Report copied', message: 'Plain text is ready to paste.' });
+
+  const copyUtilityTarget = (target) =>
+    copyOutput(target?.text, {
+      title: `${target?.label ?? 'Output'} copied`,
+      message: 'Canonical Generator output is ready to paste.',
+    });
+
+  useEffect(() => {
+    const handleWorkspaceCommand = (event) => {
+      const command = event?.detail?.command;
+      if (command === GENERATOR_WORKSPACE_COMMANDS.COPY_REPORT) {
+        void copyOutput(report, {
+          title: 'Report copied',
+          message: 'Plain text is ready to paste.',
+        });
+        return;
+      }
+      if (command === GENERATOR_WORKSPACE_COMMANDS.FOCUS_SMART_IMPORT) {
+        focusWorkspaceElement('generator-smart-import');
+        return;
+      }
+      if (command === GENERATOR_WORKSPACE_COMMANDS.FOCUS_PROGRESS) {
+        focusWorkspaceElement('progress-text');
+        return;
+      }
+      if (command === GENERATOR_WORKSPACE_COMMANDS.FOCUS_VALIDATION) {
+        focusWorkspaceElement('generator-validation-center');
+      }
+    };
+
+    window.addEventListener(GENERATOR_WORKSPACE_COMMAND_EVENT, handleWorkspaceCommand);
+    return () =>
+      window.removeEventListener(GENERATOR_WORKSPACE_COMMAND_EVENT, handleWorkspaceCommand);
+  }, [copyOutput, report]);
 
   const addProgress = async (entry) => {
     if (localDevelopmentMode || !routeTicketId) {
@@ -1089,7 +1219,11 @@ export function TicketGeneratorPage() {
         />
       ) : null}
 
-      <ValidationCenter validation={validation} onFocusField={focusValidationField} />
+      <ValidationCenter
+        validation={validation}
+        onFocusField={focusValidationField}
+        onOperationalContextChange={updateHandoverContext}
+      />
 
       <form
         id="ticket-editor-form"
@@ -1231,11 +1365,42 @@ export function TicketGeneratorPage() {
         profileId={featureMetadata.templateProfileId}
         recoveryDraft={progressRecoveryDraft}
         onDraftChange={setProgressComposerDraft}
+        favoriteSnippetIds={operatorPresets.favoriteProgressSnippetIds}
+        onFavoriteSnippetIdsChange={updateFavoriteSnippetIds}
+        eventTimeBehavior={operatorPresets.eventTimeBehavior}
       />
       <ProgressTimeline
         entries={progressEntries}
         onUpdate={updateProgress}
         onRemove={setRemoveProgressId}
+      />
+      <CopyCenter
+        ticket={ticket}
+        validationFindings={handoverContext.validationFindings}
+        relatedTicketCount={handoverContext.relatedTicketCount}
+        selectedTargetId={selectedCopyTarget}
+        expanded={operatorPresets.utilityState.copyCenterExpanded}
+        handoverExpanded={operatorPresets.utilityState.handoverExpanded}
+        onSelectedTargetChange={setSelectedCopyTargetId}
+        onExpandedChange={(expanded) =>
+          persistOperatorPresetState({
+            ...operatorPresets,
+            utilityState: { ...operatorPresets.utilityState, copyCenterExpanded: expanded },
+          })
+        }
+        onHandoverExpandedChange={(expanded) =>
+          persistOperatorPresetState({
+            ...operatorPresets,
+            utilityState: { ...operatorPresets.utilityState, handoverExpanded: expanded },
+          })
+        }
+        onCopy={copyUtilityTarget}
+      />
+      <OperatorPresetsPanel
+        presets={operatorPresets}
+        expanded={operatorPresets.utilityState.presetsExpanded}
+        onChange={persistOperatorPresetState}
+        onReset={resetOperatorPresetState}
       />
       <TicketAuditHistory
         ticketId={routeTicketId}

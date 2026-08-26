@@ -40,7 +40,9 @@ describe('OperatorPresetsPanel', () => {
     const onReset = vi.fn();
     render(<OperatorPresetsPanel presets={presets()} expanded onReset={onReset} />);
 
-    expect(screen.queryByText(/permission/i)).toHaveTextContent('Browser-local only · no role or permission state');
+    expect(screen.queryByText(/permission/i)).toHaveTextContent(
+      'Browser-local only · no role or permission state',
+    );
     expect(screen.queryByLabelText(/role/i)).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Reset to defaults' }));
     expect(onReset).toHaveBeenCalledTimes(1);

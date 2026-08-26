@@ -68,7 +68,7 @@ function focusDuplicateReview() {
     ?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
 }
 
-export function ValidationCenter({ validation, onFocusField }) {
+export function ValidationCenter({ validation, onFocusField, onOperationalContextChange }) {
   const ticket = validation?.ticket ?? null;
   const routeTicketId = persistedTicketIdFromPathname();
   const duplicateFingerprint = useMemo(() => duplicateLookupFingerprint(ticket), [ticket]);
@@ -243,6 +243,13 @@ export function ValidationCenter({ validation, onFocusField }) {
   const ready = Boolean(displayValidation?.readyForRunning);
   const hasUnsavedChanges = generatorHasUnsavedChanges();
 
+  useEffect(() => {
+    onOperationalContextChange?.({
+      validationFindings: displayValidation?.findings ?? [],
+      relatedTicketCount: relatedTickets.length,
+    });
+  }, [displayValidation?.findings, onOperationalContextChange, relatedTickets.length]);
+
   return (
     <div className="grid gap-3">
       <DuplicateRelatedPanel
@@ -264,7 +271,11 @@ export function ValidationCenter({ validation, onFocusField }) {
         onUnlinkCurrent={handleUnlinkCurrent}
       />
 
-      <section className="generator-validation-center overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+      <section
+        id="generator-validation-center"
+        className="generator-validation-center overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
+        tabIndex={-1}
+      >
         <header className="flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5">
           <div className="flex min-w-0 items-center gap-2">
             <AppIcon name={ready ? 'check' : 'info'} size={14} />

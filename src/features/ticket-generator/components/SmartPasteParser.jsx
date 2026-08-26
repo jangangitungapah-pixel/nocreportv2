@@ -202,7 +202,11 @@ export function SmartPasteParser({
   const metadataReplacement = Boolean(hasOperationalMetadata && metadataPresent);
 
   return (
-    <section className="generator-smart-import overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-accent)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+    <section
+      id="generator-smart-import"
+      className="generator-smart-import overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-accent)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
+      tabIndex={-1}
+    >
       <header className="flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5">
         <div className="flex min-w-0 items-center gap-2">
           <AppIcon name="generator" size={14} className="text-[var(--accent-text)]" />

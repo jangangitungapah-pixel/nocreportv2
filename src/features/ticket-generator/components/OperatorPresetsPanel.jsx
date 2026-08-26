@@ -13,7 +13,11 @@ function UtilityToggle({ label, checked, onChange }) {
   return (
     <label className="flex min-h-9 items-center justify-between gap-3 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-2.5 py-1.5 text-[10px] font-semibold text-[var(--text-secondary)]">
       <span>{label}</span>
-      <input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} />
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(event) => onChange(event.target.checked)}
+      />
     </label>
   );
 }
@@ -103,8 +107,9 @@ export function OperatorPresetsPanel({ presets, onChange, onReset, expanded = fa
 
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] pt-2.5">
             <p className="max-w-xl text-[9.5px] leading-5 text-[var(--text-muted)]">
-              Favorite Progress snippets stay synchronized with the existing Quick Progress favorite control.
-              Presets are applied only as defaults and never overwrite an existing persisted Ticket.
+              Favorite Progress snippets stay synchronized with the existing Quick Progress favorite
+              control. Presets are applied only as defaults and never overwrite an existing
+              persisted Ticket.
             </p>
             <Button type="button" tone="ghost" size="xs" onClick={() => onReset?.()}>
               Reset to defaults

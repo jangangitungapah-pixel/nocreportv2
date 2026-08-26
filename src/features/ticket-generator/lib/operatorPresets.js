@@ -106,7 +106,10 @@ export function sanitizeOperatorPresets(value = {}, { validSnippetIds = [] } = {
 }
 
 function defaultsWithLegacyFavorites(target, validSnippetIds) {
-  const legacyFavorites = readProgressSnippetFavorites({ storage: target, validIds: validSnippetIds });
+  const legacyFavorites = readProgressSnippetFavorites({
+    storage: target,
+    validIds: validSnippetIds,
+  });
   return sanitizeOperatorPresets(
     { favoriteProgressSnippetIds: legacyFavorites },
     { validSnippetIds },
