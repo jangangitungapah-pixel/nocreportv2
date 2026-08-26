@@ -429,7 +429,10 @@ export function Skeleton({ className }) {
   return (
     <div
       aria-hidden="true"
-      className={cn('ui-skeleton rounded-[var(--radius-panel)] bg-[var(--surface-muted)]', className)}
+      className={cn(
+        'ui-skeleton rounded-[var(--radius-panel)] bg-[var(--surface-muted)]',
+        className,
+      )}
     />
   );
 }
