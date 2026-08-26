@@ -89,7 +89,7 @@ export function SmartPasteParser({
     (conflict) => conflict.severity === 'blocking' && conflict.field === 'externalTtNumber',
   );
   const chosenIdentity = identityChoice
-    ? blockingIdentityConflict?.candidates?.[Number(identityChoice)] ?? null
+    ? (blockingIdentityConflict?.candidates?.[Number(identityChoice)] ?? null)
     : null;
   const titleBlockedByIdentity = Boolean(
     blockingIdentityConflict && (!chosenIdentity || chosenIdentity.source !== 'subject'),
@@ -99,7 +99,9 @@ export function SmartPasteParser({
     const safeDefaults = plan
       .filter(
         (item) =>
-          item.selected && !item.replacement && !(item.field === 'title' && blockingIdentityConflict),
+          item.selected &&
+          !item.replacement &&
+          !(item.field === 'title' && blockingIdentityConflict),
       )
       .map((item) => item.field);
     setSelectedFields(new Set(safeDefaults));
@@ -223,8 +225,8 @@ export function SmartPasteParser({
                 Outlook email file
               </label>
               <p className="mt-1 text-[10px] leading-5 text-[var(--text-muted)]">
-                Parsed in this browser only. Raw .msg bytes, body, recipients, headers, and attachments
-                are not uploaded or persisted.
+                Parsed in this browser only. Raw .msg bytes, body, recipients, headers, and
+                attachments are not uploaded or persisted.
               </p>
               <input
                 id="outlook-msg-import"
@@ -260,8 +262,8 @@ export function SmartPasteParser({
                   Review detected values before applying
                 </p>
                 <p className="mt-0.5 text-[10px] leading-5 text-[var(--text-muted)]">
-                  Empty fields are preselected. Replacements stay unchecked until you explicitly choose
-                  them.
+                  Empty fields are preselected. Replacements stay unchecked until you explicitly
+                  choose them.
                 </p>
               </div>
               <Button size="sm" disabled={selectedCount === 0 || msgPending} onClick={apply}>
@@ -371,7 +373,8 @@ export function SmartPasteParser({
                     </span>
                     {progressReplacement || progressDirty ? (
                       <span className="mt-0.5 block text-[9px] font-bold text-[var(--warning-text)]">
-                        Existing timeline content will be replaced — checking this is explicit approval.
+                        Existing timeline content will be replaced — checking this is explicit
+                        approval.
                       </span>
                     ) : null}
                   </span>

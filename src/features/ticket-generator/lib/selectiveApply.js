@@ -26,7 +26,9 @@ export function buildSelectiveApplyPlan(candidate, currentValues = {}, { dirtyFi
     const imported = candidate?.fields?.[field];
     const currentValue = currentValues?.[field];
     const incomingValue = imported?.value;
-    const selected = Boolean(imported?.selected && incomingValue !== null && incomingValue !== undefined);
+    const selected = Boolean(
+      imported?.selected && incomingValue !== null && incomingValue !== undefined,
+    );
     const replacement =
       selected &&
       hasCurrentValue(currentValue) &&

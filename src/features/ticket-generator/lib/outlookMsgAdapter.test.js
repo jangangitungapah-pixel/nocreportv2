@@ -120,9 +120,7 @@ describe('outlookMsgAdapter', () => {
     const loadDecoderModule = createDecoderModuleLoader({
       subject:
         '[MANDAU] LINK DOWN AT DWDM 99AAA0001_FAKE_A <> 99BBB0002_FAKE_B [TT : INC-20260826-90010004]',
-      body: ['Occur Time = 26/08/2026 07:45', 'Sent: Tuesday, August 25, 2026 4:00 PM'].join(
-        '\n',
-      ),
+      body: ['Occur Time = 26/08/2026 07:45', 'Sent: Tuesday, August 25, 2026 4:00 PM'].join('\n'),
       clientSubmitTime: '2026-08-26T01:15:26.000Z',
       messageDeliveryTime: '2026-08-26T01:15:44.000Z',
     });

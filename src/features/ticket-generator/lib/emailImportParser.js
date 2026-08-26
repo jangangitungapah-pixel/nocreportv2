@@ -95,9 +95,7 @@ export function parseDecodedEmailImport(
   const incidentKeyValue = normalizeIncidentKey(externalTtNumber.value);
 
   const sentInstant = normalizeMessageSentInstant(message?.clientSubmitTime);
-  const dispatchAt = sentInstant
-    ? formatInstantForTimeZone(sentInstant, profile.timezone)
-    : null;
+  const dispatchAt = sentInstant ? formatInstantForTimeZone(sentInstant, profile.timezone) : null;
 
   const severityCandidates = [
     bodyData.severity ? candidate(bodyData.severity, 'body', 'exact') : null,
@@ -167,9 +165,7 @@ export function parseDecodedEmailImport(
         : emptyCandidate(),
     },
     alarmContext: {
-      rawAlarm: alarm.rawAlarm
-        ? candidate(alarm.rawAlarm, 'body', 'exact')
-        : emptyCandidate(),
+      rawAlarm: alarm.rawAlarm ? candidate(alarm.rawAlarm, 'body', 'exact') : emptyCandidate(),
       alarmFamily: alarmFamily
         ? candidate(
             alarmFamily,

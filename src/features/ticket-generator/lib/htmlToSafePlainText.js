@@ -4,7 +4,10 @@ function fallbackStripHtml(value) {
   return String(value ?? '')
     .replace(/<\s*br\s*\/?\s*>/gi, '\n')
     .replace(/<\s*\/\s*(?:p|div|li|tr|h[1-6])\s*>/gi, '\n')
-    .replace(/<\s*(?:script|style|noscript)[^>]*>[\s\S]*?<\s*\/\s*(?:script|style|noscript)\s*>/gi, ' ')
+    .replace(
+      /<\s*(?:script|style|noscript)[^>]*>[\s\S]*?<\s*\/\s*(?:script|style|noscript)\s*>/gi,
+      ' ',
+    )
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/gi, ' ')
     .replace(/&amp;/gi, '&')

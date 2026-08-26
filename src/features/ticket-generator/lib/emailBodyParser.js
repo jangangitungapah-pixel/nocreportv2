@@ -1,4 +1,7 @@
-import { normalizeExternalTtReference, normalizeOperationalText } from './operationalNormalization.js';
+import {
+  normalizeExternalTtReference,
+  normalizeOperationalText,
+} from './operationalNormalization.js';
 import { parseOperationalDateTime } from './smartReportParser.js';
 
 const BODY_LABELS = Object.freeze({

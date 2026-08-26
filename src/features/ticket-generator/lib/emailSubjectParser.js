@@ -8,13 +8,7 @@ import {
 
 const EXTERNAL_TT_PATTERN = /(?:(?:DATACOM|DWDM)-)?INC-\d{8}-\d+/i;
 const DIRECT_TT_LABEL = /\[\s*TT\s*:\s*([^\]]+)\]/i;
-const TRANSPORT_PREFIXES = Object.freeze([
-  'DWDM 1800',
-  'DWDM UJB',
-  'DWDM ZTE',
-  'OSN 3500',
-  'DWDM',
-]);
+const TRANSPORT_PREFIXES = Object.freeze(['DWDM 1800', 'DWDM UJB', 'DWDM ZTE', 'OSN 3500', 'DWDM']);
 
 function stripOuterEmphasis(value) {
   const normalized = normalizeOperationalText(value);

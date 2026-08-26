@@ -119,11 +119,7 @@ async function resolveDefaultReaderFactory(loadDecoderModule = loadDefaultDecode
 
 export function decodeOutlookMsgBuffer(
   input,
-  {
-    sourceName = null,
-    createReader,
-    maxBytes = DEFAULT_MAX_OUTLOOK_MSG_BYTES,
-  } = {},
+  { sourceName = null, createReader, maxBytes = DEFAULT_MAX_OUTLOOK_MSG_BYTES } = {},
 ) {
   const arrayBuffer = prepareLocalSource(input, { sourceName, maxBytes });
   return decodePreparedOutlookMsgBuffer(arrayBuffer, createReader);
