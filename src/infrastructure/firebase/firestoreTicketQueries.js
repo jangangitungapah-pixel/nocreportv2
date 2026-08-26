@@ -39,6 +39,31 @@ function pageResult(snapshot, pageSize, mapper) {
   };
 }
 
+function normalizedLookupValue(value) {
+  const text = String(value ?? '').trim();
+  return text || null;
+}
+
+function dateMillis(value) {
+  if (!value) return null;
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value.getTime();
+  if (typeof value?.toDate === 'function') {
+    const date = value.toDate();
+    return Number.isNaN(date.getTime()) ? null : date.getTime();
+  }
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed.getTime();
+}
+
+function addSnapshotsToCandidateMap(candidateMap, snapshots, excludeTicketId) {
+  for (const snapshot of snapshots) {
+    for (const ticketSnapshot of snapshot.docs) {
+      if (ticketSnapshot.id === excludeTicketId || candidateMap.has(ticketSnapshot.id)) continue;
+      candidateMap.set(ticketSnapshot.id, mapTicketSnapshot(ticketSnapshot));
+    }
+  }
+}
+
 export async function getTicketById(ticketId) {
   try {
     const db = getFirestoreClient();
@@ -49,6 +74,90 @@ export async function getTicketById(ticketId) {
       });
     }
     return mapTicketSnapshot(snapshot);
+  } catch (error) {
+    throw normalizeFirebaseError(error, 'QUERY_ERROR');
+  }
+}
+
+export async function findDuplicateTicketCandidates({
+  ticket,
+  excludeTicketId = null,
+  limit = 24,
+  recentWindowHours = 24,
+} = {}) {
+  try {
+    if (!ticket) return [];
+
+    const db = getFirestoreClient();
+    const tickets = collection(db, 'tickets');
+    const pageSize = boundedLimit(limit, 24, 40);
+    const candidateMap = new Map();
+    const primaryQueries = [];
+
+    const externalTtNumber = normalizedLookupValue(ticket.externalTtNumber);
+    const incidentKey = normalizedLookupValue(ticket.incidentKey);
+    const pathKey = normalizedLookupValue(ticket.pathKey);
+
+    if (externalTtNumber) {
+      primaryQueries.push(
+        getDocs(
+          query(
+            tickets,
+            where('externalTtNumber', '==', externalTtNumber),
+            firestoreLimit(Math.min(pageSize, 6)),
+          ),
+        ),
+      );
+    }
+
+    if (incidentKey) {
+      primaryQueries.push(
+        getDocs(
+          query(
+            tickets,
+            where('incidentKey', '==', incidentKey),
+            firestoreLimit(Math.min(pageSize, 8)),
+          ),
+        ),
+      );
+    }
+
+    if (pathKey) {
+      primaryQueries.push(
+        getDocs(
+          query(
+            tickets,
+            where('pathKey', '==', pathKey),
+            orderBy('updatedAt', 'desc'),
+            firestoreLimit(Math.min(pageSize, 16)),
+          ),
+        ),
+      );
+    }
+
+    if (primaryQueries.length > 0) {
+      const snapshots = await Promise.all(primaryQueries);
+      addSnapshotsToCandidateMap(candidateMap, snapshots, excludeTicketId);
+    }
+
+    if (candidateMap.size < pageSize) {
+      const anchorMs = dateMillis(ticket.occurAt) ?? Date.now();
+      const windowMs = Math.max(1, Math.min(Number(recentWindowHours) || 24, 72)) * 60 * 60 * 1000;
+      const floor = new Date(anchorMs - windowMs);
+      const ceiling = new Date(anchorMs + windowMs);
+      const recentSnapshot = await getDocs(
+        query(
+          tickets,
+          where('occurAt', '>=', floor),
+          where('occurAt', '<=', ceiling),
+          orderBy('occurAt', 'desc'),
+          firestoreLimit(pageSize),
+        ),
+      );
+      addSnapshotsToCandidateMap(candidateMap, [recentSnapshot], excludeTicketId);
+    }
+
+    return [...candidateMap.values()].slice(0, pageSize);
   } catch (error) {
     throw normalizeFirebaseError(error, 'QUERY_ERROR');
   }
