@@ -55,7 +55,10 @@ function lifecycleFindings(ticket) {
   );
 }
 
-function importFindings(importCandidate, { resolvedPrimaryIdentity = false } = {}) {
+function importFindings(
+  importCandidate,
+  { resolvedPrimaryIdentity = false, dispatchReviewed = false } = {},
+) {
   if (!importCandidate) return [];
   const findings = [];
   const conflicts = Array.isArray(importCandidate.conflicts) ? importCandidate.conflicts : [];
@@ -80,7 +83,7 @@ function importFindings(importCandidate, { resolvedPrimaryIdentity = false } = {
     );
   }
 
-  if (warnings.includes(EMAIL_SENT_TIME_WARNING)) {
+  if (!dispatchReviewed && warnings.includes(EMAIL_SENT_TIME_WARNING)) {
     findings.push(
       finding({
         code: 'EMAIL_SENT_TIME_UNAVAILABLE',
@@ -139,6 +142,22 @@ function timeFindings(ticket, time) {
 
 function completenessFindings(ticket, { duplicateCandidates = [] } = {}) {
   const findings = [];
+
+  if (
+    ticket?.importProvenance?.sourceKind === 'outlook_msg' &&
+    !ticket?.importProvenance?.messageSentAt &&
+    !ticket?.dispatchAt
+  ) {
+    findings.push(
+      finding({
+        code: 'EMAIL_SENT_TIME_UNAVAILABLE',
+        severity: VALIDATION_SEVERITY.WARNING,
+        message: EMAIL_SENT_TIME_WARNING,
+        field: 'dispatchAt',
+        source: 'import',
+      }),
+    );
+  }
 
   if (ticket?.coordinate?.source === 'ocr' && ticket.coordinate.verified === false) {
     findings.push(
@@ -250,7 +269,10 @@ export function deriveReportValidation(
   const findings = dedupeFindings([
     ...formFindings(formValues),
     ...lifecycleFindings(ticket),
-    ...importFindings(importCandidate, { resolvedPrimaryIdentity }),
+    ...importFindings(importCandidate, {
+      resolvedPrimaryIdentity,
+      dispatchReviewed: Boolean(ticket?.dispatchAt),
+    }),
     ...timeFindings(ticket, time),
     ...completenessFindings(ticket, { duplicateCandidates }),
   ]);
