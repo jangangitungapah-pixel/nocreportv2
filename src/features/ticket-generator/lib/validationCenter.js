@@ -140,6 +140,17 @@ function timeFindings(ticket, time) {
   return findings;
 }
 
+function duplicateFinding(duplicateCandidates) {
+  if (!Array.isArray(duplicateCandidates) || duplicateCandidates.length === 0) return null;
+  return finding({
+    code: 'SUSPECTED_DUPLICATE',
+    severity: VALIDATION_SEVERITY.WARNING,
+    message: 'A possible related or duplicate incident needs review.',
+    source: 'duplicate-detection',
+    meta: { count: duplicateCandidates.length },
+  });
+}
+
 function completenessFindings(ticket, { duplicateCandidates = [] } = {}) {
   const findings = [];
 
@@ -192,17 +203,8 @@ function completenessFindings(ticket, { duplicateCandidates = [] } = {}) {
     );
   }
 
-  if (Array.isArray(duplicateCandidates) && duplicateCandidates.length > 0) {
-    findings.push(
-      finding({
-        code: 'SUSPECTED_DUPLICATE',
-        severity: VALIDATION_SEVERITY.WARNING,
-        message: 'A possible related or duplicate incident needs review.',
-        source: 'duplicate-detection',
-        meta: { count: duplicateCandidates.length },
-      }),
-    );
-  }
+  const duplicate = duplicateFinding(duplicateCandidates);
+  if (duplicate) findings.push(duplicate);
 
   if (!ticket?.coordinate) {
     findings.push(
@@ -254,6 +256,38 @@ function dedupeFindings(findings) {
   });
 }
 
+function validationWithFindings(validation, findings) {
+  const blocking = findings.filter((item) => item.severity === VALIDATION_SEVERITY.BLOCKING);
+  const warnings = findings.filter((item) => item.severity === VALIDATION_SEVERITY.WARNING);
+  const informational = findings.filter((item) => item.severity === VALIDATION_SEVERITY.INFO);
+
+  return {
+    ...validation,
+    readyForRunning: blocking.length === 0,
+    findings,
+    blocking,
+    warnings,
+    informational,
+    counts: {
+      blocking: blocking.length,
+      warning: warnings.length,
+      info: informational.length,
+    },
+  };
+}
+
+export function withDuplicateCandidateFindings(validation, duplicateCandidates = []) {
+  if (!validation) return validation;
+  const duplicate = duplicateFinding(duplicateCandidates);
+  const withoutPreviousDuplicate = (validation.findings ?? []).filter(
+    (item) => item.code !== 'SUSPECTED_DUPLICATE',
+  );
+  return validationWithFindings(
+    validation,
+    duplicate ? [...withoutPreviousDuplicate, duplicate] : withoutPreviousDuplicate,
+  );
+}
+
 export function deriveReportValidation(
   ticket,
   {
@@ -277,21 +311,11 @@ export function deriveReportValidation(
     ...completenessFindings(ticket, { duplicateCandidates }),
   ]);
 
-  const blocking = findings.filter((item) => item.severity === VALIDATION_SEVERITY.BLOCKING);
-  const warnings = findings.filter((item) => item.severity === VALIDATION_SEVERITY.WARNING);
-  const informational = findings.filter((item) => item.severity === VALIDATION_SEVERITY.INFO);
-
-  return {
-    readyForRunning: blocking.length === 0,
-    findings,
-    blocking,
-    warnings,
-    informational,
-    counts: {
-      blocking: blocking.length,
-      warning: warnings.length,
-      info: informational.length,
+  return validationWithFindings(
+    {
+      ticket,
+      time,
     },
-    time,
-  };
+    findings,
+  );
 }
