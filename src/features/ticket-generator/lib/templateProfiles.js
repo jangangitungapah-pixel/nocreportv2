@@ -10,6 +10,12 @@ export const MANDAU_DEFAULT_PROFILE = Object.freeze({
     prefix: '[MANDAU]',
     pathSeparator: ' <> ',
     ttLabel: 'TT',
+    transportJoiner: ' AT ',
+    conditionLabels: Object.freeze({
+      LINK_DOWN: 'LINK DOWN',
+      ETH_LOS: 'ETH LOS',
+      MUT_LOS: 'MUT LOS',
+    }),
   }),
   reportSections: Object.freeze([
     'title',
