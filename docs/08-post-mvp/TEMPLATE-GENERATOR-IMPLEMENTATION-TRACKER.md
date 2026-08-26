@@ -4,7 +4,7 @@
 **Evidence annex:** `docs/08-post-mvp/TEMPLATE-GENERATOR-EMAIL-IMPORT-ADDENDUM.md`  
 **Branch:** `feature/template-generator-features`  
 **PR:** #7  
-**Status:** GEN-F0 COMPLETE · GEN-F1 IN PROGRESS
+**Status:** GEN-F0 COMPLETE · GEN-F1 INTEGRATION QA
 
 ## GEN-F0 — Baseline, contracts and feature skeleton
 
@@ -70,10 +70,10 @@ GEN-F0 intentionally changed no production Generator form behavior, Firestore pe
 ## GEN-F1 — Unified Import + Outlook `.msg`
 
 - [x] Refactor current Smart Report parser behind a `report_text` source adapter with parity tests.
-- [ ] Complete browser `.msg` decoder dependency spike and pin an approved version.
-- [ ] Wire the approved browser `.msg` decoder into the local ArrayBuffer adapter.
+- [x] Complete browser `.msg` decoder dependency spike and exact-pin `@kenjiuno/msgreader-web-ng@0.2.0-alpha1`.
+- [x] Wire the approved browser `.msg` decoder into the local ArrayBuffer adapter behind a lazy app-owned boundary.
 - [x] Add a bounded local ArrayBuffer decoder boundary with extension/size/error contracts and no persistence.
-- [ ] Read top-level Outlook Sent Time from a real decoder's `PR_CLIENT_SUBMIT_TIME` / `0x00390040` output.
+- [ ] Validate top-level Outlook Sent Time from a real supported `.msg` fixture through the package decoder's `clientSubmitTime` output.
 - [x] Convert decoded Sent instants timezone-aware to `Asia/Jakarta` for Generator `dispatchAt`.
 - [x] Explicitly exclude Delivery Time and quoted body `Sent:` from Dispatch Time resolution.
 - [x] Add email subject parser for FLP and direct MANDAU variants.
@@ -89,13 +89,18 @@ GEN-F0 intentionally changed no production Generator form behavior, Firestore pe
 - [x] Preserve existing Smart Paste behavior through adapter parity.
 - [x] Add synthetic decoded-message regression fixtures only; no real operational email committed.
 - [x] Decoder boundary drops Delivery Time, recipients, headers, attachments and raw properties before the Import Candidate layer.
-- [ ] Add real package-backed `.msg` decoder regression and supported/corrupt fixture coverage.
-- [ ] Integrate Email Import preview/apply into the Generator UI without auto-save.
+- [x] Add lazy decoder regression coverage for module loading, privacy boundary, Client Submit Time authority and local validation failures.
+- [x] Integrate Unified Import preview/apply into the Generator UI without auto-save.
+- [ ] Add a sanitized package-backed supported/corrupt `.msg` fixture regression or equivalent real-decoder evidence without committing operational mail.
 - [ ] Full repository Quality green on clean GEN-F1 head.
 
-### GEN-F1 core checkpoint
+### GEN-F1 integration checkpoint
 
-Commits `aab9ac6...` and `53dba430...` establish the source-adapter, email parsing, timezone, conflict, selective-apply and local decoder-boundary contracts. This checkpoint intentionally does **not** claim real `.msg` support yet: third-party decoder pin/wiring, Generator UI integration and final full Quality remain open.
+The current checkpoint exact-pins `@kenjiuno/msgreader-web-ng@0.2.0-alpha1`, keeps the alpha dependency behind a replaceable lazy adapter, preserves the injectable decoder path for deterministic tests, and integrates a single Unified Import panel for existing report text plus local Outlook `.msg` files.
+
+Selective Apply now preselects only safe empty-field fills. Replacements remain unchecked until the operator explicitly selects them; dirty replacements are confirmed through the existing selective-apply contract. Blocking TT identity conflicts are surfaced instead of guessed, and the Generator apply boundary only mutates the in-memory draft/progress state—never Firestore.
+
+Integration QA is running with PR #7 temporarily retargeted to `main`. The real supported `.msg` fixture gate remains intentionally open until package-backed evidence is available without committing operational mail.
 
 ### GEN-F1 exit criterion
 
