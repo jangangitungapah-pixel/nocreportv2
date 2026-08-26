@@ -242,9 +242,14 @@ export function hasDuplicateLookupSignal(ticket) {
   if (normalizedText(ticket.incidentKey)) return true;
   if (normalizedText(ticket.pathKey)) return true;
 
-  return Boolean(
+  const occurAtMs = timeMillis(ticket.occurAt);
+  if (
     normalizedText(alarmValue(ticket, 'siteId')) &&
-      normalizedText(alarmValue(ticket, 'alarmFamily')) &&
-      timeMillis(ticket.occurAt),
-  );
+    normalizedText(alarmValue(ticket, 'alarmFamily')) &&
+    Number.isFinite(occurAtMs)
+  ) {
+    return true;
+  }
+
+  return Boolean(normalizedText(ticket.title) && Number.isFinite(occurAtMs));
 }
