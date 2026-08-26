@@ -239,6 +239,7 @@ service cloud.firestore {
       let currentGroupId = resource.data.get('incidentGroupId', null);
       let nextGroupId = request.resource.data.get('incidentGroupId', null);
       return !changed.hasAny(['incidentGroupId'])
+        || (currentGroupId == null && nextGroupId == null)
         || (
           currentGroupId == null
           && nextGroupId is string
