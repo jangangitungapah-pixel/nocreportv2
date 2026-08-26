@@ -249,7 +249,9 @@ test.describe.serial('GEN-F9 integrated Generator hardening', () => {
     await page.waitForURL((url) => /^\/generator\/[^/]+\/edit$/.test(new URL(url).pathname));
   });
 
-  test('restores an interrupted local draft without creating a Firestore Ticket', async ({ page }) => {
+  test('restores an interrupted local draft without creating a Firestore Ticket', async ({
+    page,
+  }) => {
     await resetF9Data();
     await login(page);
     await openNewGenerator(page);
@@ -261,7 +263,9 @@ test.describe.serial('GEN-F9 integrated Generator hardening', () => {
     await page.getByLabel('Progress update').fill('Unsubmitted F9 recovery progress');
 
     await expect
-      .poll(async () => page.evaluate(() => window.localStorage.getItem('nocreport-ticket-draft:new')))
+      .poll(async () =>
+        page.evaluate(() => window.localStorage.getItem('nocreport-ticket-draft:new')),
+      )
       .toContain(draftTitle);
 
     await page.reload();
@@ -269,7 +273,9 @@ test.describe.serial('GEN-F9 integrated Generator hardening', () => {
     await page.getByRole('button', { name: 'Restore' }).click();
     await expect(page.locator('#ticket-title')).toHaveValue(draftTitle);
     await expect(page.getByLabel('PIC', { exact: true })).toHaveValue('F9 Recovery PIC');
-    await expect(page.getByLabel('Progress update')).toHaveValue('Unsubmitted F9 recovery progress');
+    await expect(page.getByLabel('Progress update')).toHaveValue(
+      'Unsubmitted F9 recovery progress',
+    );
     await expect(page).toHaveURL(/\/generator\/new$/);
   });
 
@@ -301,10 +307,14 @@ test.describe.serial('GEN-F9 integrated Generator hardening', () => {
     await expect(history.getByRole('heading', { name: 'Revision History' })).toBeVisible();
     await expect(history.getByText('Revision 1 → 2', { exact: true })).toBeVisible();
     await expect(history.getByText('PIC', { exact: true })).toBeVisible();
-    await expect(history.getByText('F9 Revision PIC A → F9 Revision PIC B', { exact: true })).toBeVisible();
+    await expect(
+      history.getByText('F9 Revision PIC A → F9 Revision PIC B', { exact: true }),
+    ).toBeVisible();
   });
 
-  test('uses Ctrl+S as explicit Generator Save without invoking a lifecycle transition', async ({ page }) => {
+  test('uses Ctrl+S as explicit Generator Save without invoking a lifecycle transition', async ({
+    page,
+  }) => {
     await resetF9Data();
     await login(page);
     await openNewGenerator(page);
