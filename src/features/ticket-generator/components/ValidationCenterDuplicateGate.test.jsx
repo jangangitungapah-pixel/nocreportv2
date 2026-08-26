@@ -86,12 +86,10 @@ describe('GEN-F5 ValidationCenter duplicate create gate', () => {
     );
 
     await act(async () => {
-      vi.advanceTimersByTime(400);
-      await Promise.resolve();
-      await Promise.resolve();
+      await vi.advanceTimersByTimeAsync(400);
     });
 
-    expect(await screen.findByText('Exact external TT match')).toBeInTheDocument();
+    expect(screen.getByText('Exact external TT match')).toBeInTheDocument();
     expect(screen.getByText(/possible related or duplicate incident/i)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Save Ticket' }));
