@@ -351,7 +351,8 @@ export function SmartPasteParser({
                       key={`${conflict.field}-${index}`}
                       className="border-l-2 border-[var(--warning-solid)] bg-[var(--warning-soft)] px-2.5 py-1.5 text-[10px] leading-5 text-[var(--warning-text)]"
                     >
-                      {conflict.message ?? `${FIELD_LABELS[conflict.field] ?? conflict.field} conflicts across sources.`}
+                      {conflict.message ??
+                        `${FIELD_LABELS[conflict.field] ?? conflict.field} conflicts across sources.`}
                     </p>
                   ))}
               </div>
@@ -363,7 +364,9 @@ export function SmartPasteParser({
                 const disabled =
                   !item.selected ||
                   (item.field === 'title' && titleBlockedByIdentity) ||
-                  (item.field === 'externalTtNumber' && blockingIdentityConflict && !chosenIdentity);
+                  (item.field === 'externalTtNumber' &&
+                    blockingIdentityConflict &&
+                    !chosenIdentity);
 
                 return (
                   <label
@@ -462,7 +465,9 @@ export function SmartPasteParser({
               </p>
               <Button
                 size="xs"
-                disabled={selectedCount === 0 || Boolean(blockingIdentityConflict && !chosenIdentity)}
+                disabled={
+                  selectedCount === 0 || Boolean(blockingIdentityConflict && !chosenIdentity)
+                }
                 onClick={apply}
               >
                 Apply selected ({selectedCount})

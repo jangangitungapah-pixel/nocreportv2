@@ -143,7 +143,9 @@ describe('GEN-F4 Report Validation Center', () => {
       }),
       { formValues: validForm({ dispatchAt: '2026-08-26T10:15' }) },
     );
-    expect(reviewed.warnings.find((item) => item.code === 'EMAIL_SENT_TIME_UNAVAILABLE')).toBeUndefined();
+    expect(
+      reviewed.warnings.find((item) => item.code === 'EMAIL_SENT_TIME_UNAVAILABLE'),
+    ).toBeUndefined();
   });
 
   it('separates warning-only completeness from informational optional gaps', () => {
