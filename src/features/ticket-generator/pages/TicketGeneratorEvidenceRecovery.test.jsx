@@ -110,6 +110,8 @@ describe('GEN-F8 Generator evidence recovery integration', () => {
       .getByRole('heading', { name: 'Evidence Workspace' })
       .closest('section');
     expect(evidenceWorkspace).not.toBeNull();
-    expect(within(evidenceWorkspace).getByRole('button', { name: 'Scan coordinates' })).toBeDisabled();
+    expect(
+      within(evidenceWorkspace).getByRole('button', { name: 'Scan coordinates' }),
+    ).toBeDisabled();
   });
 });

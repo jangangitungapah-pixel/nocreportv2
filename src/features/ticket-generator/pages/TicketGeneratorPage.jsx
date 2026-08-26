@@ -35,6 +35,7 @@ import {
 import { CoordinateExtractor } from '../components/CoordinateExtractor.jsx';
 import { CopyCenter } from '../components/CopyCenter.jsx';
 import { DraftRecoveryNotice } from '../components/DraftRecoveryNotice.jsx';
+import { EvidenceWorkspace } from '../components/EvidenceWorkspace.jsx';
 import { ImpactListEditor } from '../components/ImpactListEditor.jsx';
 import { OperatorPresetsPanel } from '../components/OperatorPresetsPanel.jsx';
 import { ProgressComposer } from '../components/ProgressComposer.jsx';
@@ -44,6 +45,7 @@ import { SmartPasteParser } from '../components/SmartPasteParser.jsx';
 import { TicketAuditHistory } from '../components/TicketAuditHistory.jsx';
 import { ValidationCenter } from '../components/ValidationCenter.jsx';
 import { clearDraftRecovery, readDraftRecovery, writeDraftRecovery } from '../lib/draftRecovery.js';
+import { restoreEvidenceRecoveryItems } from '../lib/evidenceWorkspace.js';
 import { DEFAULT_TICKET_FORM, buildTicketFromForm } from '../lib/formToTicket.js';
 import { mergeImpactValues } from '../lib/impactCandidates.js';
 import {
@@ -364,6 +366,7 @@ export function TicketGeneratorPage() {
   const [draftRecoveryReady, setDraftRecoveryReady] = useState(false);
   const [progressComposerDraft, setProgressComposerDraft] = useState(EMPTY_PROGRESS_DRAFT);
   const [progressRecoveryDraft, setProgressRecoveryDraft] = useState(null);
+  const [evidenceItems, setEvidenceItems] = useState([]);
 
   const {
     control,
@@ -550,7 +553,8 @@ export function TicketGeneratorPage() {
       isDirty ||
       progressDirty ||
       featureMetadataDirty ||
-      Boolean(progressComposerDraft.text?.trim());
+      Boolean(progressComposerDraft.text?.trim()) ||
+      evidenceItems.length > 0;
     if (!recoverableDirty) return undefined;
 
     const timer = window.setTimeout(() => {
@@ -561,6 +565,7 @@ export function TicketGeneratorPage() {
         featureMetadata,
         progressDraft: progressComposerDraft,
         progressEntries: routeTicketId ? [] : progressEntries,
+        evidenceItems,
         templateProfileId: featureMetadata.templateProfileId,
         importReview,
         dirtyAt: new Date(),
@@ -571,6 +576,7 @@ export function TicketGeneratorPage() {
   }, [
     draftRecovery.state,
     draftRecoveryReady,
+    evidenceItems,
     featureMetadata,
     featureMetadataDirty,
     importReview,
@@ -612,6 +618,7 @@ export function TicketGeneratorPage() {
     const recoveredDraft = payload.progressDraft ?? EMPTY_PROGRESS_DRAFT;
     setProgressComposerDraft(recoveredDraft);
     setProgressRecoveryDraft({ ...recoveredDraft });
+    setEvidenceItems(restoreEvidenceRecoveryItems(payload.evidenceItems));
     setImportReview(recoveredImportReview(payload.importMetadata));
     setDraftRecovery(EMPTY_DRAFT_RECOVERY);
     pushToast({
@@ -1358,6 +1365,11 @@ export function TicketGeneratorPage() {
         move={move}
         currentValues={watchedValues?.impactList ?? []}
         onApplyCandidates={applyImpactCandidates}
+      />
+      <EvidenceWorkspace
+        items={evidenceItems}
+        onItemsChange={setEvidenceItems}
+        onApplyCoordinate={applyExtractedCoordinate}
       />
       <CoordinateExtractor onApplyCoordinate={applyExtractedCoordinate} />
       <ProgressComposer
