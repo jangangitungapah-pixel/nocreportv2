@@ -1,4 +1,5 @@
 import { TICKET_STATUS } from '../../entities/ticket/index.js';
+import { listTicketAuditEvents } from './firestoreAuditQueries.js';
 import { removeProgress, updateProgress } from './firestoreProgressMutations.js';
 import {
   findDuplicateTicketCandidates,
@@ -48,6 +49,7 @@ export const firestoreTicketRepository = Object.freeze({
   updateProgress,
   removeProgress,
   listProgress,
+  listTicketAuditEvents,
   updateCoordinate,
   clearCoordinate,
   archiveTicket,
@@ -64,6 +66,7 @@ export {
   listCutPointTickets,
   listProgress,
   listRunningTickets,
+  listTicketAuditEvents,
   listTickets,
   removeProgress,
   saveTicket,
