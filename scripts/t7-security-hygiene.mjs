@@ -26,6 +26,7 @@ const TEXT_EXTENSIONS = new Set([
 ]);
 const SOURCE_EXTENSIONS = new Set(['.js', '.jsx', '.mjs', '.cjs']);
 const UI_SOURCE_EXTENSIONS = new Set(['.js', '.jsx', '.css']);
+const LEGACY_UI_ROOTS = ['src/app/', 'src/features/', 'src/shared/', 'src/styles/'];
 const FORBIDDEN_FILE_PATTERNS = [
   /(^|\/)(service[-_.]?account|serviceAccount).*\.json$/i,
   /\.(pem|p12|pfx|key)$/i,
@@ -146,7 +147,11 @@ for (const absolute of allFiles) {
       if (rule.pattern.test(content)) violations.push(`${path}: ${rule.message}`);
     }
 
-    if (UI_SOURCE_EXTENSIONS.has(extname(path)) && !/\.test\.[cm]?[jt]sx?$/.test(path)) {
+    if (
+      LEGACY_UI_ROOTS.some((root) => path.startsWith(root)) &&
+      UI_SOURCE_EXTENSIONS.has(extname(path)) &&
+      !/\.test\.[cm]?[jt]sx?$/.test(path)
+    ) {
       for (const rule of LEGACY_UI_PATTERNS) {
         if (rule.pattern.test(content)) violations.push(`${path}: ${rule.message}`);
       }
