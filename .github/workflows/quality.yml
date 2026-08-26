@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - feature/t0-repository-foundation
-      - qa/gen-f5-current
   pull_request:
     branches:
       - main
@@ -41,7 +40,7 @@ jobs:
         run: npm install --no-save --package-lock=false @playwright/test@1.62.1 @axe-core/playwright@4.13.0
 
       - name: Apply T7 reliability hardening
-        if: github.event_name != 'pull_request' && github.ref_name == 'feature/t0-repository-foundation'
+        if: github.event_name != 'pull_request'
         run: node scripts/apply-t7-reliability-hardening.mjs
 
       - name: Format source
@@ -49,21 +48,6 @@ jobs:
 
       - name: Format check
         run: npm run format:check
-
-      - name: Verify GEN-F5 QA formatting is committed
-        if: github.event_name == 'push' && github.ref_name == 'qa/gen-f5-current'
-        shell: bash
-        run: |
-          git diff --exit-code -- \
-            src \
-            e2e \
-            scripts \
-            index.html \
-            package.json \
-            playwright.config.js \
-            eslint.config.js \
-            vite.config.js \
-            vitest.config.js
 
       - name: Lint
         run: npm run lint
@@ -110,11 +94,11 @@ jobs:
         run: node scripts/test-t7-e2e.mjs
 
       - name: Record T6 browser QA evidence
-        if: github.event_name != 'pull_request' && github.ref_name == 'feature/t0-repository-foundation'
+        if: github.event_name != 'pull_request'
         run: node scripts/record-t6-browser-qa.mjs
 
       - name: Record T7 automated QA evidence
-        if: github.event_name != 'pull_request' && github.ref_name == 'feature/t0-repository-foundation'
+        if: github.event_name != 'pull_request'
         run: node scripts/record-t7-automated-qa.mjs
 
       - name: Verify source formatting is committed
@@ -136,19 +120,19 @@ jobs:
       # historical finalizers on every push is unsafe because those scripts
       # intentionally expect the phase transition text from their original run.
       - name: Finalize T6 tracker
-        if: github.event_name != 'pull_request' && github.ref_name == 'feature/t0-repository-foundation'
+        if: github.event_name != 'pull_request'
         run: node scripts/finalize-t6.mjs
 
       - name: Finalize T7 tracker and activate T8
-        if: github.event_name != 'pull_request' && github.ref_name == 'feature/t0-repository-foundation'
+        if: github.event_name != 'pull_request'
         run: node scripts/finalize-t7.mjs
 
       - name: Apply T8 production deployment evidence
-        if: github.event_name != 'pull_request' && github.ref_name == 'feature/t0-repository-foundation'
+        if: github.event_name != 'pull_request'
         run: node scripts/apply-t8-production-deployment-evidence.mjs
 
       - name: Finalize T8 release
-        if: github.event_name != 'pull_request' && github.ref_name == 'feature/t0-repository-foundation'
+        if: github.event_name != 'pull_request'
         shell: bash
         run: |
           if [ -f docs/07-release/AUTHENTICATED-PRODUCTION-SMOKE-EVIDENCE.md ]; then
@@ -158,7 +142,7 @@ jobs:
           fi
 
       - name: Persist validated formatting and phase tracker
-        if: github.event_name != 'pull_request' && github.ref_name == 'feature/t0-repository-foundation'
+        if: github.event_name != 'pull_request'
         shell: bash
         run: |
           git add -- \
