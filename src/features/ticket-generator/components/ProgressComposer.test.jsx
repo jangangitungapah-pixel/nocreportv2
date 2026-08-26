@@ -12,6 +12,11 @@ afterEach(() => {
   cleanup();
 });
 
+function selectQuickSnippet(optionName) {
+  fireEvent.click(screen.getByRole('combobox', { name: 'Quick snippet' }));
+  fireEvent.click(screen.getByRole('option', { name: optionName }));
+}
+
 describe('ProgressComposer persistence acknowledgement', () => {
   it('keeps the operator draft when persistence reports failure', async () => {
     const onAdd = vi.fn().mockResolvedValue(false);
@@ -74,9 +79,7 @@ describe('GEN-F3 reusable Progress snippets', () => {
     const onAdd = vi.fn();
     render(<ProgressComposer onAdd={onAdd} />);
 
-    fireEvent.change(screen.getByLabelText('Quick snippet'), {
-      target: { value: 'dispatch-team' },
-    });
+    selectQuickSnippet('[Dispatch] Team dispatched');
     fireEvent.click(screen.getByRole('button', { name: 'Insert snippet' }));
     expect(screen.getByRole('alert')).toHaveTextContent('Destination, ETA');
     expect(onAdd).not.toHaveBeenCalled();
@@ -99,9 +102,7 @@ describe('GEN-F3 reusable Progress snippets', () => {
     const onAdd = vi.fn();
     render(<ProgressComposer onAdd={onAdd} />);
 
-    fireEvent.change(screen.getByLabelText('Quick snippet'), {
-      target: { value: 'arrival-location' },
-    });
+    selectQuickSnippet('[Arrival] Team arrived');
     fireEvent.click(screen.getByRole('button', { name: 'Add Team arrived to favorites' }));
 
     expect(JSON.parse(window.localStorage.getItem(PROGRESS_SNIPPET_FAVORITES_STORAGE_KEY))).toEqual({
