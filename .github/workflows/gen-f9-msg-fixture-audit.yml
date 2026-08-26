@@ -27,13 +27,18 @@ jobs:
           node - <<'NODE'
           const fs = require('node:fs');
           const path = require('node:path');
-          const pkgPath = require.resolve('@kenjiuno/msgreader-web-ng/package.json');
+          const entry = require.resolve('@kenjiuno/msgreader-web-ng');
+          let root = path.dirname(entry);
+          while (root !== path.dirname(root) && !fs.existsSync(path.join(root, 'package.json'))) {
+            root = path.dirname(root);
+          }
+          const pkgPath = path.join(root, 'package.json');
+          if (!fs.existsSync(pkgPath)) throw new Error('Decoder package root not found');
           const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
           console.log('PACKAGE_JSON=' + pkgPath);
           console.log('PACKAGE_NAME=' + pkg.name);
           console.log('PACKAGE_VERSION=' + pkg.version);
           console.log('PACKAGE_REPOSITORY=' + JSON.stringify(pkg.repository ?? null));
-          const root = path.dirname(pkgPath);
           const found = [];
           function walk(dir) {
             for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -49,8 +54,13 @@ jobs:
         run: |
           REPO_URL=$(node - <<'NODE'
           const fs = require('node:fs');
-          const pkgPath = require.resolve('@kenjiuno/msgreader-web-ng/package.json');
-          const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+          const path = require('node:path');
+          const entry = require.resolve('@kenjiuno/msgreader-web-ng');
+          let root = path.dirname(entry);
+          while (root !== path.dirname(root) && !fs.existsSync(path.join(root, 'package.json'))) {
+            root = path.dirname(root);
+          }
+          const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
           const repository = typeof pkg.repository === 'string' ? pkg.repository : pkg.repository?.url;
           if (!repository) process.exit(2);
           process.stdout.write(repository.replace(/^git\+/, '').replace(/^git:/, 'https:').replace(/\.git$/, '') + '.git');
