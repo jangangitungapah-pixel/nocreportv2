@@ -45,8 +45,13 @@ function coordinateFromForm(values) {
   };
 }
 
-export function buildTicketFromForm(values, { status, progress = [], revision = 0 } = {}) {
+export function buildTicketFromForm(
+  values,
+  { status, progress = [], revision = 0, featureMetadata = {} } = {},
+) {
   return createEmptyTicket({
+    ...featureMetadata,
+    schemaVersion: 2,
     title: values?.title ?? '',
     impactList: normalizeImpactList(values?.impactList),
     occurAt: toDateTime(values?.occurAt),
