@@ -1,0 +1,30 @@
+name: GEN-F8 close and GEN-F9 open
+
+on:
+  push:
+    branches:
+      - feature/template-generator-features
+    paths:
+      - .github/workflows/gen-f8-close-gen-f9-open.yml
+
+permissions:
+  contents: write
+
+jobs:
+  update-tracker:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: feature/template-generator-features
+          fetch-depth: 0
+      - name: Apply guarded tracker transition
+        run: python .github/scripts/gen-f8-close-gen-f9-open.py
+      - name: Commit tracker transition
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/08-post-mvp/TEMPLATE-GENERATOR-IMPLEMENTATION-TRACKER.md
+          git diff --cached --exit-code && { echo "Tracker transition produced no diff"; exit 1; } || true
+          git commit -m "docs(generator): close GEN-F8 and open GEN-F9"
+          git push origin HEAD:feature/template-generator-features
