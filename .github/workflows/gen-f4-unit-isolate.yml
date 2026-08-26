@@ -1,0 +1,34 @@
+name: GEN-F4 unit isolate
+
+on:
+  push:
+    branches:
+      - feature/template-generator-features
+    paths:
+      - .github/workflows/gen-f4-unit-isolate.yml
+
+permissions:
+  contents: read
+
+jobs:
+  isolate-unit-file:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: feature/template-generator-features
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Run unit files independently
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find src -type f \( -name '*.test.js' -o -name '*.test.jsx' \) | sort)
+          for file in "${files[@]}"; do
+            echo "===== TEST FILE: $file ====="
+            timeout 45s npx vitest run "$file" --maxWorkers=1 --reporter=verbose
+          done
