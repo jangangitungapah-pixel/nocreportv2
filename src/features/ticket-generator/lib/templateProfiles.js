@@ -1,3 +1,5 @@
+import { DEFAULT_PROGRESS_SNIPPETS } from './progressSnippets.js';
+
 export const TEMPLATE_PROFILE_IDS = Object.freeze({
   MANDAU_DEFAULT: 'MANDAU_DEFAULT',
 });
@@ -37,7 +39,7 @@ export const MANDAU_DEFAULT_PROFILE = Object.freeze({
     allowQuotedSentBodyFallback: false,
   }),
   defaultCopyTarget: 'full_report',
-  snippetCollection: Object.freeze([]),
+  snippetCollection: DEFAULT_PROGRESS_SNIPPETS,
 });
 
 const PROFILE_REGISTRY = Object.freeze({
