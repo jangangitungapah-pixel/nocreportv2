@@ -236,19 +236,21 @@ service cloud.firestore {
 
     function incidentGroupMutationValid(ticketId) {
       let changed = request.resource.data.diff(resource.data).affectedKeys();
+      let currentGroupId = resource.data.get('incidentGroupId', null);
+      let nextGroupId = request.resource.data.get('incidentGroupId', null);
       return !changed.hasAny(['incidentGroupId'])
         || (
-          resource.data.incidentGroupId == null
-          && request.resource.data.incidentGroupId is string
+          currentGroupId == null
+          && nextGroupId is string
           && getAfter(
-            /databases/$(database)/documents/incidentGroups/$(request.resource.data.incidentGroupId)
+            /databases/$(database)/documents/incidentGroups/$(nextGroupId)
           ).data.ticketIds.hasAny([ticketId])
         )
         || (
-          resource.data.incidentGroupId is string
-          && request.resource.data.incidentGroupId == null
+          currentGroupId is string
+          && nextGroupId == null
           && !getAfter(
-            /databases/$(database)/documents/incidentGroups/$(resource.data.incidentGroupId)
+            /databases/$(database)/documents/incidentGroups/$(currentGroupId)
           ).data.ticketIds.hasAny([ticketId])
         );
     }
