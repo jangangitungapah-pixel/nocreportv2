@@ -98,7 +98,14 @@ export function DuplicateRelatedPanel({
   const hasCandidates = candidates.length > 0;
   const hasRelated = Boolean(relatedGroup);
 
-  if (!duplicatePending && !duplicateError && !hasCandidates && !hasRelated && !relatedPending) {
+  if (
+    !duplicatePending &&
+    !duplicateError &&
+    !hasCandidates &&
+    !hasRelated &&
+    !relatedPending &&
+    !relatedError
+  ) {
     return null;
   }
 
@@ -188,7 +195,7 @@ export function DuplicateRelatedPanel({
             ) : null}
             {relatedError ? (
               <p className="mt-2 text-[10.5px] text-[var(--danger-text)]">
-                Related Tickets could not be loaded.
+                {relatedError.message ?? 'Related Tickets could not be loaded.'}
               </p>
             ) : null}
             {relatedTickets.length ? (
