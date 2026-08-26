@@ -1,0 +1,41 @@
+name: GEN-F7 close and GEN-F8 open
+
+on:
+  push:
+    branches:
+      - feature/template-generator-features
+    paths:
+      - .github/workflows/gen-f7-close-gen-f8-open.yml
+
+permissions:
+  contents: write
+
+jobs:
+  update-tracker:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: feature/template-generator-features
+          fetch-depth: 0
+
+      - name: Apply guarded tracker transition
+        run: python3 .github/scripts/gen-f7-close-gen-f8-open.py
+
+      - name: Verify tracker transition
+        shell: bash
+        run: |
+          git diff --check
+          grep -F '**Status:** GEN-F0 COMPLETE · GEN-F1 COMPLETE · GEN-F2 COMPLETE · GEN-F3 COMPLETE · GEN-F4 COMPLETE · GEN-F5 COMPLETE · GEN-F6 COMPLETE · GEN-F7 COMPLETE · GEN-F8 IN PROGRESS' docs/08-post-mvp/TEMPLATE-GENERATOR-IMPLEMENTATION-TRACKER.md
+          grep -F '## GEN-F8 — Evidence / Attachment Workspace' docs/08-post-mvp/TEMPLATE-GENERATOR-IMPLEMENTATION-TRACKER.md
+          grep -F '**Quality #803 — FULL GREEN**' docs/08-post-mvp/TEMPLATE-GENERATOR-IMPLEMENTATION-TRACKER.md
+          git diff -- docs/08-post-mvp/TEMPLATE-GENERATOR-IMPLEMENTATION-TRACKER.md
+
+      - name: Commit tracker transition
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/08-post-mvp/TEMPLATE-GENERATOR-IMPLEMENTATION-TRACKER.md
+          git commit -m "docs(generator): complete GEN-F7 and open GEN-F8"
+          git push origin HEAD:feature/template-generator-features
