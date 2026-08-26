@@ -1,4 +1,9 @@
-import { createEmptyTicket, normalizeCoordinates } from '../../../entities/ticket/index.js';
+import {
+  createEmptyTicket,
+  extractExternalTicketNumber,
+  normalizeCoordinates,
+} from '../../../entities/ticket/index.js';
+import { normalizeIncidentKey } from './operationalNormalization.js';
 
 export const DEFAULT_TICKET_FORM = Object.freeze({
   title: '',
@@ -49,10 +54,19 @@ export function buildTicketFromForm(
   values,
   { status, progress = [], revision = 0, featureMetadata = {} } = {},
 ) {
+  const title = values?.title ?? '';
+  const titleExternalTtNumber = extractExternalTicketNumber(title);
+  const externalTtNumber = titleExternalTtNumber ?? featureMetadata.externalTtNumber ?? null;
+  const incidentKey = titleExternalTtNumber
+    ? normalizeIncidentKey(titleExternalTtNumber)
+    : (featureMetadata.incidentKey ?? normalizeIncidentKey(externalTtNumber));
+
   return createEmptyTicket({
     ...featureMetadata,
     schemaVersion: 2,
-    title: values?.title ?? '',
+    title,
+    externalTtNumber,
+    incidentKey,
     impactList: normalizeImpactList(values?.impactList),
     occurAt: toDateTime(values?.occurAt),
     dispatchAt: toDateTime(values?.dispatchAt),
