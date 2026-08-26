@@ -40,6 +40,7 @@ jobs:
       - name: Apply GUX-5 mobile presentation changes
         run: node scripts/apply-gux-5-mobile.mjs apply
 
+      # Revalidate authoritative 44px Generator touch targets after the overflow fix.
       - name: Contain mobile cockpit ambience
         run: node scripts/fix-gux-5-mobile-ambient-overflow.mjs
 

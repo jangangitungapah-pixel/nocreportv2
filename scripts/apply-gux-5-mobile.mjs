@@ -116,16 +116,16 @@ function patchCss() {
     }
 
     .generator-cockpit :is(button, summary) {
-      min-height: 44px;
+      min-height: 44px !important;
     }
 
     .generator-cockpit label:has(input[type='checkbox']),
     .generator-cockpit label:has(input[type='radio']) {
-      min-height: 44px;
+      min-height: 44px !important;
     }
 
     .generator-cockpit :is(input:not([type='checkbox']):not([type='radio']):not([type='file']), select) {
-      min-height: 44px;
+      min-height: 44px !important;
     }
 
     .generator-cockpit textarea {
