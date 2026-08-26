@@ -23,16 +23,15 @@ describe('operational normalization foundation', () => {
       'DWDM-INC-20260825-00015072',
     );
     expect(normalizeIncidentKey('INC-20260825-00015072')).toBe('INC-20260825-00015072');
-    expect(normalizeIncidentKey('DWDM-INC-20260825-00015072')).toBe(
-      'INC-20260825-00015072',
-    );
-    expect(normalizeIncidentKey('DATACOM-INC-20260825-00015072')).toBe(
-      'INC-20260825-00015072',
-    );
+    expect(normalizeIncidentKey('DWDM-INC-20260825-00015072')).toBe('INC-20260825-00015072');
+    expect(normalizeIncidentKey('DATACOM-INC-20260825-00015072')).toBe('INC-20260825-00015072');
   });
 
   it('preserves raw alarm text and derives a stable family', () => {
-    expect(normalizeAlarm('Link Down')).toEqual({ rawAlarm: 'Link Down', alarmFamily: 'LINK_DOWN' });
+    expect(normalizeAlarm('Link Down')).toEqual({
+      rawAlarm: 'Link Down',
+      alarmFamily: 'LINK_DOWN',
+    });
     expect(normalizeAlarm('Physical Port Down')).toEqual({
       rawAlarm: 'Physical Port Down',
       alarmFamily: 'LINK_DOWN',

@@ -115,11 +115,16 @@ function defaultConflictNormalizer(value) {
   return normalizeOperationalText(value).toUpperCase();
 }
 
-export function detectCandidateValueConflict(field, candidates, normalize = defaultConflictNormalizer) {
+export function detectCandidateValueConflict(
+  field,
+  candidates,
+  normalize = defaultConflictNormalizer,
+) {
   const usable = (Array.isArray(candidates) ? candidates : []).filter((candidate) => {
     if (!candidate) return false;
     if (candidate.value === null || candidate.value === undefined) return false;
-    if (typeof candidate.value === 'string' && !normalizeOperationalText(candidate.value)) return false;
+    if (typeof candidate.value === 'string' && !normalizeOperationalText(candidate.value))
+      return false;
     return true;
   });
 

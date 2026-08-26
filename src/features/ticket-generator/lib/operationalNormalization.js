@@ -63,9 +63,7 @@ export function canonicalizePathEndpoint(value) {
 }
 
 export function buildPathKey(value) {
-  const endpoints = parsePathEndpoints(value)
-    .map(canonicalizePathEndpoint)
-    .filter(Boolean);
+  const endpoints = parsePathEndpoints(value).map(canonicalizePathEndpoint).filter(Boolean);
 
   if (endpoints.length < 2) return null;
 

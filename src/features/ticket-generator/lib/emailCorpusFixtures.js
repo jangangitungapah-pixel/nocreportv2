@@ -32,8 +32,7 @@ export const SANITIZED_EMAIL_CORPUS_FIXTURES = Object.freeze([
     id: 'quoted-sent-body-risk',
     sourceKind: 'outlook_msg',
     subject: '[MANDAU] LINK DOWN AT DWDM ZTE 99DDD0400_FAKE_D <> 99EEE0500_FAKE_E',
-    body:
-      'Current incident body.\n\nFrom: Fake Sender\nSent: Monday, August 24, 2026 08:00\nSubject: Older quoted message',
+    body: 'Current incident body.\n\nFrom: Fake Sender\nSent: Monday, August 24, 2026 08:00\nSubject: Older quoted message',
     messageSentAt: '2026-08-26T02:30:45.000Z',
   }),
 ]);
