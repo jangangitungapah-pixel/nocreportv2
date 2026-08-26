@@ -426,7 +426,9 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await expect(archiveButton).toBeFocused();
   });
 
-  test('Light and Dark shell themes persist and stay responsive and accessible', async ({ page }) => {
+  test('Light and Dark shell themes persist and stay responsive and accessible', async ({
+    page,
+  }) => {
     test.setTimeout(120_000);
 
     await page.setViewportSize({ width: 1280, height: 900 });
