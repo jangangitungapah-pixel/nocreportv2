@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { getAuthClient } from '../../../infrastructure/firebase/authClient.js';
 import { AppIcon } from '../../../shared/ui/icon.jsx';
@@ -43,9 +43,10 @@ function persistedTicketIdFromPathname() {
 }
 
 function generatorHasUnsavedChanges() {
-  if (typeof document === 'undefined') return false;
-  const commandBar = document.querySelector('section.sticky');
-  return commandBar?.textContent?.includes('Unsaved') ?? false;
+  if (typeof window === 'undefined') return false;
+  const event = new Event('beforeunload', { cancelable: true });
+  const dispatched = window.dispatchEvent(event);
+  return event.defaultPrevented || dispatched === false;
 }
 
 function reloadEditor() {
@@ -54,10 +55,18 @@ function reloadEditor() {
   }
 }
 
+function focusDuplicateReview() {
+  if (typeof document === 'undefined') return;
+  document
+    .querySelector('.generator-duplicate-related')
+    ?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+}
+
 export function ValidationCenter({ validation, onFocusField }) {
   const ticket = validation?.ticket ?? null;
   const routeTicketId = persistedTicketIdFromPathname();
   const duplicateFingerprint = useMemo(() => duplicateLookupFingerprint(ticket), [ticket]);
+  const duplicateAcknowledgedRef = useRef(false);
   const [duplicateCandidates, setDuplicateCandidates] = useState([]);
   const [duplicatePending, setDuplicatePending] = useState(false);
   const [duplicateError, setDuplicateError] = useState(null);
@@ -70,6 +79,7 @@ export function ValidationCenter({ validation, onFocusField }) {
   const [unlinkPending, setUnlinkPending] = useState(false);
 
   useEffect(() => {
+    duplicateAcknowledgedRef.current = false;
     setDuplicateAcknowledged(false);
   }, [duplicateFingerprint]);
 
@@ -141,6 +151,37 @@ export function ValidationCenter({ validation, onFocusField }) {
     };
   }, [routeTicketId, ticket?.incidentGroupId, ticket?.revision]);
 
+  useEffect(() => {
+    if (
+      routeTicketId ||
+      duplicateCandidates.length === 0 ||
+      duplicateError ||
+      duplicateAcknowledged
+    ) {
+      return undefined;
+    }
+
+    const form = document.getElementById('ticket-editor-form');
+    if (!form) return undefined;
+
+    const requireExplicitDuplicateReview = (event) => {
+      if (duplicateAcknowledgedRef.current) return;
+      event.preventDefault();
+      event.stopPropagation();
+      focusDuplicateReview();
+    };
+
+    form.addEventListener('submit', requireExplicitDuplicateReview, true);
+    return () => form.removeEventListener('submit', requireExplicitDuplicateReview, true);
+  }, [duplicateAcknowledged, duplicateCandidates.length, duplicateError, routeTicketId]);
+
+  const handleCreateAnyway = () => {
+    duplicateAcknowledgedRef.current = true;
+    setDuplicateAcknowledged(true);
+    const form = document.getElementById('ticket-editor-form');
+    if (typeof form?.requestSubmit === 'function') form.requestSubmit();
+  };
+
   const handleRelateCandidate = async (candidate) => {
     if (!routeTicketId || !ticket || relatePendingId) return;
     if (generatorHasUnsavedChanges()) {
@@ -198,7 +239,8 @@ export function ValidationCenter({ validation, onFocusField }) {
         duplicatePending={duplicatePending}
         duplicateError={duplicateError}
         duplicateAcknowledged={duplicateAcknowledged}
-        onCreateAnyway={() => setDuplicateAcknowledged(true)}
+        canCreateAnyway={!routeTicketId}
+        onCreateAnyway={handleCreateAnyway}
         canRelate={Boolean(routeTicketId)}
         hasUnsavedChanges={hasUnsavedChanges}
         relatePendingId={relatePendingId}
