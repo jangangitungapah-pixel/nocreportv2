@@ -40,6 +40,9 @@ jobs:
       - name: Apply GUX-5 mobile presentation changes
         run: node scripts/apply-gux-5-mobile.mjs apply
 
+      - name: Enforce mobile command touch targets
+        run: node scripts/fix-gux-5-mobile-touch.mjs
+
       - name: Normalize GUX-5 browser lint
         run: node scripts/fix-gux-5-mobile-lint.mjs
 
