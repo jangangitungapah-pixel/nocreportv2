@@ -3,7 +3,7 @@
 **Source PRD:** `docs/08-post-mvp/UI-DENSITY-PRD.md`  
 **Branch:** `feature/ui-density-system`  
 **PR:** #6  
-**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 COMPLETE · MEGA-3 COMPLETE · MEGA-4 COMPLETE · MEGA-5 COMPLETE · MEGA-6 COMPLETE · MEGA-7 COMPLETE · MEGA-8 COMPLETE · MEGA-9 IN PROGRESS
+**Status:** MEGA-0 COMPLETE · MEGA-1 COMPLETE · MEGA-2 COMPLETE · MEGA-3 COMPLETE · MEGA-4 COMPLETE · MEGA-5 COMPLETE · MEGA-6 COMPLETE · MEGA-7 COMPLETE · MEGA-8 COMPLETE · MEGA-9 COMPLETE · MEGA-10 IN PROGRESS
 
 ## MEGA-0 — Dependency activation and design-system foundation
 
@@ -288,20 +288,69 @@ The new browser acceptance validates unauthenticated Login and Not Found at 360/
 
 ## MEGA-9 — Legacy elimination audit
 
-- [ ] Eliminate production `UiIcon` legacy usage and remove the manual icon implementation when no runtime consumer remains.
-- [ ] Audit and eliminate superseded custom toast rendering/APIs while preserving Sonner as the single rendering owner.
-- [ ] Audit for bespoke overlay/focus-trap/keyboard-dismiss logic superseded by Radix primitives.
-- [ ] Remove duplicated page-level action class strings when canonical Button/CVA variants already own the semantic action.
-- [ ] Remove obsolete authenticated `spatial-panel-elevated`/hero treatments that survived page rebuilds.
-- [ ] Audit excessive 22–28px operational radii and reduce legacy routine surfaces to semantic radius tokens where appropriate.
-- [ ] Remove routine row/control `hover:translateY` treatment that conflicts with stable dense-workstation geometry.
-- [ ] Audit native visible `<select>` controls and migrate remaining product-owned selectors to canonical headless primitives where appropriate.
-- [ ] Remove residual nested metadata-card patterns from routine authenticated operational surfaces.
-- [ ] Remove obsolete Generator `!important` density overrides where semantic tokens/new component contracts now own the behavior.
-- [ ] Remove the compatibility `/generator/:ticketId` route and any remaining new-code reliance on it after verifying all canonical navigation uses `/tickets/:ticketId` or `/generator/:ticketId/edit`.
-- [ ] Verify every installed UI dependency has an intentional production responsibility and no competing implementation remains without documentation.
-- [ ] Add regression/static audit coverage where useful to prevent reintroduction of eliminated legacy patterns.
-- [ ] Full repository Quality workflow green on final MEGA-9 product/code head.
+- [x] Eliminate production `UiIcon` legacy usage and remove the manual icon implementation when no runtime consumer remains.
+- [x] Audit and eliminate superseded custom toast rendering/APIs while preserving Sonner as the single rendering owner.
+- [x] Audit for bespoke overlay/focus-trap/keyboard-dismiss logic superseded by Radix primitives.
+- [x] Remove duplicated page-level action class strings when canonical Button/CVA variants already own the semantic action.
+- [x] Remove obsolete authenticated `spatial-panel-elevated`/hero treatments that survived page rebuilds.
+- [x] Audit excessive 22–28px operational radii and reduce legacy routine surfaces to semantic radius tokens where appropriate.
+- [x] Remove routine row/control `hover:translateY` treatment that conflicts with stable dense-workstation geometry.
+- [x] Audit native visible `<select>` controls and migrate remaining product-owned selectors to canonical headless primitives where appropriate.
+- [x] Remove residual nested metadata-card patterns from routine authenticated operational surfaces.
+- [x] Remove obsolete Generator `!important` density overrides where semantic tokens/new component contracts now own the behavior.
+- [x] Remove the compatibility `/generator/:ticketId` route and any remaining new-code reliance on it after verifying all canonical navigation uses `/tickets/:ticketId` or `/generator/:ticketId/edit`.
+- [x] Verify every installed UI dependency has an intentional production responsibility and no competing implementation remains without documentation.
+- [x] Add regression/static audit coverage where useful to prevent reintroduction of eliminated legacy patterns.
+- [x] Full repository Quality workflow green on final MEGA-9 product/code head.
+
+### MEGA-9 implementation notes
+
+- Production legacy icon ownership and obsolete compatibility routing were removed; canonical navigation now separates read-only `/tickets/:ticketId` review from explicit `/generator/:ticketId/edit` mutation.
+- `SelectField` keeps its stable application API while delegating floating overlay/dismiss ownership to Radix Popover. Sonner remains the only toast renderer and shared compatibility APIs delegate to it rather than maintaining a second renderer.
+- Radix Switch, Tooltip, and Separator have intentional shell responsibilities; the artificial dependency registry was removed so dependency hygiene verifies real `src/` ownership instead of decorative imports.
+- Obsolete elevated/Generator compatibility CSS, routine hover-translate behavior, visible native select residue, and authenticated nested-card debt were audited and removed where present.
+- Repository hygiene now rejects key legacy UI patterns before they can re-enter production source. `!important` remains only where intentionally required by global reduced-motion enforcement or third-party Leaflet stylesheet integration.
+- `docs/08-post-mvp/UI-MEGA-MIGRATION.md` is now a migration closure record rather than a temporary-compatibility list.
+
+### MEGA-9 automated QA evidence
+
+**Quality #738 — FULL GREEN** on final MEGA-9 product/code head `2a5a5b91e0efb2876536f58d525f7999605fbc03` (run ID `32922443263`).
+
+Validated gates: committed Prettier formatting, ESLint, **153 unit/component tests** with 13 emulator-only skips, Firebase Emulator repository integration (6/6), Firestore Security Rules role matrix (7/7), T7 security/repository hygiene with all **31 production dependencies referenced** and the legacy UI guard clean, T8 release preflight, generic + Firebase-configured production builds, dev smoke, T6 real-browser viewport/touch QA, and **5/5 Playwright** lifecycle/RBAC/keyboard/overflow/axe scenarios. The final committed-format verifier passed on the clean product head.
+
+## MEGA-10 — Full QA and release readiness
+
+### MEGA-10 implementation coverage
+
+- [x] Add direct unit regression coverage for account-menu Radix Dark mode Switch state and `nocreport-theme` persistence.
+- [x] Add real-browser Light/Dark acceptance covering persisted theme state, keyboard-accessible Tooltip labeling, Radix Switch state, representative desktop/mobile overflow, dark Generator/Cut Point workspaces, and serious/critical axe checks.
+- [ ] Prettier formatting committed.
+- [ ] ESLint green.
+- [ ] Unit/component tests green.
+- [ ] Firebase Emulator repository tests green.
+- [ ] Firestore Security Rules matrix green.
+- [ ] Generic production build green.
+- [ ] Firebase-configured production build green.
+- [ ] Dev smoke green.
+- [ ] Viewport/touch matrix green.
+- [ ] Playwright Admin lifecycle green.
+- [ ] Operator/Viewer RBAC green.
+- [ ] Ticket review/edit separation green.
+- [ ] Keyboard/focus tests green.
+- [ ] Command palette RBAC tests green.
+- [ ] Table interaction tests green.
+- [ ] Resizable workspace tests green where practical.
+- [ ] Serious/critical axe checks green.
+- [ ] Light/Dark human visual acceptance completed.
+- [ ] Desktop/mobile human density acceptance completed.
+- [ ] No legacy native/default visual feel identified in final audit.
+- [x] PR remains DRAFT and unmerged pending explicit user approval.
+
+### MEGA-10 implementation notes
+
+- MEGA-10 is a release-readiness phase, not another page redesign. Existing lifecycle/RBAC/table/resizable/keyboard/security suites remain the primary contracts and new coverage targets only the acceptance gap identified after MEGA-9.
+- Automated Light/Dark browser coverage supplements but does not falsely replace the PRD's final human visual sign-off. Human Light/Dark + desktop/mobile acceptance remains explicitly tracked separately.
+- No merge or production release is authorized by this phase automatically; explicit user approval remains required.
 
 ## Remaining phases
 
@@ -313,7 +362,7 @@ The new browser acceptance validates unauthenticated Login and Not Found at 360/
 - [x] MEGA-6 — Cut Point Tracker
 - [x] MEGA-7 — Archive & Restore
 - [x] MEGA-8 — Login + edge states
-- [ ] MEGA-9 — Legacy elimination audit
+- [x] MEGA-9 — Legacy elimination audit
 - [ ] MEGA-10 — Full QA and release readiness
 
 ## Protected contracts
