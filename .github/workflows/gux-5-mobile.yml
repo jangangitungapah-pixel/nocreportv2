@@ -40,6 +40,9 @@ jobs:
       - name: Apply GUX-5 mobile presentation changes
         run: node scripts/apply-gux-5-mobile.mjs apply
 
+      - name: Contain mobile cockpit ambience
+        run: node scripts/fix-gux-5-mobile-ambient-overflow.mjs
+
       - name: Enforce mobile command touch targets
         run: node scripts/fix-gux-5-mobile-touch.mjs
 
