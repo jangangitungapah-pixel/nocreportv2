@@ -65,7 +65,9 @@ describe('application shell', () => {
   it('persists theme changes through the account-menu Radix Switch', async () => {
     renderRoute();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Open account menu' }));
+    const accountMenuTrigger = screen.getByRole('button', { name: 'Open account menu' });
+    accountMenuTrigger.focus();
+    fireEvent.keyDown(accountMenuTrigger, { key: 'Enter' });
     const themeSwitch = await screen.findByRole('switch', { name: 'Dark mode' });
 
     expect(themeSwitch).toHaveAttribute('data-state', 'unchecked');
