@@ -15,20 +15,24 @@
 
 ## GUX-0 — Cockpit architecture foundation
 
-- [ ] Add Generator-specific semantic visual tokens/classes.
-- [ ] Establish cockpit page wrapper and atmospheric depth.
-- [ ] Redesign command bar hierarchy while preserving actions/test semantics.
-- [ ] Improve editor/preview `ResizableWorkspace` framing.
-- [ ] Upgrade `EditorSection` hierarchy and spacing.
-- [ ] Establish visual tiers for primary authoring, intelligence and utility surfaces.
-- [ ] Preserve existing IDs, labels, form behavior, lifecycle actions and keyboard commands.
+- [x] Add Generator-specific semantic visual tokens/classes.
+- [x] Establish cockpit page wrapper and atmospheric depth.
+- [x] Redesign command bar hierarchy while preserving actions/test semantics.
+- [x] Improve editor/preview `ResizableWorkspace` framing.
+- [x] Upgrade `EditorSection` hierarchy and spacing.
+- [x] Establish visual tiers for primary authoring, intelligence and utility surfaces.
+- [x] Preserve existing IDs, labels, form behavior, lifecycle actions and keyboard commands.
 - [ ] Update/add focused presentation regression tests if needed.
-- [ ] Prettier green.
-- [ ] ESLint green.
-- [ ] Unit/component suite green.
+- [x] Prettier green.
+- [x] ESLint green.
+- [x] Unit/component suite green.
 - [ ] Focused Generator browser smoke if practical.
 
 **Exit:** the page reads as one coherent operations workstation without functional behavior changes.
+
+### GUX-0 automated evidence
+
+One-shot GUX-0 gate applied presentation-only cockpit foundation changes, then passed committed Prettier formatting, ESLint, the full unit/component suite, and the production build before persisting source. No Firestore, RBAC, lifecycle, parser, OCR, report-content, persistence, ID or accessible-label contract was intentionally changed.
 
 ## GUX-1 — Import + readiness intelligence
 

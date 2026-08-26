@@ -78,14 +78,14 @@ import { ticketFormSchema } from '../schemas/ticketFormSchema.js';
 function EditorSection({ title, meta, children, className = '' }) {
   return (
     <section
-      className={`border-b border-[var(--border-subtle)] px-3 py-3 last:border-b-0 md:px-4 ${className}`}
+      className={`generator-editor-section border-b border-[var(--border-subtle)] px-3 py-3 last:border-b-0 md:px-4 ${className}`}
     >
-      <div className="mb-2.5 flex min-h-6 items-center justify-between gap-3">
-        <h3 className="text-[12px] font-extrabold tracking-[-0.01em] text-[var(--text-primary)]">
+      <div className="generator-editor-section__header mb-2.5 flex min-h-6 items-center justify-between gap-3">
+        <h3 className="generator-editor-section__title text-[12px] font-extrabold tracking-[-0.01em] text-[var(--text-primary)]">
           {title}
         </h3>
         {meta ? (
-          <span className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)]">
+          <span className="generator-editor-section__meta text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)]">
             {meta}
           </span>
         ) : null}
@@ -108,8 +108,8 @@ function GeneratorCommandBar({
   onCopy,
 }) {
   return (
-    <section className="sticky top-2 z-20 flex min-h-12 flex-wrap items-center gap-2 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[color-mix(in_srgb,var(--surface-panel)_94%,transparent)] px-2.5 py-2 shadow-[var(--shadow-sm)] backdrop-blur-xl">
-      <div className="flex min-w-0 flex-1 items-center gap-2.5">
+    <section className="generator-command-bar sticky top-2 z-20 flex min-h-12 flex-wrap items-center gap-2 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[color-mix(in_srgb,var(--surface-panel)_94%,transparent)] px-2.5 py-2 shadow-[var(--shadow-sm)] backdrop-blur-xl">
+      <div className="generator-command-context flex min-w-0 flex-1 items-center gap-2.5">
         <StatusBadge status={status} />
         <div className="min-w-0">
           <p className="truncate font-mono text-[10.5px] font-bold text-[var(--text-secondary)]">
@@ -140,7 +140,7 @@ function GeneratorCommandBar({
         </span>
       </div>
 
-      <div className="ml-auto flex flex-wrap items-center justify-end gap-1.5">
+      <div className="generator-command-actions ml-auto flex flex-wrap items-center justify-end gap-1.5">
         {routeTicketId ? (
           <Button asChild tone="ghost" size="sm">
             <Link to={`/tickets/${routeTicketId}`}>
@@ -1205,7 +1205,7 @@ export function TicketGeneratorPage() {
   }
 
   const editor = (
-    <div className="grid min-w-0 gap-3">
+    <div className="generator-editor-stack grid min-w-0 gap-3">
       <DraftRecoveryNotice
         recovery={draftRecovery}
         currentRevision={revision}
@@ -1234,7 +1234,7 @@ export function TicketGeneratorPage() {
 
       <form
         id="ticket-editor-form"
-        className="overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
+        className="generator-core-form overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
         onSubmit={submitTicket}
         noValidate
       >
@@ -1423,17 +1423,19 @@ export function TicketGeneratorPage() {
   );
 
   const preview = (
-    <ReportPreview
-      report={report}
-      onCopy={copyReport}
-      copyPending={copyPending}
-      fill
-      showCopyAction={false}
-    />
+    <div className="generator-preview-stage">
+      <ReportPreview
+        report={report}
+        onCopy={copyReport}
+        copyPending={copyPending}
+        fill
+        showCopyAction={false}
+      />
+    </div>
   );
 
   return (
-    <div className="grid gap-3">
+    <div className="generator-cockpit grid gap-3">
       <PageHeader
         title={routeTicketId ? 'Edit Ticket' : 'New Ticket'}
         eyebrow="Template Generator"
@@ -1466,7 +1468,7 @@ export function TicketGeneratorPage() {
         secondaryMin="320px"
         primary={editor}
         secondary={preview}
-        className="h-[calc(100vh-10.5rem)] min-h-[620px]"
+        className="generator-cockpit-workspace h-[calc(100vh-10.5rem)] min-h-[620px]"
       />
 
       <ConfirmDialog

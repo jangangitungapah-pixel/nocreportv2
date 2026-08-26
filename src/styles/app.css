@@ -323,6 +323,160 @@
   }
 }
 
+@layer components {
+  .generator-cockpit {
+    position: relative;
+    isolation: isolate;
+    padding-bottom: 1rem;
+  }
+
+  .generator-cockpit::before {
+    position: absolute;
+    z-index: -1;
+    top: -2.5rem;
+    right: 4%;
+    width: min(38rem, 58vw);
+    height: 18rem;
+    border-radius: 999px;
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--accent-solid) 9%, transparent) 0%,
+      transparent 72%
+    );
+    content: '';
+    filter: blur(18px);
+    pointer-events: none;
+  }
+
+  .generator-command-bar {
+    position: relative;
+    overflow: hidden;
+    border-color: color-mix(in srgb, var(--accent-solid) 18%, var(--border-subtle));
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--surface-panel) 96%, var(--accent-soft)) 0%,
+      color-mix(in srgb, var(--surface-panel) 98%, transparent) 58%,
+      color-mix(in srgb, var(--surface-panel) 94%, var(--accent-cyan)) 100%
+    );
+    box-shadow: var(--shadow-sm), var(--shadow-inset);
+  }
+
+  .generator-command-bar::before {
+    position: absolute;
+    top: 0;
+    right: 1.25rem;
+    left: 1.25rem;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--accent-solid) 44%, transparent),
+      transparent
+    );
+    content: '';
+    pointer-events: none;
+  }
+
+  .generator-command-context {
+    min-height: 2.25rem;
+  }
+
+  .generator-command-actions {
+    position: relative;
+  }
+
+  .generator-cockpit-workspace {
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--accent-solid) 12%, var(--border-subtle));
+    border-radius: calc(var(--radius-panel) + 4px);
+    background: color-mix(in srgb, var(--surface-muted) 86%, transparent);
+    box-shadow: var(--shadow-sm), var(--shadow-inset);
+  }
+
+  .generator-editor-stack {
+    min-height: 100%;
+    padding: 0.35rem;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--surface-muted) 82%, transparent),
+      color-mix(in srgb, var(--surface-canvas) 72%, transparent)
+    );
+  }
+
+  .generator-core-form {
+    border-color: color-mix(in srgb, var(--accent-solid) 14%, var(--border-subtle));
+    background: linear-gradient(
+      180deg,
+      var(--surface-panel),
+      color-mix(in srgb, var(--surface-panel) 92%, var(--surface-muted))
+    );
+    box-shadow: var(--shadow-sm), var(--shadow-inset);
+  }
+
+  .generator-editor-section {
+    position: relative;
+    transition:
+      background-color var(--motion-base) var(--ease-out),
+      border-color var(--motion-base) var(--ease-out);
+  }
+
+  .generator-editor-section:hover {
+    background: color-mix(in srgb, var(--accent-soft) 18%, transparent);
+  }
+
+  .generator-editor-section__header {
+    position: relative;
+  }
+
+  .generator-editor-section__title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .generator-editor-section__title::before {
+    width: 3px;
+    height: 0.9rem;
+    flex: 0 0 auto;
+    border-radius: var(--radius-pill);
+    background: linear-gradient(180deg, var(--accent-solid), var(--accent-cyan));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-solid) 8%, transparent);
+    content: '';
+  }
+
+  .generator-editor-section__meta {
+    display: inline-flex;
+    min-height: 1.45rem;
+    align-items: center;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--surface-muted) 88%, transparent);
+    padding: 0 0.5rem;
+  }
+
+  .generator-preview-stage {
+    position: relative;
+    min-width: 0;
+    height: 100%;
+    padding: 0.35rem;
+    background:
+      radial-gradient(
+        circle at 100% 0%,
+        color-mix(in srgb, var(--accent-cyan) 8%, transparent),
+        transparent 28rem
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--surface-muted) 82%, transparent),
+        color-mix(in srgb, var(--surface-canvas) 72%, transparent)
+      );
+  }
+
+  .generator-preview-stage > * {
+    min-height: 100%;
+  }
+}
+
 [data-status='RUNNING'] {
   --status-dot: var(--success-solid);
 }
