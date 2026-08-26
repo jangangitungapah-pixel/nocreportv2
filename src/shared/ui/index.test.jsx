@@ -86,6 +86,7 @@ describe('shared UI primitives', () => {
     );
 
     const trigger = screen.getByRole('combobox', { name: 'Scope' });
+    trigger.focus();
     fireEvent.click(trigger);
     expect(screen.getByRole('listbox', { name: 'Scope' })).toBeInTheDocument();
 
