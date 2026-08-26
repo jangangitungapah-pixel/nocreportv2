@@ -60,7 +60,9 @@ describe('GEN-F8 EvidenceWorkspace', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
     expect(screen.queryByText('evidence.jpg')).not.toBeInTheDocument();
-    await waitFor(() => expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:local-evidence-preview'));
+    await waitFor(() =>
+      expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:local-evidence-preview'),
+    );
   });
 
   it('renders recovered metadata honestly and requires explicit re-attach before OCR', () => {

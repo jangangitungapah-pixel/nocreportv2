@@ -169,7 +169,8 @@ function EvidenceItem({ item, onChange, onRemove, onApplyCoordinate }) {
 
           {!item.localFileAvailable ? (
             <p className="mt-2 border-l-2 border-[var(--warning-solid)] bg-[var(--warning-soft)] px-2.5 py-1.5 text-[10px] leading-5 text-[var(--warning-text)]">
-              Only safe metadata survived recovery. The original image is not stored and no preview is available until you explicitly re-attach it.
+              Only safe metadata survived recovery. The original image is not stored and no preview
+              is available until you explicitly re-attach it.
             </p>
           ) : null}
 
@@ -207,7 +208,12 @@ function EvidenceItem({ item, onChange, onRemove, onApplyCoordinate }) {
           />
 
           <div className="mt-2.5 flex flex-wrap gap-1.5">
-            <Button type="button" size="xs" tone="secondary" onClick={() => reattachRef.current?.click()}>
+            <Button
+              type="button"
+              size="xs"
+              tone="secondary"
+              onClick={() => reattachRef.current?.click()}
+            >
               <AppIcon name="refresh" size={13} />
               {item.localFileAvailable ? 'Replace image' : 'Re-attach image'}
             </Button>
@@ -231,7 +237,9 @@ function EvidenceItem({ item, onChange, onRemove, onApplyCoordinate }) {
         <div className="border-t border-[var(--border-subtle)] px-3 py-2" aria-live="polite">
           <div className="flex items-center justify-between gap-2 text-[9.5px] font-bold text-[var(--text-secondary)]">
             <span>{scan.status || 'Scanning locally…'}</span>
-            <span className="font-mono">{Math.round(Math.max(0, Math.min(1, scan.progress)) * 100)}%</span>
+            <span className="font-mono">
+              {Math.round(Math.max(0, Math.min(1, scan.progress)) * 100)}%
+            </span>
           </div>
         </div>
       ) : null}
@@ -257,7 +265,9 @@ function EvidenceItem({ item, onChange, onRemove, onApplyCoordinate }) {
                     {candidate.formatted}
                   </span>
                 </span>
-                <span className="text-[9px] font-extrabold text-[var(--accent-text)]">Apply coordinate</span>
+                <span className="text-[9px] font-extrabold text-[var(--accent-text)]">
+                  Apply coordinate
+                </span>
               </button>
             ))}
           </div>
@@ -278,7 +288,14 @@ function EvidenceItem({ item, onChange, onRemove, onApplyCoordinate }) {
           <p className="font-mono text-[9.5px] font-bold text-[var(--text-secondary)]">
             Selected coordinate · {recoveredCoordinate.formatted}
           </p>
-          <Button type="button" size="xs" tone="ghost" onClick={() => onApplyCoordinate?.({ ...recoveredCoordinate, source: 'ocr', verified: true })}>
+          <Button
+            type="button"
+            size="xs"
+            tone="ghost"
+            onClick={() =>
+              onApplyCoordinate?.({ ...recoveredCoordinate, source: 'ocr', verified: true })
+            }
+          >
             Apply again
           </Button>
         </div>
@@ -324,8 +341,12 @@ export function EvidenceWorkspace({ items = [], onItemsChange, onApplyCoordinate
         <div className="flex min-w-0 items-center gap-2">
           <AppIcon name="map" size={14} className="text-[var(--accent-text)]" />
           <div>
-            <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Evidence Workspace</h3>
-            <p className="text-[9px] font-semibold text-[var(--text-faint)]">Local files only · no binary cloud persistence</p>
+            <h3 className="text-xs font-extrabold text-[var(--text-primary)]">
+              Evidence Workspace
+            </h3>
+            <p className="text-[9px] font-semibold text-[var(--text-faint)]">
+              Local files only · no binary cloud persistence
+            </p>
           </div>
         </div>
         <span className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-2 py-0.5 font-mono text-[9px] font-bold text-[var(--text-muted)]">
@@ -349,9 +370,12 @@ export function EvidenceWorkspace({ items = [], onItemsChange, onApplyCoordinate
 
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-[var(--radius-control)] border border-dashed border-[var(--border-default)] bg-[var(--surface-muted)] px-3 py-2.5">
           <div>
-            <p className="text-[10.5px] font-bold text-[var(--text-primary)]">Attach local evidence</p>
+            <p className="text-[10.5px] font-bold text-[var(--text-primary)]">
+              Attach local evidence
+            </p>
             <p className="mt-0.5 text-[9.5px] leading-4 text-[var(--text-muted)]">
-              JPG, PNG, WebP · max 15 MB each · up to {EVIDENCE_QUEUE_MAX_ITEMS} items. Saving the Ticket never uploads these files.
+              JPG, PNG, WebP · max 15 MB each · up to {EVIDENCE_QUEUE_MAX_ITEMS} items. Saving the
+              Ticket never uploads these files.
             </p>
           </div>
           <Button
@@ -366,7 +390,10 @@ export function EvidenceWorkspace({ items = [], onItemsChange, onApplyCoordinate
         </div>
 
         {error ? (
-          <p className="mt-2 border-l-2 border-[var(--danger-solid)] bg-[var(--danger-soft)] px-2.5 py-1.5 text-[10px] text-[var(--danger-text)]" role="alert">
+          <p
+            className="mt-2 border-l-2 border-[var(--danger-solid)] bg-[var(--danger-soft)] px-2.5 py-1.5 text-[10px] text-[var(--danger-text)]"
+            role="alert"
+          >
             {error}
           </p>
         ) : null}
@@ -385,7 +412,8 @@ export function EvidenceWorkspace({ items = [], onItemsChange, onApplyCoordinate
           </div>
         ) : (
           <p className="mt-3 text-center text-[10px] leading-5 text-[var(--text-faint)]">
-            No local evidence attached. Add an image when you need a temporary reference or coordinate OCR source.
+            No local evidence attached. Add an image when you need a temporary reference or
+            coordinate OCR source.
           </p>
         )}
       </div>
