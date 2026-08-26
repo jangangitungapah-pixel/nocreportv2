@@ -4,7 +4,9 @@ import {
   DEFAULT_MAX_OUTLOOK_MSG_BYTES,
   OutlookMsgDecodeError,
   decodeOutlookMsgBuffer,
+  decodeOutlookMsgBufferWithDefaultDecoder,
   parseOutlookMsgImport,
+  parseOutlookMsgImportWithDefaultDecoder,
 } from './outlookMsgAdapter.js';
 
 function createReaderFactory(fields) {
@@ -12,6 +14,20 @@ function createReaderFactory(fields) {
     arrayBuffer,
     getFileData: () => fields,
   }));
+}
+
+function createDecoderModuleLoader(fields) {
+  const MsgReader = class {
+    constructor(arrayBuffer) {
+      this.arrayBuffer = arrayBuffer;
+    }
+
+    getFileData() {
+      return fields;
+    }
+  };
+
+  return vi.fn(async () => ({ MsgReader }));
 }
 
 describe('outlookMsgAdapter', () => {
@@ -70,6 +86,60 @@ describe('outlookMsgAdapter', () => {
     expect(candidate.source.messageSentAt).toBe('2026-08-26T00:59:26.000Z');
   });
 
+  test('lazy production decoder keeps Delivery Time and private transport fields outside the app boundary', async () => {
+    const loadDecoderModule = createDecoderModuleLoader({
+      subject: '[MANDAU] LINK DOWN AT DWDM 99AAA0001_FAKE_A <> 99BBB0002_FAKE_B',
+      body: 'TT = INC-20260826-90010003',
+      bodyHtml: '<div>TT = INC-20260826-90010003</div>',
+      clientSubmitTime: '2026-08-26T01:10:00.000Z',
+      messageDeliveryTime: '2026-08-26T01:10:09.000Z',
+      senderEmail: 'private@example.test',
+      recipients: [{ email: 'private-recipient@example.test' }],
+      attachments: [{ fileName: 'private.bin', content: new Uint8Array([9, 8, 7]) }],
+    });
+
+    const decoded = await decodeOutlookMsgBufferWithDefaultDecoder(new Uint8Array([1, 2, 3]), {
+      sourceName: 'synthetic.msg',
+      loadDecoderModule,
+    });
+
+    expect(loadDecoderModule).toHaveBeenCalledTimes(1);
+    expect(decoded).toEqual({
+      subject: '[MANDAU] LINK DOWN AT DWDM 99AAA0001_FAKE_A <> 99BBB0002_FAKE_B',
+      body: 'TT = INC-20260826-90010003',
+      htmlBody: '<div>TT = INC-20260826-90010003</div>',
+      clientSubmitTime: '2026-08-26T01:10:00.000Z',
+    });
+    expect(decoded).not.toHaveProperty('messageDeliveryTime');
+    expect(decoded).not.toHaveProperty('senderEmail');
+    expect(decoded).not.toHaveProperty('recipients');
+    expect(decoded).not.toHaveProperty('attachments');
+  });
+
+  test('lazy production import uses current-email Client Submit Time as Dispatch Time', async () => {
+    const loadDecoderModule = createDecoderModuleLoader({
+      subject:
+        '[MANDAU] LINK DOWN AT DWDM 99AAA0001_FAKE_A <> 99BBB0002_FAKE_B [TT : INC-20260826-90010004]',
+      body: ['Occur Time = 26/08/2026 07:45', 'Sent: Tuesday, August 25, 2026 4:00 PM'].join(
+        '\n',
+      ),
+      clientSubmitTime: '2026-08-26T01:15:26.000Z',
+      messageDeliveryTime: '2026-08-26T01:15:44.000Z',
+    });
+
+    const candidate = await parseOutlookMsgImportWithDefaultDecoder(new Uint8Array([4, 5, 6]), {
+      sourceName: 'synthetic.msg',
+      loadDecoderModule,
+    });
+
+    expect(candidate.fields.dispatchAt).toMatchObject({
+      value: '2026-08-26T08:15',
+      source: 'message_metadata',
+      rawValue: '2026-08-26T01:15:26.000Z',
+    });
+    expect(candidate.source.messageSentAt).toBe('2026-08-26T01:15:26.000Z');
+  });
+
   test.each([
     ['not-an-array-buffer', 'OUTLOOK_MSG_INVALID_SOURCE'],
     [new Uint8Array([]), 'OUTLOOK_MSG_EMPTY_FILE'],
@@ -93,6 +163,18 @@ describe('outlookMsgAdapter', () => {
         code: 'OUTLOOK_MSG_UNSUPPORTED_EXTENSION',
       }),
     );
+  });
+
+  test('lazy decoder validates local source before importing the package', async () => {
+    const loadDecoderModule = createDecoderModuleLoader({});
+
+    await expect(
+      decodeOutlookMsgBufferWithDefaultDecoder(new Uint8Array([1]), {
+        sourceName: 'synthetic.eml',
+        loadDecoderModule,
+      }),
+    ).rejects.toMatchObject({ code: 'OUTLOOK_MSG_UNSUPPORTED_EXTENSION' });
+    expect(loadDecoderModule).not.toHaveBeenCalled();
   });
 
   test('rejects oversized email locally before invoking the decoder', () => {
@@ -123,7 +205,23 @@ describe('outlookMsgAdapter', () => {
     );
   });
 
-  test('does not require a decoder to exist until the Outlook source path is actually used', () => {
+  test('surfaces a missing lazy decoder module as a typed local error', async () => {
+    const loadDecoderModule = vi.fn(async () => {
+      throw new Error('synthetic module load failure');
+    });
+
+    await expect(
+      decodeOutlookMsgBufferWithDefaultDecoder(new Uint8Array([1]), {
+        sourceName: 'synthetic.msg',
+        loadDecoderModule,
+      }),
+    ).rejects.toMatchObject({
+      name: 'OutlookMsgDecodeError',
+      code: 'OUTLOOK_MSG_DECODER_UNAVAILABLE',
+    });
+  });
+
+  test('keeps the injectable sync path explicit for unit and corpus regression tests', () => {
     expect(() =>
       decodeOutlookMsgBuffer(new Uint8Array([1]), {
         sourceName: 'synthetic.msg',
