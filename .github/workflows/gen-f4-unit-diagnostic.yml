@@ -1,0 +1,27 @@
+name: GEN-F4 unit diagnostic
+
+on:
+  push:
+    branches:
+      - feature/template-generator-features
+    paths:
+      - .github/workflows/gen-f4-unit-diagnostic.yml
+
+permissions:
+  contents: read
+
+jobs:
+  full-unit-single-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: feature/template-generator-features
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Run full unit suite single-worker
+        run: npx vitest run --maxWorkers=1 --reporter=verbose
