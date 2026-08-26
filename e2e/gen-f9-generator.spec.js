@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import process from 'node:process';
 
 const PROJECT_ID = 'demo-nocreport';
 const AUTH_ORIGIN = 'http://127.0.0.1:9099';
