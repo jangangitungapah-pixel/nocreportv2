@@ -5,7 +5,9 @@ import { Button } from '../../../shared/ui/primitives.jsx';
 import { Textarea } from '../../../shared/ui/index.jsx';
 import { parseImpactCandidates } from '../lib/impactCandidates.js';
 
-export function ImpactBuilder({ existing = [], onApply }) {
+const EMPTY_IMPACT_VALUES = Object.freeze([]);
+
+export function ImpactBuilder({ existing = EMPTY_IMPACT_VALUES, onApply }) {
   const [source, setSource] = useState('');
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const parsed = useMemo(
@@ -83,7 +85,7 @@ export function ImpactBuilder({ existing = [], onApply }) {
           )}
 
           <div className="mt-2 flex justify-end">
-            <Button size="xs" disabled={selectedIds.size === 0} onClick={apply}>
+            <Button type="button" size="xs" disabled={selectedIds.size === 0} onClick={apply}>
               <AppIcon name="plus" size={13} />
               Apply selected ({selectedIds.size})
             </Button>
