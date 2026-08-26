@@ -7,12 +7,7 @@ const DEFAULT_DELAY_MS = 450;
 
 export function useDuplicateCandidates(
   ticket,
-  {
-    enabled = true,
-    excludeTicketId = null,
-    limit = 8,
-    delayMs = DEFAULT_DELAY_MS,
-  } = {},
+  { enabled = true, excludeTicketId = null, limit = 8, delayMs = DEFAULT_DELAY_MS } = {},
 ) {
   const fingerprint = useMemo(() => duplicateLookupFingerprint(ticket), [ticket]);
   const [state, setState] = useState({
