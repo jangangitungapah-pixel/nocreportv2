@@ -532,7 +532,7 @@ export function TicketGeneratorPage() {
       return;
     }
 
-    if (isDirty) {
+    if (isDirty || featureMetadataDirty) {
       pushToast({
         title: 'Save form changes first',
         message: 'Persist the current Ticket fields before changing its cloud status.',
