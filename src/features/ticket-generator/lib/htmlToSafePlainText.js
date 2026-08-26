@@ -16,9 +16,10 @@ export function htmlToSafePlainText(value) {
   const html = String(value ?? '');
   if (!html.trim()) return '';
 
-  let text = '';
-  if (typeof DOMParser !== 'undefined') {
-    const document = new DOMParser().parseFromString(html, 'text/html');
+  let text;
+  const DomParser = globalThis.DOMParser;
+  if (typeof DomParser !== 'undefined') {
+    const document = new DomParser().parseFromString(html, 'text/html');
     document.querySelectorAll('script, style, noscript').forEach((node) => node.remove());
     document.querySelectorAll('br').forEach((node) => node.replaceWith('\n'));
     document.querySelectorAll('p, div, li, tr, h1, h2, h3, h4, h5, h6').forEach((node) => {

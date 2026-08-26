@@ -80,7 +80,7 @@ function parseFlpSubject(subject) {
   const stateSeverity = normalizeOperationalText(match[2]);
   const [sourceStatus = '', severity = ''] = stateSeverity.split(/\s+-\s+/, 2);
   const rest = normalizeOperationalText(match[3]);
-  const conditionMatch = rest.match(/^([^\-]+?)\s+-\s+(.+)$/);
+  const conditionMatch = rest.match(/^([^-]+?)\s+-\s+(.+)$/);
   if (!conditionMatch) return null;
 
   const condition = normalizeOperationalText(conditionMatch[1]).toUpperCase();
