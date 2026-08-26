@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { AppIcon } from '../../../shared/ui/icon.jsx';
 import { Button } from '../../../shared/ui/primitives.jsx';
-import { DateTimeField, TextInput, Textarea } from '../../../shared/ui/index.jsx';
+import { DateTimeField, SelectField, TextInput, Textarea } from '../../../shared/ui/index.jsx';
 import {
   readProgressSnippetFavorites,
   resolveProgressSnippet,
@@ -53,6 +53,16 @@ export function ProgressComposer({ onAdd, profileId = 'MANDAU_DEFAULT' }) {
       return snippets.indexOf(left) - snippets.indexOf(right);
     });
   }, [favoriteIds, snippets]);
+  const snippetOptions = useMemo(
+    () => [
+      { value: '', label: 'Choose a reusable update…' },
+      ...orderedSnippets.map((snippet) => ({
+        value: snippet.id,
+        label: `${favoriteIds.includes(snippet.id) ? '★ ' : ''}[${snippet.category}] ${snippet.label}`,
+      })),
+    ],
+    [favoriteIds, orderedSnippets],
+  );
 
   const selectSnippet = (id) => {
     setSelectedSnippetId(id);
@@ -126,27 +136,21 @@ export function ProgressComposer({ onAdd, profileId = 'MANDAU_DEFAULT' }) {
           </span>
         </div>
         <span className="text-[9px] font-bold text-[var(--text-faint)]">
-          {favoriteIds.length ? `${favoriteIds.length} local favorite${favoriteIds.length === 1 ? '' : 's'}` : 'Profile snippets'}
+          {favoriteIds.length
+            ? `${favoriteIds.length} local favorite${favoriteIds.length === 1 ? '' : 's'}`
+            : 'Profile snippets'}
         </span>
       </header>
 
       <div className="border-b border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3">
         <div className="grid gap-2 lg:grid-cols-[minmax(220px,0.7fr)_minmax(0,1fr)_auto] lg:items-end">
-          <label className="grid gap-1 text-[10.5px] font-bold text-[var(--text-secondary)]">
-            Quick snippet
-            <select
-              className="min-h-9 w-full rounded-[var(--radius-control)] border border-[var(--border-default)] bg-[var(--surface-panel)] px-2.5 text-[11px] text-[var(--text-primary)] outline-none focus:border-[var(--border-accent)]"
-              value={selectedSnippetId}
-              onChange={(event) => selectSnippet(event.target.value)}
-            >
-              <option value="">Choose a reusable update…</option>
-              {orderedSnippets.map((snippet) => (
-                <option key={snippet.id} value={snippet.id}>
-                  {favoriteIds.includes(snippet.id) ? '★ ' : ''}[{snippet.category}] {snippet.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <SelectField
+            id="progress-quick-snippet"
+            label="Quick snippet"
+            value={selectedSnippetId}
+            onValueChange={selectSnippet}
+            options={snippetOptions}
+          />
 
           {selectedSnippet ? (
             <div className="grid gap-2 sm:grid-cols-2">
