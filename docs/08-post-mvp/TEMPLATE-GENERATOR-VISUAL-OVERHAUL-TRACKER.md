@@ -3,7 +3,7 @@
 **PRD:** `docs/08-post-mvp/TEMPLATE-GENERATOR-VISUAL-OVERHAUL-PRD.md`  
 **Branch:** `feature/template-generator-visual-overhaul`  
 **Stacked base:** `feature/template-generator-features`  
-**Status:** GUX-0 COMPLETE · GUX-1 IN PROGRESS
+**Status:** GUX-0 COMPLETE · GUX-1 COMPLETE · GUX-2 IN PROGRESS
 
 ## Baseline
 
@@ -38,13 +38,17 @@ The browser-responsive/touch matrix is intentionally not claimed by GUX-0 and re
 
 ## GUX-1 — Import + readiness intelligence
 
-- [ ] Unified Import visual redesign.
-- [ ] `.msg` source/drop/input state redesign.
-- [ ] source/confidence/conflict hierarchy.
-- [ ] Validation Center severity hierarchy.
-- [ ] duplicate/related risk visual integration.
-- [ ] explicit operator decision actions remain obvious.
-- [ ] behavioral regression coverage green.
+- [x] Unified Import visual redesign.
+- [x] `.msg` source/drop/input state redesign.
+- [x] source/confidence/conflict hierarchy.
+- [x] Validation Center severity hierarchy.
+- [x] duplicate/related risk visual integration.
+- [x] explicit operator decision actions remain obvious.
+- [x] behavioral regression coverage green.
+
+### GUX-1 automated evidence
+
+GUX-1 presentation changes passed targeted Unified Import, Validation Center and duplicate/related regression coverage, committed Prettier formatting, ESLint, the full unit/component suite and the production build. The patch adds only semantic presentation hooks, severity/risk data attributes and CSS hierarchy. Parser behavior, selective Apply, duplicate scoring, bounded Firestore reads, related-Ticket actions, lifecycle gating and persistence contracts remain unchanged.
 
 ## GUX-2 — Core incident authoring
 

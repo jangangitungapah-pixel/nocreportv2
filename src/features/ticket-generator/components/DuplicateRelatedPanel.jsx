@@ -22,7 +22,7 @@ function CandidateCard({ candidate, canRelate, hasUnsavedChanges, relatePending,
   const reasons = Array.isArray(evidence.reasons) ? evidence.reasons : [];
 
   return (
-    <article className="rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-2.5">
+    <article className="generator-duplicate-card rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-2.5">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="truncate font-mono text-[10.5px] font-extrabold text-[var(--text-primary)]">
@@ -33,7 +33,7 @@ function CandidateCard({ candidate, canRelate, hasUnsavedChanges, relatePending,
             {formatTimestamp(candidate.updatedAt)}
           </p>
         </div>
-        <span className="rounded-full border border-[var(--warning-border)] bg-[var(--warning-soft)] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-[var(--warning-text)]">
+        <span className="generator-risk-badge rounded-full border border-[var(--warning-border)] bg-[var(--warning-soft)] px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-[var(--warning-text)]">
           {evidence.level ?? 'review'} · {evidence.score ?? 0}
         </span>
       </div>
@@ -105,8 +105,8 @@ export function DuplicateRelatedPanel({
   }
 
   return (
-    <section className="generator-duplicate-related overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
-      <header className="flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5">
+    <section className="generator-intelligence-surface generator-duplicate-related overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+      <header className="generator-intelligence-header generator-duplicate-related__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5">
         <div>
           <h3 className="text-xs font-extrabold text-[var(--text-primary)]">
             Duplicate & Related Tickets
@@ -122,7 +122,7 @@ export function DuplicateRelatedPanel({
         ) : null}
       </header>
 
-      <div className="grid gap-3 p-3">
+      <div className="generator-duplicate-related__body grid gap-3 p-3">
         {duplicatePending ? (
           <p className="text-[10.5px] text-[var(--text-muted)]">
             Checking bounded duplicate signals…
