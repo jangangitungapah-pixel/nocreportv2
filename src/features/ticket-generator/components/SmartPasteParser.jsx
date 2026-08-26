@@ -8,6 +8,9 @@ import { parseReportTextImport } from '../lib/reportTextAdapter.js';
 import { buildSelectiveApplyPlan } from '../lib/selectiveApply.js';
 import { importCandidateHasOperationalMetadata } from '../lib/ticketFeatureMetadata.js';
 
+const EMPTY_CURRENT_VALUES = Object.freeze({});
+const EMPTY_DIRTY_FIELDS = Object.freeze({});
+
 const FIELD_LABELS = {
   title: 'Title',
   impactList: 'Impact List',
@@ -56,8 +59,8 @@ function withSelectedFields(candidate, selectedFields) {
 
 export function SmartPasteParser({
   onApply,
-  currentValues = {},
-  dirtyFields = {},
+  currentValues = EMPTY_CURRENT_VALUES,
+  dirtyFields = EMPTY_DIRTY_FIELDS,
   progressCount = 0,
   progressDirty = false,
   metadataPresent = false,
@@ -283,171 +286,189 @@ export function SmartPasteParser({
                   Review detected values before applying
                 </p>
                 <p className="mt-0.5 text-[10px] leading-5 text-[var(--text-muted)]">
-                  Empty fields are preselected. Replacements stay unchecked until you explicitly
-                  choose them.
+                  Imported values stay local until you choose Apply. Current dirty fields are never
+                  silently overwritten.
                 </p>
               </div>
-              <Button size="sm" disabled={selectedCount === 0 || msgPending} onClick={apply}>
-                <AppIcon name="generator" size={14} />
-                Apply selected ({selectedCount})
-              </Button>
+              <span className="shrink-0 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-2 py-0.5 font-mono text-[9px] font-bold text-[var(--text-faint)]">
+                {candidate.source.kind === 'outlook_msg' ? 'OUTLOOK_MSG' : 'REPORT_TEXT'}
+              </span>
             </div>
 
             {blockingIdentityConflict ? (
-              <fieldset className="mt-2.5 border-l-2 border-[var(--danger-solid)] bg-[var(--danger-soft)] px-2.5 py-2">
-                <legend className="px-1 text-[10px] font-extrabold text-[var(--danger-text)]">
-                  TT identity conflict — choose the trusted source
-                </legend>
-                <div className="mt-1 grid gap-1.5">
-                  {blockingIdentityConflict.candidates.map((entry, index) => (
+              <div className="mt-2.5 rounded-[var(--radius-control)] border border-[var(--danger-border)] bg-[var(--danger-soft)] p-2.5">
+                <p className="text-[10.5px] font-extrabold text-[var(--danger-text)]">
+                  Blocking TT identity conflict
+                </p>
+                <p className="mt-1 text-[10px] leading-5 text-[var(--danger-text)]">
+                  Subject and body disagree on the primary incident. Choose the intended identity
+                  explicitly before applying related Title/metadata.
+                </p>
+                <div className="mt-2 grid gap-1.5">
+                  {blockingIdentityConflict.candidates.map((item, index) => (
                     <label
-                      key={`${entry.source}-${entry.value}-${index}`}
-                      className="flex cursor-pointer items-start gap-2 text-[10px] leading-5 text-[var(--danger-text)]"
+                      key={`${item.source}-${item.value}-${index}`}
+                      className="flex min-h-9 items-center gap-2 rounded-[var(--radius-control)] border border-[var(--danger-border)] bg-[var(--surface-panel)] px-2.5 py-1.5 text-[10px] text-[var(--text-secondary)]"
                     >
                       <input
                         type="radio"
-                        name="import-identity-conflict"
-                        value={index}
+                        name="primary-tt-resolution"
+                        value={String(index)}
                         checked={identityChoice === String(index)}
                         onChange={(event) => setIdentityChoice(event.target.value)}
                       />
-                      <span>
-                        <strong className="uppercase">{entry.source}</strong> · {entry.value}
+                      <span className="font-mono font-bold text-[var(--text-primary)]">
+                        {item.value}
+                      </span>
+                      <span className="ml-auto uppercase text-[9px] text-[var(--text-faint)]">
+                        {item.source}
                       </span>
                     </label>
                   ))}
                 </div>
-                {chosenIdentity && chosenIdentity.source !== 'subject' ? (
-                  <p className="mt-1.5 text-[9.5px] leading-4 text-[var(--danger-text)]">
-                    Title auto-apply stays disabled because the selected TT does not match the email
-                    subject. Apply the other safe fields, then align Title manually.
+              </div>
+            ) : null}
+
+            {candidate.warnings?.length ? (
+              <div className="mt-2.5 grid gap-1">
+                {candidate.warnings.map((warning) => (
+                  <p
+                    key={warning}
+                    className="border-l-2 border-[var(--warning-solid)] bg-[var(--warning-soft)] px-2.5 py-1.5 text-[10px] leading-5 text-[var(--warning-text)]"
+                  >
+                    {warning}
                   </p>
-                ) : null}
-              </fieldset>
+                ))}
+              </div>
+            ) : null}
+
+            {candidate.conflicts?.filter((item) => item !== blockingIdentityConflict).length ? (
+              <div className="mt-2.5 grid gap-1">
+                {candidate.conflicts
+                  .filter((item) => item !== blockingIdentityConflict)
+                  .map((conflict, index) => (
+                    <p
+                      key={`${conflict.field}-${index}`}
+                      className="border-l-2 border-[var(--warning-solid)] bg-[var(--warning-soft)] px-2.5 py-1.5 text-[10px] leading-5 text-[var(--warning-text)]"
+                    >
+                      {conflict.message ?? `${FIELD_LABELS[conflict.field] ?? conflict.field} conflicts across sources.`}
+                    </p>
+                  ))}
+              </div>
             ) : null}
 
             <div className="mt-2.5 grid gap-1.5">
-              {plan
-                .filter((item) => item.selected)
-                .map((item) => {
-                  const blocked = item.field === 'title' && titleBlockedByIdentity;
-                  return (
-                    <label
-                      key={item.field}
-                      className={`flex items-start gap-2 rounded-[var(--radius-control)] border px-2.5 py-2 ${
-                        item.replacement
-                          ? 'border-[var(--warning-border)] bg-[var(--warning-soft)]'
-                          : 'border-[var(--border-subtle)] bg-[var(--surface-muted)]'
-                      }`}
-                    >
-                      <input
-                        className="mt-0.5"
-                        type="checkbox"
-                        checked={selectedFields.has(item.field)}
-                        disabled={blocked}
-                        onChange={(event) => toggleField(item.field, event.target.checked)}
-                      />
-                      <span className="min-w-0 flex-1">
-                        <span className="flex flex-wrap items-center gap-1.5 text-[10.5px] font-extrabold text-[var(--text-primary)]">
+              {plan.map((item) => {
+                const selected = selectedFields.has(item.field);
+                const disabled =
+                  !item.selected ||
+                  (item.field === 'title' && titleBlockedByIdentity) ||
+                  (item.field === 'externalTtNumber' && blockingIdentityConflict && !chosenIdentity);
+
+                return (
+                  <label
+                    key={item.field}
+                    className={`flex min-h-10 items-start gap-2 rounded-[var(--radius-control)] border px-2.5 py-1.5 ${
+                      item.replacement
+                        ? 'border-[var(--warning-border)] bg-[var(--warning-soft)]'
+                        : 'border-[var(--border-subtle)] bg-[var(--surface-muted)]'
+                    } ${disabled ? 'opacity-55' : ''}`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selected}
+                      disabled={disabled}
+                      onChange={(event) => toggleField(item.field, event.target.checked)}
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                        <span className="text-[10px] font-extrabold text-[var(--text-primary)]">
                           {FIELD_LABELS[item.field] ?? item.field}
-                          <span className="text-[8.5px] font-bold uppercase tracking-[0.08em] text-[var(--text-faint)]">
-                            {item.source} · {item.confidence}
-                          </span>
                         </span>
-                        <span className="mt-0.5 block max-h-10 overflow-hidden break-words text-[10px] leading-5 text-[var(--text-muted)]">
-                          {previewValue(item.incomingValue)}
+                        <span className="font-mono text-[8.5px] uppercase text-[var(--text-faint)]">
+                          {item.source} · {item.confidence}
                         </span>
                         {item.replacement ? (
-                          <span className="mt-0.5 block text-[9px] font-bold text-[var(--warning-text)]">
-                            Replaces a current value{item.dirty ? ' that you already edited' : ''} —
-                            checking this field is explicit approval.
-                          </span>
-                        ) : null}
-                        {blocked ? (
-                          <span className="mt-0.5 block text-[9px] font-bold text-[var(--danger-text)]">
-                            Resolve the TT conflict with the subject source before applying Title.
+                          <span className="text-[8.5px] font-extrabold uppercase text-[var(--warning-text)]">
+                            replaces current value
                           </span>
                         ) : null}
                       </span>
-                    </label>
-                  );
-                })}
-
-              {candidate.progress?.length ? (
-                <label
-                  className={`flex items-start gap-2 rounded-[var(--radius-control)] border px-2.5 py-2 ${
-                    progressReplacement
-                      ? 'border-[var(--warning-border)] bg-[var(--warning-soft)]'
-                      : 'border-[var(--border-subtle)] bg-[var(--surface-muted)]'
-                  }`}
-                >
-                  <input
-                    className="mt-0.5"
-                    type="checkbox"
-                    checked={includeProgress}
-                    onChange={(event) => setIncludeProgress(event.target.checked)}
-                  />
-                  <span className="min-w-0 flex-1">
-                    <span className="text-[10.5px] font-extrabold text-[var(--text-primary)]">
-                      Progress · {candidate.progress.length} update
-                      {candidate.progress.length === 1 ? '' : 's'}
-                    </span>
-                    {progressReplacement || progressDirty ? (
-                      <span className="mt-0.5 block text-[9px] font-bold text-[var(--warning-text)]">
-                        Existing timeline content will be replaced — checking this is explicit
-                        approval.
+                      <span className="mt-0.5 block break-words text-[10px] leading-5 text-[var(--text-secondary)]">
+                        {previewValue(item.incomingValue)}
                       </span>
-                    ) : null}
-                  </span>
-                </label>
-              ) : null}
-
-              {hasOperationalMetadata ? (
-                <label
-                  className={`flex items-start gap-2 rounded-[var(--radius-control)] border px-2.5 py-2 ${
-                    metadataReplacement
-                      ? 'border-[var(--warning-border)] bg-[var(--warning-soft)]'
-                      : 'border-[var(--border-subtle)] bg-[var(--surface-muted)]'
-                  }`}
-                >
-                  <input
-                    className="mt-0.5"
-                    type="checkbox"
-                    checked={includeMetadata}
-                    onChange={(event) => setIncludeMetadata(event.target.checked)}
-                  />
-                  <span className="min-w-0 flex-1">
-                    <span className="text-[10.5px] font-extrabold text-[var(--text-primary)]">
-                      Operational metadata · alarm, path, profile & TT identity
                     </span>
-                    <span className="mt-0.5 block text-[9px] font-bold text-[var(--text-muted)]">
-                      Stored only after normal Ticket Save. Raw email/body/header/attachment data
-                      are never included.
-                    </span>
-                    {metadataReplacement ? (
-                      <span className="mt-0.5 block text-[9px] font-bold text-[var(--warning-text)]">
-                        Replaces current structured metadata — checking this is explicit approval.
-                      </span>
-                    ) : null}
-                  </span>
-                </label>
-              ) : null}
+                  </label>
+                );
+              })}
             </div>
 
-            {candidate.warnings?.length ? (
-              <p
-                className="mt-2 border-l-2 border-[var(--warning-solid)] bg-[var(--warning-soft)] px-2.5 py-1.5 text-[10.5px] leading-5 text-[var(--warning-text)]"
-                role="status"
+            {candidate.progress?.length ? (
+              <label
+                className={`mt-1.5 flex min-h-10 items-start gap-2 rounded-[var(--radius-control)] border px-2.5 py-1.5 ${
+                  progressReplacement
+                    ? 'border-[var(--warning-border)] bg-[var(--warning-soft)]'
+                    : 'border-[var(--border-subtle)] bg-[var(--surface-muted)]'
+                }`}
               >
-                <span className="font-bold">Check before applying:</span>{' '}
-                {candidate.warnings.join(' · ')}
-              </p>
+                <input
+                  type="checkbox"
+                  checked={includeProgress}
+                  onChange={(event) => setIncludeProgress(event.target.checked)}
+                />
+                <span className="min-w-0 flex-1">
+                  <span className="text-[10px] font-extrabold text-[var(--text-primary)]">
+                    Progress · {candidate.progress.length} updates
+                  </span>
+                  <span className="mt-0.5 block text-[9.5px] leading-5 text-[var(--text-secondary)]">
+                    {progressReplacement
+                      ? 'Existing Progress will be replaced only after this explicit selection.'
+                      : 'Imported Progress stays local until Ticket Save.'}
+                  </span>
+                </span>
+              </label>
             ) : null}
+
+            {hasOperationalMetadata ? (
+              <label
+                className={`mt-1.5 flex min-h-10 items-start gap-2 rounded-[var(--radius-control)] border px-2.5 py-1.5 ${
+                  metadataReplacement
+                    ? 'border-[var(--warning-border)] bg-[var(--warning-soft)]'
+                    : 'border-[var(--border-subtle)] bg-[var(--surface-muted)]'
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={includeMetadata}
+                  onChange={(event) => setIncludeMetadata(event.target.checked)}
+                />
+                <span className="min-w-0 flex-1">
+                  <span className="text-[10px] font-extrabold text-[var(--text-primary)]">
+                    Operational metadata · alarm, path, profile & TT identity
+                  </span>
+                  <span className="mt-0.5 block text-[9.5px] leading-5 text-[var(--text-secondary)]">
+                    {metadataReplacement
+                      ? 'Current structured metadata is preserved unless you explicitly select this replacement.'
+                      : 'Structured metadata is stored only after normal Ticket Save; raw email body/headers/attachments are never included.'}
+                  </span>
+                </span>
+              </label>
+            ) : null}
+
+            <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] pt-2.5">
+              <p className="text-[9.5px] text-[var(--text-faint)]">
+                {selectedCount} selection{selectedCount === 1 ? '' : 's'} · Apply only updates the
+                form. Save remains explicit.
+              </p>
+              <Button
+                size="xs"
+                disabled={selectedCount === 0 || Boolean(blockingIdentityConflict && !chosenIdentity)}
+                onClick={apply}
+              >
+                Apply selected ({selectedCount})
+              </Button>
+            </div>
           </div>
-        ) : mode === 'report_text' && !source.trim() ? (
-          <p className="mt-1.5 text-[10.5px] leading-5 text-[var(--text-muted)]">
-            Detection is preview-only. Nothing changes until you explicitly apply selected values.
-          </p>
         ) : null}
       </div>
     </section>
