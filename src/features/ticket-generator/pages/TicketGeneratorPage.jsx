@@ -8,6 +8,8 @@ import { useAuth } from '../../../app/providers/AuthProvider.jsx';
 import { useToast } from '../../../app/providers/ToastProvider.jsx';
 import {
   TICKET_STATUS,
+  TICKET_TITLE_MODE,
+  extractExternalTicketNumber,
   formatCoordinatePair,
   formatTicketReport,
   validateCoordinatePair,
@@ -42,6 +44,11 @@ import {
   saveTicketEditorCore,
 } from '../lib/persistenceService.js';
 import { applySelectiveImport } from '../lib/selectiveApply.js';
+import { canGenerateSmartTitle, generateSmartTitle } from '../lib/smartTitle.js';
+import {
+  createEditorFeatureMetadata,
+  featureMetadataFromImportCandidate,
+} from '../lib/ticketFeatureMetadata.js';
 import { ticketToFormValues } from '../lib/ticketToForm.js';
 import { ticketFormSchema } from '../schemas/ticketFormSchema.js';
 
@@ -269,6 +276,10 @@ export function TicketGeneratorPage() {
   const [loadingTicket, setLoadingTicket] = useState(false);
   const [loadError, setLoadError] = useState(null);
   const [pendingNavigationTicketId, setPendingNavigationTicketId] = useState(null);
+  const [featureMetadata, setFeatureMetadata] = useState(() =>
+    createEditorFeatureMetadata({ templateProfileId: 'MANDAU_DEFAULT' }),
+  );
+  const [featureMetadataDirty, setFeatureMetadataDirty] = useState(false);
 
   const {
     control,
@@ -294,12 +305,18 @@ export function TicketGeneratorPage() {
   });
   const watchedValues = useWatch({ control });
   const statusDirty = status !== savedStatus;
-  const hasUnsavedChanges = isDirty || progressDirty || statusDirty;
+  const hasUnsavedChanges = isDirty || progressDirty || featureMetadataDirty || statusDirty;
   const blocker = useBlocker(hasUnsavedChanges);
 
   const ticket = useMemo(
-    () => buildTicketFromForm(watchedValues, { status, progress: progressEntries, revision }),
-    [progressEntries, revision, status, watchedValues],
+    () =>
+      buildTicketFromForm(watchedValues, {
+        status,
+        progress: progressEntries,
+        revision,
+        featureMetadata,
+      }),
+    [featureMetadata, progressEntries, revision, status, watchedValues],
   );
   const report = useMemo(() => formatTicketReport(ticket), [ticket]);
   const coordinate = coordinateSummary(watchedValues?.latitude, watchedValues?.longitude);
@@ -321,6 +338,8 @@ export function TicketGeneratorPage() {
       setProgressEntries(loaded.progress);
       setProgressDirty(false);
       setRevision(loaded.ticket.revision);
+      setFeatureMetadata(createEditorFeatureMetadata(loaded.ticket));
+      setFeatureMetadataDirty(false);
       setPersistedCoordinateSignature(loaded.coordinateSignature);
     } catch (error) {
       setLoadError(error);
@@ -386,6 +405,7 @@ export function TicketGeneratorPage() {
 
     if (localDevelopmentMode) {
       reset(values);
+      setFeatureMetadataDirty(false);
       setProgressDirty(false);
       setSavedStatus(status);
       pushToast({
@@ -396,13 +416,19 @@ export function TicketGeneratorPage() {
       return;
     }
 
-    const candidate = buildTicketFromForm(values, { status, progress: progressEntries, revision });
+    const candidate = buildTicketFromForm(values, {
+      status,
+      progress: progressEntries,
+      revision,
+      featureMetadata,
+    });
     setPersistPending(true);
     try {
       if (!routeTicketId) {
         const created = await createTicketEditor(candidate, progressEntries);
         setRevision(created.revision);
         reset(values);
+        setFeatureMetadataDirty(false);
         setProgressDirty(false);
         setSavedStatus(status);
         setPendingNavigationTicketId(created.ticketId);
@@ -414,7 +440,7 @@ export function TicketGeneratorPage() {
         return;
       }
 
-      if (!isDirty) {
+      if (!isDirty && !featureMetadataDirty) {
         pushToast({
           title: 'No core changes to save',
           message: 'Status and Progress mutations are persisted separately when they happen.',
@@ -433,6 +459,8 @@ export function TicketGeneratorPage() {
       setPersistedCoordinateSignature(saved.coordinateSignature);
       setStatus(saved.ticket.status);
       setSavedStatus(saved.ticket.status);
+      setFeatureMetadata(createEditorFeatureMetadata(saved.ticket));
+      setFeatureMetadataDirty(false);
       reset(ticketToFormValues(saved.ticket));
       pushToast({
         title: 'Ticket saved',
@@ -459,7 +487,12 @@ export function TicketGeneratorPage() {
     const values = await validateFormState();
     if (!values || persistPending) return;
 
-    const candidate = buildTicketFromForm(values, { status, progress: progressEntries, revision });
+    const candidate = buildTicketFromForm(values, {
+      status,
+      progress: progressEntries,
+      revision,
+      featureMetadata,
+    });
     const transition = validateTicketTransition(candidate, targetStatus);
 
     if (!transition.valid) {
@@ -662,7 +695,13 @@ export function TicketGeneratorPage() {
     }
   };
 
-  const applyUnifiedImport = ({ candidate, confirmedFields, includeProgress }) => {
+  const applyUnifiedImport = ({
+    candidate,
+    confirmedFields,
+    includeProgress,
+    includeMetadata,
+    identityResolution,
+  }) => {
     const currentValues = getValues();
     const result = applySelectiveImport(candidate, currentValues, {
       dirtyFields: topLevelDirtyFields(dirtyFields),
@@ -687,6 +726,11 @@ export function TicketGeneratorPage() {
       setValue('impactList', importedImpact, { shouldDirty: true, shouldTouch: true });
     }
 
+    if (includeMetadata) {
+      setFeatureMetadata(featureMetadataFromImportCandidate(candidate, { identityResolution }));
+      setFeatureMetadataDirty(true);
+    }
+
     let importedProgressCount = 0;
     if (includeProgress) {
       const importedProgress = toImportedProgressEntries(candidate.progress ?? []);
@@ -699,6 +743,7 @@ export function TicketGeneratorPage() {
 
     const appliedSummary = [
       `${result.appliedFields.length} field${result.appliedFields.length === 1 ? '' : 's'}`,
+      includeMetadata ? 'structured metadata' : null,
       includeProgress
         ? `${importedProgressCount} progress update${importedProgressCount === 1 ? '' : 's'}`
         : null,
@@ -735,6 +780,43 @@ export function TicketGeneratorPage() {
     });
   };
 
+  const titleRegistration = register('title');
+  const smartTitleAvailable = canGenerateSmartTitle(ticket);
+  const hasStructuredMetadata = Boolean(
+    featureMetadata.incidentKey ||
+    featureMetadata.pathKey ||
+    featureMetadata.alarmContext?.rawAlarm ||
+    featureMetadata.alarmContext?.transportFamily ||
+    featureMetadata.alarmContext?.pathEndpoints?.length,
+  );
+
+  const regenerateTitle = () => {
+    if (!smartTitleAvailable) return;
+    const generated = generateSmartTitle(ticket);
+    if (!generated) return;
+    setValue('title', generated, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+    setFeatureMetadata((current) => ({
+      ...current,
+      titleMode: TICKET_TITLE_MODE.GENERATED,
+      externalTtNumber: ticket.externalTtNumber ?? current.externalTtNumber,
+    }));
+    setFeatureMetadataDirty(true);
+  };
+
+  const handleTitleChange = (event) => {
+    titleRegistration.onChange(event);
+    setFeatureMetadata((current) => ({
+      ...current,
+      titleMode: TICKET_TITLE_MODE.MANUAL,
+      externalTtNumber: extractExternalTicketNumber(event.target.value),
+    }));
+    setFeatureMetadataDirty(true);
+  };
+
   if (loadingTicket) return <GeneratorLoading />;
 
   if (loadError) {
@@ -759,6 +841,7 @@ export function TicketGeneratorPage() {
           dirtyFields={dirtyFields}
           progressCount={progressEntries.length}
           progressDirty={progressDirty}
+          metadataPresent={hasStructuredMetadata}
         />
       ) : null}
 
@@ -775,8 +858,26 @@ export function TicketGeneratorPage() {
             required
             placeholder="[MANDAU] LINK DOWN ... [TT : INC-...]"
             error={errors.title?.message}
-            {...register('title')}
+            {...titleRegistration}
+            onChange={handleTitleChange}
           />
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] pt-2 text-[10px]">
+            <span className="font-semibold text-[var(--text-faint)]">
+              Smart Title ·{' '}
+              {featureMetadata.titleMode === TICKET_TITLE_MODE.GENERATED
+                ? 'Generated'
+                : 'Manual override'}
+            </span>
+            <Button
+              type="button"
+              tone="ghost"
+              size="xs"
+              disabled={!smartTitleAvailable}
+              onClick={regenerateTitle}
+            >
+              Regenerate
+            </Button>
+          </div>
           <div className="mt-2 flex items-center justify-between gap-3 border-t border-[var(--border-subtle)] pt-2 text-[10px]">
             <span className="font-semibold text-[var(--text-faint)]">Detected TT</span>
             <strong className="truncate font-mono text-[var(--text-secondary)]">
