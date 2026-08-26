@@ -63,6 +63,7 @@ describe('DuplicateRelatedPanel', () => {
       <MemoryRouter>
         <DuplicateRelatedPanel
           candidates={[candidate()]}
+          canCreateAnyway={false}
           canRelate
           hasUnsavedChanges
           onCreateAnyway={vi.fn()}
@@ -71,6 +72,7 @@ describe('DuplicateRelatedPanel', () => {
       </MemoryRouter>,
     );
     expect(screen.getByRole('button', { name: 'Link as related' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Create anyway' })).not.toBeInTheDocument();
   });
 
   it('renders bounded related Ticket review and explicit unlink action', () => {
