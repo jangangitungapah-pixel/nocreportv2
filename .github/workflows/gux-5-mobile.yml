@@ -46,6 +46,9 @@ jobs:
       - name: Normalize GUX-5 browser lint
         run: node scripts/fix-gux-5-mobile-lint.mjs
 
+      - name: Add mobile overflow diagnostics
+        run: node scripts/diagnose-gux-5-mobile-overflow.mjs
+
       - name: Format
         run: npm run format
 
