@@ -48,6 +48,73 @@ service cloud.firestore {
       return status in ['DRAFT', 'RUNNING', 'RESOLVED', 'ARCHIVED'];
     }
 
+    function validTitleMode(mode) {
+      return mode in ['GENERATED', 'MANUAL'];
+    }
+
+    function nullableString(value) {
+      return value == null || value is string;
+    }
+
+    function validAlarmContext(data) {
+      return data is map
+        && data.keys().hasOnly([
+          'rawAlarm',
+          'alarmFamily',
+          'alarmSource',
+          'emsAlarmNo',
+          'siteId',
+          'siteName',
+          'severity',
+          'sourceStatus',
+          'dispatchTo',
+          'region',
+          'description',
+          'lastLinkFlapped',
+          'transportFamily',
+          'pathEndpoints',
+          'externalTtReferences'
+        ])
+        && data.rawAlarm is string
+        && nullableString(data.alarmFamily)
+        && data.alarmSource is string
+        && data.emsAlarmNo is string
+        && data.siteId is string
+        && data.siteName is string
+        && data.severity is string
+        && data.sourceStatus is string
+        && data.dispatchTo is string
+        && data.region is string
+        && data.description is string
+        && data.lastLinkFlapped is string
+        && data.transportFamily is string
+        && data.pathEndpoints is list
+        && data.pathEndpoints.size() <= 16
+        && data.externalTtReferences is list
+        && data.externalTtReferences.size() <= 32;
+    }
+
+    function validImportProvenance(data) {
+      return data == null || (
+        data is map
+        && data.keys().hasOnly(['sourceKind', 'dispatchTimeSource', 'messageSentAt'])
+        && nullableString(data.sourceKind)
+        && nullableString(data.dispatchTimeSource)
+        && (data.messageSentAt == null || data.messageSentAt is timestamp)
+      );
+    }
+
+    function validSchemaV2Metadata(data) {
+      return data.titleMode is string
+        && validTitleMode(data.titleMode)
+        && nullableString(data.templateProfileId)
+        && nullableString(data.incidentKey)
+        && nullableString(data.pathKey)
+        && validAlarmContext(data.alarmContext)
+        && validImportProvenance(data.importProvenance)
+        && nullableString(data.incidentGroupId);
+    }
+
     function hasValidCoordinate(data) {
       return (
         data.hasCoordinates == false
@@ -67,7 +134,7 @@ service cloud.firestore {
     }
 
     function validTicketContract(data) {
-      return data.schemaVersion == 1
+      return data.schemaVersion in [1, 2]
         && data.createdBy is string
         && data.updatedBy is string
         && data.revision is int
@@ -75,7 +142,8 @@ service cloud.firestore {
         && data.hasCoordinates is bool
         && data.status is string
         && validTicketStatus(data.status)
-        && hasValidCoordinate(data);
+        && hasValidCoordinate(data)
+        && (data.schemaVersion == 1 || validSchemaV2Metadata(data));
     }
 
     function validInitialTicket(data) {
@@ -94,10 +162,18 @@ service cloud.firestore {
         );
     }
 
+    function validSchemaTransition() {
+      return request.resource.data.schemaVersion == resource.data.schemaVersion
+        || (
+          resource.data.schemaVersion == 1
+          && request.resource.data.schemaVersion == 2
+        );
+    }
+
     function commonTicketUpdateValid() {
       return request.resource.data.createdBy == resource.data.createdBy
         && request.resource.data.createdAt == resource.data.createdAt
-        && request.resource.data.schemaVersion == resource.data.schemaVersion
+        && validSchemaTransition()
         && request.resource.data.updatedBy == request.auth.uid
         && request.resource.data.revision == resource.data.revision + 1
         && validTicketContract(request.resource.data);
