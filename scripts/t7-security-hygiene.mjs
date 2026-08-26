@@ -80,7 +80,8 @@ const LEGACY_UI_PATTERNS = [
   },
   {
     pattern: /<select(?:\s|>)/i,
-    message: 'visible native select controls are forbidden; use the canonical product selector layer',
+    message:
+      'visible native select controls are forbidden; use the canonical product selector layer',
   },
   {
     pattern: /path:\s*['"]\/generator\/:ticketId['"]/,
