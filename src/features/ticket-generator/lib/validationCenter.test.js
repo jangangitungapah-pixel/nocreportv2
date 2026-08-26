@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 import { createEmptyTicket } from '../../../entities/ticket/index.js';
-import { deriveReportValidation } from './validationCenter.js';
+import {
+  deriveReportValidation,
+  withDuplicateCandidateFindings,
+} from './validationCenter.js';
 
 function validForm(overrides = {}) {
   return {
@@ -170,16 +173,39 @@ describe('GEN-F4 Report Validation Center', () => {
   });
 
   it('keeps duplicate detection advisory for the next phase', () => {
-    const result = deriveReportValidation(validTicket(), {
+    const subject = validTicket();
+    const result = deriveReportValidation(subject, {
       formValues: validForm(),
       duplicateCandidates: [{ ticketId: 'ticket-2' }],
     });
 
+    expect(result.ticket).toBe(subject);
     expect(result.warnings).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ code: 'SUSPECTED_DUPLICATE', severity: 'warning' }),
       ]),
     );
     expect(result.readyForRunning).toBe(true);
+  });
+
+  it('decorates an existing validation snapshot with live duplicate candidates without adding blockers', () => {
+    const base = deriveReportValidation(validTicket(), { formValues: validForm() });
+    const decorated = withDuplicateCandidateFindings(base, [
+      { id: 'ticket-2', duplicateEvidence: { level: 'critical', score: 100 } },
+      { id: 'ticket-3', duplicateEvidence: { level: 'high', score: 70 } },
+    ]);
+
+    expect(decorated.blocking).toEqual(base.blocking);
+    expect(decorated.readyForRunning).toBe(base.readyForRunning);
+    expect(decorated.warnings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: 'SUSPECTED_DUPLICATE',
+          severity: 'warning',
+          meta: { count: 2 },
+        }),
+      ]),
+    );
+    expect(decorated.counts.warning).toBe(base.counts.warning + 1);
   });
 });
