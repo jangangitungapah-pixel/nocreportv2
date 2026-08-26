@@ -65,7 +65,7 @@ describeEmulator.sequential('GEN-F5 incident group repository', () => {
     if (shouldRunEmulatorTests) await signOut(getAuthClient()).catch(() => {});
   });
 
-  it('creates, lists, unlinks and relinks bounded related Tickets with revision checks', async () => {
+  it('finds bounded duplicate candidates, then creates, lists, unlinks and relinks related Tickets with revision checks', async () => {
     await signInOperator();
     const left = await firestoreTicketRepository.createTicket({
       title: '[MANDAU] LINK DOWN AT DWDM F5_A <> F5_B [TT : INC-20260826-90000001]',
@@ -81,6 +81,21 @@ describeEmulator.sequential('GEN-F5 incident group repository', () => {
       incidentKey: 'INC-20260826-90000002',
       pathKey: 'F5_A<>F5_B',
     });
+
+    const duplicateCandidates = await firestoreTicketRepository.findDuplicateTicketCandidates({
+      ticket: {
+        externalTtNumber: 'INC-20260826-90000001',
+        incidentKey: 'INC-20260826-90000001',
+        pathKey: 'F5_A<>F5_B',
+        occurAt: new Date('2026-08-26T12:00:00.000Z'),
+      },
+      excludeTicketId: left.ticketId,
+      limit: 8,
+      recentWindowHours: 1,
+    });
+    expect(duplicateCandidates.length).toBeLessThanOrEqual(8);
+    expect(duplicateCandidates.some((ticket) => ticket.id === left.ticketId)).toBe(false);
+    expect(duplicateCandidates.some((ticket) => ticket.id === right.ticketId)).toBe(true);
 
     const group = await createIncidentGroupFromTickets({
       members: [
