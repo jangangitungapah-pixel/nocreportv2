@@ -1,0 +1,73 @@
+name: GEN-F6 history wire v2
+
+on:
+  push:
+    branches:
+      - feature/template-generator-features
+    paths:
+      - .github/workflows/gen-f6-history-wire-v2.yml
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: feature/template-generator-features
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Wire canonical TicketAuditHistory
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          page = Path('src/features/ticket-generator/pages/TicketGeneratorPage.jsx')
+          p = page.read_text()
+
+          anchor = """} from '../../../entities/ticket/index.js';\nimport { AppIcon }"""
+          replacement = """} from '../../../entities/ticket/index.js';\nimport { CAPABILITY } from '../../../entities/user/authorization.js';\nimport { AppIcon }"""
+          if anchor not in p:
+              raise SystemExit('capability import anchor missing')
+          p = p.replace(anchor, replacement, 1)
+
+          anchor = """import { SmartPasteParser } from '../components/SmartPasteParser.jsx';\nimport { ValidationCenter }"""
+          replacement = """import { SmartPasteParser } from '../components/SmartPasteParser.jsx';\nimport { TicketAuditHistory } from '../components/TicketAuditHistory.jsx';\nimport { ValidationCenter }"""
+          if anchor not in p:
+              raise SystemExit('audit component import anchor missing')
+          p = p.replace(anchor, replacement, 1)
+
+          anchor = """  const { ticketId: routeTicketId } = useParams();\n  const { localDevelopmentMode } = useAuth();\n  const { pushToast } = useToast();"""
+          replacement = """  const { ticketId: routeTicketId } = useParams();\n  const { localDevelopmentMode, can } = useAuth();\n  const canReadAudit = can?.(CAPABILITY.READ_AUDIT) ?? false;\n  const { pushToast } = useToast();"""
+          if anchor not in p:
+              raise SystemExit('auth capability anchor missing')
+          p = p.replace(anchor, replacement, 1)
+
+          anchor = """      <ProgressTimeline\n        entries={progressEntries}\n        onUpdate={updateProgress}\n        onRemove={setRemoveProgressId}\n      />\n    </div>"""
+          replacement = """      <ProgressTimeline\n        entries={progressEntries}\n        onUpdate={updateProgress}\n        onRemove={setRemoveProgressId}\n      />\n      <TicketAuditHistory\n        ticketId={routeTicketId}\n        enabled={Boolean(routeTicketId && !localDevelopmentMode && canReadAudit)}\n        limit={50}\n      />\n    </div>"""
+          if anchor not in p:
+              raise SystemExit('audit render anchor missing')
+          p = p.replace(anchor, replacement, 1)
+          page.write_text(p)
+
+          test = Path('src/features/ticket-generator/pages/TicketGeneratorAuditGate.test.jsx')
+          test.write_text("""import { cleanup, render, screen, waitFor } from '@testing-library/react';\nimport { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';\nimport { createMemoryRouter, RouterProvider } from 'react-router-dom';\n\nimport { ToastProvider } from '../../../app/providers/ToastProvider.jsx';\nimport { createEmptyTicket } from '../../../entities/ticket/index.js';\nimport { TicketGeneratorPage } from './TicketGeneratorPage.jsx';\n\nconst authState = vi.hoisted(() => ({ canReadAudit: true }));\nconst persistenceMocks = vi.hoisted(() => ({\n  loadTicketEditor: vi.fn(),\n  loadTicketRevisionHistory: vi.fn(),\n}));\n\nvi.mock('../../../app/providers/AuthProvider.jsx', async (importOriginal) => ({\n  ...(await importOriginal()),\n  useAuth: () => ({\n    localDevelopmentMode: false,\n    can: (capability) => capability === 'audit:read' && authState.canReadAudit,\n  }),\n}));\n\nvi.mock('../lib/persistenceService.js', async (importOriginal) => ({\n  ...(await importOriginal()),\n  loadTicketEditor: persistenceMocks.loadTicketEditor,\n  loadTicketRevisionHistory: persistenceMocks.loadTicketRevisionHistory,\n}));\n\nfunction renderExistingTicket() {\n  const router = createMemoryRouter(\n    [{ path: '/generator/:ticketId/edit', element: <TicketGeneratorPage /> }],\n    { initialEntries: ['/generator/ticket-1/edit'] },\n  );\n  return render(\n    <ToastProvider>\n      <RouterProvider router={router} />\n    </ToastProvider>,\n  );\n}\n\ndescribe('TicketGenerator audit capability gate', () => {\n  beforeEach(() => {\n    window.localStorage.clear();\n    authState.canReadAudit = true;\n    persistenceMocks.loadTicketEditor.mockReset();\n    persistenceMocks.loadTicketRevisionHistory.mockReset();\n    persistenceMocks.loadTicketEditor.mockResolvedValue({\n      ticket: createEmptyTicket({ id: 'ticket-1', title: '[MANDAU] LINK DOWN', revision: 4 }),\n      progress: [],\n      coordinateSignature: 'none',\n    });\n    persistenceMocks.loadTicketRevisionHistory.mockResolvedValue([]);\n  });\n\n  afterEach(() => {\n    cleanup();\n    vi.restoreAllMocks();\n  });\n\n  it('enables bounded audit history for READ_AUDIT users on an existing Ticket', async () => {\n    renderExistingTicket();\n    await waitFor(() => expect(persistenceMocks.loadTicketEditor).toHaveBeenCalledWith('ticket-1'));\n    await waitFor(() =>\n      expect(persistenceMocks.loadTicketRevisionHistory).toHaveBeenCalledWith('ticket-1', { limit: 50 }),\n    );\n    expect(screen.getByLabelText('Revision history')).toBeInTheDocument();\n  });\n\n  it('does not query or render audit history without READ_AUDIT', async () => {\n    authState.canReadAudit = false;\n    renderExistingTicket();\n    await waitFor(() => expect(persistenceMocks.loadTicketEditor).toHaveBeenCalledWith('ticket-1'));\n    expect(persistenceMocks.loadTicketRevisionHistory).not.toHaveBeenCalled();\n    expect(screen.queryByLabelText('Revision history')).not.toBeInTheDocument();\n  });\n});\n""")
+          PY
+      - name: Format
+        run: npx prettier --write src/features/ticket-generator/pages/TicketGeneratorPage.jsx src/features/ticket-generator/pages/TicketGeneratorAuditGate.test.jsx src/features/ticket-generator/components/TicketAuditHistory.jsx src/features/ticket-generator/components/TicketAuditHistory.test.jsx
+      - name: Focused tests
+        run: npx vitest run src/features/ticket-generator/components/TicketAuditHistory.test.jsx src/features/ticket-generator/pages/TicketGeneratorAuditGate.test.jsx src/features/ticket-generator/pages/TicketGeneratorPage.test.jsx src/features/ticket-generator/lib/ticketRevisionDiff.test.js src/features/ticket-generator/lib/draftRecovery.test.js
+      - name: Commit product wiring
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/features/ticket-generator/pages/TicketGeneratorPage.jsx src/features/ticket-generator/pages/TicketGeneratorAuditGate.test.jsx src/features/ticket-generator/components/TicketAuditHistory.jsx src/features/ticket-generator/components/TicketAuditHistory.test.jsx
+          git diff --cached --check
+          git commit -m "feat(generator): gate bounded revision history by audit capability"
+          git push origin HEAD:feature/template-generator-features
