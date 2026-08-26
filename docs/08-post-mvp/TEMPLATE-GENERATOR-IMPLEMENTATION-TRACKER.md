@@ -4,7 +4,7 @@
 **Evidence annex:** `docs/08-post-mvp/TEMPLATE-GENERATOR-EMAIL-IMPORT-ADDENDUM.md`  
 **Branch:** `feature/template-generator-features`  
 **PR:** #7  
-**Status:** GEN-F0 COMPLETE · GEN-F1 COMPLETE · GEN-F2 COMPLETE · GEN-F3 COMPLETE · GEN-F4 IN PROGRESS
+**Status:** GEN-F0 COMPLETE · GEN-F1 COMPLETE · GEN-F2 COMPLETE · GEN-F3 COMPLETE · GEN-F4 COMPLETE · GEN-F5 IN PROGRESS
 
 ## GEN-F0 — Baseline, contracts and feature skeleton
 
@@ -222,32 +222,83 @@ GEN-F3 exit criterion is satisfied: routine operator Impact and Progress updates
 
 ## GEN-F4 — Validation Center + Time Intelligence
 
-- [ ] Add a derived Validation finding model with blocking/warning severity and field/action targeting.
-- [ ] Bridge Generator/Zod field errors into Validation Center findings without creating divergent validation rules.
-- [ ] Bridge domain lifecycle validation into Validation Center findings.
-- [ ] Surface unresolved source/import conflict findings where source evidence is available.
-- [ ] Surface missing Outlook Sent Time / Dispatch Time review finding without inventing a fallback.
-- [ ] Surface coordinate verification finding for unverified OCR/manual coordinate states where applicable.
-- [ ] Reserve bounded duplicate/suspected-duplicate warning integration for GEN-F5 without adding unbounded reads.
-- [ ] Add derived incident elapsed time.
-- [ ] Add derived dispatch delay as Dispatch Time minus Occur Time.
-- [ ] Add derived age since latest Progress / latest update age.
-- [ ] Add derived resolved duration where resolution timestamps are available.
-- [ ] Add focus-to-field actions from Validation Center findings.
-- [ ] Keep warning-only findings non-blocking and add no SLA breach/judgement semantics.
-- [ ] Refresh time intelligence at minute-level only; no second-by-second global rerender.
-- [ ] Add pure-unit coverage for finding derivation, time ordering and time metrics.
-- [ ] Add component coverage for blocking/warning rendering and focus-to-field actions.
-- [ ] Preserve lifecycle/RBAC/revision/canonical report/OCR/import privacy contracts.
-- [ ] Full repository Quality green on clean GEN-F4 head.
+- [x] Add a derived Validation finding model with blocking/warning severity and field/action targeting.
+- [x] Bridge Generator/Zod field errors into Validation Center findings without creating divergent validation rules.
+- [x] Bridge domain lifecycle validation into Validation Center findings.
+- [x] Surface unresolved source/import conflict findings where source evidence is available.
+- [x] Surface missing Outlook Sent Time / Dispatch Time review finding without inventing a fallback.
+- [x] Surface coordinate verification finding for unverified OCR/manual coordinate states where applicable.
+- [x] Reserve bounded duplicate/suspected-duplicate warning integration for GEN-F5 without adding unbounded reads.
+- [x] Add derived incident elapsed time.
+- [x] Add derived dispatch delay as Dispatch Time minus Occur Time.
+- [x] Add derived age since latest Progress / latest update age.
+- [x] Add derived resolved duration where resolution timestamps are available.
+- [x] Add focus-to-field actions from Validation Center findings.
+- [x] Keep warning-only findings non-blocking and add no SLA breach/judgement semantics.
+- [x] Refresh time intelligence at minute-level only; no second-by-second global rerender.
+- [x] Add pure-unit coverage for finding derivation, time ordering and time metrics.
+- [x] Add component coverage for blocking/warning rendering and focus-to-field actions.
+- [x] Preserve lifecycle/RBAC/revision/canonical report/OCR/import privacy contracts.
+- [x] Full repository Quality green on clean GEN-F4 head.
+- [x] Final committed-format verifier green on clean GEN-F4 head.
 
-### GEN-F4 exit criterion
+### GEN-F4 completion evidence
 
-The Generator presents one derived Validation Center that reuses existing form/domain rules, distinguishes blocking findings from warnings, links findings back to the relevant field, and adds timestamp-derived operational context without introducing SLA judgement or a second validation authority.
+The Generator now derives one Validation Center from existing Zod form validation, domain Running requirements, import conflict evidence, coordinate verification state and normalized timestamps. Blocking findings remain separate from warnings/informational gaps, findings can focus the relevant Generator field, and warning-only findings do not block normal Draft Save behavior.
+
+Time Intelligence derives incident elapsed time, Dispatch delay, latest Progress age, latest update age and resolved duration at minute-level refresh. `MANDAU_DEFAULT` remains explicit `Asia/Jakarta`; Outlook-derived Dispatch calculations prioritize persisted `PR_CLIENT_SUBMIT_TIME` provenance and never substitute Delivery Time. No SLA breach judgement or second-by-second global rerender was introduced.
+
+A GEN-F4 regression investigation found and fixed a referential render loop in Unified Import analysis defaults. Stable shared empty defaults removed the loop; the formerly timing-out `SmartPasteParser.validation.test.jsx` then passed in isolation and in the full unit/component suite. Temporary diagnostic/recovery workflows were removed before final integration QA.
+
+**Quality #778 — FULL GREEN** on final clean GEN-F4 product/code head `6198e7aed522c7ca3146d95268eead52c306b956` (run ID `32974216637`).
+
+Validated gates:
+
+- committed Prettier formatting + final committed-format verifier;
+- ESLint;
+- **248 unit/component tests passed** with 15 emulator-only skips in the normal unit pass;
+- Firebase Emulator Ticket repository integration **6/6**;
+- Firestore Security Rules matrix **9/9**;
+- T7 repository/security hygiene: **32 production dependencies referenced**, no committed fixture/test-data files, legacy UI guard clean;
+- T8 Firebase release preflight;
+- generic + Firebase-configured production builds;
+- dev smoke;
+- T6 browser QA at 360x800, 390x844, 412x915 and 1280x900 plus marker-touch QA;
+- Playwright **6/6** covering lifecycle, RBAC, keyboard/dialog focus, themes, responsive overflow and serious axe checks.
+
+GEN-F4 exit criterion is satisfied: the Generator presents one derived Validation Center that reuses existing form/domain rules, distinguishes blocking findings from warnings, links findings back to the relevant field, and adds timestamp-derived operational context without introducing SLA judgement or a second validation authority.
+
+## GEN-F5 — Duplicate Detection + Related Tickets
+
+- [ ] Add deterministic advisory duplicate scoring with explicit matching reasons.
+- [ ] Treat exact `externalTtNumber` match as critical duplicate evidence.
+- [ ] Treat same canonical `incidentKey` as critical/high relationship evidence.
+- [ ] Treat same `pathKey` within the bounded occurrence-time window as high evidence.
+- [ ] Treat an active same-`pathKey` Ticket as high evidence without making it a hard block.
+- [ ] Treat Site ID + alarm family + close Occur Time as medium evidence where structured metadata exists.
+- [ ] Keep normalized title similarity weak fallback evidence only.
+- [ ] Do not treat different EMS Alarm Numbers as proof of different physical incidents.
+- [ ] Add bounded Firestore lookup priority: exact TT, incidentKey, active/recent pathKey, then bounded recent fallback only if justified.
+- [ ] Add any required Firestore indexes without introducing collection-wide client scans.
+- [ ] Feed duplicate candidates into the existing Validation Center as warning-only findings.
+- [ ] Show candidate TT, status, Occur Time, latest update and matching reasons.
+- [ ] Provide Review existing Ticket and explicit Create anyway behavior without silently blocking creation.
+- [ ] Add `incidentGroups/{groupId}` repository/model boundary with bounded related-Ticket reads.
+- [ ] Support create group from a duplicate suggestion, link Ticket, unlink Ticket and bounded related-Ticket listing.
+- [ ] Keep each related Ticket lifecycle, revision and Progress state independent.
+- [ ] Keep related/duplicate mutations inside existing RBAC/revision-safe persistence boundaries.
+- [ ] Add pure-unit coverage for scoring/reason ordering/time windows.
+- [ ] Add Firebase Emulator coverage for bounded duplicate/group persistence behavior and Security Rules where required.
+- [ ] Add component coverage for advisory candidate review and explicit operator actions.
+- [ ] Preserve canonical report/OCR/import privacy and all protected contracts.
+- [ ] Full repository Quality green on clean GEN-F5 head.
+
+### GEN-F5 exit criterion
+
+Potential duplicate or related incidents are surfaced early through bounded indexed reads and deterministic advisory evidence, while the operator retains explicit control to review, create anyway or link incidents and every Ticket keeps independent lifecycle/revision/Progress semantics.
 
 ## Remaining phases
 
-- [ ] GEN-F5 — Duplicate Detection + Related Tickets
 - [ ] GEN-F6 — Draft Recovery + Revision Diff
 - [ ] GEN-F7 — Handover + Copy Center + Presets + Commands
 - [ ] GEN-F8 — Evidence workspace
