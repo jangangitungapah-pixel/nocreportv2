@@ -130,6 +130,28 @@ Update Progress
     expect(screen.getByText('INC-20260818-00015849', { selector: 'strong' })).toBeInTheDocument();
   });
 
+  it('selectively applies Impact Builder proposals and keeps the result manually editable', () => {
+    renderGenerator();
+
+    fireEvent.change(screen.getByLabelText('Paste impact / service / node list'), {
+      target: { value: 'SITE_A\nSITE_B' },
+    });
+
+    const siteBCheckbox = screen.getByText('SITE_B').closest('label').querySelector('input');
+    fireEvent.click(siteBCheckbox);
+    fireEvent.click(screen.getByRole('button', { name: 'Apply Impact (1)' }));
+
+    const impact = screen.getByRole('textbox', { name: 'Impact 1' });
+    expect(impact).toHaveValue('SITE_A');
+    expect(screen.queryByRole('textbox', { name: 'Impact 2' })).not.toBeInTheDocument();
+
+    fireEvent.change(impact, { target: { value: 'SITE_A / manual operator note' } });
+    expect(impact).toHaveValue('SITE_A / manual operator note');
+    expect(screen.getByLabelText('Generated NOC report')).toHaveTextContent(
+      'Impact List : SITE_A / manual operator note',
+    );
+  });
+
   it('blocks Running status until Title and Occur Time exist through the shared validation contract', async () => {
     renderGenerator();
 
