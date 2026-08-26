@@ -37,9 +37,7 @@ export function generateSmartTitle(ticket = {}) {
 
   const operational = [
     condition,
-    inputs.transportFamily
-      ? `${config.transportJoiner.trim()} ${inputs.transportFamily}`
-      : '',
+    inputs.transportFamily ? `${config.transportJoiner.trim()} ${inputs.transportFamily}` : '',
     path,
     identity,
   ]
@@ -55,8 +53,8 @@ export function canGenerateSmartTitle(ticket = {}) {
   const inputs = smartTitleInputs(ticket);
   return Boolean(
     inputs.alarmFamily ||
-      inputs.transportFamily ||
-      inputs.pathEndpoints.length ||
-      inputs.externalTtNumber,
+    inputs.transportFamily ||
+    inputs.pathEndpoints.length ||
+    inputs.externalTtNumber,
   );
 }

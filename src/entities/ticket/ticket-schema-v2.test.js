@@ -56,9 +56,7 @@ describe('Ticket schema-v2 production defaults', () => {
     expect(ticket.titleMode).toBe(TICKET_TITLE_MODE.GENERATED);
     expect(ticket.alarmContext.rawAlarm).toBe('Physical Port Down');
     expect(ticket.alarmContext.pathEndpoints).toEqual(['NODE A', 'NODE B', 'NODE C']);
-    expect(ticket.alarmContext.externalTtReferences).toEqual([
-      'DWDM-INC-20260825-00015373',
-    ]);
+    expect(ticket.alarmContext.externalTtReferences).toEqual(['DWDM-INC-20260825-00015373']);
     expect(ticket.importProvenance).toEqual({
       sourceKind: 'outlook_msg',
       dispatchTimeSource: 'PR_CLIENT_SUBMIT_TIME',

@@ -273,10 +273,7 @@ describeEmulator.sequential('Firestore Security Rules role matrix', () => {
     await expectPermissionDenied(() =>
       setDoc(
         doc(db, 'tickets', 'invalid-v2-title-mode'),
-        ticketDocument(
-          accounts.operator.uid,
-          schemaV2Metadata({ titleMode: 'AUTO_MAGIC' }),
-        ),
+        ticketDocument(accounts.operator.uid, schemaV2Metadata({ titleMode: 'AUTO_MAGIC' })),
       ),
     );
 

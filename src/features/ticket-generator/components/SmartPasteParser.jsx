@@ -188,8 +188,7 @@ export function SmartPasteParser({
     });
   };
 
-  const selectedCount =
-    selectedFields.size + (includeProgress ? 1 : 0) + (includeMetadata ? 1 : 0);
+  const selectedCount = selectedFields.size + (includeProgress ? 1 : 0) + (includeMetadata ? 1 : 0);
   const hasCandidate = Boolean(candidate);
   const progressReplacement = Boolean(candidate?.progress?.length && progressCount > 0);
   const metadataReplacement = Boolean(hasOperationalMetadata && metadataPresent);
@@ -417,8 +416,8 @@ export function SmartPasteParser({
                       Operational metadata · alarm, path, profile & TT identity
                     </span>
                     <span className="mt-0.5 block text-[9px] font-bold text-[var(--text-muted)]">
-                      Stored only after normal Ticket Save. Raw email/body/header/attachment data are
-                      never included.
+                      Stored only after normal Ticket Save. Raw email/body/header/attachment data
+                      are never included.
                     </span>
                     {metadataReplacement ? (
                       <span className="mt-0.5 block text-[9px] font-bold text-[var(--warning-text)]">
