@@ -53,10 +53,9 @@ function hasAuthenticatedFirebaseUser() {
 }
 
 function generatorHasUnsavedChanges() {
-  if (typeof window === 'undefined') return false;
-  const event = new Event('beforeunload', { cancelable: true });
-  const dispatched = window.dispatchEvent(event);
-  return event.defaultPrevented || dispatched === false;
+  if (typeof document === 'undefined') return false;
+  const commandBar = document.querySelector('section.sticky');
+  return commandBar?.textContent?.includes('Unsaved') ?? false;
 }
 
 function reloadEditor() {
