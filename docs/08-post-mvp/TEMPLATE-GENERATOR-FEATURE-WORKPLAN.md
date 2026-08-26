@@ -1,6 +1,6 @@
 # Template Generator Feature Expansion — Detailed Workplan
 
-**Status:** PLANNING — APPROVED DIRECTION, IMPLEMENTATION NOT STARTED  
+**Status:** COMPLETE — GEN-F0 THROUGH GEN-F9 RELEASE READINESS ACCEPTED  
 **Version:** 2 — consolidated after 39-email corpus analysis  
 **Primary page:** `/generator/new` and `/generator/:ticketId/edit`  
 **Repository:** `jangangitungapah-pixel/nocreportv2`  
@@ -1438,6 +1438,15 @@ Every phase must finish Quality-green before the next.
 
 ---
 
+## GEN-F9 final closure evidence
+
+- Focused GEN-F9 browser QA: **7/7 passed** (run `33010779128`).
+- Canonical Quality **#807 FULL GREEN** (run `33013473856`) on automated-gate head `6bd6485ebf8c19e7aa6ab419b6f2e5965bd764bb`.
+- Human NOC workflow acceptance explicitly recorded on **2026-08-27** from the user instruction to proceed to the next phase.
+- Feature-program protected contracts remain unchanged.
+- Dedicated Template Generator visual overhaul is now authorized to start on top of the completed feature-program head.
+
+---
 # 31. Test strategy
 
 ## Pure unit

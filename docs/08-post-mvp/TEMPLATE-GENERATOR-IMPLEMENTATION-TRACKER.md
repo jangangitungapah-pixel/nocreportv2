@@ -4,7 +4,7 @@
 **Evidence annex:** `docs/08-post-mvp/TEMPLATE-GENERATOR-EMAIL-IMPORT-ADDENDUM.md`  
 **Branch:** `feature/template-generator-features`  
 **PR:** #7  
-**Status:** GEN-F0 COMPLETE · GEN-F1 COMPLETE · GEN-F2 COMPLETE · GEN-F3 COMPLETE · GEN-F4 COMPLETE · GEN-F5 COMPLETE · GEN-F6 COMPLETE · GEN-F7 COMPLETE · GEN-F8 COMPLETE · GEN-F9 IN PROGRESS
+**Status:** GEN-F0 COMPLETE · GEN-F1 COMPLETE · GEN-F2 COMPLETE · GEN-F3 COMPLETE · GEN-F4 COMPLETE · GEN-F5 COMPLETE · GEN-F6 COMPLETE · GEN-F7 COMPLETE · GEN-F8 COMPLETE · GEN-F9 COMPLETE
 
 ## GEN-F0 — Baseline, contracts and feature skeleton
 
@@ -492,8 +492,8 @@ Evidence now assists the operator through a bounded local workspace and the exis
 - [x] Validate keyboard shortcut E2E.
 - [x] Validate Light/Dark serious/critical axe.
 - [x] Validate mobile no-horizontal-overflow.
-- [ ] Obtain human NOC workflow acceptance; do not infer or fabricate sign-off.
-- [ ] Close the workplan with final release evidence after every automated gate and human acceptance are satisfied.
+- [x] Obtain human NOC workflow acceptance; explicit user approval to proceed to the next phase recorded on 2026-08-27.
+- [x] Close the workplan with final release evidence after every automated gate and human acceptance are satisfied.
 
 ### GEN-F9 automated QA evidence
 
@@ -501,7 +501,7 @@ Evidence now assists the operator through a bounded local workspace and the exis
 
 **Quality #807 — FULL GREEN** on automated-gate head `6bd6485ebf8c19e7aa6ab419b6f2e5965bd764bb` (run ID `33013473856`). Validated committed Prettier formatting, ESLint, full unit/component suite, Firebase Emulator repository integration, Firestore Security Rules coverage, dependency/security/legacy hygiene, release preflight, generic and Firebase-configured production builds, dev smoke, real-browser responsive/touch QA, canonical Admin lifecycle and Operator/Viewer RBAC Playwright coverage, Light/Dark accessibility checks, mobile overflow coverage, and the final committed-format verifier.
 
-Automated GEN-F9 hardening is green. **Human NOC workflow acceptance remains outstanding and is intentionally not inferred or fabricated.** GEN-F9 stays IN PROGRESS until the user explicitly provides that acceptance; final release evidence/closeout also remains pending until then.
+Automated GEN-F9 hardening is green. **Human NOC workflow acceptance was explicitly recorded on 2026-08-27 when the user instructed the project to continue to the next phase.** GEN-F9 is COMPLETE; the Template Generator feature program is closed and the dedicated visual-overhaul phase may begin.
 
 ### GEN-F9 exit criterion
 
