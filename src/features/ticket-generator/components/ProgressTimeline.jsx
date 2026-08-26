@@ -1,7 +1,9 @@
 import { useState } from 'react';
 
 import { formatProgressTime, sortProgressTimeline } from '../../../entities/ticket/index.js';
-import { Button, DateTimeField, IconButton, Textarea, UiIcon } from '../../../shared/ui/index.jsx';
+import { AppIcon } from '../../../shared/ui/icon.jsx';
+import { Button } from '../../../shared/ui/primitives.jsx';
+import { DateTimeField, Textarea } from '../../../shared/ui/index.jsx';
 
 function toInputValue(value) {
   const date = value instanceof Date ? value : new Date(value);
@@ -60,33 +62,22 @@ export function ProgressTimeline({ entries, onUpdate, onRemove }) {
 
   if (sorted.length === 0) {
     return (
-      <div className="generator-progress-empty flex items-center gap-2 rounded-xl border border-dashed border-[var(--border-default)] bg-[var(--surface-panel)] px-3 py-2.5 text-xs font-medium text-[var(--text-muted)] shadow-[var(--shadow-xs)]">
-        <span
-          className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-[var(--surface-muted)] text-[10px] font-black"
-          aria-hidden="true"
-        >
-          0
-        </span>
+      <div className="generator-progress-empty rounded-[var(--radius-panel)] border border-dashed border-[var(--border-default)] bg-[var(--surface-panel)] px-3 py-3 text-xs font-medium text-[var(--text-muted)]">
         No progress updates yet.
       </div>
     );
   }
 
   return (
-    <section className="generator-progress-history rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-4 shadow-[var(--shadow-xs)]">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <p className="spatial-kicker">Recorded Progress</p>
-          <p className="mt-1 text-xs text-[var(--text-muted)]">Incident history and corrections.</p>
-        </div>
-        <span className="spatial-chip min-h-7 px-2.5 text-[10px]">{sorted.length} updates</span>
-      </div>
+    <section className="generator-progress-history overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+      <header className="flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
+        <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Recorded Progress</h3>
+        <span className="font-mono text-[9.5px] font-semibold text-[var(--text-faint)]">
+          {sorted.length} update{sorted.length === 1 ? '' : 's'}
+        </span>
+      </header>
 
-      <div className="relative mt-3 space-y-0.5">
-        <span
-          className="absolute bottom-2 left-[16px] top-2 w-px bg-[var(--border-subtle)]"
-          aria-hidden="true"
-        />
+      <div className="divide-y divide-[var(--border-subtle)]">
         {sorted.map((entry) => {
           const group = dateKey(entry.occurredAt);
           const showGroup = group !== lastDate;
@@ -94,21 +85,16 @@ export function ProgressTimeline({ entries, onUpdate, onRemove }) {
           const editing = editingId === entry.id;
 
           return (
-            <div key={entry.id} className="relative">
+            <div key={entry.id}>
               {showGroup ? (
-                <div className="relative z-10 flex items-center gap-2 pb-1.5 pt-3 first:pt-0">
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] text-[8px] font-black text-[var(--accent-text)] shadow-[var(--shadow-xs)]">
-                    DAY
-                  </span>
-                  <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-muted)]">
-                    {group}
-                  </p>
+                <div className="bg-[var(--surface-muted)] px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)]">
+                  {group}
                 </div>
               ) : null}
 
               {editing ? (
-                <div className="relative z-10 ml-10 rounded-xl border border-[var(--border-accent)] bg-[var(--accent-soft)] p-3 shadow-[var(--shadow-xs)]">
-                  <div className="grid gap-2.5 md:grid-cols-[200px_minmax(0,1fr)]">
+                <div className="grid gap-2.5 bg-[var(--accent-soft)] px-3 py-3">
+                  <div className="grid gap-2.5 md:grid-cols-[190px_minmax(0,1fr)]">
                     <DateTimeField
                       id={`edit-progress-time-${entry.id}`}
                       label="Event time"
@@ -127,28 +113,40 @@ export function ProgressTimeline({ entries, onUpdate, onRemove }) {
                       }}
                     />
                   </div>
-                  <div className="mt-2.5 flex flex-wrap justify-end gap-2">
-                    <Button tone="secondary" onClick={cancelEdit}>
+                  <div className="flex justify-end gap-1.5">
+                    <Button tone="ghost" size="sm" onClick={cancelEdit}>
                       Cancel
                     </Button>
-                    <Button onClick={() => saveEdit(entry)}>Save correction</Button>
+                    <Button size="sm" onClick={() => saveEdit(entry)}>
+                      Save correction
+                    </Button>
                   </div>
                 </div>
               ) : (
-                <div className="group relative z-10 ml-10 grid gap-1.5 rounded-xl border border-transparent px-2.5 py-2 transition-[background-color,border-color] duration-200 hover:border-[var(--border-subtle)] hover:bg-[var(--surface-muted)] sm:grid-cols-[64px_minmax(0,1fr)_auto] sm:items-start">
-                  <time className="pt-0.5 font-mono text-[11px] font-bold tabular-nums text-[var(--accent-text)]">
+                <div className="group grid gap-2 px-3 py-2.5 sm:grid-cols-[64px_minmax(0,1fr)_auto] sm:items-start">
+                  <time className="pt-0.5 font-mono text-[10.5px] font-bold tabular-nums text-[var(--accent-text)]">
                     {formatProgressTime(entry.occurredAt)}
                   </time>
-                  <p className="text-sm font-medium leading-5 text-[var(--text-primary)]">
+                  <p className="whitespace-pre-wrap text-[12.5px] font-medium leading-5 text-[var(--text-primary)]">
                     {entry.text}
                   </p>
-                  <div className="flex gap-1 opacity-100 transition sm:opacity-60 sm:group-hover:opacity-100">
-                    <IconButton label="Edit progress update" onClick={() => beginEdit(entry)}>
-                      <UiIcon name="edit" size={16} />
-                    </IconButton>
-                    <IconButton label="Remove progress update" onClick={() => onRemove(entry.id)}>
-                      <UiIcon name="close" size={16} />
-                    </IconButton>
+                  <div className="flex justify-end gap-1 sm:opacity-65 sm:transition-opacity sm:group-hover:opacity-100">
+                    <Button
+                      tone="ghost"
+                      size="icon"
+                      aria-label="Edit progress update"
+                      onClick={() => beginEdit(entry)}
+                    >
+                      <AppIcon name="edit" size={14} />
+                    </Button>
+                    <Button
+                      tone="ghost"
+                      size="icon"
+                      aria-label="Remove progress update"
+                      onClick={() => onRemove(entry.id)}
+                    >
+                      <AppIcon name="close" size={14} />
+                    </Button>
                   </div>
                 </div>
               )}

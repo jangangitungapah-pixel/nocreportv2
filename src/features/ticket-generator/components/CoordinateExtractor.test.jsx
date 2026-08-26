@@ -39,8 +39,9 @@ describe('CoordinateExtractor', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Scan coordinates' }));
 
     expect(
-      await screen.findByText(/Coordinate candidate detected from Bottom-right watermark/),
+      await screen.findByText(/Coordinate detected from Bottom-right watermark/),
     ).toBeInTheDocument();
+    expect(screen.getByText(/Verify before applying/)).toBeInTheDocument();
     expect(onApplyCoordinate).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole('button', { name: /Apply & verify/ }));
@@ -68,7 +69,7 @@ describe('CoordinateExtractor', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Scan coordinates' }));
 
-    expect(await screen.findByText(/Coordinate result requires verification/)).toBeInTheDocument();
+    expect(await screen.findByText(/Multiple coordinate candidates found/)).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: /Apply & verify/ })).toHaveLength(2);
   });
 

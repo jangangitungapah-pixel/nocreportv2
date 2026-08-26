@@ -187,14 +187,17 @@ async function runApplicationViewportQa(session, width, height) {
     `(() => {
       const mapHost = document.querySelector('[aria-label="Cut Point map"]');
       const mapSection = mapHost?.parentElement;
-      const workspace = mapSection?.parentElement;
-      const listPanel = workspace?.firstElementChild;
+      const separator = document.querySelector('[role="separator"]');
+      const panelGroup = separator?.parentElement;
+      const listPanel = separator?.previousElementSibling;
+      const mapPanel = separator?.nextElementSibling;
       const attribution = document.querySelector('.leaflet-control-attribution');
       return {
-        mapWidth: mapSection?.getBoundingClientRect().width ?? 0,
+        mapWidth: mapPanel?.getBoundingClientRect().width ?? mapSection?.getBoundingClientRect().width ?? 0,
         mapHeight: mapSection?.getBoundingClientRect().height ?? 0,
         panelWidth: listPanel?.getBoundingClientRect().width ?? 0,
-        workspaceWidth: workspace?.getBoundingClientRect().width ?? 0,
+        workspaceWidth: panelGroup?.getBoundingClientRect().width ?? mapSection?.getBoundingClientRect().width ?? 0,
+        hasSeparator: Boolean(separator),
         attribution: attribution?.textContent ?? ''
       };
     })()`,
@@ -209,10 +212,13 @@ async function runApplicationViewportQa(session, width, height) {
 
   if (width >= 1280) {
     const mapShare = layout.workspaceWidth > 0 ? layout.mapWidth / layout.workspaceWidth : 0;
+    assert(layout.hasSeparator, 'Desktop Cut Point workspace must expose a resize separator.');
     assert(
       layout.mapWidth > layout.panelWidth && mapShare >= 0.55,
       `Desktop map must remain the primary workspace: map=${layout.mapWidth}px, panel=${layout.panelWidth}px, workspace=${layout.workspaceWidth}px, share=${mapShare.toFixed(2)}.`,
     );
+  } else {
+    assert(!layout.hasSeparator, `Cut Point resize separator must stay hidden at ${width}px.`);
   }
 
   console.log(`T6 viewport QA passed at ${width}x${height}.`);

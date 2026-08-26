@@ -1,6 +1,6 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 
 import { formatTicketReport } from '../../../entities/ticket/index.js';
 import { firestoreTicketRepository } from '../../../infrastructure/firebase/index.js';
@@ -56,17 +56,30 @@ function createTicket(overrides = {}) {
   };
 }
 
+function LocationProbe() {
+  const location = useLocation();
+  return <output data-testid="location-probe">{`${location.pathname}${location.hash}`}</output>;
+}
+
 function renderPage() {
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={['/running']}>
       <RunningTicketsPage />
+      <LocationProbe />
     </MemoryRouter>,
   );
 }
 
-describe('RunningTicketsPage operational actions', () => {
+async function openActionsFor(ttNumber) {
+  const trigger = screen.getAllByRole('button', { name: `Actions for ${ttNumber}` })[0];
+  fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false });
+  return screen.findByRole('menu');
+}
+
+describe('RunningTicketsPage operational workspace', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.localStorage.clear();
     authState.canCreate = true;
     authState.canMutate = true;
     firestoreTicketRepository.listRunningTickets.mockResolvedValue([
@@ -83,10 +96,11 @@ describe('RunningTicketsPage operational actions', () => {
 
   afterEach(() => {
     cleanup();
+    window.localStorage.clear();
     vi.restoreAllMocks();
   });
 
-  it('filters the bounded Running dataset by coordinate availability and search', async () => {
+  it('filters the bounded Running dataset by coordinate availability and shared table search', async () => {
     renderPage();
 
     expect(await screen.findAllByText('[MANDAU] LINK DOWN')).toHaveLength(2);
@@ -94,26 +108,49 @@ describe('RunningTicketsPage operational actions', () => {
 
     fireEvent.click(screen.getByRole('combobox', { name: 'Coordinate filter' }));
     fireEvent.click(screen.getByRole('option', { name: 'With coordinates' }));
-    expect(screen.queryAllByText('[BANDUNG] SECOND LINK')).toHaveLength(0);
+
+    await waitFor(() => {
+      expect(screen.queryAllByText('[BANDUNG] SECOND LINK')).toHaveLength(0);
+    });
 
     fireEvent.change(screen.getByRole('textbox', { name: /Search Running Tickets/ }), {
       target: { value: 'no-match' },
     });
-    expect(screen.getByText('No tickets match your filters')).toBeInTheDocument();
+    expect(await screen.findByText('No tickets match your filters')).toBeInTheDocument();
   });
 
-  it('opens review links in read-only Ticket detail while keeping Add Progress in the editor', async () => {
+  it('uses TanStack sorting on the actual Running workspace', async () => {
     renderPage();
     await screen.findAllByText('[MANDAU] LINK DOWN');
 
-    const reviewLinks = screen.getAllByRole('link', { name: 'Review' });
-    expect(reviewLinks[0]).toHaveAttribute('href', '/tickets/ticket-1');
+    const desktop = screen.getByTestId('data-table-desktop');
+    let rows = within(desktop).getAllByRole('row');
+    expect(within(rows[1]).getByText('[MANDAU] LINK DOWN')).toBeInTheDocument();
+
+    fireEvent.click(within(desktop).getByRole('button', { name: /^Sort by Title/ }));
+
+    await waitFor(() => {
+      rows = within(desktop).getAllByRole('row');
+      expect(within(rows[1]).getByText('[BANDUNG] SECOND LINK')).toBeInTheDocument();
+      expect(within(rows[2]).getByText('[MANDAU] LINK DOWN')).toBeInTheDocument();
+    });
+  });
+
+  it('keeps review read-only and routes Add Progress through the explicit editor', async () => {
+    renderPage();
+    await screen.findAllByText('[MANDAU] LINK DOWN');
 
     const ticketTitleLinks = screen.getAllByRole('link', { name: '[MANDAU] LINK DOWN' });
     expect(ticketTitleLinks[0]).toHaveAttribute('href', '/tickets/ticket-1');
 
-    const progressLinks = screen.getAllByRole('link', { name: 'Add Progress' });
-    expect(progressLinks[0]).toHaveAttribute('href', '/generator/ticket-1#progress-text');
+    await openActionsFor('INC-20260818-00015849');
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Add Progress' }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('location-probe')).toHaveTextContent(
+        '/generator/ticket-1/edit#progress-text',
+      );
+    });
   });
 
   it('keeps Viewer actions read-only while preserving Review and Copy Report', async () => {
@@ -124,12 +161,12 @@ describe('RunningTicketsPage operational actions', () => {
     await screen.findAllByText('[MANDAU] LINK DOWN');
 
     expect(screen.queryByRole('link', { name: 'New Ticket' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: 'Add Progress' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /Resolve INC-/ })).not.toBeInTheDocument();
-    expect(screen.getAllByRole('link', { name: 'Review' }).length).toBeGreaterThan(0);
-    expect(screen.getAllByRole('button', { name: /Copy report for INC-/ }).length).toBeGreaterThan(
-      0,
-    );
+
+    await openActionsFor('INC-20260818-00015849');
+    expect(await screen.findByRole('menuitem', { name: 'Review Ticket' })).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: 'Copy Report' })).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Add Progress' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Resolve Ticket' })).not.toBeInTheDocument();
   });
 
   it('copies the canonical report from a fresh Ticket plus persisted Progress pages', async () => {
@@ -156,9 +193,8 @@ describe('RunningTicketsPage operational actions', () => {
 
     renderPage();
     await screen.findAllByText('[MANDAU] LINK DOWN');
-    fireEvent.click(
-      screen.getAllByRole('button', { name: 'Copy report for INC-20260818-00015849' })[0],
-    );
+    await openActionsFor('INC-20260818-00015849');
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Copy Report' }));
 
     await waitFor(() => {
       expect(writeText).toHaveBeenCalledWith(formatTicketReport({ ...ticket, progress }));
@@ -176,7 +212,8 @@ describe('RunningTicketsPage operational actions', () => {
 
     renderPage();
     await screen.findAllByText('[MANDAU] LINK DOWN');
-    fireEvent.click(screen.getAllByRole('button', { name: 'Resolve INC-20260818-00015849' })[0]);
+    await openActionsFor('INC-20260818-00015849');
+    fireEvent.click(await screen.findByRole('menuitem', { name: 'Resolve Ticket' }));
 
     await waitFor(() => {
       expect(firestoreTicketRepository.transitionTicketStatus).toHaveBeenCalledWith({

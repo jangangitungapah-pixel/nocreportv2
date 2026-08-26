@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 
-import { Button, DateTimeField, Textarea, UiIcon } from '../../../shared/ui/index.jsx';
+import { AppIcon } from '../../../shared/ui/icon.jsx';
+import { Button } from '../../../shared/ui/primitives.jsx';
+import { DateTimeField, Textarea } from '../../../shared/ui/index.jsx';
 
 function toInputValue(date) {
   const pad = (value) => String(value).padStart(2, '0');
@@ -13,7 +15,6 @@ function createLocalId() {
   if (typeof window !== 'undefined' && typeof window.crypto?.randomUUID === 'function') {
     return window.crypto.randomUUID();
   }
-
   return `progress-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
@@ -34,7 +35,6 @@ export function ProgressComposer({ onAdd }) {
       setError('Progress update cannot be empty.');
       return;
     }
-
     if (!occurredAt || Number.isNaN(date.getTime())) {
       setError('Progress time is required.');
       return;
@@ -60,20 +60,17 @@ export function ProgressComposer({ onAdd }) {
   };
 
   return (
-    <section className="generator-progress-composer rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-4 shadow-[var(--shadow-xs)]">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="spatial-kicker">Progress Timeline</p>
-          <p className="mt-1 text-xs text-[var(--text-muted)]">
-            Add the latest operational update.
-          </p>
+    <section className="generator-progress-composer overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+      <header className="flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
+        <div className="flex items-center gap-2">
+          <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Add Progress</h3>
+          <span className="hidden text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)] sm:inline">
+            Ctrl / ⌘ + Enter
+          </span>
         </div>
-        <span className="spatial-chip hidden min-h-7 px-2.5 text-[10px] sm:inline-flex">
-          Ctrl / ⌘ + Enter
-        </span>
-      </div>
+      </header>
 
-      <div className="mt-3 grid gap-2.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel-strong)] p-2.5 lg:grid-cols-[200px_minmax(0,1fr)_auto] lg:items-end">
+      <div className="grid gap-2.5 p-3 lg:grid-cols-[190px_minmax(0,1fr)_auto] lg:items-end">
         <DateTimeField
           id="progress-time"
           label="Event time"
@@ -98,8 +95,8 @@ export function ProgressComposer({ onAdd }) {
             }
           }}
         />
-        <Button className="lg:mb-px" disabled={submitting} onClick={() => void submit()}>
-          <UiIcon name="plus" size={16} />
+        <Button size="sm" disabled={submitting} onClick={() => void submit()}>
+          <AppIcon name="plus" size={14} />
           {submitting ? 'Adding…' : 'Add update'}
         </Button>
       </div>

@@ -71,6 +71,31 @@ describe('shared UI primitives', () => {
     expect(onValueChange).toHaveBeenCalledWith('oldest');
   });
 
+  it('delegates selector Escape dismissal to Radix Popover', () => {
+    render(
+      <SelectField
+        id="scope"
+        label="Scope"
+        value="all"
+        onValueChange={() => {}}
+        options={[
+          { value: 'all', label: 'All' },
+          { value: 'running', label: 'Running' },
+        ]}
+      />,
+    );
+
+    const trigger = screen.getByRole('combobox', { name: 'Scope' });
+    trigger.focus();
+    fireEvent.click(trigger);
+    expect(screen.getByRole('listbox', { name: 'Scope' })).toBeInTheDocument();
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(screen.queryByRole('listbox', { name: 'Scope' })).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
+  });
+
   it('manages confirmation dialog focus and keyboard dismissal', () => {
     const onClose = vi.fn();
     const onConfirm = vi.fn();
@@ -94,10 +119,10 @@ describe('shared UI primitives', () => {
     expect(cancel).toHaveFocus();
 
     resolve.focus();
-    fireEvent.keyDown(document, { key: 'Tab' });
+    fireEvent.keyDown(resolve, { key: 'Tab' });
     expect(cancel).toHaveFocus();
 
-    fireEvent.keyDown(document, { key: 'Escape' });
+    fireEvent.keyDown(dialog, { key: 'Escape' });
     fireEvent.click(resolve);
     fireEvent.click(cancel);
 

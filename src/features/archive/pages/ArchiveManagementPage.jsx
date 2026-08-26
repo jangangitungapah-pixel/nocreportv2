@@ -1,18 +1,22 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { PageHeader } from '../../../app/components/PageHeader.jsx';
 import { useAuth } from '../../../app/providers/AuthProvider.jsx';
 import { useToast } from '../../../app/providers/ToastProvider.jsx';
 import { TICKET_STATUS, formatDateTime } from '../../../entities/ticket/index.js';
 import { CAPABILITY } from '../../../entities/user/authorization.js';
 import { firestoreTicketRepository } from '../../../infrastructure/firebase/index.js';
+import { DataTable } from '../../../shared/data-workspace/index.js';
+import { AppIcon } from '../../../shared/ui/icon.jsx';
 import {
   Button,
-  ConfirmDialog,
-  ErrorState,
-  Skeleton,
-  StatusBadge,
-} from '../../../shared/ui/index.jsx';
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '../../../shared/ui/primitives.jsx';
+import { ConfirmDialog, ErrorState, StatusBadge } from '../../../shared/ui/index.jsx';
 
 const PAGE_SIZE = 25;
 const VIEW = Object.freeze({
@@ -20,15 +24,93 @@ const VIEW = Object.freeze({
   ARCHIVED: 'archived',
 });
 
-const openLinkClass =
-  'inline-flex min-h-[var(--control-height)] items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-4 text-sm font-bold text-[var(--text-primary)] shadow-[var(--shadow-xs)] transition-[transform,background-color,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-[var(--border-default)] hover:bg-[var(--surface-panel-strong)] hover:shadow-[var(--shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]';
-
 function viewStatus(view) {
   return view === VIEW.ARCHIVED ? TICKET_STATUS.ARCHIVED : TICKET_STATUS.RESOLVED;
 }
 
 function actionLabel(action) {
   return action === 'restore' ? 'Restore' : 'Archive';
+}
+
+function dateMillis(value) {
+  if (!(value instanceof Date)) return Number.NEGATIVE_INFINITY;
+  return Number.isNaN(value.getTime()) ? Number.NEGATIVE_INFINITY : value.getTime();
+}
+
+function ArchiveAction({ ticket, mutatingTicketId, onRequestAction, compact = false }) {
+  const isArchived = ticket.status === TICKET_STATUS.ARCHIVED;
+  const label = isArchived ? 'Restore' : 'Archive';
+  const ttLabel = ticket.externalTtNumber || ticket.id;
+  const pending = mutatingTicketId === ticket.id;
+
+  return (
+    <Button
+      type="button"
+      tone={isArchived ? 'primary' : 'danger'}
+      size={compact ? 'xs' : 'sm'}
+      className={compact ? 'min-h-10 md:min-h-8' : undefined}
+      disabled={pending}
+      aria-label={`${label} ${ttLabel}`}
+      onClick={() =>
+        onRequestAction({
+          ticket,
+          action: isArchived ? 'restore' : 'archive',
+        })
+      }
+    >
+      <AppIcon name={isArchived ? 'refresh' : 'archive'} size={13} />
+      {pending ? 'Working…' : label}
+    </Button>
+  );
+}
+
+function ArchiveMobileRow({ row, mutatingTicketId, onRequestAction }) {
+  const ticket = row.original;
+  const ttLabel = ticket.externalTtNumber || ticket.id;
+
+  return (
+    <article className="rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-3 py-2.5 shadow-[var(--shadow-xs)]">
+      <div className="flex min-w-0 items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <StatusBadge status={ticket.status} />
+            <span className="truncate font-mono text-[10px] font-bold text-[var(--text-muted)]">
+              {ttLabel}
+            </span>
+          </div>
+          <Link
+            to={`/tickets/${ticket.id}`}
+            className="mt-1.5 block line-clamp-2 rounded-sm text-[13px] font-bold leading-5 tracking-[-0.01em] text-[var(--text-primary)] hover:text-[var(--accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+          >
+            {ticket.title || 'Untitled Ticket'}
+          </Link>
+        </div>
+        <span className="shrink-0 font-mono text-[9.5px] font-semibold text-[var(--text-faint)]">
+          r{ticket.revision}
+        </span>
+      </div>
+
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[10.5px] font-medium text-[var(--text-muted)]">
+        <span>Updated {formatDateTime(ticket.updatedAt) || '—'}</span>
+        <span>{ticket.pic ? `PIC ${ticket.pic}` : 'PIC —'}</span>
+      </div>
+
+      <div className="mt-2 flex items-center justify-end gap-1.5 border-t border-[var(--border-subtle)] pt-2">
+        <Button asChild tone="ghost" size="xs" className="min-h-10">
+          <Link to={`/tickets/${ticket.id}`}>
+            <AppIcon name="info" size={13} />
+            Review
+          </Link>
+        </Button>
+        <ArchiveAction
+          ticket={ticket}
+          mutatingTicketId={mutatingTicketId}
+          onRequestAction={onRequestAction}
+          compact
+        />
+      </div>
+    </article>
+  );
 }
 
 export function ArchiveManagementPage() {
@@ -147,6 +229,98 @@ export function ArchiveManagementPage() {
     }
   };
 
+  const columns = useMemo(
+    () => [
+      {
+        id: 'status',
+        accessorKey: 'status',
+        header: 'Status',
+        enableSorting: false,
+        meta: { label: 'Status' },
+        cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      },
+      {
+        id: 'tt',
+        accessorFn: (ticket) => ticket.externalTtNumber ?? ticket.id,
+        header: 'TT',
+        enableHiding: false,
+        meta: { label: 'TT', cellClassName: 'whitespace-nowrap' },
+        cell: ({ row }) => (
+          <Link
+            to={`/tickets/${row.original.id}`}
+            className="rounded-sm font-mono text-[10.5px] font-bold text-[var(--text-muted)] hover:text-[var(--accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+          >
+            {row.original.externalTtNumber || row.original.id}
+          </Link>
+        ),
+      },
+      {
+        id: 'title',
+        accessorKey: 'title',
+        header: 'Incident',
+        enableHiding: false,
+        meta: {
+          label: 'Incident',
+          headerClassName: 'min-w-[300px]',
+          cellClassName: 'max-w-[520px]',
+        },
+        cell: ({ row }) => (
+          <Link
+            to={`/tickets/${row.original.id}`}
+            className="line-clamp-2 rounded-sm text-[12.5px] font-bold leading-5 tracking-[-0.01em] text-[var(--text-primary)] hover:text-[var(--accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+          >
+            {row.original.title || 'Untitled Ticket'}
+          </Link>
+        ),
+      },
+      {
+        id: 'updatedAt',
+        accessorFn: (ticket) => dateMillis(ticket.updatedAt),
+        header: 'Updated',
+        meta: {
+          label: 'Updated',
+          cellClassName: 'whitespace-nowrap text-[11px] text-[var(--text-muted)]',
+        },
+        cell: ({ row }) => formatDateTime(row.original.updatedAt) || '—',
+      },
+      {
+        id: 'revision',
+        accessorKey: 'revision',
+        header: 'Revision',
+        meta: {
+          label: 'Revision',
+          headerClassName: 'w-24',
+          cellClassName: 'w-24 font-mono text-[10.5px] text-[var(--text-muted)]',
+        },
+        cell: ({ row }) => `r${row.original.revision}`,
+      },
+      {
+        id: 'actions',
+        header: 'Actions',
+        enableSorting: false,
+        enableHiding: false,
+        meta: { label: 'Actions', headerClassName: 'w-[190px]', cellClassName: 'w-[190px]' },
+        cell: ({ row }) => (
+          <div className="flex items-center justify-end gap-1.5">
+            <Button asChild tone="ghost" size="xs">
+              <Link to={`/tickets/${row.original.id}`}>
+                <AppIcon name="info" size={13} />
+                Review
+              </Link>
+            </Button>
+            <ArchiveAction
+              ticket={row.original}
+              mutatingTicketId={mutatingTicketId}
+              onRequestAction={setPendingAction}
+              compact
+            />
+          </div>
+        ),
+      },
+    ],
+    [mutatingTicketId],
+  );
+
   if (!canArchiveRestore) {
     return (
       <ErrorState
@@ -156,156 +330,105 @@ export function ArchiveManagementPage() {
     );
   }
 
-  return (
-    <div className="space-y-5 md:space-y-6">
-      <section className="spatial-panel-elevated relative overflow-hidden p-5 md:p-7">
-        <div
-          className="pointer-events-none absolute -right-20 -top-28 h-72 w-72 rounded-full bg-[var(--accent-glow)] blur-3xl"
-          aria-hidden="true"
-        />
-        <div className="relative flex flex-wrap items-end justify-between gap-6">
-          <div className="max-w-3xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="spatial-kicker">Admin lifecycle controls</p>
-              <span className="spatial-chip">ADMIN only</span>
-            </div>
-            <h2 className="spatial-title mt-3">Archive & Restore</h2>
-            <p className="spatial-description mt-4">
-              Move resolved Tickets out of the daily operational surface without losing history, or
-              restore archived work safely. Revision checks and Firestore Security Rules stay in the
-              loop for every mutation.
-            </p>
-          </div>
+  const currentLabel = view === VIEW.ARCHIVED ? 'Archived' : 'Resolved';
+  const emptyTitle =
+    view === VIEW.ARCHIVED
+      ? 'No archived Tickets in this page set'
+      : 'No resolved Tickets to archive';
+  const emptyDescription =
+    view === VIEW.ARCHIVED
+      ? 'Archived Tickets will appear here while they remain in lifecycle history.'
+      : 'Tickets become eligible here after they are marked Resolved.';
 
-          <div
-            className="flex rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-1 shadow-[var(--shadow-xs)]"
-            role="group"
-            aria-label="Archive view"
-          >
-            <Button
-              tone={view === VIEW.RESOLVED ? 'primary' : 'secondary'}
-              className="min-h-10 px-3.5"
-              onClick={() => setView(VIEW.RESOLVED)}
-            >
-              Resolved
-            </Button>
-            <Button
-              tone={view === VIEW.ARCHIVED ? 'primary' : 'secondary'}
-              className="min-h-10 px-3.5"
-              onClick={() => setView(VIEW.ARCHIVED)}
-            >
-              Archived
-            </Button>
-          </div>
-        </div>
-      </section>
-
+  const workspace = (
+    <>
       {localDevelopmentMode ? (
-        <section className="rounded-2xl border border-[var(--border-accent)] bg-[var(--accent-soft)] p-4 text-sm leading-6 text-[var(--text-secondary)] shadow-[var(--shadow-xs)]">
-          <span className="font-bold text-[var(--accent-text)]">Local preview.</span> Archive data
-          is unavailable because lifecycle mutations require Firebase Auth and Firestore.
-        </section>
-      ) : loading ? (
-        <div className="space-y-3" aria-label="Loading archive Tickets">
-          <Skeleton className="h-28" />
-          <Skeleton className="h-28" />
-          <Skeleton className="h-28" />
+        <div className="border-l-2 border-[var(--accent-solid)] bg-[var(--accent-soft)] px-3 py-2 text-[10.5px] leading-5 text-[var(--text-secondary)]">
+          <span className="font-extrabold text-[var(--accent-text)]">Local preview.</span> Archive
+          data is unavailable because lifecycle mutations require Firebase Auth and Firestore.
         </div>
-      ) : error ? (
+      ) : null}
+
+      {!localDevelopmentMode && error ? (
         <ErrorState
           title="Archive list could not be loaded"
           description="Check the Firebase connection and retry this bounded Ticket query."
           onRetry={loadInitial}
         />
-      ) : (
-        <section className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-sm)]">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border-subtle)] bg-[var(--surface-panel-strong)] px-4 py-4 md:px-5">
-            <div>
-              <p className="spatial-kicker">Lifecycle history</p>
-              <h3 className="mt-1.5 text-lg font-bold">
-                {view === VIEW.ARCHIVED ? 'Archived Tickets' : 'Resolved Tickets'}
-              </h3>
-              <p className="mt-1 text-xs text-[var(--text-muted)]">
-                Bounded pages keep historical reads intentional.
-              </p>
-            </div>
-            <span className="spatial-chip">
-              {tickets.length} loaded · max {PAGE_SIZE}/page
-            </span>
-          </div>
+      ) : null}
 
-          {tickets.length === 0 ? (
-            <div className="px-4 py-12 text-center text-sm text-[var(--text-muted)]">
-              <span
-                className="mx-auto grid h-11 w-11 place-items-center rounded-2xl bg-[var(--surface-muted)] text-xs font-black text-[var(--text-muted)]"
-                aria-hidden="true"
-              >
-                0
-              </span>
-              <p className="mt-3 font-semibold">
-                {view === VIEW.ARCHIVED
-                  ? 'No archived Tickets in this page set.'
-                  : 'No resolved Tickets are ready to archive.'}
-              </p>
-            </div>
-          ) : (
-            <div className="divide-y divide-[var(--border-subtle)]">
-              {tickets.map((ticket) => {
-                const isArchived = ticket.status === TICKET_STATUS.ARCHIVED;
-                const label = isArchived ? 'Restore' : 'Archive';
-                const ttLabel = ticket.externalTtNumber || ticket.id;
-                return (
-                  <article
-                    key={ticket.id}
-                    className="group grid gap-4 px-4 py-4 transition-colors duration-200 hover:bg-[var(--surface-muted)] md:grid-cols-[minmax(0,1fr)_auto] md:items-center md:px-5"
-                  >
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <StatusBadge status={ticket.status} />
-                        <span className="font-mono text-[11px] font-bold text-[var(--text-muted)]">
-                          {ttLabel}
-                        </span>
-                      </div>
-                      <p className="mt-2 break-words text-sm font-bold tracking-[-0.01em]">
-                        {ticket.title || 'Untitled Ticket'}
-                      </p>
-                      <p className="mt-1.5 text-xs font-medium text-[var(--text-muted)]">
-                        Updated {formatDateTime(ticket.updatedAt)} · revision {ticket.revision}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap gap-2 md:justify-end">
-                      <Link to={`/generator/${ticket.id}`} className={openLinkClass}>
-                        Open
-                      </Link>
-                      <Button
-                        tone={isArchived ? 'primary' : 'danger'}
-                        disabled={mutatingTicketId === ticket.id}
-                        aria-label={`${label} ${ttLabel}`}
-                        onClick={() =>
-                          setPendingAction({
-                            ticket,
-                            action: isArchived ? 'restore' : 'archive',
-                          })
-                        }
-                      >
-                        {mutatingTicketId === ticket.id ? 'Working…' : label}
-                      </Button>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
+      {!localDevelopmentMode && !error ? (
+        <DataTable
+          ariaLabel={`${currentLabel} lifecycle Tickets workspace`}
+          data={tickets}
+          columns={columns}
+          getRowId={(ticket) => ticket.id}
+          loading={loading}
+          searchLabel={`Search ${currentLabel} Tickets`}
+          searchPlaceholder="TT or incident title"
+          rowDensity="compact"
+          initialState={{ sorting: [{ id: 'updatedAt', desc: true }] }}
+          minWidth={920}
+          emptyTitle={emptyTitle}
+          emptyDescription={emptyDescription}
+          mobileRow={(props) => (
+            <ArchiveMobileRow
+              {...props}
+              mutatingTicketId={mutatingTicketId}
+              onRequestAction={setPendingAction}
+            />
           )}
+        />
+      ) : null}
 
-          {hasMore ? (
-            <div className="border-t border-[var(--border-subtle)] bg-[var(--surface-panel-strong)] p-4 text-center">
-              <Button tone="secondary" disabled={loadingMore} onClick={loadMore}>
-                {loadingMore ? 'Loading…' : 'Load more'}
-              </Button>
-            </div>
-          ) : null}
-        </section>
-      )}
+      {!localDevelopmentMode && !loading && !error && hasMore ? (
+        <div className="flex items-center justify-center border-t border-[var(--border-subtle)] pt-3">
+          <Button tone="secondary" size="sm" disabled={loadingMore} onClick={loadMore}>
+            <AppIcon name="plus" size={13} />
+            {loadingMore ? 'Loading…' : 'Load more'}
+          </Button>
+        </div>
+      ) : null}
+    </>
+  );
+
+  return (
+    <div className="grid gap-3">
+      <PageHeader
+        title="Archive & Restore"
+        eyebrow="Admin lifecycle controls"
+        description="Revision-safe historical Ticket lifecycle management."
+      />
+
+      <div
+        className="flex min-h-9 flex-wrap items-center gap-2 border-b border-[var(--border-subtle)] pb-2"
+        role="group"
+        aria-label="Archive workspace summary"
+      >
+        <span className="inline-flex min-h-6 items-center rounded-full border border-[var(--border-accent)] bg-[var(--accent-soft)] px-2.5 text-[9px] font-extrabold uppercase tracking-[0.08em] text-[var(--accent-text)]">
+          Admin only
+        </span>
+        <span className="text-[10px] font-semibold text-[var(--text-muted)]">
+          <strong className="font-mono text-[var(--text-primary)]">{tickets.length}</strong> loaded
+        </span>
+        <span className="text-[10px] font-semibold text-[var(--text-muted)]">25 / page</span>
+        <span className="ml-auto hidden text-[10px] font-medium text-[var(--text-faint)] sm:inline">
+          {currentLabel} lifecycle view · bounded cursor pagination
+        </span>
+      </div>
+
+      <Tabs value={view} onValueChange={setView} className="grid gap-3">
+        <TabsList aria-label="Archive view">
+          <TabsTrigger value={VIEW.RESOLVED}>Resolved</TabsTrigger>
+          <TabsTrigger value={VIEW.ARCHIVED}>Archived</TabsTrigger>
+        </TabsList>
+        <TabsContent value={VIEW.RESOLVED} forceMount className="mt-0 data-[state=inactive]:hidden">
+          {view === VIEW.RESOLVED ? workspace : null}
+        </TabsContent>
+        <TabsContent value={VIEW.ARCHIVED} forceMount className="mt-0 data-[state=inactive]:hidden">
+          {view === VIEW.ARCHIVED ? workspace : null}
+        </TabsContent>
+      </Tabs>
 
       <ConfirmDialog
         open={Boolean(pendingAction)}

@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
 import { BrandLockup } from '../../shared/brand/BrandIdentity.jsx';
+import { AppIcon } from '../../shared/ui/icon.jsx';
 import { useAuth } from '../providers/AuthProvider.jsx';
 
 export function ProtectedRoute({ allowedRoles = null, children = null }) {
@@ -9,22 +10,25 @@ export function ProtectedRoute({ allowedRoles = null, children = null }) {
 
   if (firebaseConfigured && loading) {
     return (
-      <main className="relative grid min-h-screen place-items-center overflow-hidden bg-[var(--surface-canvas)] p-6 text-[var(--text-primary)]">
+      <main className="relative grid min-h-screen place-items-center overflow-hidden bg-[var(--surface-canvas)] p-4 text-[var(--text-primary)]">
         <div
-          className="pointer-events-none absolute h-72 w-72 rounded-full bg-[var(--accent-glow)] blur-[90px]"
+          className="pointer-events-none absolute h-64 w-64 rounded-full bg-[var(--accent-glow)] blur-[90px]"
           aria-hidden="true"
         />
-        <div className="relative flex flex-col items-center rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] px-8 py-7 text-center shadow-[var(--shadow-md)] backdrop-blur-2xl">
-          <BrandLockup eager />
+        <div
+          className="relative flex w-full max-w-sm items-center gap-3 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-4 py-3.5 shadow-[var(--shadow-sm)]"
+          aria-busy="true"
+        >
+          <BrandLockup compact eager markSize="sm" subtitle="Session check" className="flex-1" />
           <span
-            className="mt-6 h-1.5 w-28 overflow-hidden rounded-full bg-[var(--surface-muted)]"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-muted)] text-[var(--accent-text)]"
             aria-hidden="true"
           >
-            <span className="block h-full w-1/2 animate-pulse rounded-full bg-[var(--accent-solid)]" />
+            <AppIcon name="refresh" size={16} className="animate-spin" />
           </span>
-          <p className="mt-4 text-sm font-semibold text-[var(--text-secondary)]" role="status">
+          <span className="sr-only" role="status" aria-live="polite">
             Checking session…
-          </p>
+          </span>
         </div>
       </main>
     );

@@ -1,42 +1,33 @@
-import { Button, IconButton, TextInput, UiIcon } from '../../../shared/ui/index.jsx';
+import { AppIcon } from '../../../shared/ui/icon.jsx';
+import { Button } from '../../../shared/ui/primitives.jsx';
+import { TextInput } from '../../../shared/ui/index.jsx';
 
 export function ImpactListEditor({ fields, register, append, remove, move }) {
   return (
-    <section className="generator-impact-editor rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-4 shadow-[var(--shadow-xs)]">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2">
-            <p className="spatial-kicker">Impact List</p>
-            <span className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--text-faint)]">
-              Optional
-            </span>
-          </div>
-          <p className="mt-1 text-xs text-[var(--text-muted)]">
-            Hidden from the report when empty.
-          </p>
+    <section className="generator-impact-editor overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+      <header className="flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Impact List</h3>
+          <span className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)]">
+            Optional · hidden when empty
+          </span>
         </div>
-        <Button tone="secondary" onClick={() => append({ value: '' })}>
-          <UiIcon name="plus" size={16} />
+        <Button tone="ghost" size="xs" onClick={() => append({ value: '' })}>
+          <AppIcon name="plus" size={13} />
           Add impact
         </Button>
-      </div>
+      </header>
 
       {fields.length === 0 ? (
-        <div className="mt-3 flex items-center gap-2 rounded-xl border border-dashed border-[var(--border-default)] bg-[var(--surface-muted)] px-3 py-2.5 text-xs font-medium text-[var(--text-muted)]">
-          <span
-            className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-[var(--surface-panel)] text-[10px] font-black shadow-[var(--shadow-xs)]"
-            aria-hidden="true"
-          >
-            0
-          </span>
-          No impacted service/site recorded.
-        </div>
+        <p className="px-3 py-3 text-xs font-medium text-[var(--text-muted)]">
+          No impacted service or site recorded.
+        </p>
       ) : (
-        <div className="mt-3 space-y-2">
+        <div className="divide-y divide-[var(--border-subtle)]">
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="grid gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel-strong)] p-2.5 sm:grid-cols-[minmax(0,1fr)_auto]"
+              className="grid gap-2 px-3 py-2.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end"
             >
               <TextInput
                 id={`impact-${field.id}`}
@@ -44,24 +35,33 @@ export function ImpactListEditor({ fields, register, append, remove, move }) {
                 placeholder="Site, service, or affected item"
                 {...register(`impactList.${index}.value`)}
               />
-              <div className="flex items-end gap-1">
-                <IconButton
-                  label={`Move Impact ${index + 1} up`}
+              <div className="flex items-center justify-end gap-1">
+                <Button
+                  tone="ghost"
+                  size="icon"
+                  aria-label={`Move Impact ${index + 1} up`}
                   disabled={index === 0}
                   onClick={() => move(index, index - 1)}
                 >
-                  <UiIcon name="arrowUp" size={16} />
-                </IconButton>
-                <IconButton
-                  label={`Move Impact ${index + 1} down`}
+                  <AppIcon name="arrowUp" size={14} />
+                </Button>
+                <Button
+                  tone="ghost"
+                  size="icon"
+                  aria-label={`Move Impact ${index + 1} down`}
                   disabled={index === fields.length - 1}
                   onClick={() => move(index, index + 1)}
                 >
-                  <UiIcon name="arrowDown" size={16} />
-                </IconButton>
-                <IconButton label={`Remove Impact ${index + 1}`} onClick={() => remove(index)}>
-                  <UiIcon name="close" size={16} />
-                </IconButton>
+                  <AppIcon name="arrowDown" size={14} />
+                </Button>
+                <Button
+                  tone="ghost"
+                  size="icon"
+                  aria-label={`Remove Impact ${index + 1}`}
+                  onClick={() => remove(index)}
+                >
+                  <AppIcon name="close" size={14} />
+                </Button>
               </div>
             </div>
           ))}

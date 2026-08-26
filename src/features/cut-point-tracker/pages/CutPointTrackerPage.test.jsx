@@ -31,6 +31,25 @@ const mapClient = {
   destroy: vi.fn(),
 };
 
+let mapResizeObserverCallback = null;
+
+function mockViewport({ desktop = false } = {}) {
+  Object.defineProperty(window, 'matchMedia', {
+    configurable: true,
+    writable: true,
+    value: vi.fn().mockImplementation((query) => ({
+      matches: desktop && query === '(min-width: 1280px)',
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+}
+
 function ticket(overrides = {}) {
   return {
     id: 'ticket-1',
@@ -58,6 +77,27 @@ function renderPage() {
 describe('CutPointTrackerPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.localStorage.clear();
+    mockViewport();
+    mapResizeObserverCallback = null;
+    vi.stubGlobal(
+      'ResizeObserver',
+      class ResizeObserverMock {
+        constructor(callback) {
+          this.callback = callback;
+        }
+
+        observe(element) {
+          if (element?.getAttribute?.('aria-label') === 'Cut Point map') {
+            mapResizeObserverCallback = this.callback;
+          }
+        }
+
+        unobserve() {}
+
+        disconnect() {}
+      },
+    );
     createLeafletMap.mockResolvedValue(mapClient);
     firestoreTicketRepository.listCutPointTickets.mockResolvedValue([
       ticket(),
@@ -77,6 +117,8 @@ describe('CutPointTrackerPage', () => {
 
   afterEach(() => {
     cleanup();
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   it('loads a bounded canonical Ticket query and sends valid markers to Leaflet', async () => {
@@ -94,15 +136,15 @@ describe('CutPointTrackerPage', () => {
         expect.objectContaining({ ticketId: 'ticket-2' }),
       ]);
     });
+    expect(mapClient.invalidateSize).toHaveBeenCalled();
     expect(screen.queryByText('invalid-ticket')).not.toBeInTheDocument();
   });
 
-  it('filters the marker list and map by status and search', async () => {
+  it('filters the marker list and map with the Radix status scope and search', async () => {
     renderPage();
     await screen.findByText('[MANDAU] LINK DOWN');
 
-    fireEvent.click(screen.getByRole('combobox', { name: 'Ticket status' }));
-    fireEvent.click(screen.getByRole('option', { name: 'Resolved' }));
+    fireEvent.click(screen.getByRole('radio', { name: 'Resolved' }));
     expect(screen.queryByText('[MANDAU] LINK DOWN')).not.toBeInTheDocument();
     expect(screen.getByText('[BANDUNG] RESOLVED LINK')).toBeInTheDocument();
 
@@ -116,11 +158,45 @@ describe('CutPointTrackerPage', () => {
     });
   });
 
-  it('focuses a marker from the responsive Ticket list', async () => {
+  it('focuses a marker from the responsive Ticket list and keeps review read-only', async () => {
     renderPage();
     await screen.findByText('[MANDAU] LINK DOWN');
 
     fireEvent.click(screen.getAllByRole('button', { name: 'Locate' })[0]);
     expect(mapClient.focusMarker).toHaveBeenCalledWith('ticket-1');
+    expect(screen.getAllByRole('link', { name: 'Open Ticket' })[0]).toHaveAttribute(
+      'href',
+      '/tickets/ticket-1',
+    );
+
+    const mapOptions = createLeafletMap.mock.calls[0][0];
+    expect(mapOptions.onOpenTicket).toEqual(expect.any(Function));
+  });
+
+  it('keeps the responsive Cut Point flow free of desktop resize affordances', async () => {
+    renderPage();
+
+    await screen.findByText('[MANDAU] LINK DOWN');
+    expect(screen.queryByRole('separator')).not.toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Cut Point map' })).toBeInTheDocument();
+  });
+
+  it('activates the desktop resizable workspace and invalidates Leaflet on host resize', async () => {
+    mockViewport({ desktop: true });
+    renderPage();
+
+    await screen.findByText('[MANDAU] LINK DOWN');
+    expect(screen.getByRole('separator')).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Cut Point map' })).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(mapResizeObserverCallback).toEqual(expect.any(Function));
+      expect(mapClient.invalidateSize).toHaveBeenCalledTimes(1);
+    });
+
+    mapResizeObserverCallback([]);
+    await waitFor(() => {
+      expect(mapClient.invalidateSize).toHaveBeenCalledTimes(2);
+    });
   });
 });

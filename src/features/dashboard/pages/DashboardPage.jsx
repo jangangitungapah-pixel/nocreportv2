@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { PageHeader } from '../../../app/components/PageHeader.jsx';
 import { useAuth } from '../../../app/providers/AuthProvider.jsx';
 import { CAPABILITY } from '../../../entities/user/authorization.js';
 import { firestoreTicketRepository } from '../../../infrastructure/firebase/index.js';
-import { ErrorState, Skeleton, StatusBadge, UiIcon } from '../../../shared/ui/index.jsx';
+import { AppIcon } from '../../../shared/ui/icon.jsx';
+import { Button } from '../../../shared/ui/primitives.jsx';
+import { ErrorState, Skeleton, StatusBadge } from '../../../shared/ui/index.jsx';
 
 const EMPTY_SUMMARY = {
   runningCount: 0,
@@ -13,9 +16,6 @@ const EMPTY_SUMMARY = {
   cutPointCount: 0,
   recentlyUpdated: [],
 };
-
-const primaryLinkClass =
-  'inline-flex min-h-[var(--control-height)] select-none items-center justify-center gap-2 rounded-xl bg-[var(--accent-solid)] px-4 text-sm font-bold text-[var(--accent-on-solid)] shadow-[var(--shadow-accent)] transition-[transform,background-color,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:bg-[var(--accent-solid-hover)] hover:shadow-[var(--shadow-md)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-canvas)] active:scale-[0.985] active:translate-y-0';
 
 function formatDateTime(value) {
   if (!(value instanceof Date) || Number.isNaN(value.getTime())) return '—';
@@ -27,50 +27,73 @@ function formatDateTime(value) {
   }).format(value);
 }
 
-const METRIC_META = {
-  running: { mark: 'RN', accent: 'var(--success-solid)' },
-  today: { mark: 'TD', accent: 'var(--accent-solid)' },
-  resolved: { mark: 'OK', accent: 'var(--accent-cyan)' },
-  cutpoint: { mark: 'CP', accent: 'var(--accent-violet)' },
-};
+const METRIC_META = Object.freeze([
+  { key: 'runningCount', label: 'Running', hint: 'active now', accent: 'var(--success-solid)' },
+  {
+    key: 'ticketsTodayCount',
+    label: 'Today',
+    hint: 'occurred today',
+    accent: 'var(--accent-solid)',
+  },
+  {
+    key: 'resolvedTodayCount',
+    label: 'Resolved',
+    hint: 'resolved today',
+    accent: 'var(--accent-cyan)',
+  },
+  {
+    key: 'cutPointCount',
+    label: 'Cut Points',
+    hint: 'with coordinates',
+    accent: 'var(--accent-violet)',
+  },
+]);
 
-function MetricCard({ label, value, hint, meta }) {
+function MetricStrip({ summary }) {
   return (
-    <article className="group relative overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-4 shadow-[var(--shadow-sm)] transition-[transform,border-color,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:border-[var(--border-default)] hover:shadow-[var(--shadow-md)]">
-      <div
-        className="absolute inset-x-0 top-0 h-0.5 opacity-80"
-        style={{ background: meta.accent }}
-        aria-hidden="true"
-      />
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-[var(--text-muted)]">
-            {label}
-          </p>
-          <p className="mt-2 font-[var(--font-display)] text-3xl font-bold tracking-[-0.06em]">
-            {value}
-          </p>
-        </div>
-        <span
-          className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] text-[9px] font-extrabold text-[var(--text-muted)] transition group-hover:bg-[var(--surface-panel)] group-hover:text-[var(--text-primary)]"
-          aria-hidden="true"
+    <section
+      aria-label="Today's operational pulse"
+      className="grid overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)] sm:grid-cols-2 xl:grid-cols-4"
+    >
+      {METRIC_META.map((metric, index) => (
+        <article
+          key={metric.key}
+          className="relative min-h-[78px] px-3 py-2.5 sm:px-4 xl:border-l xl:border-[var(--border-subtle)] xl:first:border-l-0"
         >
-          {meta.mark}
-        </span>
-      </div>
-      <p className="mt-1.5 truncate text-xs font-medium text-[var(--text-muted)]">{hint}</p>
-    </article>
+          <span
+            className="absolute inset-x-0 top-0 h-0.5 opacity-80"
+            style={{ background: metric.accent }}
+            aria-hidden="true"
+          />
+          {index > 0 ? (
+            <span
+              className="absolute inset-x-3 top-0 h-px bg-[var(--border-subtle)] sm:hidden"
+              aria-hidden="true"
+            />
+          ) : null}
+          <div className="flex items-end justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[10px] font-extrabold uppercase tracking-[0.11em] text-[var(--text-muted)]">
+                {metric.label}
+              </p>
+              <p className="mt-1 font-[var(--font-display)] text-[28px] font-bold leading-none tracking-[-0.055em] text-[var(--text-primary)]">
+                {summary[metric.key]}
+              </p>
+            </div>
+            <span className="mb-0.5 text-[10px] font-semibold text-[var(--text-faint)]">
+              {metric.hint}
+            </span>
+          </div>
+        </article>
+      ))}
+    </section>
   );
 }
 
 function DashboardSkeleton() {
   return (
-    <div className="space-y-4" role="status" aria-label="Loading Dashboard">
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {Array.from({ length: 4 }, (_, index) => (
-          <Skeleton key={index} className="h-28" />
-        ))}
-      </div>
+    <div className="grid gap-3" role="status" aria-label="Loading Dashboard">
+      <Skeleton className="h-20" />
       <Skeleton className="h-64" />
     </div>
   );
@@ -80,27 +103,72 @@ function RecentTicketRow({ ticket }) {
   return (
     <Link
       to={`/tickets/${ticket.id}`}
-      className="group grid select-none gap-3 border-t border-[var(--border-subtle)] px-4 py-3.5 transition-[background-color,transform] duration-150 first:border-t-0 hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)] active:scale-[0.997] md:grid-cols-[minmax(0,1fr)_120px_150px] md:items-center md:px-5"
+      className="group grid min-h-[54px] select-none gap-1.5 border-t border-[var(--border-subtle)] px-3 py-2.5 transition-colors first:border-t-0 hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)] md:grid-cols-[140px_minmax(0,1fr)_110px_128px] md:items-center md:gap-3 md:px-4 md:py-2"
     >
-      <div className="min-w-0">
-        <div className="flex min-w-0 items-center gap-2">
-          <span
-            className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--accent-solid)] opacity-60 transition group-hover:opacity-100"
-            aria-hidden="true"
-          />
-          <p className="truncate font-mono text-[11px] font-bold text-[var(--text-muted)]">
-            {ticket.externalTtNumber ?? 'No TT detected'}
-          </p>
-        </div>
-        <p className="mt-1 truncate text-sm font-bold tracking-[-0.015em] text-[var(--text-primary)]">
-          {ticket.title || 'Untitled ticket'}
-        </p>
+      <p className="truncate font-mono text-[11px] font-bold text-[var(--text-muted)]">
+        {ticket.externalTtNumber ?? 'No TT detected'}
+      </p>
+      <p className="line-clamp-2 min-w-0 text-[13px] font-semibold leading-5 tracking-[-0.01em] text-[var(--text-primary)] md:truncate">
+        {ticket.title || 'Untitled ticket'}
+      </p>
+      <div className="flex items-center md:block">
+        <StatusBadge status={ticket.status} />
       </div>
-      <StatusBadge status={ticket.status} />
-      <div className="text-xs font-medium text-[var(--text-muted)] md:text-right">
+      <p className="text-[11px] font-medium text-[var(--text-muted)] md:text-right">
         {formatDateTime(ticket.updatedAt)}
-      </div>
+      </p>
     </Link>
+  );
+}
+
+function RecentActivity({ tickets }) {
+  return (
+    <section
+      aria-labelledby="dashboard-recent-heading"
+      className="overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
+    >
+      <div className="flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3 md:px-4">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <h3
+            id="dashboard-recent-heading"
+            className="text-sm font-bold text-[var(--text-primary)]"
+          >
+            Recently updated
+          </h3>
+          <span className="font-mono text-[10px] font-semibold text-[var(--text-faint)]">
+            {tickets.length} latest
+          </span>
+        </div>
+        <Button asChild tone="ghost" size="sm">
+          <Link to="/running">Open queue</Link>
+        </Button>
+      </div>
+
+      {tickets.length === 0 ? (
+        <div className="grid min-h-36 place-items-center px-4 py-7 text-center">
+          <div>
+            <p className="text-sm font-semibold text-[var(--text-secondary)]">
+              No persisted Tickets yet.
+            </p>
+            <p className="mt-1 text-xs text-[var(--text-muted)]">
+              Recent operational activity will appear here.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <div className="hidden min-h-8 grid-cols-[140px_minmax(0,1fr)_110px_128px] items-center gap-3 border-b border-[var(--border-subtle)] bg-[var(--surface-muted)] px-4 text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--text-faint)] md:grid">
+            <span>TT</span>
+            <span>Incident</span>
+            <span>Status</span>
+            <span className="text-right">Updated</span>
+          </div>
+          {tickets.map((ticket) => (
+            <RecentTicketRow key={ticket.id} ticket={ticket} />
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -135,36 +203,26 @@ export function DashboardPage() {
   }, [loadSummary]);
 
   return (
-    <div className="space-y-4 md:space-y-5">
-      <section className="flex flex-col gap-3 px-0.5 sm:flex-row sm:items-end sm:justify-between">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="spatial-kicker">Operations</p>
-            <span className="spatial-chip !min-h-7 !px-2.5 !text-[10px]">
-              <span
-                className="h-1.5 w-1.5 rounded-full bg-[var(--success-solid)]"
-                aria-hidden="true"
-              />
-              {localDevelopmentMode ? 'Local preview' : 'Live workspace'}
-            </span>
-          </div>
-          <h2 className="mt-1.5 font-[var(--font-display)] text-2xl font-bold tracking-[-0.045em] md:text-[28px]">
-            Operational overview
-          </h2>
-          <p className="mt-1 text-xs font-medium text-[var(--text-muted)]">
-            {localDevelopmentMode
-              ? 'Cloud data is unavailable in local preview.'
-              : 'Live ticket pulse and recent activity.'}
-          </p>
-        </div>
-
-        {canCreateTicket ? (
-          <Link to="/generator/new" className={primaryLinkClass}>
-            <UiIcon name="plus" size={16} />
-            New Ticket
-          </Link>
-        ) : null}
-      </section>
+    <div className="grid gap-3">
+      <PageHeader
+        title="Operational overview"
+        eyebrow="Dashboard"
+        description={
+          localDevelopmentMode
+            ? 'Cloud data unavailable in local preview.'
+            : 'Live ticket pulse and recent activity.'
+        }
+        actions={
+          canCreateTicket ? (
+            <Button asChild tone="primary" size="sm">
+              <Link to="/generator/new">
+                <AppIcon name="plus" size={14} />
+                New Ticket
+              </Link>
+            </Button>
+          ) : null
+        }
+      />
 
       {loading ? <DashboardSkeleton /> : null}
 
@@ -184,67 +242,8 @@ export function DashboardPage() {
 
       {!loading && !error ? (
         <>
-          <section>
-            <div className="mb-2.5 flex items-center justify-between gap-3 px-0.5">
-              <p className="text-sm font-bold">Today&apos;s pulse</p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <MetricCard
-                label="Running Tickets"
-                value={summary.runningCount}
-                hint="Currently active"
-                meta={METRIC_META.running}
-              />
-              <MetricCard
-                label="Tickets Today"
-                value={summary.ticketsTodayCount}
-                hint="Occurred today"
-                meta={METRIC_META.today}
-              />
-              <MetricCard
-                label="Resolved Today"
-                value={summary.resolvedTodayCount}
-                hint="Resolved today"
-                meta={METRIC_META.resolved}
-              />
-              <MetricCard
-                label="Cut Points"
-                value={summary.cutPointCount}
-                hint="Verified coordinates"
-                meta={METRIC_META.cutpoint}
-              />
-            </div>
-          </section>
-
-          <section className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-sm)]">
-            <div className="flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-4 py-3.5 md:px-5">
-              <div className="min-w-0">
-                <p className="spatial-kicker">Activity</p>
-                <h3 className="mt-1 text-base font-bold">Recently updated</h3>
-              </div>
-              <span className="spatial-chip shrink-0">{summary.recentlyUpdated.length} latest</span>
-            </div>
-
-            {summary.recentlyUpdated.length === 0 ? (
-              <div className="px-4 py-8 text-center md:px-5">
-                <span
-                  className="mx-auto grid h-9 w-9 place-items-center rounded-xl bg-[var(--surface-muted)] text-xs font-black text-[var(--text-muted)]"
-                  aria-hidden="true"
-                >
-                  0
-                </span>
-                <p className="mt-2.5 text-sm font-semibold text-[var(--text-muted)]">
-                  No persisted Tickets yet.
-                </p>
-              </div>
-            ) : (
-              <div>
-                {summary.recentlyUpdated.map((ticket) => (
-                  <RecentTicketRow key={ticket.id} ticket={ticket} />
-                ))}
-              </div>
-            )}
-          </section>
+          <MetricStrip summary={summary} />
+          <RecentActivity tickets={summary.recentlyUpdated} />
         </>
       ) : null}
     </div>

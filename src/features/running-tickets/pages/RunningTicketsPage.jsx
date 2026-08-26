@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
+import { PageHeader } from '../../../app/components/PageHeader.jsx';
 import { useAuth } from '../../../app/providers/AuthProvider.jsx';
 import { useToast } from '../../../app/providers/ToastProvider.jsx';
 import {
@@ -10,20 +11,11 @@ import {
 } from '../../../entities/ticket/index.js';
 import { CAPABILITY } from '../../../entities/user/authorization.js';
 import { firestoreTicketRepository } from '../../../infrastructure/firebase/index.js';
-import {
-  EmptyState,
-  ErrorState,
-  SelectField,
-  Skeleton,
-  StatusBadge,
-  TextInput,
-  UiIcon,
-} from '../../../shared/ui/index.jsx';
+import { DataTable, RowActionsMenu } from '../../../shared/data-workspace/index.js';
+import { AppIcon } from '../../../shared/ui/icon.jsx';
+import { Button } from '../../../shared/ui/primitives.jsx';
+import { ErrorState, SelectField, StatusBadge } from '../../../shared/ui/index.jsx';
 
-const primaryLinkClass =
-  'inline-flex min-h-[var(--control-height)] select-none items-center justify-center gap-2 rounded-xl bg-[var(--accent-solid)] px-4 text-sm font-bold text-[var(--accent-on-solid)] shadow-[var(--shadow-accent)] transition-[transform,background-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-[var(--accent-solid-hover)] hover:shadow-[var(--shadow-md)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-canvas)] active:scale-[0.985] active:translate-y-0';
-const actionClass =
-  'inline-flex min-h-10 select-none items-center justify-center rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-3 text-xs font-bold text-[var(--text-primary)] shadow-[var(--shadow-xs)] transition-[transform,background-color,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-[var(--border-default)] hover:bg-[var(--surface-panel-strong)] hover:shadow-[var(--shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] active:scale-[0.975] active:translate-y-0 disabled:translate-y-0 disabled:scale-100 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none';
 const MAX_REPORT_PROGRESS = 1000;
 
 const COORDINATE_OPTIONS = [
@@ -31,22 +23,6 @@ const COORDINATE_OPTIONS = [
   { value: 'with', label: 'With coordinates' },
   { value: 'without', label: 'Without coordinates' },
 ];
-
-const SORT_OPTIONS = [
-  { value: 'updated-desc', label: 'Last updated' },
-  { value: 'occur-desc', label: 'Occur newest' },
-  { value: 'occur-asc', label: 'Occur oldest' },
-  { value: 'title-asc', label: 'Title A–Z' },
-];
-
-function matchesSearch(ticket, search) {
-  if (!search) return true;
-  const haystack = [ticket.externalTtNumber, ticket.title, ticket.pic, ticket.cutPoint]
-    .filter(Boolean)
-    .join('\n')
-    .toLocaleLowerCase();
-  return haystack.includes(search.toLocaleLowerCase());
-}
 
 function matchesCoordinateFilter(ticket, filter) {
   if (filter === 'with') return Boolean(ticket.hasCoordinates);
@@ -57,15 +33,6 @@ function matchesCoordinateFilter(ticket, filter) {
 function dateMillis(value) {
   if (!(value instanceof Date)) return Number.NEGATIVE_INFINITY;
   return Number.isNaN(value.getTime()) ? Number.NEGATIVE_INFINITY : value.getTime();
-}
-
-function sortTickets(tickets, sort) {
-  return [...tickets].sort((left, right) => {
-    if (sort === 'occur-desc') return dateMillis(right.occurAt) - dateMillis(left.occurAt);
-    if (sort === 'occur-asc') return dateMillis(left.occurAt) - dateMillis(right.occurAt);
-    if (sort === 'title-asc') return (left.title ?? '').localeCompare(right.title ?? '');
-    return dateMillis(right.updatedAt) - dateMillis(left.updatedAt);
-  });
 }
 
 async function copyPlainText(text) {
@@ -122,125 +89,63 @@ function mutationErrorMessage(error, fallback) {
   return fallback;
 }
 
-function TicketActions({ ticket, canMutate, copyPending, resolvePending, onCopy, onResolve }) {
-  const ttLabel = ticket.externalTtNumber ?? ticket.title ?? 'Ticket';
+function RunningMobileRow({ row, getActions }) {
+  const ticket = row.original;
 
   return (
-    <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-      <Link to={`/tickets/${ticket.id}`} className={actionClass}>
-        Review
-      </Link>
-      {canMutate ? (
-        <Link to={`/generator/${ticket.id}#progress-text`} className={actionClass}>
-          Add Progress
-        </Link>
-      ) : null}
-      <button
-        type="button"
-        className={actionClass}
-        disabled={copyPending}
-        aria-label={`Copy report for ${ttLabel}`}
-        onClick={() => onCopy(ticket)}
-      >
-        {copyPending ? 'Copying…' : 'Copy Report'}
-      </button>
-      {canMutate ? (
-        <button
-          type="button"
-          className={actionClass}
-          disabled={resolvePending}
-          aria-label={`Resolve ${ttLabel}`}
-          onClick={() => onResolve(ticket)}
-        >
-          {resolvePending ? 'Resolving…' : 'Resolve'}
-        </button>
-      ) : null}
-    </div>
-  );
-}
-
-function TicketCard({ ticket, canMutate, copyPending, resolvePending, onCopy, onResolve }) {
-  return (
-    <article className="group relative overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-4 shadow-[var(--shadow-sm)] transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-[var(--border-default)] hover:shadow-[var(--shadow-md)]">
-      <span
-        className="absolute inset-y-5 left-0 w-0.5 rounded-full bg-[var(--success-solid)]"
-        aria-hidden="true"
-      />
-      <div className="flex flex-wrap items-start justify-between gap-2 pl-1">
-        <div>
-          <StatusBadge status={ticket.status} />
-          <p className="mt-2 font-mono text-[11px] font-bold text-[var(--text-muted)]">
-            {ticket.externalTtNumber ?? 'No TT detected'}
-          </p>
+    <article className="rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-3 py-2.5 shadow-[var(--shadow-xs)]">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="flex min-w-0 items-center gap-2">
+            <p className="truncate font-mono text-[10.5px] font-bold text-[var(--text-muted)]">
+              {ticket.externalTtNumber ?? 'No TT detected'}
+            </p>
+            <StatusBadge status={ticket.status} />
+          </div>
+          <Link
+            to={`/tickets/${ticket.id}`}
+            className="mt-1.5 block line-clamp-2 rounded-sm text-[13px] font-bold leading-5 tracking-[-0.01em] text-[var(--text-primary)] hover:text-[var(--accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+          >
+            {ticket.title || 'Untitled ticket'}
+          </Link>
         </div>
-        <p className="text-[11px] font-semibold text-[var(--text-muted)]">
+        <p className="shrink-0 text-[10px] font-semibold text-[var(--text-faint)]">
           {formatDateTime(ticket.updatedAt) || '—'}
         </p>
       </div>
-      <h3 className="mt-3 pl-1 text-sm font-bold leading-6 tracking-[-0.015em]">
-        <Link
-          to={`/tickets/${ticket.id}`}
-          className="rounded-sm transition-colors hover:text-[var(--accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
-        >
-          {ticket.title || 'Untitled ticket'}
-        </Link>
-      </h3>
-      <dl className="mt-4 grid gap-2.5 pl-1 text-xs sm:grid-cols-2">
-        {[
-          ['PIC', ticket.pic || '—'],
-          ['Cut Point', ticket.cutPoint || '—'],
-          ['Coordinate', ticket.hasCoordinates ? 'Available' : 'Not recorded'],
-          ['Occur', formatDateTime(ticket.occurAt) || '—'],
-        ].map(([label, value]) => (
-          <div key={label} className="rounded-xl bg-[var(--surface-muted)] p-2.5">
-            <dt className="text-[10px] font-extrabold uppercase tracking-[0.09em] text-[var(--text-muted)]">
-              {label}
-            </dt>
-            <dd className="mt-1.5 line-clamp-2 font-semibold leading-5 text-[var(--text-secondary)]">
-              {value}
-            </dd>
-          </div>
-        ))}
-        <div className="rounded-xl bg-[var(--surface-muted)] p-2.5 sm:col-span-2">
-          <dt className="text-[10px] font-extrabold uppercase tracking-[0.09em] text-[var(--text-muted)]">
-            Latest Progress
-          </dt>
-          <dd className="mt-1.5 line-clamp-3 font-medium leading-5 text-[var(--text-secondary)]">
-            {ticket.latestProgress?.text || 'No progress update yet'}
-          </dd>
+
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-medium text-[var(--text-muted)]">
+        <span>PIC {ticket.pic || '—'}</span>
+        <span>Occur {formatDateTime(ticket.occurAt) || '—'}</span>
+        <span>{ticket.hasCoordinates ? 'Coordinate available' : 'No coordinate'}</span>
+      </div>
+
+      <p className="mt-2 line-clamp-2 text-[11px] leading-4.5 text-[var(--text-secondary)]">
+        <span className="font-bold text-[var(--text-muted)]">Latest:</span>{' '}
+        {ticket.latestProgress?.text || 'No progress update yet'}
+      </p>
+
+      <div className="mt-2 flex items-end justify-between gap-3 border-t border-[var(--border-subtle)] pt-2">
+        <p className="line-clamp-1 min-w-0 text-[10.5px] font-medium text-[var(--text-faint)]">
+          {ticket.cutPoint || 'Cut Point not recorded'}
+        </p>
+        <div className="shrink-0 [&_button]:h-11 [&_button]:w-11">
+          <RowActionsMenu
+            label={`Actions for ${ticket.externalTtNumber ?? ticket.title ?? 'Ticket'}`}
+            actions={getActions(ticket)}
+          />
         </div>
-      </dl>
-      <div className="mt-4 pl-1">
-        <TicketActions
-          ticket={ticket}
-          canMutate={canMutate}
-          copyPending={copyPending}
-          resolvePending={resolvePending}
-          onCopy={onCopy}
-          onResolve={onResolve}
-        />
       </div>
     </article>
-  );
-}
-
-function RunningSkeleton() {
-  return (
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3" aria-label="Loading Running Tickets">
-      {Array.from({ length: 6 }, (_, index) => (
-        <Skeleton key={index} className="h-52" />
-      ))}
-    </div>
   );
 }
 
 export function RunningTicketsPage() {
   const { can, localDevelopmentMode } = useAuth();
   const { pushToast } = useToast();
+  const navigate = useNavigate();
   const [tickets, setTickets] = useState([]);
-  const [search, setSearch] = useState('');
   const [coordinateFilter, setCoordinateFilter] = useState('all');
-  const [sort, setSort] = useState('updated-desc');
   const [loading, setLoading] = useState(!localDevelopmentMode);
   const [error, setError] = useState(null);
   const [copyPendingId, setCopyPendingId] = useState(null);
@@ -271,142 +176,265 @@ export function RunningTicketsPage() {
     loadTickets();
   }, [loadTickets]);
 
-  const visibleTickets = useMemo(() => {
-    const normalizedSearch = search.trim();
-    return sortTickets(
-      tickets.filter(
-        (ticket) =>
-          matchesSearch(ticket, normalizedSearch) &&
-          matchesCoordinateFilter(ticket, coordinateFilter),
-      ),
-      sort,
-    );
-  }, [coordinateFilter, search, sort, tickets]);
+  const coordinateFilteredTickets = useMemo(
+    () => tickets.filter((ticket) => matchesCoordinateFilter(ticket, coordinateFilter)),
+    [coordinateFilter, tickets],
+  );
 
-  const copyReport = async (ticket) => {
-    if (copyPendingId) return;
-    setCopyPendingId(ticket.id);
-    try {
-      const [freshTicket, progress] = await Promise.all([
-        firestoreTicketRepository.getTicketById(ticket.id),
-        loadProgressForReport(ticket.id),
-      ]);
-      await copyPlainText(formatTicketReport({ ...freshTicket, progress }));
-      pushToast({
-        title: 'Report copied',
-        message: 'The latest persisted Ticket and Progress Timeline are ready to paste.',
-        tone: 'success',
-      });
-    } catch (copyError) {
-      pushToast({
-        title: 'Copy failed',
-        message:
-          copyError?.code === 'REPORT_PROGRESS_LIMIT'
-            ? 'This Ticket has more than 1,000 progress updates. Open the Ticket for a controlled review before copying.'
-            : 'The latest persisted report could not be loaded or copied.',
-        tone: 'error',
-      });
-    } finally {
-      setCopyPendingId(null);
-    }
-  };
+  const copyReport = useCallback(
+    async (ticket) => {
+      if (copyPendingId) return;
+      setCopyPendingId(ticket.id);
+      try {
+        const [freshTicket, progress] = await Promise.all([
+          firestoreTicketRepository.getTicketById(ticket.id),
+          loadProgressForReport(ticket.id),
+        ]);
+        await copyPlainText(formatTicketReport({ ...freshTicket, progress }));
+        pushToast({
+          title: 'Report copied',
+          message: 'The latest persisted Ticket and Progress Timeline are ready to paste.',
+          tone: 'success',
+        });
+      } catch (copyError) {
+        pushToast({
+          title: 'Copy failed',
+          message:
+            copyError?.code === 'REPORT_PROGRESS_LIMIT'
+              ? 'This Ticket has more than 1,000 progress updates. Open the Ticket for a controlled review before copying.'
+              : 'The latest persisted report could not be loaded or copied.',
+          tone: 'error',
+        });
+      } finally {
+        setCopyPendingId(null);
+      }
+    },
+    [copyPendingId, pushToast],
+  );
 
-  const resolveTicket = async (ticket) => {
-    if (!canMutate || resolvePendingId) return;
-    setResolvePendingId(ticket.id);
-    try {
-      await firestoreTicketRepository.transitionTicketStatus({
-        ticketId: ticket.id,
-        expectedRevision: ticket.revision,
-        toStatus: TICKET_STATUS.RESOLVED,
-      });
-      setTickets((current) => current.filter((item) => item.id !== ticket.id));
-      pushToast({
-        title: 'Ticket resolved',
-        message: 'The Ticket left the Running queue immediately.',
-        tone: 'success',
-      });
-    } catch (resolveError) {
-      pushToast({
-        title: 'Resolve failed',
-        message: mutationErrorMessage(resolveError, 'The Ticket could not be resolved.'),
-        tone: 'error',
-      });
-      if (resolveError?.code === 'STALE_REVISION') await loadTickets();
-    } finally {
-      setResolvePendingId(null);
-    }
-  };
+  const resolveTicket = useCallback(
+    async (ticket) => {
+      if (!canMutate || resolvePendingId) return;
+      setResolvePendingId(ticket.id);
+      try {
+        await firestoreTicketRepository.transitionTicketStatus({
+          ticketId: ticket.id,
+          expectedRevision: ticket.revision,
+          toStatus: TICKET_STATUS.RESOLVED,
+        });
+        setTickets((current) => current.filter((item) => item.id !== ticket.id));
+        pushToast({
+          title: 'Ticket resolved',
+          message: 'The Ticket left the Running queue immediately.',
+          tone: 'success',
+        });
+      } catch (resolveError) {
+        pushToast({
+          title: 'Resolve failed',
+          message: mutationErrorMessage(resolveError, 'The Ticket could not be resolved.'),
+          tone: 'error',
+        });
+        if (resolveError?.code === 'STALE_REVISION') await loadTickets();
+      } finally {
+        setResolvePendingId(null);
+      }
+    },
+    [canMutate, loadTickets, pushToast, resolvePendingId],
+  );
 
-  return (
-    <div className="space-y-5 md:space-y-6">
-      <section className="spatial-panel-elevated relative overflow-hidden p-5 md:p-7">
-        <div
-          className="pointer-events-none absolute -right-20 -top-28 h-72 w-72 rounded-full bg-[var(--accent-glow)] blur-3xl"
-          aria-hidden="true"
-        />
-        <div className="relative flex flex-wrap items-end justify-between gap-5">
-          <div className="max-w-3xl">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="spatial-kicker">Active incidents</p>
-              <StatusBadge status="RUNNING" />
-            </div>
-            <h2 className="spatial-title mt-3">Running Ticket</h2>
-            <p className="spatial-description mt-4">
-              Scan the live queue, find the next incident quickly, and keep common operator actions
-              within one click without turning the workspace into a dense wall of controls.
+  const getActions = useCallback(
+    (ticket) => {
+      const ttLabel = ticket.externalTtNumber ?? ticket.title ?? 'Ticket';
+      return [
+        {
+          key: 'review',
+          label: 'Review Ticket',
+          icon: 'info',
+          onSelect: () => navigate(`/tickets/${ticket.id}`),
+        },
+        canMutate
+          ? {
+              key: 'progress',
+              label: 'Add Progress',
+              icon: 'edit',
+              onSelect: () => navigate(`/generator/${ticket.id}/edit#progress-text`),
+            }
+          : null,
+        {
+          key: 'copy',
+          label: copyPendingId === ticket.id ? 'Copying report…' : 'Copy Report',
+          icon: 'copy',
+          disabled: Boolean(copyPendingId),
+          onSelect: () => copyReport(ticket),
+        },
+        canMutate
+          ? {
+              key: 'resolve',
+              label: resolvePendingId === ticket.id ? 'Resolving…' : 'Resolve Ticket',
+              icon: 'check',
+              danger: true,
+              separatorBefore: true,
+              disabled: Boolean(resolvePendingId),
+              onSelect: () => resolveTicket(ticket),
+            }
+          : null,
+      ];
+    },
+    [canMutate, copyPendingId, copyReport, navigate, resolvePendingId, resolveTicket],
+  );
+
+  const columns = useMemo(
+    () => [
+      {
+        id: 'status',
+        accessorKey: 'status',
+        header: 'Status',
+        enableSorting: false,
+        meta: { label: 'Status' },
+        cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      },
+      {
+        id: 'tt',
+        accessorFn: (ticket) => ticket.externalTtNumber ?? '',
+        header: 'TT',
+        enableHiding: false,
+        meta: { label: 'TT', cellClassName: 'whitespace-nowrap' },
+        cell: ({ row }) => (
+          <Link
+            to={`/tickets/${row.original.id}`}
+            className="rounded-sm font-mono text-[10.5px] font-bold text-[var(--text-muted)] hover:text-[var(--accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+          >
+            {row.original.externalTtNumber ?? 'No TT detected'}
+          </Link>
+        ),
+      },
+      {
+        id: 'title',
+        accessorKey: 'title',
+        header: 'Title',
+        enableHiding: false,
+        meta: { label: 'Title', headerClassName: 'min-w-[240px]', cellClassName: 'max-w-[360px]' },
+        cell: ({ row }) => (
+          <Link
+            to={`/tickets/${row.original.id}`}
+            className="line-clamp-2 rounded-sm text-[12.5px] font-bold leading-5 tracking-[-0.01em] text-[var(--text-primary)] hover:text-[var(--accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+          >
+            {row.original.title || 'Untitled ticket'}
+          </Link>
+        ),
+      },
+      {
+        id: 'pic',
+        accessorFn: (ticket) => ticket.pic ?? '',
+        header: 'PIC',
+        meta: { label: 'PIC', cellClassName: 'whitespace-nowrap font-semibold' },
+        cell: ({ row }) => row.original.pic || '—',
+      },
+      {
+        id: 'occurAt',
+        accessorFn: (ticket) => dateMillis(ticket.occurAt),
+        header: 'Occur',
+        meta: {
+          label: 'Occur',
+          cellClassName: 'whitespace-nowrap text-[11px] text-[var(--text-muted)]',
+        },
+        cell: ({ row }) => formatDateTime(row.original.occurAt) || '—',
+      },
+      {
+        id: 'latestProgress',
+        accessorFn: (ticket) => ticket.latestProgress?.text ?? '',
+        header: 'Latest Progress',
+        meta: {
+          label: 'Latest Progress',
+          headerClassName: 'min-w-[220px]',
+          cellClassName: 'max-w-[320px]',
+        },
+        cell: ({ row }) => (
+          <p className="line-clamp-2 text-[11.5px] leading-4.5 text-[var(--text-secondary)]">
+            {row.original.latestProgress?.text || '—'}
+          </p>
+        ),
+      },
+      {
+        id: 'cutPoint',
+        accessorFn: (ticket) => ticket.cutPoint ?? '',
+        header: 'Cut Point',
+        meta: {
+          label: 'Cut Point',
+          headerClassName: 'min-w-[180px]',
+          cellClassName: 'max-w-[240px]',
+        },
+        cell: ({ row }) => (
+          <div className="flex items-start gap-1.5">
+            <span
+              className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${
+                row.original.hasCoordinates
+                  ? 'bg-[var(--success-solid)]'
+                  : 'bg-[var(--border-strong)]'
+              }`}
+              aria-hidden="true"
+            />
+            <p className="line-clamp-2 text-[11.5px] leading-4.5 text-[var(--text-secondary)]">
+              {row.original.cutPoint ||
+                (row.original.hasCoordinates ? 'Coordinate available' : '—')}
             </p>
           </div>
-          {canCreate ? (
-            <Link to="/generator/new" className={primaryLinkClass}>
-              <UiIcon name="plus" size={16} />
-              New Ticket
-            </Link>
-          ) : null}
-        </div>
-      </section>
+        ),
+      },
+      {
+        id: 'updatedAt',
+        accessorFn: (ticket) => dateMillis(ticket.updatedAt),
+        header: 'Updated',
+        meta: {
+          label: 'Updated',
+          cellClassName: 'whitespace-nowrap text-[11px] text-[var(--text-muted)]',
+        },
+        cell: ({ row }) => formatDateTime(row.original.updatedAt) || '—',
+      },
+      {
+        id: 'actions',
+        header: '',
+        enableSorting: false,
+        enableHiding: false,
+        meta: { label: 'Actions', headerClassName: 'w-12', cellClassName: 'w-12' },
+        cell: ({ row }) => (
+          <RowActionsMenu
+            label={`Actions for ${row.original.externalTtNumber ?? row.original.title ?? 'Ticket'}`}
+            actions={getActions(row.original)}
+          />
+        ),
+      },
+    ],
+    [getActions],
+  );
 
-      {localDevelopmentMode ? (
-        <div className="rounded-2xl border border-[var(--border-accent)] bg-[var(--accent-soft)] p-4 text-sm leading-6 text-[var(--text-secondary)] shadow-[var(--shadow-xs)]">
-          <span className="font-bold text-[var(--accent-text)]">Local preview.</span> No persisted
-          Running Tickets are available until Firebase is configured.
-        </div>
-      ) : null}
+  const emptyTitle = tickets.length === 0 ? 'No running tickets' : 'No tickets match your filters';
+  const emptyDescription =
+    tickets.length === 0
+      ? 'Tickets marked Running will appear here automatically.'
+      : 'Try a different TT number, title, PIC, Cut Point, search term, or coordinate filter.';
 
-      <section className="grid gap-3 rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-4 shadow-[var(--shadow-sm)] lg:grid-cols-[minmax(0,1fr)_220px_220px] lg:items-end lg:p-5">
-        <TextInput
-          id="running-search"
-          label="Search Running Tickets"
-          placeholder="TT number, Title, PIC, or Cut Point"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
-        <SelectField
-          id="running-coordinate-filter"
-          label="Coordinate filter"
-          value={coordinateFilter}
-          options={COORDINATE_OPTIONS}
-          onValueChange={setCoordinateFilter}
-        />
-        <SelectField
-          id="running-sort"
-          label="Sort"
-          value={sort}
-          options={SORT_OPTIONS}
-          onValueChange={setSort}
-        />
-      </section>
-
-      {!loading && !error && tickets.length > 0 ? (
-        <div className="flex items-center justify-between gap-3 px-1" aria-live="polite">
-          <p className="text-xs font-semibold text-[var(--text-muted)]">
-            Showing {visibleTickets.length} of {tickets.length} Running Tickets.
-          </p>
-          <span className="spatial-chip hidden sm:inline-flex">Live queue</span>
-        </div>
-      ) : null}
-
-      {loading ? <RunningSkeleton /> : null}
+  return (
+    <div className="grid gap-3">
+      <PageHeader
+        title="Running Tickets"
+        eyebrow="Live queue"
+        description={
+          localDevelopmentMode
+            ? 'Local preview has no persisted Running Tickets.'
+            : `${tickets.length} active incident${tickets.length === 1 ? '' : 's'} loaded from the bounded queue.`
+        }
+        actions={
+          canCreate ? (
+            <Button asChild tone="primary" size="sm">
+              <Link to="/generator/new">
+                <AppIcon name="plus" size={14} />
+                New Ticket
+              </Link>
+            </Button>
+          ) : null
+        }
+      />
 
       {!loading && error ? (
         <ErrorState
@@ -420,112 +448,41 @@ export function RunningTicketsPage() {
         />
       ) : null}
 
-      {!loading && !error && visibleTickets.length === 0 ? (
-        <EmptyState
-          title={tickets.length === 0 ? 'No running tickets' : 'No tickets match your filters'}
-          description={
-            tickets.length === 0
-              ? 'Tickets marked Running will appear here automatically.'
-              : 'Try a different TT number, Title, PIC, Cut Point, or coordinate filter.'
+      {!error ? (
+        <DataTable
+          ariaLabel="Running Tickets workspace"
+          data={coordinateFilteredTickets}
+          columns={columns}
+          getRowId={(ticket) => ticket.id}
+          loading={loading}
+          searchLabel="Search Running Tickets"
+          searchPlaceholder="TT, title, PIC, progress, or Cut Point"
+          rowDensity="two-line"
+          storageKey="running-tickets-display-v1"
+          initialState={{ sorting: [{ id: 'updatedAt', desc: true }] }}
+          minWidth={1120}
+          toolbar={
+            <div className="w-full sm:w-44">
+              <SelectField
+                id="running-coordinate-filter"
+                label="Coordinate filter"
+                value={coordinateFilter}
+                options={COORDINATE_OPTIONS}
+                onValueChange={setCoordinateFilter}
+              />
+            </div>
           }
-          action={
+          emptyTitle={emptyTitle}
+          emptyDescription={emptyDescription}
+          emptyAction={
             tickets.length === 0 && canCreate ? (
-              <Link to="/generator/new" className={primaryLinkClass}>
-                Create Ticket
-              </Link>
+              <Button asChild tone="primary" size="sm">
+                <Link to="/generator/new">Create Ticket</Link>
+              </Button>
             ) : null
           }
+          mobileRow={(props) => <RunningMobileRow {...props} getActions={getActions} />}
         />
-      ) : null}
-
-      {!loading && !error && visibleTickets.length > 0 ? (
-        <>
-          <div className="grid gap-3 md:hidden">
-            {visibleTickets.map((ticket) => (
-              <TicketCard
-                key={ticket.id}
-                ticket={ticket}
-                canMutate={canMutate}
-                copyPending={copyPendingId === ticket.id}
-                resolvePending={resolvePendingId === ticket.id}
-                onCopy={copyReport}
-                onResolve={resolveTicket}
-              />
-            ))}
-          </div>
-
-          <div className="data-table-shell hidden overflow-x-auto rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-md)] md:block">
-            <table className="w-full min-w-[1180px] border-collapse text-left text-sm">
-              <thead className="bg-[var(--surface-panel-translucent)] text-[10px] uppercase tracking-[0.11em] text-[var(--text-muted)]">
-                <tr>
-                  <th className="px-4 py-4 font-extrabold">Ticket</th>
-                  <th className="px-4 py-4 font-extrabold">Latest Progress</th>
-                  <th className="px-4 py-4 font-extrabold">PIC</th>
-                  <th className="px-4 py-4 font-extrabold">Cut Point</th>
-                  <th className="px-4 py-4 font-extrabold">Coordinate</th>
-                  <th className="px-4 py-4 font-extrabold">Updated</th>
-                  <th className="px-4 py-4 font-extrabold">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {visibleTickets.map((ticket) => (
-                  <tr
-                    key={ticket.id}
-                    className="border-t border-[var(--border-subtle)] align-top transition-colors duration-200 hover:bg-[var(--surface-muted)]"
-                  >
-                    <td className="max-w-sm px-4 py-4">
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="h-1.5 w-1.5 rounded-full bg-[var(--success-solid)]"
-                          aria-hidden="true"
-                        />
-                        <p className="font-mono text-[11px] font-bold text-[var(--text-muted)]">
-                          {ticket.externalTtNumber ?? 'No TT detected'}
-                        </p>
-                      </div>
-                      <p className="mt-1.5 line-clamp-2 font-bold tracking-[-0.01em]">
-                        <Link
-                          to={`/tickets/${ticket.id}`}
-                          className="rounded-sm transition-colors hover:text-[var(--accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
-                        >
-                          {ticket.title || 'Untitled ticket'}
-                        </Link>
-                      </p>
-                      <p className="mt-1.5 text-xs text-[var(--text-muted)]">
-                        Occur {formatDateTime(ticket.occurAt) || '—'}
-                      </p>
-                    </td>
-                    <td className="max-w-xs px-4 py-4 font-medium text-[var(--text-secondary)]">
-                      <p className="line-clamp-3 leading-6">{ticket.latestProgress?.text || '—'}</p>
-                    </td>
-                    <td className="px-4 py-4 font-medium text-[var(--text-secondary)]">
-                      {ticket.pic || '—'}
-                    </td>
-                    <td className="max-w-xs px-4 py-4 font-medium text-[var(--text-secondary)]">
-                      <p className="line-clamp-3 leading-6">{ticket.cutPoint || '—'}</p>
-                    </td>
-                    <td className="px-4 py-4 text-xs font-semibold text-[var(--text-secondary)]">
-                      {ticket.hasCoordinates ? 'Available' : '—'}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-4 text-xs font-medium text-[var(--text-muted)]">
-                      {formatDateTime(ticket.updatedAt) || '—'}
-                    </td>
-                    <td className="px-4 py-4">
-                      <TicketActions
-                        ticket={ticket}
-                        canMutate={canMutate}
-                        copyPending={copyPendingId === ticket.id}
-                        resolvePending={resolvePendingId === ticket.id}
-                        onCopy={copyReport}
-                        onResolve={resolveTicket}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
       ) : null}
     </div>
   );

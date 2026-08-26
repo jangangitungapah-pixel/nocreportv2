@@ -74,6 +74,54 @@ async function seedProfile(account) {
   );
 }
 
+async function seedRunningDensityTickets(count = 5) {
+  for (let index = 0; index < count; index += 1) {
+    const suffix = String(index + 2).padStart(2, '0');
+    const ticketId = `t7-density-${suffix}`;
+    const ttNumber = `INC-20260821-000700${suffix}`;
+    const occurAt = new Date(Date.UTC(2026, 7, 21, 8, index + 1));
+    const updatedAt = new Date(Date.UTC(2026, 7, 21, 9, index + 1));
+    const url = `${FIRESTORE_ORIGIN}/v1/projects/${PROJECT_ID}/databases/(default)/documents/tickets/${ticketId}`;
+
+    await requireOk(
+      await globalThis.fetch(url, {
+        method: 'PATCH',
+        headers: {
+          Authorization: 'Bearer owner',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fields: {
+            schemaVersion: { integerValue: '1' },
+            title: { stringValue: `[T7-DENSITY-${suffix}] Running incident` },
+            externalTtNumber: { stringValue: ttNumber },
+            status: { stringValue: 'RUNNING' },
+            revision: { integerValue: '1' },
+            occurAt: { timestampValue: occurAt.toISOString() },
+            dispatchAt: { timestampValue: occurAt.toISOString() },
+            pic: { stringValue: `Density PIC ${suffix}` },
+            rootcause: { stringValue: 'Density viewport fixture' },
+            cutPoint: { stringValue: `Density Cut Point ${suffix}` },
+            hasCoordinates: { booleanValue: false },
+            latestProgress: {
+              mapValue: {
+                fields: {
+                  progressId: { stringValue: `density-progress-${suffix}` },
+                  occurredAt: { timestampValue: updatedAt.toISOString() },
+                  text: { stringValue: `Density progress ${suffix} is being coordinated.` },
+                },
+              },
+            },
+            createdAt: { timestampValue: occurAt.toISOString() },
+            updatedAt: { timestampValue: updatedAt.toISOString() },
+          },
+        }),
+      }),
+      `Seed Running density Ticket ${suffix}`,
+    );
+  }
+}
+
 async function login(page, account) {
   await page.goto('/login');
   await page.getByLabel('Email').fill(account.email);
@@ -100,6 +148,19 @@ async function assertNoHorizontalOverflow(page, label) {
   expect(
     metrics.documentWidth <= metrics.viewport + 1 && metrics.bodyWidth <= metrics.viewport + 1,
     `${label} overflowed horizontally: ${JSON.stringify(metrics)}`,
+  ).toBe(true);
+}
+
+async function assertSixRunningRowsAboveFold(page) {
+  const rows = page.locator('[data-testid="data-table-desktop"] tbody tr');
+  await expect(rows).toHaveCount(6);
+  const sixthRow = rows.nth(5);
+  await expect(sixthRow).toBeVisible();
+  const box = await sixthRow.boundingBox();
+  expect(box, 'Sixth Running row must have measurable browser geometry').not.toBeNull();
+  expect(
+    box.y + box.height <= 900,
+    `Sixth Running row must remain above the 1280x900 fold: ${JSON.stringify(box)}`,
   ).toBe(true);
 }
 
@@ -137,11 +198,9 @@ async function createOcrFixtureBuffer(page) {
 async function assertViewerTicketLoaded(page, ticketId) {
   await expect(page).toHaveURL(new RegExp(`/tickets/${ticketId}$`));
 
+  const reviewMeta = page.locator('[aria-label="Ticket review metadata"]');
   const outcome = await Promise.race([
-    page
-      .getByText('Safe review mode', { exact: true })
-      .waitFor({ state: 'visible', timeout: 8000 })
-      .then(() => 'viewer'),
+    reviewMeta.waitFor({ state: 'visible', timeout: 8000 }).then(() => 'viewer'),
     page
       .getByText('Ticket could not be loaded', { exact: true })
       .waitFor({ state: 'visible', timeout: 8000 })
@@ -162,6 +221,9 @@ async function assertViewerTicketLoaded(page, ticketId) {
       `Viewer Ticket route failed at stage=${stage}, outcome=${outcome}, url=${page.url()}\n${bodyText}`,
     );
   }
+
+  await expect(reviewMeta.getByText('Read only')).toBeVisible();
+  await expect(page.getByRole('textbox')).toHaveCount(0);
 }
 
 async function resetProfiles() {
@@ -200,11 +262,9 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await page.locator('#cut-point').fill('KM 12 from Bandung hub');
 
     await page.getByRole('button', { name: 'Save' }).click();
-    await page.waitForURL((url) => {
-      const pathname = new URL(url).pathname;
-      return /^\/generator\/[^/]+$/.test(pathname) && pathname !== '/generator/new';
-    });
-    ticketId = new URL(page.url()).pathname.split('/').at(-1);
+    await page.waitForURL((url) => /^\/generator\/[^/]+\/edit$/.test(new URL(url).pathname));
+    const editorPath = new URL(page.url()).pathname.split('/');
+    ticketId = editorPath.at(-2);
     expect(ticketId).toBeTruthy();
     expect(ticketId).not.toBe('new');
 
@@ -234,7 +294,7 @@ test.describe.serial('T7 MVP browser workflow', () => {
 
     await page.getByLabel('Longitude').fill('98.7692');
     await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page.getByText(/Saved to Firestore · revision/)).toBeVisible();
+    await expect(page.getByText('Ticket saved')).toBeVisible();
 
     await page.reload();
     await expect(page.getByLabel('Title')).toHaveValue(INCIDENT_TITLE);
@@ -245,9 +305,12 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await page.getByRole('button', { name: 'Copy Report' }).click();
     await expect(page.getByText('Report copied')).toBeVisible();
 
+    await seedRunningDensityTickets(5);
+    await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/running');
     const runningTable = page.getByRole('table');
     await expect(runningTable.getByText(INCIDENT_TITLE, { exact: true })).toBeVisible();
+    await assertSixRunningRowsAboveFold(page);
     await page.getByRole('textbox', { name: /Search Running Tickets/ }).fill('00070001');
     await expect(runningTable.getByText(INCIDENT_TITLE, { exact: true })).toBeVisible();
 
@@ -261,24 +324,27 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await page.goto('/running');
     const incidentRow = page.getByRole('row').filter({ hasText: INCIDENT_TT });
     await expect(incidentRow).toBeVisible();
-    await incidentRow.getByRole('button', { name: `Resolve ${INCIDENT_TT}` }).click();
+    await incidentRow.getByRole('button', { name: `Actions for ${INCIDENT_TT}` }).click();
+    await page.getByRole('menuitem', { name: 'Resolve Ticket' }).click();
     await expect(page.getByText('Ticket resolved')).toBeVisible();
     await expect(page.getByText(INCIDENT_TITLE, { exact: true })).toHaveCount(0);
 
     await page.goto('/archive');
     await expect(page.getByRole('heading', { name: 'Archive & Restore', level: 2 })).toBeVisible();
-    await expect(page.getByText(INCIDENT_TITLE, { exact: true })).toBeVisible();
+    const resolvedArchiveTable = page.getByRole('table');
+    await expect(resolvedArchiveTable.getByText(INCIDENT_TITLE, { exact: true })).toBeVisible();
     await page.getByRole('button', { name: `Archive ${INCIDENT_TT}` }).click();
     await page.getByRole('button', { name: 'Archive Ticket' }).click();
     await expect(page.getByText('Ticket archived')).toBeVisible();
-    await expect(page.getByText(INCIDENT_TITLE, { exact: true })).toHaveCount(0);
+    await expect(resolvedArchiveTable.getByText(INCIDENT_TITLE, { exact: true })).toHaveCount(0);
 
-    await page.getByRole('button', { name: 'Archived' }).click();
-    await expect(page.getByText(INCIDENT_TITLE, { exact: true })).toBeVisible();
+    await page.getByRole('tab', { name: 'Archived' }).click();
+    const archivedTable = page.getByRole('table');
+    await expect(archivedTable.getByText(INCIDENT_TITLE, { exact: true })).toBeVisible();
     await page.getByRole('button', { name: `Restore ${INCIDENT_TT}` }).click();
     await page.getByRole('button', { name: 'Restore Ticket' }).click();
     await expect(page.getByText('Ticket restored')).toBeVisible();
-    await expect(page.getByText(INCIDENT_TITLE, { exact: true })).toHaveCount(0);
+    await expect(archivedTable.getByText(INCIDENT_TITLE, { exact: true })).toHaveCount(0);
   });
 
   test('Operator and Viewer UI restrictions match the role matrix', async ({ browser }) => {
@@ -322,11 +388,24 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await page.keyboard.press('Enter');
     await expect(page).toHaveURL(/\/generator\/new$/);
 
+    const generatorSeparator = page.getByRole('separator');
+    await expect(generatorSeparator).toBeVisible();
+    await generatorSeparator.focus();
+    await expect(generatorSeparator).toBeFocused();
+    await page.keyboard.press('ArrowLeft');
+    await expect(generatorSeparator).toBeFocused();
+
     const titleInput = page.getByLabel('Title');
-    await tabUntilFocused(page, titleInput, 80);
+    await titleInput.focus();
     await page.keyboard.type('[T7 KEYBOARD QA]');
     await expect(titleInput).toHaveValue('[T7 KEYBOARD QA]');
 
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('/generator/new');
+    await expect(page.getByRole('separator')).toHaveCount(0);
+    await assertNoHorizontalOverflow(page, '/generator/new at 390px');
+
+    await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto('/archive');
     const archiveButton = page.getByRole('button', { name: `Archive ${INCIDENT_TT}` });
     await expect(archiveButton).toBeVisible();
@@ -347,9 +426,80 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await expect(archiveButton).toBeFocused();
   });
 
-  test('primary routes pass responsive overflow and serious axe checks', async ({ page }) => {
+  test('Light and Dark shell themes persist and stay responsive and accessible', async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+
+    await page.setViewportSize({ width: 1280, height: 900 });
     await login(page, accounts.admin);
-    const routes = ['/dashboard', '/generator/new', '/running', '/cut-points', '/archive'];
+
+    const html = page.locator('html');
+    await expect(html).toHaveAttribute('data-theme', 'light');
+
+    const themeButton = page.getByRole('button', { name: 'Switch to dark mode' });
+    await themeButton.focus();
+    await expect(themeButton).toBeFocused();
+    await expect(page.getByRole('tooltip')).toContainText('Switch to dark mode');
+    await themeButton.click();
+
+    await expect(html).toHaveAttribute('data-theme', 'dark');
+    await expect
+      .poll(() => page.evaluate(() => window.localStorage.getItem('nocreport-theme')))
+      .toBe('dark');
+
+    await page.reload();
+    await expect(html).toHaveAttribute('data-theme', 'dark');
+    await expect(page.getByRole('button', { name: 'Switch to light mode' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Open account menu' }).click();
+    const darkModeSwitch = page.getByRole('switch', { name: 'Dark mode' });
+    await expect(darkModeSwitch).toHaveAttribute('data-state', 'checked');
+    await darkModeSwitch.click();
+    await expect(html).toHaveAttribute('data-theme', 'light');
+    await expect
+      .poll(() => page.evaluate(() => window.localStorage.getItem('nocreport-theme')))
+      .toBe('light');
+    await page.keyboard.press('Escape');
+
+    await assertNoHorizontalOverflow(page, 'Dashboard light desktop');
+    await assertNoSeriousAxeViolations(page, 'Dashboard light desktop');
+
+    await page.getByRole('button', { name: 'Switch to dark mode' }).click();
+    await expect(html).toHaveAttribute('data-theme', 'dark');
+
+    for (const route of ['/dashboard', '/generator/new', '/cut-points']) {
+      await page.goto(route);
+      await expect(html).toHaveAttribute('data-theme', 'dark');
+      await assertNoHorizontalOverflow(page, `${route} dark desktop`);
+      await assertNoSeriousAxeViolations(page, `${route} dark desktop`);
+    }
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    for (const route of ['/dashboard', '/generator/new', '/cut-points']) {
+      await page.goto(route);
+      await expect(html).toHaveAttribute('data-theme', 'dark');
+      await assertNoHorizontalOverflow(page, `${route} dark mobile`);
+    }
+
+    await assertNoSeriousAxeViolations(page, 'Cut Point dark mobile');
+    await page.reload();
+    await expect(html).toHaveAttribute('data-theme', 'dark');
+    await expect(page.getByRole('button', { name: 'Switch to light mode' })).toBeVisible();
+  });
+
+  test('primary routes pass responsive overflow and serious axe checks', async ({ page }) => {
+    test.setTimeout(120_000);
+
+    await login(page, accounts.admin);
+    const routes = [
+      '/dashboard',
+      '/generator/new',
+      '/running',
+      '/cut-points',
+      '/archive',
+      ...(ticketId ? [`/tickets/${ticketId}`] : []),
+    ];
     const viewports = [
       { width: 360, height: 800 },
       { width: 390, height: 844 },
@@ -365,6 +515,12 @@ test.describe.serial('T7 MVP browser workflow', () => {
         await page.goto(route);
         await expect(page.locator('body')).toBeVisible();
         await assertNoHorizontalOverflow(page, `${route} at ${viewport.width}px`);
+
+        if (route === '/generator/new' || route === '/cut-points') {
+          const separator = page.getByRole('separator');
+          if (viewport.width >= 1280) await expect(separator).toBeVisible();
+          else await expect(separator).toHaveCount(0);
+        }
       }
     }
 
