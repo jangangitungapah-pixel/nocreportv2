@@ -20,3 +20,9 @@ export {
   parseCoordinateText,
   validateCoordinatePair,
 } from './lib/coordinates.js';
+export {
+  REVISION_DIFF_ALARM_FIELDS,
+  REVISION_DIFF_FIELDS,
+  buildOperationalRevisionDiff,
+  buildTicketUpdatedAuditDetails,
+} from './lib/revision-diff.js';
