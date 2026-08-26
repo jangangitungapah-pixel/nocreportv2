@@ -166,8 +166,8 @@ export function ProgressComposer({
   };
 
   return (
-    <section className="generator-progress-composer overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
-      <header className="flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
+    <section className="generator-operations-surface generator-progress-composer overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+      <header className="generator-operations-header generator-progress-composer__header flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
         <div className="flex items-center gap-2">
           <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Add Progress</h3>
           <span className="hidden text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)] sm:inline">
@@ -181,7 +181,7 @@ export function ProgressComposer({
         </span>
       </header>
 
-      <div className="border-b border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3">
+      <div className="generator-progress-snippet-deck border-b border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3">
         <div className="grid gap-2 lg:grid-cols-[minmax(220px,0.7fr)_minmax(0,1fr)_auto] lg:items-end">
           <SelectField
             id="progress-quick-snippet"
@@ -246,7 +246,7 @@ export function ProgressComposer({
         ) : null}
       </div>
 
-      <div className="grid gap-2.5 p-3 lg:grid-cols-[190px_minmax(0,1fr)_auto] lg:items-end">
+      <div className="generator-progress-compose-grid grid gap-2.5 p-3 lg:grid-cols-[190px_minmax(0,1fr)_auto] lg:items-end">
         <DateTimeField
           id="progress-time"
           label="Event time"

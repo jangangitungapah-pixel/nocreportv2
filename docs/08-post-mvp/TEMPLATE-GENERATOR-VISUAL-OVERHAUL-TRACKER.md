@@ -3,7 +3,7 @@
 **PRD:** `docs/08-post-mvp/TEMPLATE-GENERATOR-VISUAL-OVERHAUL-PRD.md`  
 **Branch:** `feature/template-generator-visual-overhaul`  
 **Stacked base:** `feature/template-generator-features`  
-**Status:** GUX-0 COMPLETE · GUX-1 COMPLETE · GUX-2 COMPLETE · GUX-3 IN PROGRESS
+**Status:** GUX-0 COMPLETE · GUX-1 COMPLETE · GUX-2 COMPLETE · GUX-3 COMPLETE · GUX-4 IN PROGRESS
 
 ## Baseline
 
@@ -66,12 +66,16 @@ GUX-2 presentation changes passed targeted Generator core-authoring, Smart Title
 
 ## GUX-3 — Operations timeline + evidence
 
-- [ ] Evidence Workspace redesign.
-- [ ] OCR/Coordinate extraction redesign.
-- [ ] Progress Composer redesign.
-- [ ] Progress Timeline redesign.
-- [ ] local-file/privacy semantics preserved.
-- [ ] revision-safe Progress semantics preserved.
+- [x] Evidence Workspace redesign.
+- [x] OCR/Coordinate extraction redesign.
+- [x] Progress Composer redesign.
+- [x] Progress Timeline redesign.
+- [x] local-file/privacy semantics preserved.
+- [x] revision-safe Progress semantics preserved.
+
+### GUX-3 automated evidence
+
+GUX-3 presentation changes passed targeted Evidence Workspace, local OCR/coordinate, Progress Composer/presets, evidence recovery and revision-safe Progress persistence regression coverage, committed Prettier formatting, ESLint, the full unit/component suite and the production build. The implementation adds operations-specific semantic classes and CSS hierarchy only. Local evidence binaries remain browser-only, OCR behavior and coordinate verification are unchanged, and Progress append/update/remove continue through the existing optimistic-revision persistence contracts.
 
 ## GUX-4 — Output + handover utilities
 
