@@ -1,0 +1,40 @@
+name: GEN-F6 fix history helper
+
+on:
+  push:
+    branches:
+      - feature/template-generator-features
+    paths:
+      - .github/workflows/gen-f6-fix-history-helper.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: feature/template-generator-features
+          fetch-depth: 0
+      - name: Fix literal newline in history helper
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          path = Path('.github/workflows/gen-f6-history-wire.yml')
+          text = path.read_text()
+          old = 'git commit -m "feat(generator): wire bounded revision history"\\n          git push origin HEAD:feature/template-generator-features'
+          new = 'git commit -m "feat(generator): wire bounded revision history"\n          git push origin HEAD:feature/template-generator-features'
+          if old not in text:
+              raise SystemExit('history helper literal-newline anchor missing')
+          path.write_text(text.replace(old, new, 1))
+          PY
+      - name: Commit helper fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/gen-f6-history-wire.yml
+          git diff --cached --check
+          git commit -m "ci(generator): fix GEN-F6 history helper push"
+          git push origin HEAD:feature/template-generator-features
