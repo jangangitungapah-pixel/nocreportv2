@@ -91,7 +91,9 @@ async function createQuotedSentRuntimeFixture(sourcePath, outputPath) {
 
 export async function prepareGenF9MsgFixtures(upstreamRoot, outputRoot) {
   if (!upstreamRoot || !outputRoot) {
-    throw new Error('Usage: node scripts/prepare-gen-f9-msg-fixtures.mjs <upstream-root> <output-root>');
+    throw new Error(
+      'Usage: node scripts/prepare-gen-f9-msg-fixtures.mjs <upstream-root> <output-root>',
+    );
   }
 
   const sentFixturePath = path.join(upstreamRoot, 'test', 'sent.msg');
@@ -100,7 +102,9 @@ export async function prepareGenF9MsgFixtures(upstreamRoot, outputRoot) {
     throw new Error('Pinned upstream test/sent.msg has no Client Submit Time.');
   }
   if (sent.candidate?.fields?.dispatchAt?.source !== 'message_metadata') {
-    throw new Error('Pinned upstream test/sent.msg did not map Client Submit Time to Dispatch Time.');
+    throw new Error(
+      'Pinned upstream test/sent.msg did not map Client Submit Time to Dispatch Time.',
+    );
   }
 
   await mkdir(outputRoot, { recursive: true });
@@ -113,11 +117,18 @@ export async function prepareGenF9MsgFixtures(upstreamRoot, outputRoot) {
   if (!quoted.hasQuotedSent) {
     throw new Error('Runtime-derived quoted Sent fixture did not expose the injected body header.');
   }
-  if (!quoted.hasClientSubmitTime || quoted.candidate?.fields?.dispatchAt?.source !== 'message_metadata') {
-    throw new Error('Quoted Sent runtime fixture did not preserve authoritative Client Submit Time.');
+  if (
+    !quoted.hasClientSubmitTime ||
+    quoted.candidate?.fields?.dispatchAt?.source !== 'message_metadata'
+  ) {
+    throw new Error(
+      'Quoted Sent runtime fixture did not preserve authoritative Client Submit Time.',
+    );
   }
   if (quoted.candidate?.fields?.dispatchAt?.value !== sent.candidate?.fields?.dispatchAt?.value) {
-    throw new Error('Quoted body Sent header changed Dispatch Time away from current-message metadata.');
+    throw new Error(
+      'Quoted body Sent header changed Dispatch Time away from current-message metadata.',
+    );
   }
 
   const expected = {

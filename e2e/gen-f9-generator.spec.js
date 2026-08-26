@@ -6,9 +6,7 @@ const AUTH_ORIGIN = 'http://127.0.0.1:9099';
 const FIRESTORE_ORIGIN = 'http://127.0.0.1:8080';
 const PASSWORD = 'NocReport-F9-E2E-2026!';
 const MSG_EXPECTED_PATH = process.env.GEN_F9_MSG_EXPECTED ?? '';
-const MSG_FIXTURES = MSG_EXPECTED_PATH
-  ? JSON.parse(readFileSync(MSG_EXPECTED_PATH, 'utf8'))
-  : null;
+const MSG_FIXTURES = MSG_EXPECTED_PATH ? JSON.parse(readFileSync(MSG_EXPECTED_PATH, 'utf8')) : null;
 
 const admin = {
   email: 'f9-admin@nocreport.test',
@@ -172,9 +170,9 @@ test.describe.serial('GEN-F9 integrated Generator hardening', () => {
         quotedImport.getByText(MSG_FIXTURES.quotedSent.dispatchAt, { exact: true }),
       ).toBeVisible();
     } else {
-      await expect(
-        quotedImport.locator('label').filter({ hasText: 'Dispatch Time' }),
-      ).toHaveCount(0);
+      await expect(quotedImport.locator('label').filter({ hasText: 'Dispatch Time' })).toHaveCount(
+        0,
+      );
       await expect(page.getByLabel('Dispatch Time', { exact: true })).toHaveValue('');
     }
   });
@@ -224,7 +222,9 @@ test.describe.serial('GEN-F9 integrated Generator hardening', () => {
     await expect(preview).toContainText('INC-20260827-90090001');
   });
 
-  test('surfaces bounded exact-TT duplicate evidence and requires explicit Create anyway', async ({ page }) => {
+  test('surfaces bounded exact-TT duplicate evidence and requires explicit Create anyway', async ({
+    page,
+  }) => {
     await resetF9Data();
     const duplicate = await seedDuplicateTicket();
     await login(page);
@@ -234,11 +234,15 @@ test.describe.serial('GEN-F9 integrated Generator hardening', () => {
     await page.getByLabel('Occur Time', { exact: true }).fill('2026-08-27T08:05');
 
     const duplicatePanel = page.locator('.generator-duplicate-related');
-    await expect(duplicatePanel.getByRole('heading', { name: 'Duplicate & Related Tickets' })).toBeVisible({
+    await expect(
+      duplicatePanel.getByRole('heading', { name: 'Duplicate & Related Tickets' }),
+    ).toBeVisible({
       timeout: 15_000,
     });
     await expect(duplicatePanel.getByText(duplicate.tt, { exact: true })).toBeVisible();
-    await expect(duplicatePanel.getByText('Exact external TT match', { exact: true })).toBeVisible();
+    await expect(
+      duplicatePanel.getByText('Exact external TT match', { exact: true }),
+    ).toBeVisible();
     await expect(duplicatePanel.getByRole('button', { name: 'Create anyway' })).toBeVisible();
 
     await page.getByRole('button', { name: 'Save' }).click();
