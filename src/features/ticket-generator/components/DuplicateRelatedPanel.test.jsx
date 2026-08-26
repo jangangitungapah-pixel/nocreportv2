@@ -78,7 +78,7 @@ describe('DuplicateRelatedPanel', () => {
   it('renders bounded related Ticket review and explicit unlink action', () => {
     const onUnlinkCurrent = vi.fn();
     renderPanel({
-      candidates={[]},
+      candidates: [],
       relatedGroup: {
         id: 'group-1',
         ticketIds: ['current-ticket', 'related-ticket'],
