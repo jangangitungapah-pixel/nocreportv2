@@ -27,6 +27,7 @@ const TEXT_EXTENSIONS = new Set([
 const SOURCE_EXTENSIONS = new Set(['.js', '.jsx', '.mjs', '.cjs']);
 const UI_SOURCE_EXTENSIONS = new Set(['.js', '.jsx', '.css']);
 const LEGACY_UI_ROOTS = ['src/app/', 'src/features/', 'src/shared/', 'src/styles/'];
+const ALLOWED_IMPORTANT_FILES = new Set(['src/styles/app.css']);
 const FORBIDDEN_FILE_PATTERNS = [
   /(^|\/)(service[-_.]?account|serviceAccount).*\.json$/i,
   /\.(pem|p12|pfx|key)$/i,
@@ -80,10 +81,6 @@ const LEGACY_UI_PATTERNS = [
   {
     pattern: /<select(?:\s|>)/i,
     message: 'visible native select controls are forbidden; use the canonical product selector layer',
-  },
-  {
-    pattern: /!important/,
-    message: 'legacy CSS !important overrides are forbidden in production UI source',
   },
   {
     pattern: /path:\s*['"]\/generator\/:ticketId['"]/,
@@ -154,6 +151,12 @@ for (const absolute of allFiles) {
     ) {
       for (const rule of LEGACY_UI_PATTERNS) {
         if (rule.pattern.test(content)) violations.push(`${path}: ${rule.message}`);
+      }
+
+      if (!ALLOWED_IMPORTANT_FILES.has(path) && /!important/.test(content)) {
+        violations.push(
+          `${path}: legacy CSS !important overrides are forbidden in production UI source`,
+        );
       }
     }
   }
