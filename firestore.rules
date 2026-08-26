@@ -156,6 +156,7 @@ service cloud.firestore {
         && data.resolvedBy == null
         && data.archivedAt == null
         && data.archivedBy == null
+        && (data.schemaVersion == 1 || data.incidentGroupId == null)
         && (
           data.hasCoordinates == false
           || data.coordinate.verifiedBy == request.auth.uid
@@ -233,6 +234,25 @@ service cloud.firestore {
         || request.resource.data.coordinate.verifiedBy == request.auth.uid;
     }
 
+    function incidentGroupMutationValid(ticketId) {
+      let changed = request.resource.data.diff(resource.data).affectedKeys();
+      return !changed.hasAny(['incidentGroupId'])
+        || (
+          resource.data.incidentGroupId == null
+          && request.resource.data.incidentGroupId is string
+          && getAfter(
+            /databases/$(database)/documents/incidentGroups/$(request.resource.data.incidentGroupId)
+          ).data.ticketIds.hasAny([ticketId])
+        )
+        || (
+          resource.data.incidentGroupId is string
+          && request.resource.data.incidentGroupId == null
+          && !getAfter(
+            /databases/$(database)/documents/incidentGroups/$(resource.data.incidentGroupId)
+          ).data.ticketIds.hasAny([ticketId])
+        );
+    }
+
     function validIncidentGroup(data) {
       return data.keys().hasOnly([
           'title',
@@ -288,6 +308,7 @@ service cloud.firestore {
 
       allow update: if commonTicketUpdateValid()
         && coordinateMutationValid()
+        && incidentGroupMutationValid(ticketId)
         && (
           isAdminRestore()
           || (
