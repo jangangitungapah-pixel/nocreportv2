@@ -3,6 +3,19 @@ from pathlib import Path
 path = Path('src/features/ticket-generator/pages/TicketGeneratorPage.jsx')
 text = path.read_text()
 
+wired_markers = [
+    "import { DuplicateRelatedPanel } from '../components/DuplicateRelatedPanel.jsx';",
+    'const [duplicateCandidates, setDuplicateCandidates] = useState([]);',
+    'const createAnyway = async () => {',
+    'relateTicketToCandidate({',
+]
+present_markers = [marker in text for marker in wired_markers]
+if all(present_markers):
+    print('GEN-F5 page wiring already present; no patch needed.')
+    raise SystemExit(0)
+if any(present_markers):
+    raise SystemExit('GEN-F5 page wiring is partially present; refusing a mixed patch.')
+
 
 def replace_once(old, new, label):
     global text
@@ -145,16 +158,7 @@ handler_anchor = "  const notifyInvalidForm = () => {\n"
 if text.count(handler_anchor) != 1:
     raise SystemExit(f'handler anchor: expected exactly one anchor, got {text.count(handler_anchor)}')
 
-handlers = """  const handleCreateAnyway = () => {
-    setDuplicateAcknowledged(true);
-    pushToast({
-      title: 'Duplicate warning reviewed',
-      message: 'Creation remains allowed. Existing Ticket evidence was not treated as a hard block.',
-      tone: 'info',
-    });
-  };
-
-  const handleRelateCandidate = async (candidate) => {
+handlers = """  const handleRelateCandidate = async (candidate) => {
     if (!routeTicketId || localDevelopmentMode) return;
     if (hasUnsavedChanges) {
       pushToast({
