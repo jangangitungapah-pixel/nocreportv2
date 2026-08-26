@@ -1,10 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { createEmptyTicket } from '../../../entities/ticket/index.js';
-import {
-  deriveReportValidation,
-  withDuplicateCandidateFindings,
-} from './validationCenter.js';
+import { deriveReportValidation, withDuplicateCandidateFindings } from './validationCenter.js';
 
 function validForm(overrides = {}) {
   return {
