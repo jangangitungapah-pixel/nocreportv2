@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { loadTicketAuditHistory } from '../lib/persistenceService.js';
+import { loadTicketRevisionHistory } from '../lib/persistenceService.js';
 
 const EVENT_LABELS = Object.freeze({
   TICKET_CREATED: 'Ticket created',
@@ -41,6 +41,10 @@ const FIELD_LABELS = Object.freeze({
   'alarmContext.externalTtReferences': 'Related TT references',
 });
 
+function boundedLimit(value) {
+  return Math.min(Math.max(Number(value) || 50, 1), 50);
+}
+
 function formatTime(value) {
   if (!value) return 'Unknown time';
   const date = value instanceof Date ? value : new Date(value);
@@ -79,6 +83,7 @@ export function TicketAuditHistory({ ticketId, enabled = false, limit = 50 }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const safeLimit = boundedLimit(limit);
 
   useEffect(() => {
     if (!enabled || !ticketId) {
@@ -91,7 +96,7 @@ export function TicketAuditHistory({ ticketId, enabled = false, limit = 50 }) {
     let active = true;
     setLoading(true);
     setError(null);
-    void loadTicketAuditHistory(ticketId, { limit })
+    void loadTicketRevisionHistory(ticketId, { limit: safeLimit })
       .then((items) => {
         if (active) setEvents(items);
       })
@@ -105,23 +110,32 @@ export function TicketAuditHistory({ ticketId, enabled = false, limit = 50 }) {
     return () => {
       active = false;
     };
-  }, [enabled, limit, ticketId]);
+  }, [enabled, safeLimit, ticketId]);
 
-  const visibleEvents = useMemo(() => events.slice(0, Math.min(Math.max(Number(limit) || 50, 1), 50)), [events, limit]);
+  const visibleEvents = useMemo(() => events.slice(0, safeLimit), [events, safeLimit]);
 
   if (!enabled || !ticketId) return null;
 
   return (
-    <section className="overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]" aria-label="Revision history">
+    <section
+      className="overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
+      aria-label="Revision history"
+    >
       <header className="flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
         <div>
           <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Revision History</h3>
-          <p className="text-[9px] font-semibold text-[var(--text-faint)]">Immutable audit · latest {Math.min(Math.max(Number(limit) || 50, 1), 50)}</p>
+          <p className="text-[9px] font-semibold text-[var(--text-faint)]">
+            Immutable audit · latest {safeLimit}
+          </p>
         </div>
-        <span className="text-[9px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-faint)]">Admin</span>
+        <span className="text-[9px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-faint)]">
+          Admin
+        </span>
       </header>
 
-      {loading ? <p className="px-3 py-4 text-[10px] text-[var(--text-muted)]">Loading revision history…</p> : null}
+      {loading ? (
+        <p className="px-3 py-4 text-[10px] text-[var(--text-muted)]">Loading revision history…</p>
+      ) : null}
       {error ? (
         <p className="px-3 py-4 text-[10px] font-semibold text-[var(--danger-text)]" role="alert">
           Revision history could not be loaded.
@@ -143,20 +157,31 @@ export function TicketAuditHistory({ ticketId, enabled = false, limit = 50 }) {
                     <p className="text-[10.5px] font-extrabold text-[var(--text-secondary)]">
                       {EVENT_LABELS[event.type] ?? event.type}
                     </p>
-                    {summary ? <p className="mt-0.5 text-[9.5px] text-[var(--text-muted)]">{summary}</p> : null}
+                    {summary ? (
+                      <p className="mt-0.5 text-[9.5px] text-[var(--text-muted)]">{summary}</p>
+                    ) : null}
                   </div>
-                  <time className="text-[9px] font-semibold text-[var(--text-faint)]">{formatTime(event.createdAt)}</time>
+                  <time className="text-[9px] font-semibold text-[var(--text-faint)]">
+                    {formatTime(event.createdAt)}
+                  </time>
                 </div>
 
                 {event.type === 'TICKET_UPDATED' && !changes.length ? (
-                  <p className="mt-2 text-[9.5px] text-[var(--text-faint)]">Legacy update event. Compact field diff was not recorded for this revision.</p>
+                  <p className="mt-2 text-[9.5px] text-[var(--text-faint)]">
+                    Legacy update event. Compact field diff was not recorded for this revision.
+                  </p>
                 ) : null}
 
                 {changes.length ? (
                   <div className="mt-2 grid gap-1.5">
                     {changes.map(([field, change]) => (
-                      <div key={field} className="grid gap-1 rounded-[var(--radius-control)] bg-[var(--surface-muted)] px-2 py-1.5 text-[9.5px] sm:grid-cols-[120px_minmax(0,1fr)]">
-                        <strong className="text-[var(--text-secondary)]">{FIELD_LABELS[field] ?? field}</strong>
+                      <div
+                        key={field}
+                        className="grid gap-1 rounded-[var(--radius-control)] bg-[var(--surface-muted)] px-2 py-1.5 text-[9.5px] sm:grid-cols-[120px_minmax(0,1fr)]"
+                      >
+                        <strong className="text-[var(--text-secondary)]">
+                          {FIELD_LABELS[field] ?? field}
+                        </strong>
                         <span className="min-w-0 break-words text-[var(--text-muted)]">
                           {formatValue(change?.from)} → {formatValue(change?.to)}
                         </span>
