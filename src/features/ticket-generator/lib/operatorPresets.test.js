@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { PROGRESS_SNIPPET_FAVORITES_STORAGE_KEY } from './progressSnippets.js';
 import {
   DEFAULT_OPERATOR_PRESETS,
   EVENT_TIME_BEHAVIOR,
@@ -77,6 +78,23 @@ describe('operatorPresets', () => {
     expect(readOperatorPresets({ storage: stale }).defaultPic).toBe('');
   });
 
+  it('migrates existing Progress favorites when the aggregate preset record is absent', () => {
+    const storage = memoryStorage({
+      [PROGRESS_SNIPPET_FAVORITES_STORAGE_KEY]: JSON.stringify({
+        version: 1,
+        ids: ['dispatch-team', 'stale-id'],
+      }),
+    });
+
+    const migrated = readOperatorPresets({
+      storage,
+      validSnippetIds: ['dispatch-team', 'arrival-location'],
+    });
+
+    expect(migrated.favoriteProgressSnippetIds).toEqual(['dispatch-team']);
+    expect(migrated.defaultCopyTarget).toBe('full_report');
+  });
+
   it('writes sanitized versioned preferences and Reset removes local state', () => {
     const storage = memoryStorage();
     expect(
@@ -96,9 +114,13 @@ describe('operatorPresets', () => {
     expect(stored.templateProfileId).toBe('MANDAU_DEFAULT');
     expect(stored.defaultCopyTarget).toBe('full_report');
     expect(stored.favoriteProgressSnippetIds).toEqual(['arrival-default']);
+    expect(JSON.parse(storage.getItem(PROGRESS_SNIPPET_FAVORITES_STORAGE_KEY)).ids).toEqual([
+      'arrival-default',
+    ]);
 
     const reset = resetOperatorPresets({ storage, validSnippetIds: ['arrival-default'] });
     expect(storage.getItem(OPERATOR_PRESETS_STORAGE_KEY)).toBeNull();
+    expect(storage.getItem(PROGRESS_SNIPPET_FAVORITES_STORAGE_KEY)).toBeNull();
     expect(reset.defaultPic).toBe('');
     expect(reset.defaultCopyTarget).toBe('full_report');
   });
