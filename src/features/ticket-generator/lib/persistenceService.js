@@ -1,6 +1,7 @@
 import { firestoreTicketRepository } from '../../../infrastructure/firebase/index.js';
 
 const MAX_EDITOR_PROGRESS = 1000;
+const MAX_REVISION_HISTORY = 50;
 
 function coordinateSignature(coordinate) {
   if (!coordinate) return 'none';
@@ -36,6 +37,13 @@ export async function loadTicketEditor(ticketId) {
     loadAllProgress(ticketId),
   ]);
   return { ticket, progress, coordinateSignature: coordinateSignature(ticket.coordinate) };
+}
+
+export function loadTicketRevisionHistory(ticketId, { limit = MAX_REVISION_HISTORY } = {}) {
+  return firestoreTicketRepository.listTicketAuditEvents({
+    ticketId,
+    limit: Math.min(Math.max(1, Number(limit) || MAX_REVISION_HISTORY), MAX_REVISION_HISTORY),
+  });
 }
 
 export async function createTicketEditor(ticket, progressEntries = []) {
