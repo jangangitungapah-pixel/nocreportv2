@@ -18,6 +18,20 @@ const SAFE_FORM_FIELDS = Object.freeze([
   'coordinateVerified',
 ]);
 
+const SAFE_ALARM_RECOVERY_FIELDS = Object.freeze([
+  'alarmFamily',
+  'alarmSource',
+  'emsAlarmNo',
+  'siteId',
+  'siteName',
+  'severity',
+  'sourceStatus',
+  'dispatchTo',
+  'region',
+  'lastLinkFlapped',
+  'transportFamily',
+]);
+
 function storageOrNull(storage) {
   if (storage) return storage;
   if (typeof window === 'undefined') return null;
@@ -30,12 +44,25 @@ function asIsoInstant(value) {
   return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
+function boundedText(value, maxLength = 500) {
+  if (value == null || value === '') return null;
+  return String(value).slice(0, maxLength);
+}
+
 function normalizeImpactList(value) {
   if (!Array.isArray(value)) return [];
   return value
     .slice(0, 100)
     .map((entry) => ({ value: String(entry?.value ?? entry ?? '').trim() }))
     .filter((entry) => entry.value);
+}
+
+function boundedStringList(value, { maxItems = 32, maxLength = 160 } = {}) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .slice(0, maxItems)
+    .map((item) => String(item ?? '').trim().slice(0, maxLength))
+    .filter(Boolean);
 }
 
 export function sanitizeDraftFormValues(values = {}) {
@@ -53,6 +80,38 @@ export function sanitizeDraftFormValues(values = {}) {
     safe[field] = String(values[field] ?? '');
   }
   return safe;
+}
+
+export function sanitizeFeatureRecoveryMetadata(metadata = {}) {
+  const alarmContext = metadata?.alarmContext ?? {};
+  const safeAlarmContext = Object.fromEntries(
+    SAFE_ALARM_RECOVERY_FIELDS.map((field) => [field, boundedText(alarmContext[field])]),
+  );
+  safeAlarmContext.pathEndpoints = boundedStringList(alarmContext.pathEndpoints, {
+    maxItems: 16,
+  });
+  safeAlarmContext.externalTtReferences = boundedStringList(alarmContext.externalTtReferences, {
+    maxItems: 32,
+  });
+
+  const provenance = metadata?.importProvenance ?? null;
+
+  return {
+    externalTtNumber: boundedText(metadata?.externalTtNumber, 120),
+    titleMode: boundedText(metadata?.titleMode, 20),
+    templateProfileId: boundedText(metadata?.templateProfileId, 80) ?? 'MANDAU_DEFAULT',
+    incidentKey: boundedText(metadata?.incidentKey, 120),
+    pathKey: boundedText(metadata?.pathKey, 500),
+    alarmContext: safeAlarmContext,
+    importProvenance: provenance
+      ? {
+          sourceKind: boundedText(provenance.sourceKind, 40),
+          dispatchTimeSource: boundedText(provenance.dispatchTimeSource, 80),
+          messageSentAt: asIsoInstant(provenance.messageSentAt),
+        }
+      : null,
+    incidentGroupId: boundedText(metadata?.incidentGroupId, 160),
+  };
 }
 
 export function sanitizeImportRecoveryMetadata(importReview) {
@@ -109,18 +168,24 @@ function buildPayload({
   ticketId = null,
   baseRevision = null,
   formValues = {},
+  featureMetadata = {},
   progressDraft = null,
   templateProfileId = 'MANDAU_DEFAULT',
   importReview = null,
   dirtyAt = new Date(),
 } = {}) {
+  const safeFeatureMetadata = sanitizeFeatureRecoveryMetadata({
+    ...featureMetadata,
+    templateProfileId: featureMetadata?.templateProfileId ?? templateProfileId,
+  });
   return {
     version: DRAFT_RECOVERY_VERSION,
     ticketId: ticketId ? String(ticketId) : null,
     baseRevision: ticketId ? Math.max(0, Number(baseRevision ?? 0)) : null,
     dirtyAt: asIsoInstant(dirtyAt) ?? new Date().toISOString(),
-    templateProfileId: String(templateProfileId || 'MANDAU_DEFAULT').slice(0, 80),
+    templateProfileId: safeFeatureMetadata.templateProfileId,
     formValues: sanitizeDraftFormValues(formValues),
+    featureMetadata: safeFeatureMetadata,
     progressDraft: sanitizeProgressDraft(progressDraft),
     importMetadata: sanitizeImportRecoveryMetadata(importReview),
   };
