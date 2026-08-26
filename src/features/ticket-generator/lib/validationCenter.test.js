@@ -80,8 +80,8 @@ describe('GEN-F4 Report Validation Center', () => {
   });
 
   it('treats unresolved primary TT conflict as blocking and other import conflict as warning', () => {
-    const result = deriveReportValidation(validTicket(), {
-      formValues: validForm(),
+    const result = deriveReportValidation(validTicket({ dispatchAt: null }), {
+      formValues: validForm({ dispatchAt: '' }),
       importCandidate: {
         conflicts: [
           { severity: 'blocking', field: 'externalTtNumber', candidates: [{ value: 'INC-A' }] },
@@ -122,6 +122,28 @@ describe('GEN-F4 Report Validation Center', () => {
       expect.arrayContaining([expect.objectContaining({ code: 'IMPORT_CONFLICT' })]),
     );
     expect(result.readyForRunning).toBe(true);
+  });
+
+  it('keeps missing Outlook Sent review after persistence until Dispatch Time is supplied manually', () => {
+    const missingDispatch = deriveReportValidation(
+      validTicket({
+        dispatchAt: null,
+        importProvenance: { sourceKind: 'outlook_msg', messageSentAt: null },
+      }),
+      { formValues: validForm({ dispatchAt: '' }) },
+    );
+    expect(missingDispatch.warnings).toEqual(
+      expect.arrayContaining([expect.objectContaining({ code: 'EMAIL_SENT_TIME_UNAVAILABLE' })]),
+    );
+
+    const reviewed = deriveReportValidation(
+      validTicket({
+        dispatchAt: new Date('2026-08-26T10:15:00.000Z'),
+        importProvenance: { sourceKind: 'outlook_msg', messageSentAt: null },
+      }),
+      { formValues: validForm({ dispatchAt: '2026-08-26T10:15' }) },
+    );
+    expect(reviewed.warnings.find((item) => item.code === 'EMAIL_SENT_TIME_UNAVAILABLE')).toBeUndefined();
   });
 
   it('separates warning-only completeness from informational optional gaps', () => {
