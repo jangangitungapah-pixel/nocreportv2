@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { AppIcon } from '../../../shared/ui/icon.jsx';
 import { Button } from '../../../shared/ui/primitives.jsx';
 import { DateTimeField, SelectField, TextInput, Textarea } from '../../../shared/ui/index.jsx';
+import { EVENT_TIME_BEHAVIOR } from '../lib/operatorPresets.js';
 import {
   readProgressSnippetFavorites,
   resolveProgressSnippet,
@@ -17,6 +18,10 @@ function toInputValue(date) {
   )}:${pad(date.getMinutes())}`;
 }
 
+function defaultEventTime(behavior) {
+  return behavior === EVENT_TIME_BEHAVIOR.BLANK ? '' : toInputValue(new Date());
+}
+
 function createLocalId() {
   if (typeof window !== 'undefined' && typeof window.crypto?.randomUUID === 'function') {
     return window.crypto.randomUUID();
@@ -29,11 +34,14 @@ export function ProgressComposer({
   profileId = 'MANDAU_DEFAULT',
   recoveryDraft = null,
   onDraftChange = null,
+  favoriteSnippetIds = null,
+  onFavoriteSnippetIdsChange = null,
+  eventTimeBehavior = EVENT_TIME_BEHAVIOR.NOW,
 }) {
   const profile = getTemplateProfile(profileId) ?? getTemplateProfile();
   const snippets = profile?.snippetCollection ?? [];
   const validSnippetIds = useMemo(() => snippets.map((snippet) => snippet.id), [snippets]);
-  const initialTime = useMemo(() => toInputValue(new Date()), []);
+  const initialTime = useMemo(() => defaultEventTime(eventTimeBehavior), [eventTimeBehavior]);
   const [occurredAt, setOccurredAt] = useState(initialTime);
   const [text, setText] = useState('');
   const [error, setError] = useState('');
@@ -41,22 +49,28 @@ export function ProgressComposer({
   const [selectedSnippetId, setSelectedSnippetId] = useState('');
   const [placeholderValues, setPlaceholderValues] = useState({});
   const [snippetError, setSnippetError] = useState('');
-  const [favoriteIds, setFavoriteIds] = useState(() =>
+  const [localFavoriteIds, setLocalFavoriteIds] = useState(() =>
     readProgressSnippetFavorites({ validIds: validSnippetIds }),
   );
+  const controlledFavorites = Array.isArray(favoriteSnippetIds);
+  const favoriteIds = useMemo(() => {
+    const source = controlledFavorites ? favoriteSnippetIds : localFavoriteIds;
+    return source.filter((id) => validSnippetIds.includes(id));
+  }, [controlledFavorites, favoriteSnippetIds, localFavoriteIds, validSnippetIds]);
 
   useEffect(() => {
-    setFavoriteIds((current) => current.filter((id) => validSnippetIds.includes(id)));
-  }, [validSnippetIds]);
+    if (controlledFavorites) return;
+    setLocalFavoriteIds((current) => current.filter((id) => validSnippetIds.includes(id)));
+  }, [controlledFavorites, validSnippetIds]);
 
   useEffect(() => {
     if (!recoveryDraft) return;
     const recoveredTime = String(recoveryDraft.occurredAt ?? '').trim();
-    setOccurredAt(recoveredTime || toInputValue(new Date()));
+    setOccurredAt(recoveredTime || defaultEventTime(eventTimeBehavior));
     setText(String(recoveryDraft.text ?? ''));
     setError('');
     setSnippetError('');
-  }, [recoveryDraft]);
+  }, [eventTimeBehavior, recoveryDraft]);
 
   const publishDraft = (nextOccurredAt, nextText) => {
     onDraftChange?.({ occurredAt: nextOccurredAt, text: nextText });
@@ -109,7 +123,9 @@ export function ProgressComposer({
 
   const toggleFavorite = () => {
     if (!selectedSnippet) return;
-    setFavoriteIds((current) => toggleProgressSnippetFavorite(selectedSnippet.id, current));
+    const next = toggleProgressSnippetFavorite(selectedSnippet.id, favoriteIds);
+    if (!controlledFavorites) setLocalFavoriteIds(next);
+    onFavoriteSnippetIdsChange?.(next);
   };
 
   const submit = async () => {
@@ -139,7 +155,7 @@ export function ProgressComposer({
     try {
       const accepted = await onAdd(entry);
       if (accepted === false) return;
-      const nextOccurredAt = toInputValue(new Date());
+      const nextOccurredAt = defaultEventTime(eventTimeBehavior);
       setText('');
       setError('');
       setOccurredAt(nextOccurredAt);
