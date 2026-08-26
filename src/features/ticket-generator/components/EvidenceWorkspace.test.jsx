@@ -116,7 +116,7 @@ describe('GEN-F8 EvidenceWorkspace', () => {
     expect(await screen.findByText('-6.12345, 107.54321')).toBeInTheDocument();
     expect(onApplyCoordinate).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Apply coordinate' }));
+    fireEvent.click(screen.getByRole('button', { name: /Apply coordinate/ }));
     expect(onApplyCoordinate).toHaveBeenCalledTimes(1);
     expect(onApplyCoordinate.mock.calls[0][0]).toMatchObject({
       latitude: -6.12345,
