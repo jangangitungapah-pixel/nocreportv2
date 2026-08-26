@@ -15,6 +15,7 @@ import {
   validateCoordinatePair,
   validateTicketTransition,
 } from '../../../entities/ticket/index.js';
+import { CAPABILITY } from '../../../entities/user/authorization.js';
 import { AppIcon } from '../../../shared/ui/icon.jsx';
 import { Button } from '../../../shared/ui/primitives.jsx';
 import { ResizableWorkspace } from '../../../shared/ui/ResizableWorkspace.jsx';
@@ -34,6 +35,7 @@ import { ProgressComposer } from '../components/ProgressComposer.jsx';
 import { ProgressTimeline } from '../components/ProgressTimeline.jsx';
 import { ReportPreview } from '../components/ReportPreview.jsx';
 import { SmartPasteParser } from '../components/SmartPasteParser.jsx';
+import { TicketAuditHistory } from '../components/TicketAuditHistory.jsx';
 import { ValidationCenter } from '../components/ValidationCenter.jsx';
 import { clearDraftRecovery, readDraftRecovery, writeDraftRecovery } from '../lib/draftRecovery.js';
 import { DEFAULT_TICKET_FORM, buildTicketFromForm } from '../lib/formToTicket.js';
@@ -302,7 +304,8 @@ export function TicketGeneratorPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { ticketId: routeTicketId } = useParams();
-  const { localDevelopmentMode } = useAuth();
+  const { localDevelopmentMode, can } = useAuth();
+  const canReadAudit = can?.(CAPABILITY.READ_AUDIT) ?? false;
   const { pushToast } = useToast();
   const [status, setStatus] = useState(TICKET_STATUS.DRAFT);
   const [savedStatus, setSavedStatus] = useState(TICKET_STATUS.DRAFT);
@@ -1233,6 +1236,11 @@ export function TicketGeneratorPage() {
         entries={progressEntries}
         onUpdate={updateProgress}
         onRemove={setRemoveProgressId}
+      />
+      <TicketAuditHistory
+        ticketId={routeTicketId}
+        enabled={Boolean(routeTicketId && !localDevelopmentMode && canReadAudit)}
+        limit={50}
       />
     </div>
   );

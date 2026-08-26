@@ -62,7 +62,9 @@ describe('TicketAuditHistory', () => {
 
     expect(await screen.findByText('Ticket updated')).toBeInTheDocument();
     expect(
-      screen.getByText('Legacy update event. Compact field diff was not recorded for this revision.'),
+      screen.getByText(
+        'Legacy update event. Compact field diff was not recorded for this revision.',
+      ),
     ).toBeInTheDocument();
   });
 

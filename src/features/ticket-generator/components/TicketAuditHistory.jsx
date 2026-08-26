@@ -142,7 +142,9 @@ export function TicketAuditHistory({ ticketId, enabled = false, limit = 50 }) {
         </p>
       ) : null}
       {!loading && !error && !visibleEvents.length ? (
-        <p className="px-3 py-4 text-[10px] text-[var(--text-muted)]">No audit events recorded yet.</p>
+        <p className="px-3 py-4 text-[10px] text-[var(--text-muted)]">
+          No audit events recorded yet.
+        </p>
       ) : null}
 
       {!loading && !error && visibleEvents.length ? (
