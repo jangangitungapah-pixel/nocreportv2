@@ -92,7 +92,9 @@ describe('GEN-F4 Report Validation Center', () => {
     });
 
     expect(result.blocking).toEqual(
-      expect.arrayContaining([expect.objectContaining({ code: 'PRIMARY_TT_CONFLICT', field: 'title' })]),
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'PRIMARY_TT_CONFLICT', field: 'title' }),
+      ]),
     );
     expect(result.warnings).toEqual(
       expect.arrayContaining([

@@ -33,6 +33,7 @@ import { ProgressComposer } from '../components/ProgressComposer.jsx';
 import { ProgressTimeline } from '../components/ProgressTimeline.jsx';
 import { ReportPreview } from '../components/ReportPreview.jsx';
 import { SmartPasteParser } from '../components/SmartPasteParser.jsx';
+import { ValidationCenter } from '../components/ValidationCenter.jsx';
 import { DEFAULT_TICKET_FORM, buildTicketFromForm } from '../lib/formToTicket.js';
 import { mergeImpactValues } from '../lib/impactCandidates.js';
 import {
@@ -51,6 +52,8 @@ import {
   featureMetadataFromImportCandidate,
 } from '../lib/ticketFeatureMetadata.js';
 import { ticketToFormValues } from '../lib/ticketToForm.js';
+import { TIME_INTELLIGENCE_REFRESH_MS } from '../lib/timeIntelligence.js';
+import { deriveReportValidation } from '../lib/validationCenter.js';
 import { ticketFormSchema } from '../schemas/ticketFormSchema.js';
 
 function EditorSection({ title, meta, children, className = '' }) {
@@ -281,6 +284,8 @@ export function TicketGeneratorPage() {
     createEditorFeatureMetadata({ templateProfileId: 'MANDAU_DEFAULT' }),
   );
   const [featureMetadataDirty, setFeatureMetadataDirty] = useState(false);
+  const [importReview, setImportReview] = useState(null);
+  const [validationNow, setValidationNow] = useState(() => new Date());
 
   const {
     control,
@@ -320,12 +325,24 @@ export function TicketGeneratorPage() {
     [featureMetadata, progressEntries, revision, status, watchedValues],
   );
   const report = useMemo(() => formatTicketReport(ticket), [ticket]);
+  const validation = useMemo(
+    () =>
+      deriveReportValidation(ticket, {
+        formValues: watchedValues,
+        importCandidate: importReview?.candidate ?? null,
+        resolvedPrimaryIdentity: Boolean(importReview?.identityResolution),
+        now: validationNow,
+        timezone: 'Asia/Jakarta',
+      }),
+    [importReview, ticket, validationNow, watchedValues],
+  );
   const coordinate = coordinateSummary(watchedValues?.latitude, watchedValues?.longitude);
 
   const loadPersistedEditor = useCallback(async () => {
     if (localDevelopmentMode || !routeTicketId) {
       setLoadingTicket(false);
       setLoadError(null);
+      if (!routeTicketId) setImportReview(null);
       return;
     }
 
@@ -341,6 +358,7 @@ export function TicketGeneratorPage() {
       setRevision(loaded.ticket.revision);
       setFeatureMetadata(createEditorFeatureMetadata(loaded.ticket));
       setFeatureMetadataDirty(false);
+      setImportReview(null);
       setPersistedCoordinateSignature(loaded.coordinateSignature);
     } catch (error) {
       setLoadError(error);
@@ -352,6 +370,14 @@ export function TicketGeneratorPage() {
   useEffect(() => {
     loadPersistedEditor();
   }, [loadPersistedEditor]);
+
+  useEffect(() => {
+    const timer = window.setInterval(
+      () => setValidationNow(new Date()),
+      TIME_INTELLIGENCE_REFRESH_MS,
+    );
+    return () => window.clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (loadingTicket || location.hash !== '#progress-text') return undefined;
@@ -797,6 +823,33 @@ export function TicketGeneratorPage() {
     });
   };
 
+  const focusValidationField = (field) => {
+    const fieldIds = {
+      title: 'ticket-title',
+      occurAt: 'occur-at',
+      dispatchAt: 'dispatch-at',
+      pic: 'pic',
+      rootcause: 'rootcause',
+      cutPoint: 'cut-point',
+      latitude: 'latitude',
+      longitude: 'longitude',
+      progress: 'progress-text',
+    };
+    const target = fieldIds[field] ? document.getElementById(fieldIds[field]) : null;
+    if (target) {
+      target.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+      target.focus?.();
+      return;
+    }
+    const section =
+      field === 'impactList'
+        ? document.querySelector('.generator-impact-editor')
+        : field === 'description'
+          ? document.querySelector('.generator-smart-import')
+          : null;
+    section?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+  };
+
   const titleRegistration = register('title');
   const smartTitleAvailable = canGenerateSmartTitle(ticket);
   const hasStructuredMetadata = Boolean(
@@ -859,8 +912,11 @@ export function TicketGeneratorPage() {
           progressCount={progressEntries.length}
           progressDirty={progressDirty}
           metadataPresent={hasStructuredMetadata}
+          onAnalysisChange={setImportReview}
         />
       ) : null}
+
+      <ValidationCenter validation={validation} onFocusField={focusValidationField} />
 
       <form
         id="ticket-editor-form"

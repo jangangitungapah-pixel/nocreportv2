@@ -61,6 +61,7 @@ export function SmartPasteParser({
   progressCount = 0,
   progressDirty = false,
   metadataPresent = false,
+  onAnalysisChange,
 }) {
   const [mode, setMode] = useState('report_text');
   const [source, setSource] = useState('');
@@ -98,6 +99,10 @@ export function SmartPasteParser({
   const titleBlockedByIdentity = Boolean(
     blockingIdentityConflict && (!chosenIdentity || chosenIdentity.source !== 'subject'),
   );
+
+  useEffect(() => {
+    onAnalysisChange?.(candidate ? { candidate, identityResolution: chosenIdentity } : null);
+  }, [candidate, chosenIdentity, onAnalysisChange]);
 
   useEffect(() => {
     const safeDefaults = plan

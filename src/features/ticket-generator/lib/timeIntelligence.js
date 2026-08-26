@@ -48,9 +48,7 @@ export function deriveTimeIntelligence(
     timezone,
     calculatedAt: current,
     refreshAfterMs: TIME_INTELLIGENCE_REFRESH_MS,
-    incidentElapsedMs: occurAt
-      ? nonNegativeDuration(resolvedAt ?? current, occurAt)
-      : null,
+    incidentElapsedMs: occurAt ? nonNegativeDuration(resolvedAt ?? current, occurAt) : null,
     dispatchDelayMs: occurAt && dispatchAt ? signedDuration(dispatchAt, occurAt) : null,
     latestProgressAgeMs: progressAt ? nonNegativeDuration(current, progressAt) : null,
     resolvedDurationMs: occurAt && resolvedAt ? nonNegativeDuration(resolvedAt, occurAt) : null,

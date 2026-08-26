@@ -62,7 +62,9 @@ export function ValidationCenter({ validation, onFocusField }) {
               const interactive = Boolean(item.field && onFocusField);
               const content = (
                 <>
-                  <span className={`shrink-0 text-[9px] font-extrabold uppercase ${meta.className}`}>
+                  <span
+                    className={`shrink-0 text-[9px] font-extrabold uppercase ${meta.className}`}
+                  >
                     {meta.label}
                   </span>
                   <span className="min-w-0 flex-1 text-left text-[10.5px] leading-5 text-[var(--text-secondary)]">
