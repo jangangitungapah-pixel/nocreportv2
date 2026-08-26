@@ -4,7 +4,7 @@
 **Evidence annex:** `docs/08-post-mvp/TEMPLATE-GENERATOR-EMAIL-IMPORT-ADDENDUM.md`  
 **Branch:** `feature/template-generator-features`  
 **PR:** #7  
-**Status:** GEN-F0 COMPLETE · GEN-F1 COMPLETE · GEN-F2 COMPLETE · GEN-F3 COMPLETE · GEN-F4 COMPLETE · GEN-F5 IN PROGRESS
+**Status:** GEN-F0 COMPLETE · GEN-F1 COMPLETE · GEN-F2 COMPLETE · GEN-F3 COMPLETE · GEN-F4 COMPLETE · GEN-F5 COMPLETE
 
 ## GEN-F0 — Baseline, contracts and feature skeleton
 
@@ -270,28 +270,52 @@ GEN-F4 exit criterion is satisfied: the Generator presents one derived Validatio
 
 ## GEN-F5 — Duplicate Detection + Related Tickets
 
-- [ ] Add deterministic advisory duplicate scoring with explicit matching reasons.
-- [ ] Treat exact `externalTtNumber` match as critical duplicate evidence.
-- [ ] Treat same canonical `incidentKey` as critical/high relationship evidence.
-- [ ] Treat same `pathKey` within the bounded occurrence-time window as high evidence.
-- [ ] Treat an active same-`pathKey` Ticket as high evidence without making it a hard block.
-- [ ] Treat Site ID + alarm family + close Occur Time as medium evidence where structured metadata exists.
-- [ ] Keep normalized title similarity weak fallback evidence only.
-- [ ] Do not treat different EMS Alarm Numbers as proof of different physical incidents.
-- [ ] Add bounded Firestore lookup priority: exact TT, incidentKey, active/recent pathKey, then bounded recent fallback only if justified.
-- [ ] Add any required Firestore indexes without introducing collection-wide client scans.
-- [ ] Feed duplicate candidates into the existing Validation Center as warning-only findings.
-- [ ] Show candidate TT, status, Occur Time, latest update and matching reasons.
-- [ ] Provide Review existing Ticket and explicit Create anyway behavior without silently blocking creation.
-- [ ] Add `incidentGroups/{groupId}` repository/model boundary with bounded related-Ticket reads.
-- [ ] Support create group from a duplicate suggestion, link Ticket, unlink Ticket and bounded related-Ticket listing.
-- [ ] Keep each related Ticket lifecycle, revision and Progress state independent.
-- [ ] Keep related/duplicate mutations inside existing RBAC/revision-safe persistence boundaries.
-- [ ] Add pure-unit coverage for scoring/reason ordering/time windows.
-- [ ] Add Firebase Emulator coverage for bounded duplicate/group persistence behavior and Security Rules where required.
-- [ ] Add component coverage for advisory candidate review and explicit operator actions.
-- [ ] Preserve canonical report/OCR/import privacy and all protected contracts.
-- [ ] Full repository Quality green on clean GEN-F5 head.
+- [x] Add deterministic advisory duplicate scoring with explicit matching reasons.
+- [x] Treat exact `externalTtNumber` match as critical duplicate evidence.
+- [x] Treat same canonical `incidentKey` as critical/high relationship evidence.
+- [x] Treat same `pathKey` within the bounded occurrence-time window as high evidence.
+- [x] Treat an active same-`pathKey` Ticket as high evidence without making it a hard block.
+- [x] Treat Site ID + alarm family + close Occur Time as medium evidence where structured metadata exists.
+- [x] Keep normalized title similarity weak fallback evidence only.
+- [x] Do not treat different EMS Alarm Numbers as proof of different physical incidents.
+- [x] Add bounded Firestore lookup priority: exact TT, incidentKey, active/recent pathKey, then bounded recent fallback only if justified.
+- [x] Add any required Firestore indexes without introducing collection-wide client scans.
+- [x] Feed duplicate candidates into the existing Validation Center as warning-only findings.
+- [x] Show candidate TT, status, Occur Time, latest update and matching reasons.
+- [x] Provide Review existing Ticket and explicit Create anyway behavior without silently blocking creation.
+- [x] Add `incidentGroups/{groupId}` repository/model boundary with bounded related-Ticket reads.
+- [x] Support create group from a duplicate suggestion, link Ticket, unlink Ticket and bounded related-Ticket listing.
+- [x] Keep each related Ticket lifecycle, revision and Progress state independent.
+- [x] Keep related/duplicate mutations inside existing RBAC/revision-safe persistence boundaries.
+- [x] Add pure-unit coverage for scoring/reason ordering/time windows.
+- [x] Add Firebase Emulator coverage for bounded duplicate/group persistence behavior and Security Rules where required.
+- [x] Add component coverage for advisory candidate review and explicit operator actions.
+- [x] Preserve canonical report/OCR/import privacy and all protected contracts.
+- [x] Full repository Quality green on clean GEN-F5 head.
+
+### GEN-F5 completion evidence
+
+Duplicate detection now uses deterministic advisory scoring with explicit reasons and bounded Firestore candidate lookup. Exact TT and canonical incident identity remain the strongest evidence, path/time and active-path evidence are high signals, structured Site ID + alarm-family proximity is medium evidence, title similarity remains weak fallback only, and different EMS Alarm Numbers are never treated as proof of unrelated physical incidents. Validation Center surfaces suspected duplicates as warnings while the operator explicitly chooses Review existing Ticket, Create anyway or related-Ticket actions.
+
+Related incidents use bounded `incidentGroups/{groupId}` documents while every Ticket retains independent lifecycle, revision and Progress state. Link/unlink/group creation routes remain revision-safe, reject conflicting group membership, and never silently merge Tickets. Firestore Security Rules enforce role checks plus Ticket/group post-transaction membership consistency, reject pre-linked Ticket creation and forged `incidentGroupId` mutation, and preserve schema-v1 → v2 upgrades where an absent group field becomes explicit `null`.
+
+**GEN-F5 QA #8 — FULL GREEN** for final product/code head `3a465742a180d71bfe0502e237665ecc300e8c62` through read-only QA wrapper head `014b08800d36bf8a360487315110833f5fd635c8` (run ID `32993651051`). The wrapper added only the QA workflow and trigger; product code under test was the exact `3a465742` tree.
+
+Validated gates:
+
+- committed Prettier formatting;
+- ESLint;
+- **272 unit/component tests passed** with emulator-only suites skipped in the normal unit pass;
+- Firebase Emulator Ticket repository integration **6/6**;
+- Firestore Security Rules matrix **9/9**;
+- incident-group repository integration **1/1**;
+- incident-group Security Rules **5/5**;
+- T7 repository/security hygiene: **32 production dependencies referenced**, no committed fixture/test-data files, legacy UI guard clean;
+- T8 Firebase release preflight;
+- generic + Firebase-configured production builds;
+- dev smoke;
+- T6 browser QA at 360x800, 390x844, 412x915 and 1280x900 plus marker-touch QA;
+- Playwright **6/6** covering lifecycle, RBAC, keyboard/dialog focus, themes, responsive overflow and serious axe checks.
 
 ### GEN-F5 exit criterion
 
