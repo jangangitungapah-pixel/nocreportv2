@@ -426,6 +426,65 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await expect(archiveButton).toBeFocused();
   });
 
+  test('Light and Dark shell themes persist and stay responsive and accessible', async ({ page }) => {
+    test.setTimeout(120_000);
+
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await login(page, accounts.admin);
+
+    const html = page.locator('html');
+    await expect(html).toHaveAttribute('data-theme', 'light');
+
+    const themeButton = page.getByRole('button', { name: 'Switch to dark mode' });
+    await themeButton.focus();
+    await expect(themeButton).toBeFocused();
+    await expect(page.getByRole('tooltip')).toContainText('Switch to dark mode');
+    await themeButton.click();
+
+    await expect(html).toHaveAttribute('data-theme', 'dark');
+    await expect
+      .poll(() => page.evaluate(() => window.localStorage.getItem('nocreport-theme')))
+      .toBe('dark');
+
+    await page.reload();
+    await expect(html).toHaveAttribute('data-theme', 'dark');
+    await expect(page.getByRole('button', { name: 'Switch to light mode' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Open account menu' }).click();
+    const darkModeSwitch = page.getByRole('switch', { name: 'Dark mode' });
+    await expect(darkModeSwitch).toHaveAttribute('data-state', 'checked');
+    await darkModeSwitch.click();
+    await expect(html).toHaveAttribute('data-theme', 'light');
+    await expect
+      .poll(() => page.evaluate(() => window.localStorage.getItem('nocreport-theme')))
+      .toBe('light');
+
+    await assertNoHorizontalOverflow(page, 'Dashboard light desktop');
+    await assertNoSeriousAxeViolations(page, 'Dashboard light desktop');
+
+    await page.getByRole('button', { name: 'Switch to dark mode' }).click();
+    await expect(html).toHaveAttribute('data-theme', 'dark');
+
+    for (const route of ['/dashboard', '/generator/new', '/cut-points']) {
+      await page.goto(route);
+      await expect(html).toHaveAttribute('data-theme', 'dark');
+      await assertNoHorizontalOverflow(page, `${route} dark desktop`);
+      await assertNoSeriousAxeViolations(page, `${route} dark desktop`);
+    }
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    for (const route of ['/dashboard', '/generator/new', '/cut-points']) {
+      await page.goto(route);
+      await expect(html).toHaveAttribute('data-theme', 'dark');
+      await assertNoHorizontalOverflow(page, `${route} dark mobile`);
+    }
+
+    await assertNoSeriousAxeViolations(page, 'Cut Point dark mobile');
+    await page.reload();
+    await expect(html).toHaveAttribute('data-theme', 'dark');
+    await expect(page.getByRole('button', { name: 'Switch to light mode' })).toBeVisible();
+  });
+
   test('primary routes pass responsive overflow and serious axe checks', async ({ page }) => {
     test.setTimeout(120_000);
 
