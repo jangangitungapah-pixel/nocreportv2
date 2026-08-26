@@ -1,8 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { AppIcon } from '../../../shared/ui/icon.jsx';
 import { Button } from '../../../shared/ui/primitives.jsx';
-import { DateTimeField, Textarea } from '../../../shared/ui/index.jsx';
+import { DateTimeField, TextInput, Textarea } from '../../../shared/ui/index.jsx';
+import {
+  readProgressSnippetFavorites,
+  resolveProgressSnippet,
+  toggleProgressSnippetFavorite,
+} from '../lib/progressSnippets.js';
+import { getTemplateProfile } from '../lib/templateProfiles.js';
 
 function toInputValue(date) {
   const pad = (value) => String(value).padStart(2, '0');
@@ -18,12 +24,62 @@ function createLocalId() {
   return `progress-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-export function ProgressComposer({ onAdd }) {
+export function ProgressComposer({ onAdd, profileId = 'MANDAU_DEFAULT' }) {
+  const profile = getTemplateProfile(profileId) ?? getTemplateProfile();
+  const snippets = profile?.snippetCollection ?? [];
+  const validSnippetIds = useMemo(() => snippets.map((snippet) => snippet.id), [snippets]);
   const initialTime = useMemo(() => toInputValue(new Date()), []);
   const [occurredAt, setOccurredAt] = useState(initialTime);
   const [text, setText] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [selectedSnippetId, setSelectedSnippetId] = useState('');
+  const [placeholderValues, setPlaceholderValues] = useState({});
+  const [snippetError, setSnippetError] = useState('');
+  const [favoriteIds, setFavoriteIds] = useState(() =>
+    readProgressSnippetFavorites({ validIds: validSnippetIds }),
+  );
+
+  useEffect(() => {
+    setFavoriteIds((current) => current.filter((id) => validSnippetIds.includes(id)));
+  }, [validSnippetIds]);
+
+  const selectedSnippet = snippets.find((snippet) => snippet.id === selectedSnippetId) ?? null;
+  const orderedSnippets = useMemo(() => {
+    const favorites = new Set(favoriteIds);
+    return [...snippets].sort((left, right) => {
+      const favoriteOrder = Number(favorites.has(right.id)) - Number(favorites.has(left.id));
+      if (favoriteOrder !== 0) return favoriteOrder;
+      return snippets.indexOf(left) - snippets.indexOf(right);
+    });
+  }, [favoriteIds, snippets]);
+
+  const selectSnippet = (id) => {
+    setSelectedSnippetId(id);
+    setPlaceholderValues({});
+    setSnippetError('');
+  };
+
+  const insertSnippet = () => {
+    if (!selectedSnippet) return;
+    const result = resolveProgressSnippet(selectedSnippet, placeholderValues);
+    if (!result.resolved) {
+      const labels = result.missingKeys.map(
+        (key) => selectedSnippet.placeholders.find((item) => item.key === key)?.label ?? key,
+      );
+      setSnippetError(`Fill required placeholder${labels.length === 1 ? '' : 's'}: ${labels.join(', ')}`);
+      return;
+    }
+
+    setText(result.text);
+    setSnippetError('');
+    setError('');
+  };
+
+  const toggleFavorite = () => {
+    if (!selectedSnippet) return;
+    setFavoriteIds((current) => toggleProgressSnippetFavorite(selectedSnippet.id, current));
+  };
 
   const submit = async () => {
     if (submitting) return;
@@ -54,6 +110,7 @@ export function ProgressComposer({ onAdd }) {
       if (accepted === false) return;
       setText('');
       setError('');
+      setOccurredAt(toInputValue(new Date()));
     } finally {
       setSubmitting(false);
     }
@@ -68,7 +125,81 @@ export function ProgressComposer({ onAdd }) {
             Ctrl / ⌘ + Enter
           </span>
         </div>
+        <span className="text-[9px] font-bold text-[var(--text-faint)]">
+          {favoriteIds.length ? `${favoriteIds.length} local favorite${favoriteIds.length === 1 ? '' : 's'}` : 'Profile snippets'}
+        </span>
       </header>
+
+      <div className="border-b border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3">
+        <div className="grid gap-2 lg:grid-cols-[minmax(220px,0.7fr)_minmax(0,1fr)_auto] lg:items-end">
+          <label className="grid gap-1 text-[10.5px] font-bold text-[var(--text-secondary)]">
+            Quick snippet
+            <select
+              className="min-h-9 w-full rounded-[var(--radius-control)] border border-[var(--border-default)] bg-[var(--surface-panel)] px-2.5 text-[11px] text-[var(--text-primary)] outline-none focus:border-[var(--border-accent)]"
+              value={selectedSnippetId}
+              onChange={(event) => selectSnippet(event.target.value)}
+            >
+              <option value="">Choose a reusable update…</option>
+              {orderedSnippets.map((snippet) => (
+                <option key={snippet.id} value={snippet.id}>
+                  {favoriteIds.includes(snippet.id) ? '★ ' : ''}[{snippet.category}] {snippet.label}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          {selectedSnippet ? (
+            <div className="grid gap-2 sm:grid-cols-2">
+              {selectedSnippet.placeholders.map((item) => (
+                <TextInput
+                  key={item.key}
+                  id={`progress-snippet-${item.key}`}
+                  label={`${item.label}${item.required ? ' *' : ''}`}
+                  value={placeholderValues[item.key] ?? ''}
+                  onChange={(event) => {
+                    setPlaceholderValues((current) => ({
+                      ...current,
+                      [item.key]: event.target.value,
+                    }));
+                    if (snippetError) setSnippetError('');
+                  }}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="self-center text-[10px] leading-5 text-[var(--text-muted)]">
+              Snippets only fill the editor. Review or edit the text before submitting.
+            </p>
+          )}
+
+          <div className="flex items-center justify-end gap-1.5">
+            <Button
+              type="button"
+              tone="ghost"
+              size="xs"
+              disabled={!selectedSnippet}
+              aria-label={
+                selectedSnippet
+                  ? favoriteIds.includes(selectedSnippet.id)
+                    ? `Remove ${selectedSnippet.label} from favorites`
+                    : `Add ${selectedSnippet.label} to favorites`
+                  : 'Favorite Progress snippet'
+              }
+              onClick={toggleFavorite}
+            >
+              {selectedSnippet && favoriteIds.includes(selectedSnippet.id) ? '★ Favorite' : '☆ Favorite'}
+            </Button>
+            <Button type="button" size="xs" disabled={!selectedSnippet} onClick={insertSnippet}>
+              Insert snippet
+            </Button>
+          </div>
+        </div>
+        {snippetError ? (
+          <p className="mt-2 text-[10px] font-bold text-[var(--danger-text)]" role="alert">
+            {snippetError}
+          </p>
+        ) : null}
+      </div>
 
       <div className="grid gap-2.5 p-3 lg:grid-cols-[190px_minmax(0,1fr)_auto] lg:items-end">
         <DateTimeField
@@ -95,7 +226,7 @@ export function ProgressComposer({ onAdd }) {
             }
           }}
         />
-        <Button size="sm" disabled={submitting} onClick={() => void submit()}>
+        <Button type="button" size="sm" disabled={submitting} onClick={() => void submit()}>
           <AppIcon name="plus" size={14} />
           {submitting ? 'Adding…' : 'Add update'}
         </Button>
