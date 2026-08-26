@@ -305,11 +305,18 @@ function recoveredImportReview(metadata) {
   };
 }
 
+function preferredWorkspaceScrollBehavior() {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return 'smooth';
+  }
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+}
+
 function focusWorkspaceElement(id) {
   if (typeof document === 'undefined') return false;
   const target = document.getElementById(id);
   if (!target) return false;
-  target.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+  target.scrollIntoView?.({ block: 'center', behavior: preferredWorkspaceScrollBehavior() });
   target.focus?.();
   return true;
 }
@@ -518,7 +525,10 @@ export function TicketGeneratorPage() {
 
     const timer = window.setTimeout(() => {
       const progressInput = document.getElementById('progress-text');
-      progressInput?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+      progressInput?.scrollIntoView?.({
+        block: 'center',
+        behavior: preferredWorkspaceScrollBehavior(),
+      });
       progressInput?.focus();
     }, 0);
 
@@ -1139,7 +1149,7 @@ export function TicketGeneratorPage() {
     };
     const target = fieldIds[field] ? document.getElementById(fieldIds[field]) : null;
     if (target) {
-      target.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+      target.scrollIntoView?.({ block: 'center', behavior: preferredWorkspaceScrollBehavior() });
       target.focus?.();
       return;
     }
@@ -1149,7 +1159,7 @@ export function TicketGeneratorPage() {
         : field === 'description'
           ? document.querySelector('.generator-smart-import')
           : null;
-    section?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+    section?.scrollIntoView?.({ block: 'center', behavior: preferredWorkspaceScrollBehavior() });
   };
 
   const titleRegistration = register('title');

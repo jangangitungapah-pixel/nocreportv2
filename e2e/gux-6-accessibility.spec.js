@@ -115,9 +115,7 @@ async function readThemeEvidence(page) {
     const root = window.getComputedStyle(document.documentElement);
     const cockpit = document.querySelector('.generator-cockpit');
     const commandBar = document.querySelector('.generator-command-bar');
-    const blocking = document.querySelector(
-      ".generator-finding[data-severity='blocking']",
-    );
+    const blocking = document.querySelector(".generator-finding[data-severity='blocking']");
     return {
       canvas: root.getPropertyValue('--surface-canvas').trim(),
       panel: root.getPropertyValue('--surface-panel').trim(),
@@ -198,9 +196,14 @@ test('Generator focus order is keyboard reachable and visibly focused', async ({
         "a[href], button, input, select, textarea, [tabindex]:not([tabindex='-1'])",
       ),
     ).filter((element) => !element.disabled && element.getAttribute('aria-hidden') !== 'true');
-    const indexes = ['ticket-title', 'occur-at', 'dispatch-at', 'pic', 'rootcause', 'cut-point'].map(
-      (id) => controls.indexOf(document.getElementById(id)),
-    );
+    const indexes = [
+      'ticket-title',
+      'occur-at',
+      'dispatch-at',
+      'pic',
+      'rootcause',
+      'cut-point',
+    ].map((id) => controls.indexOf(document.getElementById(id)));
     const positiveTabIndexes = Array.from(document.querySelectorAll('[tabindex]'))
       .map((element) => Number(element.getAttribute('tabindex')))
       .filter((value) => value > 0);
@@ -249,9 +252,7 @@ test('Generator honors reduced motion for CSS and focus scrolling', async ({ pag
   await openGenerator(page);
 
   await expect
-    .poll(() =>
-      page.evaluate(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches),
-    )
+    .poll(() => page.evaluate(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches))
     .toBe(true);
 
   const motion = await page.locator('.generator-command-bar').evaluate((element) => {

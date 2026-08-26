@@ -3,7 +3,7 @@
 **PRD:** `docs/08-post-mvp/TEMPLATE-GENERATOR-VISUAL-OVERHAUL-PRD.md`  
 **Branch:** `feature/template-generator-visual-overhaul`  
 **Stacked base:** `feature/template-generator-features`  
-**Status:** GUX-0 COMPLETE · GUX-1 COMPLETE · GUX-2 COMPLETE · GUX-3 COMPLETE · GUX-4 COMPLETE · GUX-5 COMPLETE · GUX-6 IN PROGRESS
+**Status:** GUX-0 COMPLETE · GUX-1 COMPLETE · GUX-2 COMPLETE · GUX-3 COMPLETE · GUX-4 COMPLETE · GUX-5 COMPLETE · GUX-6 COMPLETE · GUX-7 IN PROGRESS
 
 ## Baseline
 
@@ -106,12 +106,16 @@ GUX-5 passed the dedicated authenticated Chromium matrix at 360x800, 390x844 and
 
 ## GUX-6 — Theme, motion and accessibility polish
 
-- [ ] Light theme visual QA.
-- [ ] Dark theme visual QA.
-- [ ] contrast/state differentiation.
-- [ ] keyboard/focus order.
-- [ ] reduced-motion behavior.
-- [ ] serious/critical axe clean.
+- [x] Light theme visual QA.
+- [x] Dark theme visual QA.
+- [x] contrast/state differentiation.
+- [x] keyboard/focus order.
+- [x] reduced-motion behavior.
+- [x] serious/critical axe clean.
+
+### GUX-6 automated evidence
+
+GUX-6 passed dedicated authenticated Chromium coverage in Light and Dark themes. The gate verifies distinct semantic state borders and complete success tokens, keyboard order without positive tabindex, visible Generator focus treatment, keyboard activation of validation findings, reduced-motion CSS and auto-scrolling focus paths, and zero serious/critical axe violations in both themes. Targeted Generator regression, the full unit/component suite and the production build also remain green. Firestore, RBAC, lifecycle, revision, import/OCR, validation and canonical report semantics are unchanged.
 
 ## GUX-7 — Integrated release readiness
 

@@ -61,11 +61,18 @@ function reloadEditor() {
   }
 }
 
+function preferredWorkspaceScrollBehavior() {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return 'smooth';
+  }
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+}
+
 function focusDuplicateReview() {
   if (typeof document === 'undefined') return;
   document
     .querySelector('.generator-duplicate-related')
-    ?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+    ?.scrollIntoView?.({ block: 'center', behavior: preferredWorkspaceScrollBehavior() });
 }
 
 export function ValidationCenter({ validation, onFocusField, onOperationalContextChange }) {
