@@ -99,8 +99,8 @@ describeEmulator.sequential('GEN-F5 incident group repository', () => {
 
     const group = await createIncidentGroupFromTickets({
       members: [
-        { ticketId: left.ticketId, expectedRevision: left.revision },
-        { ticketId: right.ticketId, expectedRevision: right.revision },
+        { ticketId: left.ticketId, expectedRevision: left.ticket.revision },
+        { ticketId: right.ticketId, expectedRevision: right.ticket.revision },
       ],
       title: 'F5 related path incident',
       pathKey: 'F5_A<>F5_B',
