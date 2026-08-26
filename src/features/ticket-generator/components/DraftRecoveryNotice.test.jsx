@@ -1,7 +1,11 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { DraftRecoveryNotice } from './DraftRecoveryNotice.jsx';
+
+afterEach(() => {
+  cleanup();
+});
 
 describe('DraftRecoveryNotice', () => {
   it('offers explicit Restore or Discard for a compatible recovery draft', () => {
