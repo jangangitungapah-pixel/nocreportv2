@@ -101,6 +101,7 @@ export function ValidationCenter({ validation, onFocusField }) {
     }
 
     let cancelled = false;
+    setDuplicateCandidates([]);
     setDuplicatePending(true);
     setDuplicateError(null);
     const timer = window.setTimeout(() => {
