@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 
@@ -105,6 +105,11 @@ describe('GEN-F8 Generator evidence recovery integration', () => {
     expect(screen.getByText('field-evidence.jpg')).toBeInTheDocument();
     expect(screen.getByLabelText('Operator note')).toHaveValue('Before jointing activity');
     expect(screen.getByText(/Only safe metadata survived recovery/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Scan coordinates' })).toBeDisabled();
+
+    const evidenceWorkspace = screen
+      .getByRole('heading', { name: 'Evidence Workspace' })
+      .closest('section');
+    expect(evidenceWorkspace).not.toBeNull();
+    expect(within(evidenceWorkspace).getByRole('button', { name: 'Scan coordinates' })).toBeDisabled();
   });
 });
