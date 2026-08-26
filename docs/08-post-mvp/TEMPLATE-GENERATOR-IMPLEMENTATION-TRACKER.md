@@ -469,31 +469,39 @@ Evidence now assists the operator through a bounded local workspace and the exis
 
 ## GEN-F9 — Integrated Hardening / Feature Release Readiness
 
-- [ ] Prettier + committed-format verification.
-- [ ] ESLint.
-- [ ] Run all unit/component tests.
-- [ ] Run Firebase Emulator repository tests.
-- [ ] Run Firestore Security Rules matrix.
-- [ ] Run dependency/security/legacy hygiene.
-- [ ] Run release preflight.
-- [ ] Run generic production build.
-- [ ] Run Firebase-configured production build.
-- [ ] Run real-browser responsive/touch matrix.
-- [ ] Validate Admin lifecycle E2E.
-- [ ] Validate Operator/Viewer RBAC E2E.
-- [ ] Add `.msg` import E2E with a sanitized fixture.
-- [ ] Add Sent Time → Dispatch Time E2E.
-- [ ] Add quoted `Sent:` rejection E2E.
-- [ ] Add selective overwrite-safety E2E.
-- [ ] Add multi-endpoint path E2E.
-- [ ] Add duplicate detection E2E.
-- [ ] Add draft restore E2E.
-- [ ] Add revision diff E2E.
-- [ ] Validate keyboard shortcut E2E.
-- [ ] Validate Light/Dark serious/critical axe.
-- [ ] Validate mobile no-horizontal-overflow.
+- [x] Prettier + committed-format verification.
+- [x] ESLint.
+- [x] Run all unit/component tests.
+- [x] Run Firebase Emulator repository tests.
+- [x] Run Firestore Security Rules matrix.
+- [x] Run dependency/security/legacy hygiene.
+- [x] Run release preflight.
+- [x] Run generic production build.
+- [x] Run Firebase-configured production build.
+- [x] Run real-browser responsive/touch matrix.
+- [x] Validate Admin lifecycle E2E.
+- [x] Validate Operator/Viewer RBAC E2E.
+- [x] Add `.msg` import E2E with a sanitized fixture.
+- [x] Add Sent Time → Dispatch Time E2E.
+- [x] Add quoted `Sent:` rejection E2E.
+- [x] Add selective overwrite-safety E2E.
+- [x] Add multi-endpoint path E2E.
+- [x] Add duplicate detection E2E.
+- [x] Add draft restore E2E.
+- [x] Add revision diff E2E.
+- [x] Validate keyboard shortcut E2E.
+- [x] Validate Light/Dark serious/critical axe.
+- [x] Validate mobile no-horizontal-overflow.
 - [ ] Obtain human NOC workflow acceptance; do not infer or fabricate sign-off.
 - [ ] Close the workplan with final release evidence after every automated gate and human acceptance are satisfied.
+
+### GEN-F9 automated QA evidence
+
+**Focused GEN-F9 browser QA — GREEN.** Workflow run ID `33010779128`, successful attempt 5, validated the runtime Outlook `.msg` path plus current-message Sent metadata authority / quoted `Sent:` rejection, selective dirty-field overwrite safety, three-endpoint import, bounded duplicate advisory with explicit Create anyway, Draft Recovery, revision diff/audit history, and Generator `Ctrl+S`. Result: **7/7 passed**. The phase-only focused workflow was removed after success.
+
+**Quality #807 — FULL GREEN** on automated-gate head `6bd6485ebf8c19e7aa6ab419b6f2e5965bd764bb` (run ID `33013473856`). Validated committed Prettier formatting, ESLint, full unit/component suite, Firebase Emulator repository integration, Firestore Security Rules coverage, dependency/security/legacy hygiene, release preflight, generic and Firebase-configured production builds, dev smoke, real-browser responsive/touch QA, canonical Admin lifecycle and Operator/Viewer RBAC Playwright coverage, Light/Dark accessibility checks, mobile overflow coverage, and the final committed-format verifier.
+
+Automated GEN-F9 hardening is green. **Human NOC workflow acceptance remains outstanding and is intentionally not inferred or fabricated.** GEN-F9 stays IN PROGRESS until the user explicitly provides that acceptance; final release evidence/closeout also remains pending until then.
 
 ### GEN-F9 exit criterion
 
