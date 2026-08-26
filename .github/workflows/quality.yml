@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feature/t0-repository-foundation
+      - feature/template-generator-features
   pull_request:
     branches:
       - main
@@ -40,7 +41,7 @@ jobs:
         run: npm install --no-save --package-lock=false @playwright/test@1.62.1 @axe-core/playwright@4.13.0
 
       - name: Apply T7 reliability hardening
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.ref_name == 'feature/t0-repository-foundation'
         run: node scripts/apply-t7-reliability-hardening.mjs
 
       - name: Format source
@@ -94,11 +95,11 @@ jobs:
         run: node scripts/test-t7-e2e.mjs
 
       - name: Record T6 browser QA evidence
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.ref_name == 'feature/t0-repository-foundation'
         run: node scripts/record-t6-browser-qa.mjs
 
       - name: Record T7 automated QA evidence
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.ref_name == 'feature/t0-repository-foundation'
         run: node scripts/record-t7-automated-qa.mjs
 
       - name: Verify source formatting is committed
@@ -120,19 +121,19 @@ jobs:
       # historical finalizers on every push is unsafe because those scripts
       # intentionally expect the phase transition text from their original run.
       - name: Finalize T6 tracker
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.ref_name == 'feature/t0-repository-foundation'
         run: node scripts/finalize-t6.mjs
 
       - name: Finalize T7 tracker and activate T8
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.ref_name == 'feature/t0-repository-foundation'
         run: node scripts/finalize-t7.mjs
 
       - name: Apply T8 production deployment evidence
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.ref_name == 'feature/t0-repository-foundation'
         run: node scripts/apply-t8-production-deployment-evidence.mjs
 
       - name: Finalize T8 release
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.ref_name == 'feature/t0-repository-foundation'
         shell: bash
         run: |
           if [ -f docs/07-release/AUTHENTICATED-PRODUCTION-SMOKE-EVIDENCE.md ]; then
