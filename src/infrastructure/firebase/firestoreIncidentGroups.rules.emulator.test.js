@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { getAuthClient } from './authClient.js';
 import { getFirestoreClient } from './firestoreClient.js';
+import { firestoreTicketRepository } from './firestoreTicketRepository.js';
 
 const PROJECT_ID = 'demo-nocreport';
 const FIRESTORE_HOST = 'http://127.0.0.1:8080';
@@ -81,7 +82,7 @@ async function expectPermissionDenied(operation) {
     if (error?.message === 'Expected Firestore permission denial, but the operation succeeded.') {
       throw error;
     }
-    expect(String(error?.code ?? error?.message)).toMatch(/permission-denied/i);
+    expect(String(error?.code ?? error?.message)).toMatch(/permission[-_]denied/i);
   }
 }
 
@@ -146,6 +147,44 @@ describeEmulator.sequential('GEN-F5 incident group Security Rules', () => {
           ticketIds: Array.from({ length: 21 }, (_, index) => `ticket-${index + 1}`),
         }),
       ),
+    );
+  });
+
+  it('rejects creating a Ticket already pre-linked to an incident group', async () => {
+    await signInAs(accounts.operator);
+
+    await expectPermissionDenied(() =>
+      firestoreTicketRepository.createTicket({
+        title: '[MANDAU] FORGED PRELINK [TT : INC-20260826-91000001]',
+        occurAt: new Date('2026-08-26T13:00:00.000Z'),
+        incidentGroupId: 'forged-prelinked-group',
+      }),
+    );
+  });
+
+  it('rejects direct incidentGroupId forging when the group post-state does not contain the Ticket', async () => {
+    const db = getFirestoreClient();
+    await signInAs(accounts.operator);
+
+    const created = await firestoreTicketRepository.createTicket({
+      title: '[MANDAU] FORGED DIRECT LINK [TT : INC-20260826-91000002]',
+      occurAt: new Date('2026-08-26T13:05:00.000Z'),
+    });
+    const groupRef = doc(db, 'incidentGroups', 'f5-unrelated-group');
+    await setDoc(
+      groupRef,
+      groupDocument(accounts.operator.uid, {
+        ticketIds: ['some-other-ticket'],
+      }),
+    );
+
+    await expectPermissionDenied(() =>
+      updateDoc(doc(db, 'tickets', created.ticketId), {
+        incidentGroupId: groupRef.id,
+        revision: created.ticket.revision + 1,
+        updatedAt: new Date('2026-08-26T13:06:00.000Z'),
+        updatedBy: accounts.operator.uid,
+      }),
     );
   });
 
