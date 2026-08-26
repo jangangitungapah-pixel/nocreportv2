@@ -1,0 +1,54 @@
+name: GEN-F6 focused QA
+
+on:
+  push:
+    branches:
+      - feature/template-generator-features
+    paths:
+      - .github/workflows/gen-f6-focused-qa.yml
+
+permissions:
+  contents: read
+
+jobs:
+  focused:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: feature/template-generator-features
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: GEN-F6 committed formatting
+        run: |
+          npx prettier --check \
+            src/entities/ticket/lib/revision-diff.js \
+            src/features/ticket-generator/lib/draftRecovery.js \
+            src/features/ticket-generator/lib/draftRecovery.test.js \
+            src/features/ticket-generator/lib/ticketRevisionDiff.test.js \
+            src/features/ticket-generator/components/DraftRecoveryNotice.jsx \
+            src/features/ticket-generator/components/DraftRecoveryNotice.test.jsx \
+            src/features/ticket-generator/components/ProgressComposer.jsx \
+            src/features/ticket-generator/components/ProgressComposer.test.jsx \
+            src/features/ticket-generator/components/TicketAuditHistory.jsx \
+            src/features/ticket-generator/components/TicketAuditHistory.test.jsx \
+            src/features/ticket-generator/pages/TicketGeneratorAuditGate.test.jsx \
+            src/features/ticket-generator/pages/TicketGeneratorRecovery.test.jsx \
+            src/features/ticket-generator/pages/TicketGeneratorPage.jsx \
+            src/infrastructure/firebase/firestoreAuditQueries.js \
+            src/infrastructure/firebase/firestoreTicketMutations.js \
+            src/infrastructure/firebase/firestoreTicketRepository.emulator.test.js
+      - name: GEN-F6 unit and component regressions
+        run: |
+          npx vitest run \
+            src/features/ticket-generator/lib/draftRecovery.test.js \
+            src/features/ticket-generator/lib/ticketRevisionDiff.test.js \
+            src/features/ticket-generator/components/DraftRecoveryNotice.test.jsx \
+            src/features/ticket-generator/components/ProgressComposer.test.jsx \
+            src/features/ticket-generator/components/TicketAuditHistory.test.jsx \
+            src/features/ticket-generator/pages/TicketGeneratorAuditGate.test.jsx \
+            src/features/ticket-generator/pages/TicketGeneratorRecovery.test.jsx \
+            src/features/ticket-generator/pages/TicketGeneratorPage.test.jsx
