@@ -20,6 +20,13 @@ function signedDuration(later, earlier) {
   return end.getTime() - start.getTime();
 }
 
+function latestDate(...values) {
+  return values.filter(Boolean).reduce((latest, current) => {
+    if (!latest || current.getTime() > latest.getTime()) return current;
+    return latest;
+  }, null);
+}
+
 function latestProgressAt(ticket) {
   const explicit = validDate(ticket?.latestProgress?.occurredAt);
   if (explicit) return explicit;
@@ -33,16 +40,30 @@ function latestProgressAt(ticket) {
   }, null);
 }
 
+function normalizedDispatchAt(ticket) {
+  const provenance = ticket?.importProvenance;
+  const sentAt = validDate(provenance?.messageSentAt);
+  if (
+    sentAt &&
+    provenance?.sourceKind === 'outlook_msg' &&
+    provenance?.dispatchTimeSource === 'PR_CLIENT_SUBMIT_TIME'
+  ) {
+    return sentAt;
+  }
+  return validDate(ticket?.dispatchAt);
+}
+
 export function deriveTimeIntelligence(
   ticket,
   { now = new Date(), timezone = 'Asia/Jakarta' } = {},
 ) {
   const current = validDate(now) ?? new Date();
   const occurAt = validDate(ticket?.occurAt);
-  const dispatchAt = validDate(ticket?.dispatchAt);
+  const dispatchAt = normalizedDispatchAt(ticket);
   const resolvedAt = validDate(ticket?.resolvedAt);
   const updatedAt = validDate(ticket?.updatedAt);
   const progressAt = latestProgressAt(ticket);
+  const latestUpdateAt = latestDate(updatedAt, progressAt);
 
   return {
     timezone,
@@ -52,8 +73,9 @@ export function deriveTimeIntelligence(
     dispatchDelayMs: occurAt && dispatchAt ? signedDuration(dispatchAt, occurAt) : null,
     latestProgressAgeMs: progressAt ? nonNegativeDuration(current, progressAt) : null,
     resolvedDurationMs: occurAt && resolvedAt ? nonNegativeDuration(resolvedAt, occurAt) : null,
-    latestUpdateAgeMs: updatedAt ? nonNegativeDuration(current, updatedAt) : null,
+    latestUpdateAgeMs: latestUpdateAt ? nonNegativeDuration(current, latestUpdateAt) : null,
     latestProgressAt: progressAt,
+    latestUpdateAt,
     occurAt,
     dispatchAt,
     resolvedAt,
