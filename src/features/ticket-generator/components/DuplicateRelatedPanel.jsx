@@ -17,13 +17,7 @@ function formatTimestamp(value) {
   }).format(date);
 }
 
-function CandidateCard({
-  candidate,
-  canRelate,
-  hasUnsavedChanges,
-  relatePending,
-  onRelate,
-}) {
+function CandidateCard({ candidate, canRelate, hasUnsavedChanges, relatePending, onRelate }) {
   const evidence = candidate.duplicateEvidence ?? {};
   const reasons = Array.isArray(evidence.reasons) ? evidence.reasons : [];
 
@@ -130,7 +124,9 @@ export function DuplicateRelatedPanel({
 
       <div className="grid gap-3 p-3">
         {duplicatePending ? (
-          <p className="text-[10.5px] text-[var(--text-muted)]">Checking bounded duplicate signals…</p>
+          <p className="text-[10.5px] text-[var(--text-muted)]">
+            Checking bounded duplicate signals…
+          </p>
         ) : null}
         {duplicateError ? (
           <p className="text-[10.5px] text-[var(--danger-text)]">
@@ -173,7 +169,9 @@ export function DuplicateRelatedPanel({
           <div className="border-t border-[var(--border-subtle)] pt-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <p className="text-[10px] font-extrabold text-[var(--text-primary)]">Related Tickets</p>
+                <p className="text-[10px] font-extrabold text-[var(--text-primary)]">
+                  Related Tickets
+                </p>
                 {relatedGroup ? (
                   <p className="text-[9px] font-semibold text-[var(--text-faint)]">
                     Group {relatedGroup.id} · {relatedGroup.ticketIds.length} member
@@ -194,7 +192,9 @@ export function DuplicateRelatedPanel({
             </div>
 
             {relatedPending ? (
-              <p className="mt-2 text-[10.5px] text-[var(--text-muted)]">Loading related Tickets…</p>
+              <p className="mt-2 text-[10.5px] text-[var(--text-muted)]">
+                Loading related Tickets…
+              </p>
             ) : null}
             {relatedError ? (
               <p className="mt-2 text-[10.5px] text-[var(--danger-text)]">
