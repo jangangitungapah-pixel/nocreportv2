@@ -1,0 +1,78 @@
+name: GUX-4 output handover utilities
+
+on:
+  push:
+    branches:
+      - feature/template-generator-visual-overhaul
+    paths:
+      - .github/workflows/gux-4-handover.yml
+
+permissions:
+  contents: write
+
+jobs:
+  handover:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: feature/template-generator-visual-overhaul
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Apply GUX-4 presentation changes
+        run: node scripts/apply-gux-4-handover.mjs apply
+
+      - name: Format
+        run: npm run format
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Targeted output and handover regression
+        run: >-
+          npx vitest run
+          src/features/ticket-generator/components/CopyCenter.test.jsx
+          src/features/ticket-generator/components/OperatorPresetsPanel.test.jsx
+          src/features/ticket-generator/components/TicketAuditHistory.test.jsx
+          src/features/ticket-generator/pages/TicketGeneratorAuditGate.test.jsx
+          src/features/ticket-generator/pages/TicketGeneratorPage.test.jsx
+          src/features/ticket-generator/lib/copyCenter.test.js
+          src/features/ticket-generator/lib/handoverSummary.test.js
+          src/features/ticket-generator/lib/operatorPresets.test.js
+          src/features/ticket-generator/lib/ticketRevisionDiff.test.js
+
+      - name: Full unit and component suite
+        run: npm test
+
+      - name: Production build
+        run: npm run build
+
+      - name: Record GUX-4 evidence
+        run: node scripts/apply-gux-4-handover.mjs record
+
+      - name: Commit validated GUX-4 source
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            src/features/ticket-generator/components/ReportPreview.jsx \
+            src/features/ticket-generator/components/CopyCenter.jsx \
+            src/features/ticket-generator/components/OperatorPresetsPanel.jsx \
+            src/features/ticket-generator/components/TicketAuditHistory.jsx \
+            src/styles/app.css \
+            docs/08-post-mvp/TEMPLATE-GENERATOR-VISUAL-OVERHAUL-TRACKER.md
+          git commit -m 'feat(generator-ui): complete GUX-4 output handover hierarchy'
+          git push origin HEAD:feature/template-generator-visual-overhaul
