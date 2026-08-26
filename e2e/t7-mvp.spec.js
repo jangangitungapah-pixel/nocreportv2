@@ -458,6 +458,7 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await expect
       .poll(() => page.evaluate(() => window.localStorage.getItem('nocreport-theme')))
       .toBe('light');
+    await page.keyboard.press('Escape');
 
     await assertNoHorizontalOverflow(page, 'Dashboard light desktop');
     await assertNoSeriousAxeViolations(page, 'Dashboard light desktop');
