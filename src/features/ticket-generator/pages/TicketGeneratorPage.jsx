@@ -28,12 +28,14 @@ import {
   Textarea,
 } from '../../../shared/ui/index.jsx';
 import { CoordinateExtractor } from '../components/CoordinateExtractor.jsx';
+import { DraftRecoveryNotice } from '../components/DraftRecoveryNotice.jsx';
 import { ImpactListEditor } from '../components/ImpactListEditor.jsx';
 import { ProgressComposer } from '../components/ProgressComposer.jsx';
 import { ProgressTimeline } from '../components/ProgressTimeline.jsx';
 import { ReportPreview } from '../components/ReportPreview.jsx';
 import { SmartPasteParser } from '../components/SmartPasteParser.jsx';
 import { ValidationCenter } from '../components/ValidationCenter.jsx';
+import { clearDraftRecovery, readDraftRecovery, writeDraftRecovery } from '../lib/draftRecovery.js';
 import { DEFAULT_TICKET_FORM, buildTicketFromForm } from '../lib/formToTicket.js';
 import { mergeImpactValues } from '../lib/impactCandidates.js';
 import {
@@ -249,6 +251,40 @@ function topLevelDirtyFields(dirtyFields) {
     .map(([field]) => field);
 }
 
+const EMPTY_DRAFT_RECOVERY = Object.freeze({ state: 'missing', payload: null });
+const EMPTY_PROGRESS_DRAFT = Object.freeze({ occurredAt: '', text: '' });
+const EMAIL_SENT_TIME_WARNING = 'Email Sent Time was not available; Dispatch Time needs review.';
+
+function recoveredProgressEntries(entries) {
+  if (!Array.isArray(entries)) return [];
+  return entries
+    .map((entry) => {
+      const occurredAt = new Date(entry?.occurredAt);
+      const createdAt = entry?.createdAt ? new Date(entry.createdAt) : occurredAt;
+      if (Number.isNaN(occurredAt.getTime()) || !entry?.text?.trim()) return null;
+      return {
+        id: entry.id,
+        occurredAt,
+        text: entry.text.trim(),
+        createdAt: Number.isNaN(createdAt.getTime()) ? occurredAt : createdAt,
+        createdBy: null,
+      };
+    })
+    .filter(Boolean);
+}
+
+function recoveredImportReview(metadata) {
+  if (!metadata) return null;
+  return {
+    candidate: {
+      source: metadata.source ?? {},
+      warnings: metadata.missingSentTime ? [EMAIL_SENT_TIME_WARNING] : [],
+      conflicts: Array.isArray(metadata.conflicts) ? metadata.conflicts : [],
+    },
+    identityResolution: metadata.identityResolution ?? null,
+  };
+}
+
 function GeneratorLoading() {
   return (
     <div className="grid gap-3" aria-label="Loading Ticket">
@@ -286,6 +322,10 @@ export function TicketGeneratorPage() {
   const [featureMetadataDirty, setFeatureMetadataDirty] = useState(false);
   const [importReview, setImportReview] = useState(null);
   const [validationNow, setValidationNow] = useState(() => new Date());
+  const [draftRecovery, setDraftRecovery] = useState(EMPTY_DRAFT_RECOVERY);
+  const [draftRecoveryReady, setDraftRecoveryReady] = useState(false);
+  const [progressComposerDraft, setProgressComposerDraft] = useState(EMPTY_PROGRESS_DRAFT);
+  const [progressRecoveryDraft, setProgressRecoveryDraft] = useState(null);
 
   const {
     control,
@@ -311,7 +351,9 @@ export function TicketGeneratorPage() {
   });
   const watchedValues = useWatch({ control });
   const statusDirty = status !== savedStatus;
-  const hasUnsavedChanges = isDirty || progressDirty || featureMetadataDirty || statusDirty;
+  const progressComposerDirty = Boolean(progressComposerDraft.text?.trim());
+  const hasUnsavedChanges =
+    isDirty || progressDirty || featureMetadataDirty || statusDirty || progressComposerDirty;
   const blocker = useBlocker(hasUnsavedChanges);
 
   const ticket = useMemo(
@@ -342,7 +384,14 @@ export function TicketGeneratorPage() {
     if (localDevelopmentMode || !routeTicketId) {
       setLoadingTicket(false);
       setLoadError(null);
-      if (!routeTicketId) setImportReview(null);
+      if (!routeTicketId) {
+        setImportReview(null);
+        setDraftRecovery(readDraftRecovery());
+        setDraftRecoveryReady(true);
+      } else {
+        setDraftRecovery(EMPTY_DRAFT_RECOVERY);
+        setDraftRecoveryReady(false);
+      }
       return;
     }
 
@@ -360,6 +409,10 @@ export function TicketGeneratorPage() {
       setFeatureMetadataDirty(false);
       setImportReview(null);
       setPersistedCoordinateSignature(loaded.coordinateSignature);
+      setDraftRecovery(
+        readDraftRecovery({ ticketId: routeTicketId, currentRevision: loaded.ticket.revision }),
+      );
+      setDraftRecoveryReady(true);
     } catch (error) {
       setLoadError(error);
     } finally {
@@ -410,6 +463,96 @@ export function TicketGeneratorPage() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasUnsavedChanges]);
 
+  useEffect(() => {
+    if (!draftRecoveryReady || loadingTicket) return undefined;
+    if (routeTicketId && localDevelopmentMode) return undefined;
+    if (draftRecovery.state === 'available' || draftRecovery.state === 'stale') return undefined;
+
+    const recoverableDirty =
+      isDirty ||
+      progressDirty ||
+      featureMetadataDirty ||
+      Boolean(progressComposerDraft.text?.trim());
+    if (!recoverableDirty) return undefined;
+
+    const timer = window.setTimeout(() => {
+      writeDraftRecovery({
+        ticketId: routeTicketId ?? null,
+        baseRevision: routeTicketId ? revision : null,
+        formValues: watchedValues ?? {},
+        featureMetadata,
+        progressDraft: progressComposerDraft,
+        progressEntries: routeTicketId ? [] : progressEntries,
+        templateProfileId: featureMetadata.templateProfileId,
+        importReview,
+        dirtyAt: new Date(),
+      });
+    }, 500);
+
+    return () => window.clearTimeout(timer);
+  }, [
+    draftRecovery.state,
+    draftRecoveryReady,
+    featureMetadata,
+    featureMetadataDirty,
+    importReview,
+    isDirty,
+    loadingTicket,
+    localDevelopmentMode,
+    progressComposerDraft,
+    progressDirty,
+    progressEntries,
+    revision,
+    routeTicketId,
+    watchedValues,
+  ]);
+
+  const restoreRecoveryDraft = () => {
+    const payload = draftRecovery.payload;
+    if (!payload) return;
+
+    const nextValues = {
+      ...DEFAULT_TICKET_FORM,
+      impactList: [],
+      ...(payload.formValues ?? {}),
+    };
+    reset(nextValues);
+    replace(Array.isArray(nextValues.impactList) ? nextValues.impactList : []);
+    setFeatureMetadata(
+      createEditorFeatureMetadata(
+        payload.featureMetadata ?? { templateProfileId: payload.templateProfileId },
+      ),
+    );
+    setFeatureMetadataDirty(true);
+
+    if (!routeTicketId) {
+      const localProgress = recoveredProgressEntries(payload.progressEntries);
+      setProgressEntries(localProgress);
+      setProgressDirty(localProgress.length > 0);
+    }
+
+    const recoveredDraft = payload.progressDraft ?? EMPTY_PROGRESS_DRAFT;
+    setProgressComposerDraft(recoveredDraft);
+    setProgressRecoveryDraft({ ...recoveredDraft });
+    setImportReview(recoveredImportReview(payload.importMetadata));
+    setDraftRecovery(EMPTY_DRAFT_RECOVERY);
+    pushToast({
+      title: 'Local draft restored',
+      message: 'Recovered values are local and remain unsaved until you explicitly persist them.',
+      tone: 'success',
+    });
+  };
+
+  const discardRecoveryDraft = () => {
+    clearDraftRecovery({ ticketId: routeTicketId ?? null });
+    setDraftRecovery(EMPTY_DRAFT_RECOVERY);
+    pushToast({
+      title: 'Recovery draft discarded',
+      message: 'The local recovery snapshot was removed. Cloud Ticket data was not changed.',
+      tone: 'success',
+    });
+  };
+
   const notifyInvalidForm = () => {
     pushToast({
       title: 'Check the form',
@@ -430,11 +573,24 @@ export function TicketGeneratorPage() {
   const persistCoreTicket = async (values) => {
     if (persistPending) return;
 
+    if (!routeTicketId && progressComposerDraft.text?.trim()) {
+      document.getElementById('progress-text')?.focus();
+      pushToast({
+        title: 'Add or clear Progress draft',
+        message:
+          'Submit the current Progress text before creating the Ticket so it is not silently lost.',
+        tone: 'error',
+      });
+      return;
+    }
+
     if (localDevelopmentMode) {
       reset(values);
       setFeatureMetadataDirty(false);
       setProgressDirty(false);
       setSavedStatus(status);
+      clearDraftRecovery({ ticketId: routeTicketId ?? null });
+      setDraftRecovery(EMPTY_DRAFT_RECOVERY);
       pushToast({
         title: 'Saved for this session',
         message: 'Local preview mode does not write to Firestore.',
@@ -458,6 +614,8 @@ export function TicketGeneratorPage() {
         setFeatureMetadataDirty(false);
         setProgressDirty(false);
         setSavedStatus(status);
+        clearDraftRecovery();
+        setDraftRecovery(EMPTY_DRAFT_RECOVERY);
         setPendingNavigationTicketId(created.ticketId);
         pushToast({
           title: 'Ticket created',
@@ -489,6 +647,8 @@ export function TicketGeneratorPage() {
       setFeatureMetadata(createEditorFeatureMetadata(saved.ticket));
       setFeatureMetadataDirty(false);
       reset(ticketToFormValues(saved.ticket));
+      clearDraftRecovery({ ticketId: routeTicketId });
+      setDraftRecovery(EMPTY_DRAFT_RECOVERY);
       pushToast({
         title: 'Ticket saved',
         message: 'Core Ticket fields and verified coordinate metadata are up to date.',
@@ -632,6 +792,8 @@ export function TicketGeneratorPage() {
       setRevision(result.ticketRevision);
       setProgressEntries((current) => [...current, result.progress]);
       setProgressDirty(false);
+      clearDraftRecovery({ ticketId: routeTicketId });
+      setDraftRecovery(EMPTY_DRAFT_RECOVERY);
       pushToast({
         title: 'Progress added',
         message: 'Timeline update persisted.',
@@ -904,6 +1066,14 @@ export function TicketGeneratorPage() {
 
   const editor = (
     <div className="grid min-w-0 gap-3">
+      <DraftRecoveryNotice
+        recovery={draftRecovery}
+        currentRevision={revision}
+        currentValues={watchedValues ?? {}}
+        onRestore={restoreRecoveryDraft}
+        onDiscard={discardRecoveryDraft}
+      />
+
       {!routeTicketId ? (
         <SmartPasteParser
           onApply={applyUnifiedImport}
@@ -1053,7 +1223,12 @@ export function TicketGeneratorPage() {
         onApplyCandidates={applyImpactCandidates}
       />
       <CoordinateExtractor onApplyCoordinate={applyExtractedCoordinate} />
-      <ProgressComposer onAdd={addProgress} profileId={featureMetadata.templateProfileId} />
+      <ProgressComposer
+        onAdd={addProgress}
+        profileId={featureMetadata.templateProfileId}
+        recoveryDraft={progressRecoveryDraft}
+        onDraftChange={setProgressComposerDraft}
+      />
       <ProgressTimeline
         entries={progressEntries}
         onUpdate={updateProgress}

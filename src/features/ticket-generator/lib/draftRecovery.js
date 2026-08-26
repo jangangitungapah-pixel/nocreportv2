@@ -61,7 +61,11 @@ function boundedStringList(value, { maxItems = 32, maxLength = 160 } = {}) {
   if (!Array.isArray(value)) return [];
   return value
     .slice(0, maxItems)
-    .map((item) => String(item ?? '').trim().slice(0, maxLength))
+    .map((item) =>
+      String(item ?? '')
+        .trim()
+        .slice(0, maxLength),
+    )
     .filter(Boolean);
 }
 
@@ -119,9 +123,10 @@ export function sanitizeImportRecoveryMetadata(importReview) {
   if (!candidate) return null;
 
   const source = candidate.source ?? {};
-  const warnings = Array.isArray(candidate.warnings)
-    ? candidate.warnings.slice(0, 20).map((item) => String(item).slice(0, 200))
-    : [];
+  const warnings = Array.isArray(candidate.warnings) ? candidate.warnings : [];
+  const missingSentTime = warnings.includes(
+    'Email Sent Time was not available; Dispatch Time needs review.',
+  );
   const conflicts = Array.isArray(candidate.conflicts)
     ? candidate.conflicts.slice(0, 20).map((item) => ({
         field: String(item?.field ?? '').slice(0, 80),
@@ -138,7 +143,8 @@ export function sanitizeImportRecoveryMetadata(importReview) {
         : null,
       messageSentAt: asIsoInstant(source.messageSentAt),
     },
-    warnings,
+    warningCount: warnings.length,
+    missingSentTime,
     conflicts,
     identityResolution: importReview?.identityResolution
       ? String(importReview.identityResolution).slice(0, 120)
@@ -152,6 +158,26 @@ export function sanitizeProgressDraft(progressDraft) {
     occurredAt: String(progressDraft.occurredAt ?? '').slice(0, 40),
     text: String(progressDraft.text ?? '').slice(0, 5000),
   };
+}
+
+export function sanitizeProgressRecoveryEntries(entries) {
+  if (!Array.isArray(entries)) return [];
+  return entries
+    .slice(0, 100)
+    .map((entry, index) => {
+      const occurredAt = asIsoInstant(entry?.occurredAt);
+      const text = String(entry?.text ?? '')
+        .trim()
+        .slice(0, 5000);
+      if (!occurredAt || !text) return null;
+      return {
+        id: boundedText(entry?.id, 160) ?? `recovery-progress-${index}`,
+        occurredAt,
+        text,
+        createdAt: asIsoInstant(entry?.createdAt),
+      };
+    })
+    .filter(Boolean);
 }
 
 export function draftRecoveryKey({ ticketId = null, baseRevision = null } = {}) {
@@ -170,6 +196,7 @@ function buildPayload({
   formValues = {},
   featureMetadata = {},
   progressDraft = null,
+  progressEntries = [],
   templateProfileId = 'MANDAU_DEFAULT',
   importReview = null,
   dirtyAt = new Date(),
@@ -187,6 +214,7 @@ function buildPayload({
     formValues: sanitizeDraftFormValues(formValues),
     featureMetadata: safeFeatureMetadata,
     progressDraft: sanitizeProgressDraft(progressDraft),
+    progressEntries: sanitizeProgressRecoveryEntries(progressEntries),
     importMetadata: sanitizeImportRecoveryMetadata(importReview),
   };
 }
@@ -268,7 +296,10 @@ export function readDraftRecovery(
   return newest;
 }
 
-export function clearDraftRecovery({ ticketId = null, baseRevision = null } = {}, { storage } = {}) {
+export function clearDraftRecovery(
+  { ticketId = null, baseRevision = null } = {},
+  { storage } = {},
+) {
   const target = storageOrNull(storage);
   if (!target) return false;
   try {

@@ -104,7 +104,10 @@ export function DraftRecoveryNotice({
                   className="grid gap-1 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-2.5 py-2 sm:grid-cols-[120px_minmax(0,1fr)_minmax(0,1fr)]"
                 >
                   <strong className="text-[10px] text-[var(--text-secondary)]">{item.label}</strong>
-                  <span className="truncate text-[10px] text-[var(--text-faint)]" title={item.current}>
+                  <span
+                    className="truncate text-[10px] text-[var(--text-faint)]"
+                    title={item.current}
+                  >
                     Current: {item.current}
                   </span>
                   <span
@@ -117,7 +120,8 @@ export function DraftRecoveryNotice({
               ))
             ) : (
               <p className="text-[10px] text-[var(--text-muted)]">
-                No core form differences remain. The draft may only contain local Progress or metadata.
+                No core form differences remain. The draft may only contain local Progress or
+                metadata.
               </p>
             )}
           </div>

@@ -72,6 +72,26 @@ describe('ProgressComposer persistence acknowledgement', () => {
     await waitFor(() => expect(onAdd).toHaveBeenCalledTimes(1));
     expect(onAdd.mock.calls[0][0]).toMatchObject({ text: 'Quick keyboard update' });
   });
+  it('restores a local composer draft and reports later edits to the recovery owner', () => {
+    const onDraftChange = vi.fn();
+    render(
+      <ProgressComposer
+        onAdd={vi.fn()}
+        recoveryDraft={{ occurredAt: '2026-08-26T21:15', text: 'Recovered local update' }}
+        onDraftChange={onDraftChange}
+      />,
+    );
+
+    expect(screen.getByLabelText('Event time')).toHaveValue('2026-08-26T21:15');
+    const editor = screen.getByLabelText('Progress update');
+    expect(editor).toHaveValue('Recovered local update');
+
+    fireEvent.change(editor, { target: { value: 'Recovered then edited' } });
+    expect(onDraftChange).toHaveBeenLastCalledWith({
+      occurredAt: '2026-08-26T21:15',
+      text: 'Recovered then edited',
+    });
+  });
 });
 
 describe('GEN-F3 reusable Progress snippets', () => {

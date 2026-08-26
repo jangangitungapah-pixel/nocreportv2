@@ -50,6 +50,27 @@ describe('draftRecovery', () => {
             text: 'Team OTW ke lokasi.',
             binary: 'must not persist',
           },
+          progressEntries: [
+            {
+              id: 'local-progress-1',
+              occurredAt: new Date('2026-08-26T17:01:00.000Z'),
+              text: 'Local timeline update',
+              createdAt: new Date('2026-08-26T17:01:05.000Z'),
+              createdBy: 'must-not-persist',
+              attachment: 'must-not-persist',
+            },
+          ],
+          featureMetadata: {
+            externalTtNumber: 'INC-20260826-0001',
+            incidentKey: 'INC-20260826-0001',
+            pathKey: 'A<>B',
+            alarmContext: {
+              alarmFamily: 'LINK_DOWN',
+              rawAlarm: 'private raw alarm must not persist',
+              description: 'private description must not persist',
+              pathEndpoints: ['A', 'B'],
+            },
+          },
           templateProfileId: 'MANDAU_DEFAULT',
           importReview: {
             identityResolution: 'keep-current',
@@ -87,6 +108,20 @@ describe('draftRecovery', () => {
       occurredAt: '2026-08-27T00:00',
       text: 'Team OTW ke lokasi.',
     });
+    expect(persisted.progressEntries).toEqual([
+      {
+        id: 'local-progress-1',
+        occurredAt: '2026-08-26T17:01:00.000Z',
+        text: 'Local timeline update',
+        createdAt: '2026-08-26T17:01:05.000Z',
+      },
+    ]);
+    expect(persisted.featureMetadata).toMatchObject({
+      externalTtNumber: 'INC-20260826-0001',
+      incidentKey: 'INC-20260826-0001',
+      pathKey: 'A<>B',
+      alarmContext: { alarmFamily: 'LINK_DOWN', pathEndpoints: ['A', 'B'] },
+    });
     expect(persisted.importMetadata).toEqual({
       source: {
         kind: 'outlook_msg',
@@ -94,7 +129,8 @@ describe('draftRecovery', () => {
         parserVersion: 1,
         messageSentAt: '2026-08-26T16:55:00.000Z',
       },
-      warnings: ['Email Sent Time was not available; Dispatch Time needs review.'],
+      warningCount: 1,
+      missingSentTime: true,
       conflicts: [{ field: 'externalTtNumber', severity: 'blocking' }],
       identityResolution: 'keep-current',
     });
@@ -102,6 +138,9 @@ describe('draftRecovery', () => {
     expect(raw).not.toContain('do not persist subject');
     expect(raw).not.toContain('raw field evidence');
     expect(raw).not.toContain('unknownSecretField');
+    expect(raw).not.toContain('private raw alarm');
+    expect(raw).not.toContain('private description');
+    expect(raw).not.toContain('must-not-persist');
   });
 
   it('expires stale new-Ticket drafts by TTL and removes the expired payload', () => {
@@ -219,7 +258,8 @@ describe('draftRecovery', () => {
         parserVersion: null,
         messageSentAt: null,
       },
-      warnings: [],
+      warningCount: 0,
+      missingSentTime: false,
       conflicts: [{ field: 'title', severity: 'warning' }],
       identityResolution: null,
     });

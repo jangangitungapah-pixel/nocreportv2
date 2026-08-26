@@ -24,7 +24,12 @@ function createLocalId() {
   return `progress-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-export function ProgressComposer({ onAdd, profileId = 'MANDAU_DEFAULT' }) {
+export function ProgressComposer({
+  onAdd,
+  profileId = 'MANDAU_DEFAULT',
+  recoveryDraft = null,
+  onDraftChange = null,
+}) {
   const profile = getTemplateProfile(profileId) ?? getTemplateProfile();
   const snippets = profile?.snippetCollection ?? [];
   const validSnippetIds = useMemo(() => snippets.map((snippet) => snippet.id), [snippets]);
@@ -43,6 +48,19 @@ export function ProgressComposer({ onAdd, profileId = 'MANDAU_DEFAULT' }) {
   useEffect(() => {
     setFavoriteIds((current) => current.filter((id) => validSnippetIds.includes(id)));
   }, [validSnippetIds]);
+
+  useEffect(() => {
+    if (!recoveryDraft) return;
+    const recoveredTime = String(recoveryDraft.occurredAt ?? '').trim();
+    setOccurredAt(recoveredTime || toInputValue(new Date()));
+    setText(String(recoveryDraft.text ?? ''));
+    setError('');
+    setSnippetError('');
+  }, [recoveryDraft]);
+
+  const publishDraft = (nextOccurredAt, nextText) => {
+    onDraftChange?.({ occurredAt: nextOccurredAt, text: nextText });
+  };
 
   const selectedSnippet = snippets.find((snippet) => snippet.id === selectedSnippetId) ?? null;
   const orderedSnippets = useMemo(() => {
@@ -84,6 +102,7 @@ export function ProgressComposer({ onAdd, profileId = 'MANDAU_DEFAULT' }) {
     }
 
     setText(result.text);
+    publishDraft(occurredAt, result.text);
     setSnippetError('');
     setError('');
   };
@@ -120,9 +139,11 @@ export function ProgressComposer({ onAdd, profileId = 'MANDAU_DEFAULT' }) {
     try {
       const accepted = await onAdd(entry);
       if (accepted === false) return;
+      const nextOccurredAt = toInputValue(new Date());
       setText('');
       setError('');
-      setOccurredAt(toInputValue(new Date()));
+      setOccurredAt(nextOccurredAt);
+      publishDraft(nextOccurredAt, '');
     } finally {
       setSubmitting(false);
     }
@@ -214,7 +235,11 @@ export function ProgressComposer({ onAdd, profileId = 'MANDAU_DEFAULT' }) {
           id="progress-time"
           label="Event time"
           value={occurredAt}
-          onChange={(event) => setOccurredAt(event.target.value)}
+          onChange={(event) => {
+            const nextOccurredAt = event.target.value;
+            setOccurredAt(nextOccurredAt);
+            publishDraft(nextOccurredAt, text);
+          }}
         />
         <Textarea
           id="progress-text"
@@ -224,7 +249,9 @@ export function ProgressComposer({ onAdd, profileId = 'MANDAU_DEFAULT' }) {
           error={error}
           placeholder="team OTW ke lokasi CP, ETA 75 menit"
           onChange={(event) => {
-            setText(event.target.value);
+            const nextText = event.target.value;
+            setText(nextText);
+            publishDraft(occurredAt, nextText);
             if (error) setError('');
           }}
           onKeyDown={(event) => {
