@@ -52,7 +52,10 @@ jobs:
           const pkg = JSON.parse(fs.readFileSync('node_modules/@kenjiuno/msgreader-web-ng/package.json', 'utf8'));
           const repository = typeof pkg.repository === 'string' ? pkg.repository : pkg.repository?.url;
           if (!repository) process.exit(2);
-          process.stdout.write(repository.replace(/^git\+/, '').replace(/^git:/, 'https:').replace(/\.git$/, '') + '.git');
+          let url = repository.trim();
+          if (url.startsWith('github:')) url = `https://github.com/${url.slice('github:'.length)}`;
+          url = url.replace(/^git\+/, '').replace(/^git:/, 'https:').replace(/\.git$/, '');
+          process.stdout.write(url + '.git');
           NODE
           )
           echo "UPSTREAM_REPOSITORY=$REPO_URL"
