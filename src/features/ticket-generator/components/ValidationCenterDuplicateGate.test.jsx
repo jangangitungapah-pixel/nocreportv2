@@ -8,6 +8,10 @@ vi.mock('../../../infrastructure/firebase/authClient.js', () => ({
   getAuthClient: () => ({ currentUser: { uid: 'operator-1' } }),
 }));
 
+vi.mock('../../../infrastructure/firebase/firebaseConfig.js', () => ({
+  getFirebaseConfigStatus: () => ({ configured: true, missing: [] }),
+}));
+
 vi.mock('../lib/duplicateDetectionService.js', () => ({
   findDuplicateCandidates: (...args) => findDuplicateCandidates(...args),
 }));
