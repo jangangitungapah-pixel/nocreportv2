@@ -1,8 +1,5 @@
 import { findDuplicateTicketCandidates } from '../../../infrastructure/firebase/firestoreTicketRepository.js';
-import {
-  hasDuplicateLookupSignal,
-  rankDuplicateCandidates,
-} from './duplicateDetection.js';
+import { hasDuplicateLookupSignal, rankDuplicateCandidates } from './duplicateDetection.js';
 
 export async function findDuplicateCandidates(ticket, { excludeTicketId = null, limit = 12 } = {}) {
   if (!hasDuplicateLookupSignal(ticket)) return [];
