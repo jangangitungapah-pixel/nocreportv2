@@ -188,13 +188,18 @@ export function scoreDuplicateCandidate(target, candidate) {
   };
 }
 
-export function rankDuplicateCandidates(target, candidates, { excludeTicketId = null, limit = 12 } = {}) {
+export function rankDuplicateCandidates(
+  target,
+  candidates,
+  { excludeTicketId = null, limit = 12 } = {},
+) {
   const safeLimit = Math.max(1, Math.min(Number(limit) || 12, 20));
   const seen = new Set();
 
   return (Array.isArray(candidates) ? candidates : [])
     .filter((candidate) => {
-      if (!candidate?.id || candidate.id === excludeTicketId || seen.has(candidate.id)) return false;
+      if (!candidate?.id || candidate.id === excludeTicketId || seen.has(candidate.id))
+        return false;
       seen.add(candidate.id);
       return true;
     })
