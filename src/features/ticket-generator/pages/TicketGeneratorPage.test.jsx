@@ -84,8 +84,9 @@ Update Progress
       },
     });
 
-    expect(screen.getByText('7 fields · 1 impacts · 2 progress updates')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Fill generator' }));
+    expect(screen.getByText('Review detected values before applying')).toBeInTheDocument();
+    expect(screen.getByText('Progress · 2 updates')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Apply selected/ }));
 
     expect(screen.getByRole('textbox', { name: /Title/ })).toHaveValue(
       '[MANDAU] LINK DOWN AT DWDM 100315_RASUNA <> 100399_CANGKUDU [TT : INC-20260822-00015684]',
