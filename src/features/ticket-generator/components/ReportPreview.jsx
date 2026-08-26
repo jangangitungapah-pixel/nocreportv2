@@ -19,8 +19,8 @@ export function ReportPreview({
         className,
       )}
     >
-      <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
-        <div className="flex min-h-10 shrink-0 items-center justify-between gap-2 border-b border-[var(--border-subtle)] bg-[var(--surface-panel-strong)] px-3">
+      <section className="generator-output-surface generator-report-preview__surface flex h-full min-h-0 flex-col overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+        <div className="generator-output-header generator-report-preview__header flex min-h-10 shrink-0 items-center justify-between gap-2 border-b border-[var(--border-subtle)] bg-[var(--surface-panel-strong)] px-3">
           <div className="min-w-0">
             <p className="text-[9px] font-extrabold uppercase tracking-[0.12em] text-[var(--text-faint)]">
               Live output
@@ -34,15 +34,15 @@ export function ReportPreview({
             </Button>
           ) : null}
         </div>
-        <div className="min-h-0 flex-1 bg-[var(--surface-muted)] p-1.5">
+        <div className="generator-report-preview__stage min-h-0 flex-1 bg-[var(--surface-muted)] p-1.5">
           <ScrollArea
             className={cn(
-              'rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)]',
+              'generator-report-preview__document rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)]',
               fill ? 'h-full min-h-0' : 'max-h-[calc(100vh-8.5rem)] min-h-72',
             )}
           >
             <pre
-              className="min-h-full whitespace-pre-wrap break-words p-3 font-mono text-[12px] leading-5 text-[var(--text-primary)]"
+              className="generator-report-preview__content min-h-full whitespace-pre-wrap break-words p-3 font-mono text-[12px] leading-5 text-[var(--text-primary)]"
               aria-label="Generated NOC report"
             >
               {report}

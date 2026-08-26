@@ -28,10 +28,10 @@ export function CopyCenter({
   return (
     <section
       id="generator-copy-center"
-      className="generator-copy-center overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
+      className="generator-output-surface generator-copy-center overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
       tabIndex={-1}
     >
-      <header className="flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5">
+      <header className="generator-output-header generator-copy-center__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5">
         <div className="flex items-center gap-2">
           <AppIcon name="copy" size={14} />
           <div>
@@ -53,8 +53,8 @@ export function CopyCenter({
       </header>
 
       {expanded ? (
-        <div className="grid gap-3 p-3">
-          <div className="grid gap-2 sm:grid-cols-[minmax(220px,0.6fr)_auto] sm:items-end">
+        <div className="generator-copy-center__body grid gap-3 p-3">
+          <div className="generator-copy-center__command grid gap-2 sm:grid-cols-[minmax(220px,0.6fr)_auto] sm:items-end">
             <SelectField
               id="copy-center-target"
               label="Copy target"
@@ -73,7 +73,7 @@ export function CopyCenter({
             </Button>
           </div>
 
-          <div className="overflow-hidden rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-muted)]">
+          <div className="generator-copy-preview overflow-hidden rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-muted)]">
             <div className="flex items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-2.5 py-1.5">
               <span className="text-[9px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-faint)]">
                 Preview
@@ -88,8 +88,8 @@ export function CopyCenter({
           </div>
 
           {selected?.id !== COPY_TARGET_IDS.HANDOVER ? (
-            <div className="overflow-hidden rounded-[var(--radius-control)] border border-[var(--border-subtle)]">
-              <div className="flex min-h-9 items-center justify-between gap-2 bg-[var(--surface-panel)] px-2.5">
+            <div className="generator-handover-card overflow-hidden rounded-[var(--radius-control)] border border-[var(--border-subtle)]">
+              <div className="generator-handover-card__header flex min-h-9 items-center justify-between gap-2 bg-[var(--surface-panel)] px-2.5">
                 <div>
                   <p className="text-[10px] font-extrabold text-[var(--text-secondary)]">
                     Shift Handover preview
@@ -118,7 +118,7 @@ export function CopyCenter({
                 </div>
               </div>
               {handoverExpanded ? (
-                <pre className="max-h-64 overflow-auto whitespace-pre-wrap break-words border-t border-[var(--border-subtle)] bg-[var(--surface-muted)] px-2.5 py-2 font-mono text-[10px] leading-5 text-[var(--text-secondary)]">
+                <pre className="generator-handover-card__content max-h-64 overflow-auto whitespace-pre-wrap break-words border-t border-[var(--border-subtle)] bg-[var(--surface-muted)] px-2.5 py-2 font-mono text-[10px] leading-5 text-[var(--text-secondary)]">
                   {handover?.available ? handover.text : 'No handover data available yet.'}
                 </pre>
               ) : null}

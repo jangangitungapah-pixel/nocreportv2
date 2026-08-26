@@ -3,7 +3,7 @@
 **PRD:** `docs/08-post-mvp/TEMPLATE-GENERATOR-VISUAL-OVERHAUL-PRD.md`  
 **Branch:** `feature/template-generator-visual-overhaul`  
 **Stacked base:** `feature/template-generator-features`  
-**Status:** GUX-0 COMPLETE · GUX-1 COMPLETE · GUX-2 COMPLETE · GUX-3 COMPLETE · GUX-4 IN PROGRESS
+**Status:** GUX-0 COMPLETE · GUX-1 COMPLETE · GUX-2 COMPLETE · GUX-3 COMPLETE · GUX-4 COMPLETE · GUX-5 IN PROGRESS
 
 ## Baseline
 
@@ -79,12 +79,16 @@ GUX-3 presentation changes passed targeted Evidence Workspace, local OCR/coordin
 
 ## GUX-4 — Output + handover utilities
 
-- [ ] Report Preview redesign.
-- [ ] Copy Center redesign.
-- [ ] Handover Summary utility redesign.
-- [ ] Operator Presets redesign.
-- [ ] Revision History/Audit redesign.
-- [ ] clipboard/audit semantics preserved.
+- [x] Report Preview redesign.
+- [x] Copy Center redesign.
+- [x] Handover Summary utility redesign.
+- [x] Operator Presets redesign.
+- [x] Revision History/Audit redesign.
+- [x] clipboard/audit semantics preserved.
+
+### GUX-4 automated evidence
+
+GUX-4 presentation changes passed targeted Copy Center, handover summary, Operator Presets, Revision History/Audit and Generator integration regression coverage, committed Prettier formatting, ESLint, the full unit/component suite and the production build. The implementation adds output/handover semantic classes and CSS hierarchy only. Canonical report generation, Copy Center target construction, clipboard callbacks, browser-local preset semantics, bounded immutable audit history reads and revision data contracts remain unchanged.
 
 ## GUX-5 — Responsive/mobile workspace
 
