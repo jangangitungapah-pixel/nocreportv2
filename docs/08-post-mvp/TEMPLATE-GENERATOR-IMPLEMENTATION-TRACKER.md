@@ -4,7 +4,7 @@
 **Evidence annex:** `docs/08-post-mvp/TEMPLATE-GENERATOR-EMAIL-IMPORT-ADDENDUM.md`  
 **Branch:** `feature/template-generator-features`  
 **PR:** #7  
-**Status:** GEN-F0 COMPLETE · GEN-F1 COMPLETE · GEN-F2 COMPLETE · GEN-F3 IN PROGRESS
+**Status:** GEN-F0 COMPLETE · GEN-F1 COMPLETE · GEN-F2 COMPLETE · GEN-F3 COMPLETE · GEN-F4 IN PROGRESS
 
 ## GEN-F0 — Baseline, contracts and feature skeleton
 
@@ -170,36 +170,83 @@ GEN-F2 exit criterion is satisfied: imported operational metadata survives norma
 
 ## GEN-F3 — Impact Builder + Progress acceleration
 
-- [ ] Add a dedicated Impact candidate parser for operator-pasted service/node lists.
-- [ ] Support multiline Impact parsing with bullet/number normalization.
-- [ ] Filter safe exact-normalized Impact duplicates while preserving meaningful order.
-- [ ] Reuse Impact candidate normalization for imported Impact blocks where appropriate.
-- [ ] Add preview/select proposed Impact items before applying them to the live form.
-- [ ] Keep Impact manually editable after apply; never infer impact from Site ID/topology alone.
-- [ ] Preserve existing report-text Impact import compatibility.
-- [ ] Keep Quick Progress inside the existing Generator workspace.
-- [ ] Preserve current-time default and editable Progress event time.
-- [ ] Preserve pending/error draft retention and stale-revision handling.
-- [ ] Add profile-owned reusable Progress snippet library for Dispatch, Arrival, Investigation, OTDR, Material, Jointing, Monitoring, Clearance and Escalation.
-- [ ] Add deterministic snippet placeholder resolver with required-placeholder validation.
-- [ ] Snippets fill the Progress editor only and never auto-submit.
-- [ ] Keep generated snippet text manually editable before submit.
-- [ ] Add versioned browser-local favorite snippets with invalid/stale storage fail-safe behavior.
-- [ ] Keep `Ctrl/Cmd+Enter` scoped to the Progress editor and add regression coverage.
-- [ ] Persist Progress for existing Tickets only through revision-safe `persistProgressAppend`.
-- [ ] Keep Progress local-only for a new unsaved Ticket until initial create.
-- [ ] Add pure-unit coverage for Impact parsing/de-duplication and snippet placeholders/preferences.
-- [ ] Add component coverage for Impact preview/select, Quick Progress, snippets, favorites and keyboard submit.
-- [ ] Preserve lifecycle/RBAC/canonical report/OCR/import privacy contracts.
-- [ ] Full repository Quality green on clean GEN-F3 head.
+- [x] Add a dedicated Impact candidate parser for operator-pasted service/node lists.
+- [x] Support multiline Impact parsing with bullet/number normalization.
+- [x] Filter safe exact-normalized Impact duplicates while preserving meaningful order.
+- [x] Reuse Impact candidate normalization for imported Impact blocks where appropriate.
+- [x] Add preview/select proposed Impact items before applying them to the live form.
+- [x] Keep Impact manually editable after apply; never infer impact from Site ID/topology alone.
+- [x] Preserve existing report-text Impact import compatibility.
+- [x] Keep Quick Progress inside the existing Generator workspace.
+- [x] Preserve current-time default and editable Progress event time.
+- [x] Preserve pending/error draft retention and stale-revision handling.
+- [x] Add profile-owned reusable Progress snippet library for Dispatch, Arrival, Investigation, OTDR, Material, Jointing, Monitoring, Clearance and Escalation.
+- [x] Add deterministic snippet placeholder resolver with required-placeholder validation.
+- [x] Snippets fill the Progress editor only and never auto-submit.
+- [x] Keep generated snippet text manually editable before submit.
+- [x] Add versioned browser-local favorite snippets with invalid/stale storage fail-safe behavior.
+- [x] Keep `Ctrl/Cmd+Enter` scoped to the Progress editor and add regression coverage.
+- [x] Persist Progress for existing Tickets only through revision-safe `persistProgressAppend`.
+- [x] Keep Progress local-only for a new unsaved Ticket until initial create.
+- [x] Add pure-unit coverage for Impact parsing/de-duplication and snippet placeholders/preferences.
+- [x] Add component coverage for Impact preview/select, Quick Progress, snippets, favorites and keyboard submit.
+- [x] Preserve lifecycle/RBAC/canonical report/OCR/import privacy contracts.
+- [x] Full repository Quality green on clean GEN-F3 head.
+- [x] Final committed-format verifier green on clean GEN-F3 head.
 
-### GEN-F3 exit criterion
+### GEN-F3 completion evidence
 
-Routine operator Impact and Progress updates require materially fewer keystrokes while all changes still flow through the existing explicit form and revision-safe persistence boundaries.
+Impact Builder now normalizes pasted multiline service/node lists, strips safe bullet/number prefixes, removes only exact-normalized duplicates, preserves meaningful order and requires explicit operator selection before applying proposals. Applied Impact rows remain ordinary editable Generator form values; no impact is inferred from topology or Site ID alone. Existing Smart Report Impact parsing reuses the shared normalization without breaking report-text import compatibility.
+
+Quick Progress remains inside the existing Generator and continues to use the established progress persistence path. `MANDAU_DEFAULT` owns reusable Dispatch, Arrival, Investigation, OTDR, Material, Jointing, Monitoring, Clearance and Escalation snippets. Required placeholders are resolved deterministically, snippets only fill the editor, generated text remains editable, favorites are optional versioned browser-local preferences, event time defaults to now but remains editable, and `Ctrl/Cmd+Enter` stays scoped to the Progress editor. Existing Tickets still append through the expected revision boundary; new unsaved Ticket progress stays local until initial create.
+
+Focused GEN-F3 integration evidence covered Impact parsing/de-duplication, Impact preview/select/manual edit, Progress snippets/placeholders/favorites, editable event time, keyboard submission, report-text parity and revision-safe progress persistence. The one-time formatter gate ran those focused regressions before committing the exact Prettier output and was removed from the branch afterward.
+
+**Quality #768 — FULL GREEN** on final clean GEN-F3 product/code head `ed2ab93412848986e2ef5e84bd6dbe8f9dda218b` (run ID `32965402882`).
+
+Validated gates:
+
+- committed Prettier formatting + final committed-format verifier;
+- ESLint;
+- **231 unit/component tests passed** with 15 emulator-only skips in the normal unit pass;
+- Firebase Emulator Ticket repository integration **6/6**;
+- Firestore Security Rules matrix **9/9**;
+- T7 repository/security hygiene: **32 production dependencies referenced**, no committed fixture/test-data files, legacy UI guard clean;
+- T8 Firebase release preflight;
+- generic + Firebase-configured production builds;
+- dev smoke;
+- T6 browser QA at 360x800, 390x844, 412x915 and 1280x900 plus marker-touch QA;
+- Playwright **6/6** covering lifecycle, RBAC, keyboard/dialog focus, themes, responsive overflow and serious axe checks.
+
+GEN-F3 exit criterion is satisfied: routine operator Impact and Progress updates require materially fewer keystrokes while changes still flow through the existing explicit form and revision-safe persistence boundaries.
+
+## GEN-F4 — Validation Center + Time Intelligence
+
+- [ ] Add a derived Validation finding model with blocking/warning severity and field/action targeting.
+- [ ] Bridge Generator/Zod field errors into Validation Center findings without creating divergent validation rules.
+- [ ] Bridge domain lifecycle validation into Validation Center findings.
+- [ ] Surface unresolved source/import conflict findings where source evidence is available.
+- [ ] Surface missing Outlook Sent Time / Dispatch Time review finding without inventing a fallback.
+- [ ] Surface coordinate verification finding for unverified OCR/manual coordinate states where applicable.
+- [ ] Reserve bounded duplicate/suspected-duplicate warning integration for GEN-F5 without adding unbounded reads.
+- [ ] Add derived incident elapsed time.
+- [ ] Add derived dispatch delay as Dispatch Time minus Occur Time.
+- [ ] Add derived age since latest Progress / latest update age.
+- [ ] Add derived resolved duration where resolution timestamps are available.
+- [ ] Add focus-to-field actions from Validation Center findings.
+- [ ] Keep warning-only findings non-blocking and add no SLA breach/judgement semantics.
+- [ ] Refresh time intelligence at minute-level only; no second-by-second global rerender.
+- [ ] Add pure-unit coverage for finding derivation, time ordering and time metrics.
+- [ ] Add component coverage for blocking/warning rendering and focus-to-field actions.
+- [ ] Preserve lifecycle/RBAC/revision/canonical report/OCR/import privacy contracts.
+- [ ] Full repository Quality green on clean GEN-F4 head.
+
+### GEN-F4 exit criterion
+
+The Generator presents one derived Validation Center that reuses existing form/domain rules, distinguishes blocking findings from warnings, links findings back to the relevant field, and adds timestamp-derived operational context without introducing SLA judgement or a second validation authority.
 
 ## Remaining phases
 
-- [ ] GEN-F4 — Validation Center + Time Intelligence
 - [ ] GEN-F5 — Duplicate Detection + Related Tickets
 - [ ] GEN-F6 — Draft Recovery + Revision Diff
 - [ ] GEN-F7 — Handover + Copy Center + Presets + Commands
