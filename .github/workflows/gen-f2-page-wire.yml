@@ -1,0 +1,129 @@
+name: GEN-F2 page wiring
+
+on:
+  push:
+    branches:
+      - feature/template-generator-features
+    paths:
+      - .github/workflows/gen-f2-page-wire.yml
+
+permissions:
+  contents: write
+
+jobs:
+  wire-page:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: feature/template-generator-features
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Wire schema-v2 metadata and Smart Title into Generator
+        shell: bash
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          path = Path('src/features/ticket-generator/pages/TicketGeneratorPage.jsx')
+          text = path.read_text()
+
+          def replace_once(old, new):
+              global text
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'Expected exactly one match, got {count}: {old[:100]!r}')
+              text = text.replace(old, new, 1)
+
+          replace_once(
+          """  TICKET_STATUS,\n  formatCoordinatePair,\n  formatTicketReport,\n""",
+          """  TICKET_STATUS,\n  TICKET_TITLE_MODE,\n  extractExternalTicketNumber,\n  formatCoordinatePair,\n  formatTicketReport,\n""",
+          )
+
+          replace_once(
+          """import { applySelectiveImport } from '../lib/selectiveApply.js';\nimport { ticketToFormValues } from '../lib/ticketToForm.js';\n""",
+          """import { applySelectiveImport } from '../lib/selectiveApply.js';\nimport { canGenerateSmartTitle, generateSmartTitle } from '../lib/smartTitle.js';\nimport {\n  createEditorFeatureMetadata,\n  featureMetadataFromImportCandidate,\n} from '../lib/ticketFeatureMetadata.js';\nimport { ticketToFormValues } from '../lib/ticketToForm.js';\n""",
+          )
+
+          replace_once(
+          """  const [pendingNavigationTicketId, setPendingNavigationTicketId] = useState(null);\n\n  const {\n""",
+          """  const [pendingNavigationTicketId, setPendingNavigationTicketId] = useState(null);\n  const [featureMetadata, setFeatureMetadata] = useState(() =>\n    createEditorFeatureMetadata({ templateProfileId: 'MANDAU_DEFAULT' }),\n  );\n\n  const {\n""",
+          )
+
+          replace_once(
+          """  const ticket = useMemo(\n    () => buildTicketFromForm(watchedValues, { status, progress: progressEntries, revision }),\n    [progressEntries, revision, status, watchedValues],\n  );\n""",
+          """  const ticket = useMemo(\n    () =>\n      buildTicketFromForm(watchedValues, {\n        status,\n        progress: progressEntries,\n        revision,\n        featureMetadata,\n      }),\n    [featureMetadata, progressEntries, revision, status, watchedValues],\n  );\n""",
+          )
+
+          replace_once(
+          """      setRevision(loaded.ticket.revision);\n      setPersistedCoordinateSignature(loaded.coordinateSignature);\n""",
+          """      setRevision(loaded.ticket.revision);\n      setFeatureMetadata(createEditorFeatureMetadata(loaded.ticket));\n      setPersistedCoordinateSignature(loaded.coordinateSignature);\n""",
+          )
+
+          replace_once(
+          """      reset(values);\n      setProgressDirty(false);\n      setSavedStatus(status);\n""",
+          """      reset(values);\n      setFeatureMetadata((current) => ({ ...current }));\n      setProgressDirty(false);\n      setSavedStatus(status);\n""",
+          )
+
+          replace_once(
+          """    const candidate = buildTicketFromForm(values, { status, progress: progressEntries, revision });\n""",
+          """    const candidate = buildTicketFromForm(values, {\n      status,\n      progress: progressEntries,\n      revision,\n      featureMetadata,\n    });\n""",
+          )
+
+          replace_once(
+          """      setStatus(saved.ticket.status);\n      setSavedStatus(saved.ticket.status);\n      reset(ticketToFormValues(saved.ticket));\n""",
+          """      setStatus(saved.ticket.status);\n      setSavedStatus(saved.ticket.status);\n      setFeatureMetadata(createEditorFeatureMetadata(saved.ticket));\n      reset(ticketToFormValues(saved.ticket));\n""",
+          )
+
+          replace_once(
+          """    const candidate = buildTicketFromForm(values, { status, progress: progressEntries, revision });\n    const transition = validateTicketTransition(candidate, targetStatus);\n""",
+          """    const candidate = buildTicketFromForm(values, {\n      status,\n      progress: progressEntries,\n      revision,\n      featureMetadata,\n    });\n    const transition = validateTicketTransition(candidate, targetStatus);\n""",
+          )
+
+          replace_once(
+          """  const applyUnifiedImport = ({ candidate, confirmedFields, includeProgress }) => {\n""",
+          """  const applyUnifiedImport = ({\n    candidate,\n    confirmedFields,\n    includeProgress,\n    includeMetadata,\n    identityResolution,\n  }) => {\n""",
+          )
+
+          replace_once(
+          """    let importedProgressCount = 0;\n    if (includeProgress) {\n""",
+          """    if (includeMetadata) {\n      setFeatureMetadata(\n        featureMetadataFromImportCandidate(candidate, { identityResolution }),\n      );\n    }\n\n    let importedProgressCount = 0;\n    if (includeProgress) {\n""",
+          )
+
+          replace_once(
+          """      `${result.appliedFields.length} field${result.appliedFields.length === 1 ? '' : 's'}`,\n      includeProgress\n""",
+          """      `${result.appliedFields.length} field${result.appliedFields.length === 1 ? '' : 's'}`,\n      includeMetadata ? 'structured metadata' : null,\n      includeProgress\n""",
+          )
+
+          replace_once(
+          """  if (loadingTicket) return <GeneratorLoading />;\n""",
+          """  const titleRegistration = register('title');\n  const smartTitleAvailable = canGenerateSmartTitle(ticket);\n  const hasStructuredMetadata = Boolean(\n    featureMetadata.incidentKey ||\n      featureMetadata.pathKey ||\n      featureMetadata.alarmContext?.rawAlarm ||\n      featureMetadata.alarmContext?.transportFamily ||\n      featureMetadata.alarmContext?.pathEndpoints?.length,\n  );\n\n  const regenerateTitle = () => {\n    if (!smartTitleAvailable) return;\n    const generated = generateSmartTitle(ticket);\n    if (!generated) return;\n    setValue('title', generated, {\n      shouldDirty: true,\n      shouldTouch: true,\n      shouldValidate: true,\n    });\n    setFeatureMetadata((current) => ({\n      ...current,\n      titleMode: TICKET_TITLE_MODE.GENERATED,\n      externalTtNumber: ticket.externalTtNumber ?? current.externalTtNumber,\n    }));\n  };\n\n  const handleTitleChange = (event) => {\n    titleRegistration.onChange(event);\n    setFeatureMetadata((current) => ({\n      ...current,\n      titleMode: TICKET_TITLE_MODE.MANUAL,\n      externalTtNumber: extractExternalTicketNumber(event.target.value),\n    }));\n  };\n\n  if (loadingTicket) return <GeneratorLoading />;\n""",
+          )
+
+          replace_once(
+          """          progressCount={progressEntries.length}\n          progressDirty={progressDirty}\n        />\n""",
+          """          progressCount={progressEntries.length}\n          progressDirty={progressDirty}\n          metadataPresent={hasStructuredMetadata}\n        />\n""",
+          )
+
+          replace_once(
+          """          <TextInput\n            id=\"ticket-title\"\n            label=\"Title\"\n            required\n            placeholder=\"[MANDAU] LINK DOWN ... [TT : INC-...]\"\n            error={errors.title?.message}\n            {...register('title')}\n          />\n          <div className=\"mt-2 flex items-center justify-between gap-3 border-t border-[var(--border-subtle)] pt-2 text-[10px]\">\n""",
+          """          <TextInput\n            id=\"ticket-title\"\n            label=\"Title\"\n            required\n            placeholder=\"[MANDAU] LINK DOWN ... [TT : INC-...]\"\n            error={errors.title?.message}\n            {...titleRegistration}\n            onChange={handleTitleChange}\n          />\n          <div className=\"mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] pt-2 text-[10px]\">\n            <span className=\"font-semibold text-[var(--text-faint)]\">\n              Smart Title · {featureMetadata.titleMode === TICKET_TITLE_MODE.GENERATED ? 'Generated' : 'Manual override'}\n            </span>\n            <Button\n              type=\"button\"\n              tone=\"ghost\"\n              size=\"xs\"\n              disabled={!smartTitleAvailable}\n              onClick={regenerateTitle}\n            >\n              Regenerate\n            </Button>\n          </div>\n          <div className=\"mt-2 flex items-center justify-between gap-3 border-t border-[var(--border-subtle)] pt-2 text-[10px]\">\n""",
+          )
+
+          path.write_text(text)
+          PY
+      - run: npx prettier --write src/features/ticket-generator/pages/TicketGeneratorPage.jsx
+      - run: npx vitest run src/features/ticket-generator/pages/TicketGeneratorPage.test.jsx src/features/ticket-generator/lib/smartTitle.test.js
+      - name: Commit validated page wiring
+        shell: bash
+        run: |
+          git add src/features/ticket-generator/pages/TicketGeneratorPage.jsx
+          git diff --cached --quiet && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "feat(generator): wire GEN-F2 metadata and Smart Title UI"
+          git push origin HEAD:feature/template-generator-features
