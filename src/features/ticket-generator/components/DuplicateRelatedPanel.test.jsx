@@ -1,6 +1,6 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { DuplicateRelatedPanel } from './DuplicateRelatedPanel.jsx';
 
@@ -36,6 +36,10 @@ function renderPanel(props = {}) {
     </MemoryRouter>,
   );
 }
+
+afterEach(() => {
+  cleanup();
+});
 
 describe('DuplicateRelatedPanel', () => {
   it('shows explicit duplicate reasons and keeps review/create-anyway actions operator controlled', () => {
