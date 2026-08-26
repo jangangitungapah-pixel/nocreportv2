@@ -46,6 +46,19 @@ function auditData(type, actorUid, details = null) {
   };
 }
 
+function schemaV2FeatureData(ticket) {
+  return {
+    schemaVersion: 2,
+    titleMode: ticket.titleMode,
+    templateProfileId: ticket.templateProfileId,
+    incidentKey: ticket.incidentKey,
+    pathKey: ticket.pathKey,
+    alarmContext: ticket.alarmContext,
+    importProvenance: ticket.importProvenance,
+    incidentGroupId: ticket.incidentGroupId,
+  };
+}
+
 function verifiedCoordinate(coordinate, actorUid) {
   if (!coordinate) return null;
 
@@ -89,7 +102,11 @@ export async function createTicket(input = {}) {
   try {
     const db = getFirestoreClient();
     const user = requireCurrentUser();
-    const ticket = createEmptyTicket({ ...input, status: input.status ?? TICKET_STATUS.DRAFT });
+    const ticket = createEmptyTicket({
+      ...input,
+      schemaVersion: 2,
+      status: input.status ?? TICKET_STATUS.DRAFT,
+    });
     validateCreationStatus(ticket);
 
     const ticketRef = doc(collection(db, 'tickets'));
@@ -98,9 +115,9 @@ export async function createTicket(input = {}) {
     const batch = writeBatch(db);
 
     batch.set(ticketRef, {
-      schemaVersion: 1,
+      ...schemaV2FeatureData(ticket),
       title: ticket.title,
-      externalTtNumber: extractExternalTicketNumber(ticket.title),
+      externalTtNumber: ticket.externalTtNumber ?? extractExternalTicketNumber(ticket.title),
       impactList: ticket.impactList,
       occurAt: ticket.occurAt,
       dispatchAt: ticket.dispatchAt,
@@ -148,12 +165,19 @@ export async function saveTicket({ ticketId, expectedRevision, patch = {} }) {
 
       assertExpectedRevision(snapshot.data(), expectedRevision, ticketId);
       const current = mapTicketSnapshot(snapshot);
-      const candidate = createEmptyTicket({ ...current, ...patch, id: ticketId });
+      const candidate = createEmptyTicket({
+        ...current,
+        ...patch,
+        id: ticketId,
+        schemaVersion: 2,
+      });
       const auditRef = doc(collection(ticketRef, 'auditEvents'));
 
       transaction.update(ticketRef, {
+        ...schemaV2FeatureData(candidate),
         title: candidate.title,
-        externalTtNumber: extractExternalTicketNumber(candidate.title),
+        externalTtNumber:
+          patch.externalTtNumber ?? extractExternalTicketNumber(candidate.title) ?? null,
         impactList: candidate.impactList,
         occurAt: candidate.occurAt,
         dispatchAt: candidate.dispatchAt,
