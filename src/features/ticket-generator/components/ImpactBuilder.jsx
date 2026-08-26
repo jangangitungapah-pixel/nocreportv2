@@ -87,7 +87,7 @@ export function ImpactBuilder({ existing = EMPTY_IMPACT_VALUES, onApply }) {
           <div className="mt-2 flex justify-end">
             <Button type="button" size="xs" disabled={selectedIds.size === 0} onClick={apply}>
               <AppIcon name="plus" size={13} />
-              Apply selected ({selectedIds.size})
+              Apply Impact ({selectedIds.size})
             </Button>
           </div>
         </div>
