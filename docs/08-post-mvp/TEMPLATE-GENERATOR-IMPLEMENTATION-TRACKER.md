@@ -4,7 +4,7 @@
 **Evidence annex:** `docs/08-post-mvp/TEMPLATE-GENERATOR-EMAIL-IMPORT-ADDENDUM.md`  
 **Branch:** `feature/template-generator-features`  
 **PR:** #7  
-**Status:** GEN-F0 COMPLETE · GEN-F1 COMPLETE · GEN-F2 COMPLETE · GEN-F3 COMPLETE · GEN-F4 COMPLETE · GEN-F5 COMPLETE
+**Status:** GEN-F0 COMPLETE · GEN-F1 COMPLETE · GEN-F2 COMPLETE · GEN-F3 COMPLETE · GEN-F4 COMPLETE · GEN-F5 COMPLETE · GEN-F6 COMPLETE · GEN-F7 IN PROGRESS
 
 ## GEN-F0 — Baseline, contracts and feature skeleton
 
@@ -321,10 +321,74 @@ Validated gates:
 
 Potential duplicate or related incidents are surfaced early through bounded indexed reads and deterministic advisory evidence, while the operator retains explicit control to review, create anyway or link incidents and every Ticket keeps independent lifecycle/revision/Progress semantics.
 
+## GEN-F6 — Draft Recovery + Revision Diff
+
+- [x] Add versioned browser-local draft recovery with a bounded TTL.
+- [x] Recover new-Ticket form values, selected Template Profile, local Progress Timeline entries and the current Progress composer draft.
+- [x] Keep recovery local-only; never store `.msg` bytes, raw email body/HTML, OCR image bytes or attachment blobs.
+- [x] Add explicit Restore / Discard UX and clear recovery after successful persistence.
+- [x] Key existing-Ticket recovery by Ticket ID + base revision and require manual review when the cloud revision changed.
+- [x] Preserve revision-safe Ticket/Progress persistence as the only cloud mutation boundary.
+- [x] Add compact operational `TICKET_UPDATED` revision diffs while keeping status/Progress/coordinate events on dedicated semantics.
+- [x] Keep old audit events without diff readable.
+- [x] Add bounded latest-50 Audit History reads with deterministic ordering.
+- [x] Gate Audit History through the existing `audit:read` capability so Operator/Viewer do not issue Admin-only reads.
+- [x] Add pure-unit coverage for recovery sanitization/TTL/stale-revision behavior and revision diff generation.
+- [x] Add component/page coverage for Restore, Discard, local Progress recovery, Audit History and capability gating.
+- [x] Add audit-query contract coverage for the hard 50-event cap and backward-compatible legacy event mapping.
+- [x] Preserve lifecycle/RBAC/canonical report/OCR/import privacy and bounded-read contracts.
+- [x] Full repository Quality green on clean GEN-F6 head.
+- [x] Final committed-format verifier green on clean GEN-F6 head.
+
+### GEN-F6 completion evidence
+
+Draft Recovery is now an explicit browser-local safety net rather than hidden Firestore auto-save. New Ticket recovery restores safe form values, Template Profile state, local Progress Timeline entries and the in-progress Progress composer draft. Existing Ticket snapshots remain revision-aware; if the cloud revision moved, recovery is surfaced for manual review rather than silently overwriting newer data. Recovery sanitization excludes Outlook message bytes/body/HTML, OCR image bytes and attachment blobs, expires snapshots by TTL and clears them after explicit persistence or Discard.
+
+Future `TICKET_UPDATED` audit events now carry compact operational field diffs with revision boundaries. Legacy audit events without diffs remain readable, while status, Progress and coordinate events keep their existing dedicated semantics. Revision History uses a bounded newest-first query capped at 50 and is only enabled for identities with the existing `audit:read` capability.
+
+**Quality #801 — FULL GREEN** on clean GEN-F6 head `2b571d38c937359295200899693176dacc240f1b` (run ID `33000123863`).
+
+Validated gates:
+
+- committed Prettier formatting + final committed-format verifier;
+- ESLint;
+- **294 unit/component tests passed** with 21 emulator-only skips in the normal unit pass;
+- Firebase Emulator Ticket repository integration **6/6**;
+- Firestore Security Rules matrix **9/9**;
+- incident-group repository integration **1/1**;
+- incident-group Security Rules **5/5**;
+- T7 repository/security hygiene: **32 production dependencies referenced**, no committed fixture/test-data files, legacy UI guard clean;
+- T8 Firebase release preflight;
+- generic + Firebase-configured production builds;
+- dev smoke;
+- T6 browser QA at 360x800, 390x844, 412x915 and 1280x900 plus marker-touch QA;
+- Playwright **6/6** covering lifecycle, RBAC, keyboard/dialog focus, themes, responsive overflow and serious axe checks.
+
+### GEN-F6 exit criterion
+
+Operators can recover interrupted local authoring without bypassing explicit persistence, while Admin audit readers can inspect a bounded, backward-compatible revision history with compact operational diffs. Revision checks, privacy boundaries and immutable audit semantics remain authoritative.
+
+## GEN-F7 — Handover + Copy Center + Presets + Commands
+
+- [ ] Add versioned browser-local Operator Presets with safe invalid/stale-storage fallback and Reset to defaults.
+- [ ] Support default Template Profile, favorite Progress snippets, operationally allowed default PIC, default Copy action, utility expansion state and default event-time behavior without storing RBAC state.
+- [ ] Generate a deterministic Shift Handover Summary from current Ticket state.
+- [ ] Include TT, status, Occur Time, duration, PIC, Rootcause, Cut Point, recent/latest Progress, Validation Center warnings and related-Ticket count in the Handover model where available.
+- [ ] Keep Handover preview/copy-only by default; no AI or hidden persistence.
+- [ ] Add Copy Center targets for Full Report, Title, Impact, Latest Progress, Full Progress Timeline, Coordinate, primary TT, Handover Summary and operational source/alarm summary.
+- [ ] Route Copy Center output through canonical formatter functions instead of ad-hoc JSX strings.
+- [ ] Add `Ctrl/Cmd+S` Save shortcut scoped safely to the Generator workspace.
+- [ ] Preserve `Ctrl/Cmd+Enter` as Progress-only when the Progress editor owns focus.
+- [ ] Add Command Palette actions for Copy Report, focus Smart Import, focus Progress and focus Validation Center.
+- [ ] Do not add easy accidental keyboard shortcuts for lifecycle transitions.
+- [ ] Keep dialog/menu keyboard scopes safe and preserve accessibility behavior.
+- [ ] Add pure-unit coverage for presets, handover formatting and copy-target formatting.
+- [ ] Add component/page coverage for Copy Center, presets, shortcuts and Command Palette actions.
+- [ ] Preserve lifecycle/RBAC/revision/canonical report/OCR/import privacy/bounded-read contracts.
+- [ ] Full repository Quality green on clean GEN-F7 head.
+
 ## Remaining phases
 
-- [ ] GEN-F6 — Draft Recovery + Revision Diff
-- [ ] GEN-F7 — Handover + Copy Center + Presets + Commands
 - [ ] GEN-F8 — Evidence workspace
 - [ ] GEN-F9 — Integrated hardening / feature-release readiness
 
