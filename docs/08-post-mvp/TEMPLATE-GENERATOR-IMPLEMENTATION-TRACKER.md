@@ -4,326 +4,78 @@
 **Evidence annex:** `docs/08-post-mvp/TEMPLATE-GENERATOR-EMAIL-IMPORT-ADDENDUM.md`  
 **Branch:** `feature/template-generator-features`  
 **PR:** #7  
-**Status:** GEN-F0 COMPLETE · GEN-F1 COMPLETE · GEN-F2 COMPLETE · GEN-F3 COMPLETE · GEN-F4 COMPLETE · GEN-F5 COMPLETE
+**Status:** GEN-F0 COMPLETE · GEN-F1 COMPLETE · GEN-F2 COMPLETE · GEN-F3 COMPLETE · GEN-F4 COMPLETE · GEN-F5 COMPLETE · GEN-F6 IN PROGRESS
 
 ## GEN-F0 — Baseline, contracts and feature skeleton
 
-- [x] Dedicated implementation branch created from the validated Mega UI foundation.
-- [x] Dedicated draft PR created; no merge authorized.
-- [x] Normalized Import Candidate contract added.
-- [x] Explicit candidate source/confidence vocabulary added.
-- [x] `message_metadata` candidate source reserved for Outlook top-level metadata.
-- [x] Operational text normalization handles NBSP/whitespace and literal `undefined`.
-- [x] Raw external TT normalization preserves the source reference.
-- [x] Canonical `incidentKey` normalizes `INC-`, `DWDM-INC-`, and `DATACOM-INC-` variants to the embedded `INC-YYYYMMDD-NNN...` identity.
-- [x] Raw alarm preservation + deterministic alarm-family normalization added.
-- [x] Ordered `pathEndpoints[]` parsing added.
-- [x] Canonical endpoint normalization treats spaces/underscores equivalently for identity.
-- [x] Orientation-equivalent `pathKey` added: `A<>B<>C == C<>B<>A` while interior reordering remains distinct.
-- [x] `MANDAU_DEFAULT` Template Profile contract added.
-- [x] `MANDAU_DEFAULT` timezone locked to `Asia/Jakarta`.
-- [x] Email Dispatch Time contract locked to `PR_CLIENT_SUBMIT_TIME` / `0x00390040`.
-- [x] Delivery Time fallback explicitly disabled in profile contract.
-- [x] Quoted body `Sent:` fallback explicitly disabled in profile contract.
-- [x] Non-persisted Ticket schema-v2 feature contract proposal added.
-- [x] Schema-v1 compatibility defaults covered without changing production mapper/persistence.
-- [x] Sanitized corpus-inspired fixtures added with fake node/TT data only.
-- [x] Sanitized fixtures cover multi-point path, reverse orientation, TT prefixes, and quoted `Sent:` risk.
-- [x] Pure unit regression coverage added for GEN-F0 contracts.
-- [x] Production Generator form behavior unchanged.
-- [x] Firestore persistence/schema behavior unchanged.
-- [x] RBAC/Security Rules/lifecycle/OCR/canonical report behavior unchanged.
-- [x] Prettier formatting committed.
-- [x] ESLint green.
-- [x] Unit/component suite green.
-- [x] Firebase Emulator repository tests green.
-- [x] Firestore Security Rules matrix green.
-- [x] Repository/dependency hygiene green.
-- [x] Release preflight green.
-- [x] Generic + Firebase-configured production builds green.
-- [x] Dev smoke green.
-- [x] Real-browser viewport/touch QA green.
-- [x] Playwright lifecycle/RBAC/keyboard/overflow/axe green.
-- [x] Final committed-format verifier green on clean head.
-- [x] PR returned to stacked base `feature/ui-density-system` after clean integration QA.
-
-### GEN-F0 automated QA evidence
-
-**Quality #747 — FULL GREEN** on final GEN-F0 product/code head `152c82ae1d5d27610c48d9cf3b94d80c6d84efb4` (run ID `32929648966`).
-
-Validated gates:
-
-- committed Prettier formatting + final committed-format verifier;
-- ESLint;
-- **173 unit/component tests passed** with 13 emulator-only skips in the normal unit pass;
-- Firebase Emulator Ticket repository integration **6/6**;
-- Firestore Security Rules matrix **7/7**;
-- T7 repository/security hygiene: all **31 production dependencies referenced**, no committed real fixture/test-data files, legacy UI guard clean;
-- T8 Firebase release preflight;
-- generic + Firebase-configured production builds;
-- dev smoke;
-- T6 browser QA at 360x800, 390x844, 412x915 and 1280x900 plus marker-touch QA;
-- Playwright **6/6** covering Login/recovery, Admin lifecycle, Operator/Viewer RBAC, keyboard/dialog focus, Light/Dark persistence/accessibility, and responsive overflow/serious axe checks.
-
-GEN-F0 intentionally changed no production Generator form behavior, Firestore persistence schema, lifecycle, RBAC, OCR or canonical report formatting. Its deliverable is the tested contract foundation for GEN-F1 and later phases.
+See prior completion evidence retained in repository history.
 
 ## GEN-F1 — Unified Import + Outlook `.msg`
 
-- [x] Refactor current Smart Report parser behind a `report_text` source adapter with parity tests.
-- [x] Complete browser `.msg` decoder dependency spike and exact-pin `@kenjiuno/msgreader-web-ng@0.2.0-alpha1`.
-- [x] Wire the approved browser `.msg` decoder into the local ArrayBuffer adapter behind a lazy app-owned boundary.
-- [x] Add a bounded local ArrayBuffer decoder boundary with extension/size/error contracts and no persistence.
-- [x] Validate top-level Outlook Sent Time from a real supported sanitized `.msg` fixture through the package decoder's `clientSubmitTime` output.
-- [x] Convert decoded Sent instants timezone-aware to `Asia/Jakarta` for Generator `dispatchAt`.
-- [x] Explicitly exclude Delivery Time and quoted body `Sent:` from Dispatch Time resolution.
-- [x] Add email subject parser for FLP and direct MANDAU variants.
-- [x] Add structured body parser for operational labels.
-- [x] Add multi-TT reference extraction.
-- [x] Add ordered multi-point path extraction.
-- [x] Add sanitized HTML-to-text fallback.
-- [x] Add `undefined`/blank normalization through the shared GEN-F0 contract.
-- [x] Add field source/confidence metadata.
-- [x] Add subject/body conflict detection, including prefix-equivalent TT identity handling.
-- [x] Add filename fallback at lowest confidence only.
-- [x] Add selective Apply model without Firestore writes or silent dirty-field overwrite.
-- [x] Preserve existing Smart Paste behavior through adapter parity.
-- [x] Add synthetic decoded-message regression fixtures only; no real operational email committed.
-- [x] Decoder boundary drops Delivery Time, recipients, headers, attachments and raw properties before the Import Candidate layer.
-- [x] Add lazy decoder regression coverage for module loading, privacy boundary, Client Submit Time authority and local validation failures.
-- [x] Integrate Unified Import preview/apply into the Generator UI without auto-save.
-- [x] Add equivalent package-backed supported/corrupt `.msg` evidence without committing operational mail.
-- [x] Full repository Quality green on clean GEN-F1 head.
-- [x] Final committed-format verifier green on clean GEN-F1 head.
-
-### GEN-F1 completion evidence
-
-`@kenjiuno/msgreader-web-ng@0.2.0-alpha1` remains exact-pinned behind a replaceable lazy app-owned adapter. Production import validates `.msg` extension/size locally, decodes from `ArrayBuffer`, keeps `clientSubmitTime` as the authoritative Outlook Sent metadata, and drops Delivery Time, recipients, attachments and transport/header details before the Import Candidate boundary.
-
-One-time package-backed evidence run **32933586994** decoded the decoder project's pinned sanitized `sent.msg` fixture through the real npm package and the production adapter. It verified that Client Submit Time and Delivery Time remain distinct, the adapter retains Client Submit Time while excluding Delivery Time/private message fields, and a truncated/corrupt `.msg` is rejected. The fixture was fetched into runner `/tmp`; no operational user email or real `.msg` fixture was committed. The one-time workflow was then archived as manual-only/no-op evidence.
-
-**Quality #754 — FULL GREEN** on final clean GEN-F1 head `8aa9de7772617cc98960d32f2137da1474e6a85d` (run ID `32933704919`).
-
-Validated gates:
-
-- exact dependency installation;
-- committed Prettier formatting + final committed-format verifier;
-- ESLint;
-- unit/component suite;
-- Firebase Emulator repository integration;
-- Firestore Security Rules matrix;
-- T7 repository/security hygiene;
-- T8 Firebase release preflight;
-- generic + Firebase-configured production builds;
-- dev smoke;
-- T6 real-browser viewport/touch QA;
-- Playwright lifecycle/RBAC/keyboard/overflow/accessibility QA.
-
-GEN-F1 exit criterion is satisfied: a supported Outlook `.msg` can be decoded locally into the shared Import Candidate with current-message Sent Time → Dispatch Time authority and conflict-safe selective preview/apply semantics, without bypassing the existing Generator Save/persistence boundary.
+See prior completion evidence retained in repository history.
 
 ## GEN-F2 — Structured metadata + Template Profile + Smart Title
 
-- [x] Extend Ticket entity with backward-compatible optional schema-v2 operational metadata.
-- [x] Keep schema-v1 documents readable through backward-compatible mapper defaults.
-- [x] Persist structured alarm metadata only through normal Ticket Save/update.
-- [x] Update Firestore writes without bypassing revision protection.
-- [x] Update Firestore Security Rules for the optional structured metadata shape.
-- [x] Extend Security Rules emulator matrix for valid/invalid v2 metadata writes.
-- [x] Persist raw alarm + normalized `alarmFamily` without destroying source text.
-- [x] Persist `pathKey` + ordered `pathEndpoints` with N-endpoint support.
-- [x] Persist compact Outlook Sent-time provenance without raw email/body/header data.
-- [x] Promote `MANDAU_DEFAULT` from contract skeleton into the production Template Profile path.
-- [x] Add deterministic `MANDAU_DEFAULT` Smart Title generator.
-- [x] Support transport/family variants in generated titles.
-- [x] Support N-endpoint ordered paths in generated titles.
-- [x] Add Generated / Manual override title state.
-- [x] Manual title edits do not get silently replaced by regenerated metadata.
-- [x] Add explicit Regenerate action.
-- [x] Add unit coverage for schema-v2 defaults, alarm normalization, path topology/orientation, metadata/provenance and Smart Title formatting.
-- [x] Add component coverage for Generated / Manual override / Regenerate behavior.
-- [x] Preserve canonical report determinism and existing lifecycle/RBAC/OCR contracts.
-- [x] Full repository Quality green on clean GEN-F2 head.
-- [x] Final committed-format verifier green on clean GEN-F2 head.
-- [x] PR returned to stacked base `feature/ui-density-system` after clean integration QA.
-
-### GEN-F2 completion evidence
-
-Production Ticket writes now use backward-compatible schema v2 metadata while schema-v1 Tickets remain readable and may upgrade only through a normal revision-safe Save. Structured alarm/path identity, ordered N-endpoint paths, `incidentKey`, `pathKey`, Template Profile state and compact Outlook Sent provenance are persisted without raw email body/HTML/recipient/header/attachment data. Security Rules permit v1/v2 with controlled v1→v2 migration and reject malformed v2 metadata or v2→v1 downgrade.
-
-`MANDAU_DEFAULT` is now the production Template Profile used by deterministic Smart Title generation. Title generation consumes normalized metadata, supports transport/family variants and ordered N-endpoint paths, preserves manual edits through a `MANUAL` override mode, and returns to generated mode only through explicit Regenerate. The canonical Title TT remains authoritative for primary TT/`incidentKey` compatibility when an operator edits it manually.
-
-**Quality #762 — FULL GREEN** on final clean GEN-F2 head `fb02d59d41e31c14f9b39944b7a3e807fb32cfbb` (run ID `32949117038`).
-
-Validated gates:
-
-- committed Prettier formatting + final committed-format verifier;
-- ESLint;
-- unit/component suite including GEN-F2 schema/metadata/Smart Title regressions;
-- Firebase Emulator repository integration + schema-v2 Security Rules matrix;
-- T7 repository/security hygiene;
-- T8 Firebase release preflight;
-- generic + Firebase-configured production builds;
-- dev smoke;
-- T6 real-browser viewport/touch QA;
-- T7 Playwright lifecycle/RBAC/keyboard/overflow/accessibility QA.
-
-GEN-F2 exit criterion is satisfied: imported operational metadata survives normal Ticket Save safely and remains backward-compatible with schema-v1 Tickets, while deterministic Smart Title generation supports transport variants and ordered N-endpoint paths without silently overwriting a manual title.
+See prior completion evidence retained in repository history.
 
 ## GEN-F3 — Impact Builder + Progress acceleration
 
-- [x] Add a dedicated Impact candidate parser for operator-pasted service/node lists.
-- [x] Support multiline Impact parsing with bullet/number normalization.
-- [x] Filter safe exact-normalized Impact duplicates while preserving meaningful order.
-- [x] Reuse Impact candidate normalization for imported Impact blocks where appropriate.
-- [x] Add preview/select proposed Impact items before applying them to the live form.
-- [x] Keep Impact manually editable after apply; never infer impact from Site ID/topology alone.
-- [x] Preserve existing report-text Impact import compatibility.
-- [x] Keep Quick Progress inside the existing Generator workspace.
-- [x] Preserve current-time default and editable Progress event time.
-- [x] Preserve pending/error draft retention and stale-revision handling.
-- [x] Add profile-owned reusable Progress snippet library for Dispatch, Arrival, Investigation, OTDR, Material, Jointing, Monitoring, Clearance and Escalation.
-- [x] Add deterministic snippet placeholder resolver with required-placeholder validation.
-- [x] Snippets fill the Progress editor only and never auto-submit.
-- [x] Keep generated snippet text manually editable before submit.
-- [x] Add versioned browser-local favorite snippets with invalid/stale storage fail-safe behavior.
-- [x] Keep `Ctrl/Cmd+Enter` scoped to the Progress editor and add regression coverage.
-- [x] Persist Progress for existing Tickets only through revision-safe `persistProgressAppend`.
-- [x] Keep Progress local-only for a new unsaved Ticket until initial create.
-- [x] Add pure-unit coverage for Impact parsing/de-duplication and snippet placeholders/preferences.
-- [x] Add component coverage for Impact preview/select, Quick Progress, snippets, favorites and keyboard submit.
-- [x] Preserve lifecycle/RBAC/canonical report/OCR/import privacy contracts.
-- [x] Full repository Quality green on clean GEN-F3 head.
-- [x] Final committed-format verifier green on clean GEN-F3 head.
-
-### GEN-F3 completion evidence
-
-Impact Builder now normalizes pasted multiline service/node lists, strips safe bullet/number prefixes, removes only exact-normalized duplicates, preserves meaningful order and requires explicit operator selection before applying proposals. Applied Impact rows remain ordinary editable Generator form values; no impact is inferred from topology or Site ID alone. Existing Smart Report Impact parsing reuses the shared normalization without breaking report-text import compatibility.
-
-Quick Progress remains inside the existing Generator and continues to use the established progress persistence path. `MANDAU_DEFAULT` owns reusable Dispatch, Arrival, Investigation, OTDR, Material, Jointing, Monitoring, Clearance and Escalation snippets. Required placeholders are resolved deterministically, snippets only fill the editor, generated text remains editable, favorites are optional versioned browser-local preferences, event time defaults to now but remains editable, and `Ctrl/Cmd+Enter` stays scoped to the Progress editor. Existing Tickets still append through the expected revision boundary; new unsaved Ticket progress stays local until initial create.
-
-Focused GEN-F3 integration evidence covered Impact parsing/de-duplication, Impact preview/select/manual edit, Progress snippets/placeholders/favorites, editable event time, keyboard submission, report-text parity and revision-safe progress persistence. The one-time formatter gate ran those focused regressions before committing the exact Prettier output and was removed from the branch afterward.
-
-**Quality #768 — FULL GREEN** on final clean GEN-F3 product/code head `ed2ab93412848986e2ef5e84bd6dbe8f9dda218b` (run ID `32965402882`).
-
-Validated gates:
-
-- committed Prettier formatting + final committed-format verifier;
-- ESLint;
-- **231 unit/component tests passed** with 15 emulator-only skips in the normal unit pass;
-- Firebase Emulator Ticket repository integration **6/6**;
-- Firestore Security Rules matrix **9/9**;
-- T7 repository/security hygiene: **32 production dependencies referenced**, no committed fixture/test-data files, legacy UI guard clean;
-- T8 Firebase release preflight;
-- generic + Firebase-configured production builds;
-- dev smoke;
-- T6 browser QA at 360x800, 390x844, 412x915 and 1280x900 plus marker-touch QA;
-- Playwright **6/6** covering lifecycle, RBAC, keyboard/dialog focus, themes, responsive overflow and serious axe checks.
-
-GEN-F3 exit criterion is satisfied: routine operator Impact and Progress updates require materially fewer keystrokes while changes still flow through the existing explicit form and revision-safe persistence boundaries.
+See prior completion evidence retained in repository history.
 
 ## GEN-F4 — Validation Center + Time Intelligence
 
-- [x] Add a derived Validation finding model with blocking/warning severity and field/action targeting.
-- [x] Bridge Generator/Zod field errors into Validation Center findings without creating divergent validation rules.
-- [x] Bridge domain lifecycle validation into Validation Center findings.
-- [x] Surface unresolved source/import conflict findings where source evidence is available.
-- [x] Surface missing Outlook Sent Time / Dispatch Time review finding without inventing a fallback.
-- [x] Surface coordinate verification finding for unverified OCR/manual coordinate states where applicable.
-- [x] Reserve bounded duplicate/suspected-duplicate warning integration for GEN-F5 without adding unbounded reads.
-- [x] Add derived incident elapsed time.
-- [x] Add derived dispatch delay as Dispatch Time minus Occur Time.
-- [x] Add derived age since latest Progress / latest update age.
-- [x] Add derived resolved duration where resolution timestamps are available.
-- [x] Add focus-to-field actions from Validation Center findings.
-- [x] Keep warning-only findings non-blocking and add no SLA breach/judgement semantics.
-- [x] Refresh time intelligence at minute-level only; no second-by-second global rerender.
-- [x] Add pure-unit coverage for finding derivation, time ordering and time metrics.
-- [x] Add component coverage for blocking/warning rendering and focus-to-field actions.
-- [x] Preserve lifecycle/RBAC/revision/canonical report/OCR/import privacy contracts.
-- [x] Full repository Quality green on clean GEN-F4 head.
-- [x] Final committed-format verifier green on clean GEN-F4 head.
-
-### GEN-F4 completion evidence
-
-The Generator now derives one Validation Center from existing Zod form validation, domain Running requirements, import conflict evidence, coordinate verification state and normalized timestamps. Blocking findings remain separate from warnings/informational gaps, findings can focus the relevant Generator field, and warning-only findings do not block normal Draft Save behavior.
-
-Time Intelligence derives incident elapsed time, Dispatch delay, latest Progress age, latest update age and resolved duration at minute-level refresh. `MANDAU_DEFAULT` remains explicit `Asia/Jakarta`; Outlook-derived Dispatch calculations prioritize persisted `PR_CLIENT_SUBMIT_TIME` provenance and never substitute Delivery Time. No SLA breach judgement or second-by-second global rerender was introduced.
-
-A GEN-F4 regression investigation found and fixed a referential render loop in Unified Import analysis defaults. Stable shared empty defaults removed the loop; the formerly timing-out `SmartPasteParser.validation.test.jsx` then passed in isolation and in the full unit/component suite. Temporary diagnostic/recovery workflows were removed before final integration QA.
-
-**Quality #778 — FULL GREEN** on final clean GEN-F4 product/code head `6198e7aed522c7ca3146d95268eead52c306b956` (run ID `32974216637`).
-
-Validated gates:
-
-- committed Prettier formatting + final committed-format verifier;
-- ESLint;
-- **248 unit/component tests passed** with 15 emulator-only skips in the normal unit pass;
-- Firebase Emulator Ticket repository integration **6/6**;
-- Firestore Security Rules matrix **9/9**;
-- T7 repository/security hygiene: **32 production dependencies referenced**, no committed fixture/test-data files, legacy UI guard clean;
-- T8 Firebase release preflight;
-- generic + Firebase-configured production builds;
-- dev smoke;
-- T6 browser QA at 360x800, 390x844, 412x915 and 1280x900 plus marker-touch QA;
-- Playwright **6/6** covering lifecycle, RBAC, keyboard/dialog focus, themes, responsive overflow and serious axe checks.
-
-GEN-F4 exit criterion is satisfied: the Generator presents one derived Validation Center that reuses existing form/domain rules, distinguishes blocking findings from warnings, links findings back to the relevant field, and adds timestamp-derived operational context without introducing SLA judgement or a second validation authority.
+See prior completion evidence retained in repository history.
 
 ## GEN-F5 — Duplicate Detection + Related Tickets
 
-- [x] Add deterministic advisory duplicate scoring with explicit matching reasons.
-- [x] Treat exact `externalTtNumber` match as critical duplicate evidence.
-- [x] Treat same canonical `incidentKey` as critical/high relationship evidence.
-- [x] Treat same `pathKey` within the bounded occurrence-time window as high evidence.
-- [x] Treat an active same-`pathKey` Ticket as high evidence without making it a hard block.
-- [x] Treat Site ID + alarm family + close Occur Time as medium evidence where structured metadata exists.
-- [x] Keep normalized title similarity weak fallback evidence only.
-- [x] Do not treat different EMS Alarm Numbers as proof of different physical incidents.
-- [x] Add bounded Firestore lookup priority: exact TT, incidentKey, active/recent pathKey, then bounded recent fallback only if justified.
-- [x] Add any required Firestore indexes without introducing collection-wide client scans.
-- [x] Feed duplicate candidates into the existing Validation Center as warning-only findings.
-- [x] Show candidate TT, status, Occur Time, latest update and matching reasons.
-- [x] Provide Review existing Ticket and explicit Create anyway behavior without silently blocking creation.
-- [x] Add `incidentGroups/{groupId}` repository/model boundary with bounded related-Ticket reads.
-- [x] Support create group from a duplicate suggestion, link Ticket, unlink Ticket and bounded related-Ticket listing.
-- [x] Keep each related Ticket lifecycle, revision and Progress state independent.
-- [x] Keep related/duplicate mutations inside existing RBAC/revision-safe persistence boundaries.
-- [x] Add pure-unit coverage for scoring/reason ordering/time windows.
-- [x] Add Firebase Emulator coverage for bounded duplicate/group persistence behavior and Security Rules where required.
-- [x] Add component coverage for advisory candidate review and explicit operator actions.
-- [x] Preserve canonical report/OCR/import privacy and all protected contracts.
-- [x] Full repository Quality green on clean GEN-F5 head.
+- [x] Deterministic advisory duplicate scoring and explicit matching reasons.
+- [x] Bounded indexed candidate lookup without collection-wide scans.
+- [x] Validation Center duplicate warnings remain advisory.
+- [x] Explicit Review existing / Create anyway behavior.
+- [x] Revision-safe incident-group create/link/unlink/list boundaries.
+- [x] Firestore Security Rules enforce Ticket/group consistency.
+- [x] Unit/component + Emulator + browser/E2E QA complete.
 
 ### GEN-F5 completion evidence
 
-Duplicate detection now uses deterministic advisory scoring with explicit reasons and bounded Firestore candidate lookup. Exact TT and canonical incident identity remain the strongest evidence, path/time and active-path evidence are high signals, structured Site ID + alarm-family proximity is medium evidence, title similarity remains weak fallback only, and different EMS Alarm Numbers are never treated as proof of unrelated physical incidents. Validation Center surfaces suspected duplicates as warnings while the operator explicitly chooses Review existing Ticket, Create anyway or related-Ticket actions.
+**GEN-F5 QA #8 — FULL GREEN** for final product/code head `3a465742a180d71bfe0502e237665ecc300e8c62` through read-only QA wrapper head `014b08800d36bf8a360487315110833f5fd635c8` (run ID `32993651051`). Product code under test was the exact `3a465742` tree.
 
-Related incidents use bounded `incidentGroups/{groupId}` documents while every Ticket retains independent lifecycle, revision and Progress state. Link/unlink/group creation routes remain revision-safe, reject conflicting group membership, and never silently merge Tickets. Firestore Security Rules enforce role checks plus Ticket/group post-transaction membership consistency, reject pre-linked Ticket creation and forged `incidentGroupId` mutation, and preserve schema-v1 → v2 upgrades where an absent group field becomes explicit `null`.
+Validated gates included 272 unit/component tests, Ticket repository Emulator 6/6, Firestore Rules 9/9, incident-group repository 1/1, incident-group Rules 5/5, security hygiene, release preflight, generic/Firebase builds, smoke, viewport/touch QA and Playwright/accessibility 6/6.
 
-**GEN-F5 QA #8 — FULL GREEN** for final product/code head `3a465742a180d71bfe0502e237665ecc300e8c62` through read-only QA wrapper head `014b08800d36bf8a360487315110833f5fd635c8` (run ID `32993651051`). The wrapper added only the QA workflow and trigger; product code under test was the exact `3a465742` tree.
+## GEN-F6 — Draft Recovery + Revision Diff
 
-Validated gates:
+- [x] Add versioned browser-local recovery storage with a bounded TTL.
+- [x] Keep recovery local-only; no hidden Firestore autosave.
+- [x] Store only safe whitelisted Generator form values.
+- [x] Preserve selected Template Profile and compact safe feature metadata required for recovery.
+- [x] Preserve new-Ticket local Progress Timeline entries and unsubmitted Progress composer draft.
+- [x] Never store `.msg` bytes, raw email body/HTML, recipients, headers, OCR image bytes or attachment blobs.
+- [x] Detect compatible recovery snapshot and offer explicit Restore / Discard.
+- [x] Key existing-Ticket recovery by `ticketId + baseRevision`.
+- [x] Detect stale existing-Ticket recovery and require explicit review before applying it.
+- [x] Clear local recovery after successful Ticket create/save and successful persisted Progress append.
+- [x] Expire invalid/stale storage payloads safely without blocking the editor.
+- [x] Add page-level recovery regression for Restore / Discard and local Progress recovery.
+- [x] Add compact operational revision diff contract for future `TICKET_UPDATED` events.
+- [x] Exclude status, Progress and coordinate changes from generic update diffs because they retain dedicated audit semantics.
+- [x] Exclude raw alarm/Description and other raw source content from audit diffs.
+- [x] Persist `revisionFrom`, `revisionTo` and bounded `details.changes` on `TICKET_UPDATED` audit events.
+- [x] Keep old audit events without compact diff readable.
+- [x] Add bounded latest-50 audit history query.
+- [x] Gate audit history reads to `audit:read` capability / Admin-compatible access.
+- [x] Add Revision History UI with field changes and legacy-event fallback.
+- [x] Add unit/component coverage for recovery privacy, stale revision review, audit diff, capability gate and bounded audit reads.
+- [x] Focused GEN-F6 formatting + regression matrix green.
+- [ ] Full repository Quality green on clean GEN-F6 head.
+- [ ] Final committed-format verifier green on clean GEN-F6 head.
+- [ ] Return PR #7 to stacked base `feature/ui-density-system` after integration QA.
 
-- committed Prettier formatting;
-- ESLint;
-- **272 unit/component tests passed** with emulator-only suites skipped in the normal unit pass;
-- Firebase Emulator Ticket repository integration **6/6**;
-- Firestore Security Rules matrix **9/9**;
-- incident-group repository integration **1/1**;
-- incident-group Security Rules **5/5**;
-- T7 repository/security hygiene: **32 production dependencies referenced**, no committed fixture/test-data files, legacy UI guard clean;
-- T8 Firebase release preflight;
-- generic + Firebase-configured production builds;
-- dev smoke;
-- T6 browser QA at 360x800, 390x844, 412x915 and 1280x900 plus marker-touch QA;
-- Playwright **6/6** covering lifecycle, RBAC, keyboard/dialog focus, themes, responsive overflow and serious axe checks.
+### GEN-F6 exit criterion
 
-### GEN-F5 exit criterion
-
-Potential duplicate or related incidents are surfaced early through bounded indexed reads and deterministic advisory evidence, while the operator retains explicit control to review, create anyway or link incidents and every Ticket keeps independent lifecycle/revision/Progress semantics.
+An interrupted Generator session can be recovered locally without any hidden cloud write or raw source-content persistence, while future core Ticket updates emit compact immutable revision diffs and Admin audit history remains bounded, backward-compatible and read-only.
 
 ## Remaining phases
 
-- [ ] GEN-F6 — Draft Recovery + Revision Diff
 - [ ] GEN-F7 — Handover + Copy Center + Presets + Commands
 - [ ] GEN-F8 — Evidence workspace
 - [ ] GEN-F9 — Integrated hardening / feature-release readiness
@@ -338,4 +90,6 @@ Potential duplicate or related incidents are surfaced early through bounded inde
 - OCR remains local-only.
 - Email/Smart Import never auto-write Firestore.
 - Outlook `.msg` bytes, raw body/HTML, recipient lists, Exchange headers and attachments are not persisted.
-- all future duplicate/related-Ticket reads remain bounded.
+- all duplicate/related-Ticket reads remain bounded.
+- Draft Recovery remains browser-local only and never becomes hidden Firestore autosave.
+- Audit history reads remain bounded and capability-gated.
