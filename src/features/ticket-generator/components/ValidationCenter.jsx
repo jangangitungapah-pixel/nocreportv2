@@ -3,10 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { getAuthClient } from '../../../infrastructure/firebase/authClient.js';
 import { getFirebaseConfigStatus } from '../../../infrastructure/firebase/firebaseConfig.js';
 import { AppIcon } from '../../../shared/ui/icon.jsx';
-import {
-  duplicateLookupFingerprint,
-  hasDuplicateLookupSignal,
-} from '../lib/duplicateDetection.js';
+import { duplicateLookupFingerprint, hasDuplicateLookupSignal } from '../lib/duplicateDetection.js';
 import { findDuplicateCandidates } from '../lib/duplicateDetectionService.js';
 import {
   loadRelatedTickets,
@@ -195,7 +192,9 @@ export function ValidationCenter({ validation, onFocusField }) {
   const handleRelateCandidate = async (candidate) => {
     if (!routeTicketId || !ticket || relatePendingId) return;
     if (generatorHasUnsavedChanges()) {
-      setRelatedError(new Error('Save the current Generator changes before linking related Tickets.'));
+      setRelatedError(
+        new Error('Save the current Generator changes before linking related Tickets.'),
+      );
       return;
     }
 
@@ -217,7 +216,9 @@ export function ValidationCenter({ validation, onFocusField }) {
   const handleUnlinkCurrent = async () => {
     if (!routeTicketId || !ticket?.incidentGroupId || unlinkPending) return;
     if (generatorHasUnsavedChanges()) {
-      setRelatedError(new Error('Save the current Generator changes before unlinking this Ticket.'));
+      setRelatedError(
+        new Error('Save the current Generator changes before unlinking this Ticket.'),
+      );
       return;
     }
 
