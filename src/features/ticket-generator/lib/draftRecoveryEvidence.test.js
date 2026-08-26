@@ -60,10 +60,7 @@ describe('GEN-F8 evidence draft recovery', () => {
       ),
     ).toBe(true);
 
-    const recovery = readDraftRecovery(
-      {},
-      { storage, now: new Date('2026-08-27T02:05:00+07:00') },
-    );
+    const recovery = readDraftRecovery({}, { storage, now: new Date('2026-08-27T02:05:00+07:00') });
     expect(recovery.state).toBe('available');
     expect(recovery.payload.evidenceItems).toHaveLength(1);
     expect(recovery.payload.evidenceItems[0]).toMatchObject({

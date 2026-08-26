@@ -1,3 +1,5 @@
+import { sanitizeEvidenceRecoveryItems } from './evidenceWorkspace.js';
+
 const DRAFT_RECOVERY_VERSION = 1;
 const DRAFT_RECOVERY_PREFIX = 'nocreport-ticket-draft';
 const NEW_TICKET_KEY = `${DRAFT_RECOVERY_PREFIX}:new`;
@@ -197,6 +199,7 @@ function buildPayload({
   featureMetadata = {},
   progressDraft = null,
   progressEntries = [],
+  evidenceItems = [],
   templateProfileId = 'MANDAU_DEFAULT',
   importReview = null,
   dirtyAt = new Date(),
@@ -215,6 +218,7 @@ function buildPayload({
     featureMetadata: safeFeatureMetadata,
     progressDraft: sanitizeProgressDraft(progressDraft),
     progressEntries: sanitizeProgressRecoveryEntries(progressEntries),
+    evidenceItems: sanitizeEvidenceRecoveryItems(evidenceItems),
     importMetadata: sanitizeImportRecoveryMetadata(importReview),
   };
 }
