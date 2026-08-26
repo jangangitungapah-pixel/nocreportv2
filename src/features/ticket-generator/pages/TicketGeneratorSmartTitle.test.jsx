@@ -4,35 +4,38 @@ import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 
 import { AppProviders } from '../../../app/providers/AppProviders.jsx';
 
-vi.mock('../lib/ticketFeatureMetadata.js', () => ({
-  createEditorFeatureMetadata: vi.fn(() => ({
-    externalTtNumber: 'DWDM-INC-20260825-00015373',
-    titleMode: 'GENERATED',
-    templateProfileId: 'MANDAU_DEFAULT',
-    incidentKey: 'INC-20260825-00015373',
-    pathKey: 'NODE_A<>NODE_B<>NODE_C',
-    alarmContext: {
-      rawAlarm: 'Link Down',
-      alarmFamily: 'LINK_DOWN',
-      alarmSource: '',
-      emsAlarmNo: '',
-      siteId: '',
-      siteName: '',
-      severity: '',
-      sourceStatus: '',
-      dispatchTo: '',
-      region: '',
-      description: '',
-      lastLinkFlapped: '',
-      transportFamily: 'DWDM UJB',
-      pathEndpoints: ['NODE_A', 'NODE_B', 'NODE_C'],
-      externalTtReferences: ['DWDM-INC-20260825-00015373'],
-    },
-    importProvenance: null,
-    incidentGroupId: null,
-  })),
-  featureMetadataFromImportCandidate: vi.fn(),
-}));
+vi.mock('../lib/ticketFeatureMetadata.js', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    createEditorFeatureMetadata: vi.fn(() => ({
+      externalTtNumber: 'DWDM-INC-20260825-00015373',
+      titleMode: 'GENERATED',
+      templateProfileId: 'MANDAU_DEFAULT',
+      incidentKey: 'INC-20260825-00015373',
+      pathKey: 'NODE_A<>NODE_B<>NODE_C',
+      alarmContext: {
+        rawAlarm: 'Link Down',
+        alarmFamily: 'LINK_DOWN',
+        alarmSource: '',
+        emsAlarmNo: '',
+        siteId: '',
+        siteName: '',
+        severity: '',
+        sourceStatus: '',
+        dispatchTo: '',
+        region: '',
+        description: '',
+        lastLinkFlapped: '',
+        transportFamily: 'DWDM UJB',
+        pathEndpoints: ['NODE_A', 'NODE_B', 'NODE_C'],
+        externalTtReferences: ['DWDM-INC-20260825-00015373'],
+      },
+      importProvenance: null,
+      incidentGroupId: null,
+    })),
+  };
+});
 
 import { TicketGeneratorPage } from './TicketGeneratorPage.jsx';
 
