@@ -34,11 +34,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install browser accessibility dependencies
+      - name: Install browser accessibility and runtime fixture dependencies
         run: >-
           npm install --no-save --package-lock=false
           @playwright/test@1.62.1
           @axe-core/playwright@4.13.0
+          cfb@1.2.2
 
       - name: Format source
         run: npm run format
