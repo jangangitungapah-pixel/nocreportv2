@@ -83,6 +83,7 @@ export function DuplicateRelatedPanel({
   duplicatePending = false,
   duplicateError = null,
   duplicateAcknowledged = false,
+  canCreateAnyway = true,
   onCreateAnyway,
   canRelate = false,
   hasUnsavedChanges = false,
@@ -110,7 +111,7 @@ export function DuplicateRelatedPanel({
   }
 
   return (
-    <section className="overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+    <section className="generator-duplicate-related overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
       <header className="flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5">
         <div>
           <h3 className="text-xs font-extrabold text-[var(--text-primary)]">
@@ -143,15 +144,17 @@ export function DuplicateRelatedPanel({
               <p className="text-[10px] font-bold text-[var(--text-secondary)]">
                 Possible duplicate or related incidents
               </p>
-              {!duplicateAcknowledged ? (
-                <Button tone="secondary" size="sm" onClick={onCreateAnyway}>
-                  Create anyway
-                </Button>
-              ) : (
-                <span className="text-[9px] font-bold uppercase tracking-[0.08em] text-[var(--text-faint)]">
-                  Reviewed · create allowed
-                </span>
-              )}
+              {canCreateAnyway ? (
+                !duplicateAcknowledged ? (
+                  <Button tone="secondary" size="sm" onClick={onCreateAnyway}>
+                    Create anyway
+                  </Button>
+                ) : (
+                  <span className="text-[9px] font-bold uppercase tracking-[0.08em] text-[var(--text-faint)]">
+                    Reviewed · create allowed
+                  </span>
+                )
+              ) : null}
             </div>
             {candidates.map((candidate) => (
               <CandidateCard
