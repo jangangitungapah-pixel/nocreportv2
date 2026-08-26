@@ -1,0 +1,77 @@
+name: GUX-3 operations timeline evidence
+
+on:
+  push:
+    branches:
+      - feature/template-generator-visual-overhaul
+    paths:
+      - .github/workflows/gux-3-operations.yml
+
+permissions:
+  contents: write
+
+jobs:
+  operations:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: feature/template-generator-visual-overhaul
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Apply GUX-3 presentation changes
+        run: node scripts/apply-gux-3-operations.mjs apply
+
+      - name: Format
+        run: npm run format
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Targeted operations regression
+        run: >-
+          npx vitest run
+          src/features/ticket-generator/components/EvidenceWorkspace.test.jsx
+          src/features/ticket-generator/components/CoordinateExtractor.test.jsx
+          src/features/ticket-generator/components/ProgressComposer.test.jsx
+          src/features/ticket-generator/components/ProgressComposerPresets.test.jsx
+          src/features/ticket-generator/lib/evidenceWorkspace.test.js
+          src/features/ticket-generator/lib/draftRecoveryEvidence.test.js
+          src/features/ticket-generator/lib/persistenceServiceProgress.test.js
+          src/features/ticket-generator/pages/TicketGeneratorEvidenceRecovery.test.jsx
+
+      - name: Full unit and component suite
+        run: npm test
+
+      - name: Production build
+        run: npm run build
+
+      - name: Record GUX-3 evidence
+        run: node scripts/apply-gux-3-operations.mjs record
+
+      - name: Commit validated GUX-3 source
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add \
+            src/features/ticket-generator/components/EvidenceWorkspace.jsx \
+            src/features/ticket-generator/components/CoordinateExtractor.jsx \
+            src/features/ticket-generator/components/ProgressComposer.jsx \
+            src/features/ticket-generator/components/ProgressTimeline.jsx \
+            src/styles/app.css \
+            docs/08-post-mvp/TEMPLATE-GENERATOR-VISUAL-OVERHAUL-TRACKER.md
+          git commit -m 'feat(generator-ui): complete GUX-3 operations hierarchy'
+          git push origin HEAD:feature/template-generator-visual-overhaul
