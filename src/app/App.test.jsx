@@ -62,6 +62,25 @@ describe('application shell', () => {
     expect(screen.getByRole('button', { name: 'Switch to light mode' })).toBeInTheDocument();
   });
 
+  it('persists theme changes through the account-menu Radix Switch', async () => {
+    renderRoute();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open account menu' }));
+    const themeSwitch = await screen.findByRole('switch', { name: 'Dark mode' });
+
+    expect(themeSwitch).toHaveAttribute('data-state', 'unchecked');
+    fireEvent.click(themeSwitch);
+
+    expect(document.documentElement.dataset.theme).toBe('dark');
+    expect(window.localStorage.getItem('nocreport-theme')).toBe('dark');
+    expect(themeSwitch).toHaveAttribute('data-state', 'checked');
+
+    fireEvent.click(themeSwitch);
+    expect(document.documentElement.dataset.theme).toBe('light');
+    expect(window.localStorage.getItem('nocreport-theme')).toBe('light');
+    expect(themeSwitch).toHaveAttribute('data-state', 'unchecked');
+  });
+
   it('supports the canonical explicit ticket editor route', async () => {
     renderRoute('/generator/ticket-123/edit');
 
