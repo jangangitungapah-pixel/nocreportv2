@@ -27,13 +27,8 @@ jobs:
           node - <<'NODE'
           const fs = require('node:fs');
           const path = require('node:path');
-          const entry = require.resolve('@kenjiuno/msgreader-web-ng');
-          let root = path.dirname(entry);
-          while (root !== path.dirname(root) && !fs.existsSync(path.join(root, 'package.json'))) {
-            root = path.dirname(root);
-          }
+          const root = path.resolve('node_modules/@kenjiuno/msgreader-web-ng');
           const pkgPath = path.join(root, 'package.json');
-          if (!fs.existsSync(pkgPath)) throw new Error('Decoder package root not found');
           const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
           console.log('PACKAGE_JSON=' + pkgPath);
           console.log('PACKAGE_NAME=' + pkg.name);
@@ -54,13 +49,7 @@ jobs:
         run: |
           REPO_URL=$(node - <<'NODE'
           const fs = require('node:fs');
-          const path = require('node:path');
-          const entry = require.resolve('@kenjiuno/msgreader-web-ng');
-          let root = path.dirname(entry);
-          while (root !== path.dirname(root) && !fs.existsSync(path.join(root, 'package.json'))) {
-            root = path.dirname(root);
-          }
-          const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+          const pkg = JSON.parse(fs.readFileSync('node_modules/@kenjiuno/msgreader-web-ng/package.json', 'utf8'));
           const repository = typeof pkg.repository === 'string' ? pkg.repository : pkg.repository?.url;
           if (!repository) process.exit(2);
           process.stdout.write(repository.replace(/^git\+/, '').replace(/^git:/, 'https:').replace(/\.git$/, '') + '.git');
