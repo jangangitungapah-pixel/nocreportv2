@@ -4,7 +4,7 @@
 **Evidence annex:** `docs/08-post-mvp/TEMPLATE-GENERATOR-EMAIL-IMPORT-ADDENDUM.md`  
 **Branch:** `feature/template-generator-features`  
 **PR:** #7  
-**Status:** GEN-F0 COMPLETE · GEN-F1 INTEGRATION QA
+**Status:** GEN-F0 COMPLETE · GEN-F1 COMPLETE · GEN-F2 IN PROGRESS
 
 ## GEN-F0 — Baseline, contracts and feature skeleton
 
@@ -73,7 +73,7 @@ GEN-F0 intentionally changed no production Generator form behavior, Firestore pe
 - [x] Complete browser `.msg` decoder dependency spike and exact-pin `@kenjiuno/msgreader-web-ng@0.2.0-alpha1`.
 - [x] Wire the approved browser `.msg` decoder into the local ArrayBuffer adapter behind a lazy app-owned boundary.
 - [x] Add a bounded local ArrayBuffer decoder boundary with extension/size/error contracts and no persistence.
-- [ ] Validate top-level Outlook Sent Time from a real supported `.msg` fixture through the package decoder's `clientSubmitTime` output.
+- [x] Validate top-level Outlook Sent Time from a real supported sanitized `.msg` fixture through the package decoder's `clientSubmitTime` output.
 - [x] Convert decoded Sent instants timezone-aware to `Asia/Jakarta` for Generator `dispatchAt`.
 - [x] Explicitly exclude Delivery Time and quoted body `Sent:` from Dispatch Time resolution.
 - [x] Add email subject parser for FLP and direct MANDAU variants.
@@ -91,24 +91,64 @@ GEN-F0 intentionally changed no production Generator form behavior, Firestore pe
 - [x] Decoder boundary drops Delivery Time, recipients, headers, attachments and raw properties before the Import Candidate layer.
 - [x] Add lazy decoder regression coverage for module loading, privacy boundary, Client Submit Time authority and local validation failures.
 - [x] Integrate Unified Import preview/apply into the Generator UI without auto-save.
-- [ ] Add a sanitized package-backed supported/corrupt `.msg` fixture regression or equivalent real-decoder evidence without committing operational mail.
-- [ ] Full repository Quality green on clean GEN-F1 head.
+- [x] Add equivalent package-backed supported/corrupt `.msg` evidence without committing operational mail.
+- [x] Full repository Quality green on clean GEN-F1 head.
+- [x] Final committed-format verifier green on clean GEN-F1 head.
 
-### GEN-F1 integration checkpoint
+### GEN-F1 completion evidence
 
-The current checkpoint exact-pins `@kenjiuno/msgreader-web-ng@0.2.0-alpha1`, keeps the alpha dependency behind a replaceable lazy adapter, preserves the injectable decoder path for deterministic tests, and integrates a single Unified Import panel for existing report text plus local Outlook `.msg` files.
+`@kenjiuno/msgreader-web-ng@0.2.0-alpha1` remains exact-pinned behind a replaceable lazy app-owned adapter. Production import validates `.msg` extension/size locally, decodes from `ArrayBuffer`, keeps `clientSubmitTime` as the authoritative Outlook Sent metadata, and drops Delivery Time, recipients, attachments and transport/header details before the Import Candidate boundary.
 
-Selective Apply now preselects only safe empty-field fills. Replacements remain unchecked until the operator explicitly selects them; dirty replacements are confirmed through the existing selective-apply contract. Blocking TT identity conflicts are surfaced instead of guessed, and the Generator apply boundary only mutates the in-memory draft/progress state—never Firestore.
+One-time package-backed evidence run **32933586994** decoded the decoder project's pinned sanitized `sent.msg` fixture through the real npm package and the production adapter. It verified that Client Submit Time and Delivery Time remain distinct, the adapter retains Client Submit Time while excluding Delivery Time/private message fields, and a truncated/corrupt `.msg` is rejected. The fixture was fetched into runner `/tmp`; no operational user email or real `.msg` fixture was committed. The one-time workflow was then archived as manual-only/no-op evidence.
 
-Integration QA is running with PR #7 temporarily retargeted to `main`. The real supported `.msg` fixture gate remains intentionally open until package-backed evidence is available without committing operational mail.
+**Quality #754 — FULL GREEN** on final clean GEN-F1 head `8aa9de7772617cc98960d32f2137da1474e6a85d` (run ID `32933704919`).
 
-### GEN-F1 exit criterion
+Validated gates:
 
-A supported Outlook `.msg` can be decoded locally into the shared Import Candidate, with reliable Sent Time → Dispatch Time behavior and conflict-safe preview/apply semantics, without bypassing the existing Generator Save/persistence boundary.
+- exact dependency installation;
+- committed Prettier formatting + final committed-format verifier;
+- ESLint;
+- unit/component suite;
+- Firebase Emulator repository integration;
+- Firestore Security Rules matrix;
+- T7 repository/security hygiene;
+- T8 Firebase release preflight;
+- generic + Firebase-configured production builds;
+- dev smoke;
+- T6 real-browser viewport/touch QA;
+- Playwright lifecycle/RBAC/keyboard/overflow/accessibility QA.
+
+GEN-F1 exit criterion is satisfied: a supported Outlook `.msg` can be decoded locally into the shared Import Candidate with current-message Sent Time → Dispatch Time authority and conflict-safe selective preview/apply semantics, without bypassing the existing Generator Save/persistence boundary.
+
+## GEN-F2 — Structured metadata + Template Profile + Smart Title
+
+- [ ] Extend Ticket entity with backward-compatible optional schema-v2 operational metadata.
+- [ ] Keep schema-v1 documents readable through backward-compatible mapper defaults.
+- [ ] Persist structured alarm metadata only through normal Ticket Save/update.
+- [ ] Update Firestore writes without bypassing revision protection.
+- [ ] Update Firestore Security Rules for the optional structured metadata shape.
+- [ ] Extend Security Rules emulator matrix for valid/invalid v2 metadata writes.
+- [ ] Persist raw alarm + normalized `alarmFamily` without destroying source text.
+- [ ] Persist `pathKey` + ordered `pathEndpoints` with N-endpoint support.
+- [ ] Persist compact Outlook Sent-time provenance without raw email/body/header data.
+- [ ] Promote `MANDAU_DEFAULT` from contract skeleton into the production Template Profile path.
+- [ ] Add deterministic `MANDAU_DEFAULT` Smart Title generator.
+- [ ] Support transport/family variants in generated titles.
+- [ ] Support N-endpoint ordered paths in generated titles.
+- [ ] Add Generated / Manual override title state.
+- [ ] Manual title edits must not be silently replaced by regenerated metadata.
+- [ ] Add explicit Regenerate action.
+- [ ] Add unit coverage for alarm normalization, path topology/orientation and Smart Title formatter.
+- [ ] Add component coverage for Generated / Manual override / Regenerate behavior.
+- [ ] Preserve canonical report determinism and existing lifecycle/RBAC/OCR contracts.
+- [ ] Full repository Quality green on clean GEN-F2 head.
+
+### GEN-F2 exit criterion
+
+Imported operational metadata survives normal Ticket Save safely and remains backward-compatible with existing schema-v1 Tickets, while `MANDAU_DEFAULT` title generation is deterministic, supports transport variants and ordered N-endpoint paths, and never silently overwrites a manual title.
 
 ## Remaining phases
 
-- [ ] GEN-F2 — Structured alarm metadata + Template Profile + Smart Title
 - [ ] GEN-F3 — Impact Builder + Progress acceleration
 - [ ] GEN-F4 — Validation Center + Time Intelligence
 - [ ] GEN-F5 — Duplicate Detection + Related Tickets
