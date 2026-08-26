@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - feature/t0-repository-foundation
-      - feature/template-generator-features
+      - qa/gen-f5-current
   pull_request:
     branches:
       - main
@@ -49,6 +49,21 @@ jobs:
 
       - name: Format check
         run: npm run format:check
+
+      - name: Verify GEN-F5 QA formatting is committed
+        if: github.event_name == 'push' && github.ref_name == 'qa/gen-f5-current'
+        shell: bash
+        run: |
+          git diff --exit-code -- \
+            src \
+            e2e \
+            scripts \
+            index.html \
+            package.json \
+            playwright.config.js \
+            eslint.config.js \
+            vite.config.js \
+            vitest.config.js
 
       - name: Lint
         run: npm run lint
@@ -143,7 +158,7 @@ jobs:
           fi
 
       - name: Persist validated formatting and phase tracker
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && github.ref_name == 'feature/t0-repository-foundation'
         shell: bash
         run: |
           git add -- \
