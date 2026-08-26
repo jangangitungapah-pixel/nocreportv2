@@ -105,10 +105,12 @@ describe('GEN-F3 reusable Progress snippets', () => {
     selectQuickSnippet('[Arrival] Team arrived');
     fireEvent.click(screen.getByRole('button', { name: 'Add Team arrived to favorites' }));
 
-    expect(JSON.parse(window.localStorage.getItem(PROGRESS_SNIPPET_FAVORITES_STORAGE_KEY))).toEqual({
-      version: 1,
-      ids: ['arrival-location'],
-    });
+    expect(JSON.parse(window.localStorage.getItem(PROGRESS_SNIPPET_FAVORITES_STORAGE_KEY))).toEqual(
+      {
+        version: 1,
+        ids: ['arrival-location'],
+      },
+    );
     expect(screen.getByText('1 local favorite')).toBeInTheDocument();
     expect(onAdd).not.toHaveBeenCalled();
   });

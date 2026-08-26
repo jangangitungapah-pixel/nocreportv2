@@ -9,7 +9,9 @@ import {
 
 describe('GEN-F3 Impact candidates', () => {
   it('normalizes multiline bullets and numbers while preserving meaningful order', () => {
-    const parsed = parseImpactCandidates(`Impact List:\n1. SITE_ALPHA\n- Service Beta\n• NODE GAMMA`);
+    const parsed = parseImpactCandidates(
+      `Impact List:\n1. SITE_ALPHA\n- Service Beta\n• NODE GAMMA`,
+    );
 
     expect(parsed.items.map((item) => item.value)).toEqual([
       'SITE_ALPHA',
@@ -26,7 +28,11 @@ describe('GEN-F3 Impact candidates', () => {
   it('removes only exact-normalized duplicates and keeps the first wording/order', () => {
     const parsed = parseImpactCandidates(`SITE_ALPHA\n site_alpha \nSITE ALPHA\nSITE_BETA`);
 
-    expect(parsed.items.map((item) => item.value)).toEqual(['SITE_ALPHA', 'SITE ALPHA', 'SITE_BETA']);
+    expect(parsed.items.map((item) => item.value)).toEqual([
+      'SITE_ALPHA',
+      'SITE ALPHA',
+      'SITE_BETA',
+    ]);
     expect(parsed.duplicateItems).toEqual([
       { value: 'site_alpha', sourceLine: 2, reason: 'source_duplicate' },
     ]);

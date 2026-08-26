@@ -81,12 +81,19 @@ describe('GEN-F3 Progress snippets', () => {
     expect(readProgressSnippetFavorites({ storage: malformed })).toEqual([]);
 
     const stale = memoryStorage({
-      [PROGRESS_SNIPPET_FAVORITES_STORAGE_KEY]: JSON.stringify({ version: 0, ids: ['dispatch-team'] }),
+      [PROGRESS_SNIPPET_FAVORITES_STORAGE_KEY]: JSON.stringify({
+        version: 0,
+        ids: ['dispatch-team'],
+      }),
     });
     expect(readProgressSnippetFavorites({ storage: stale })).toEqual([]);
 
     const storage = memoryStorage();
-    expect(toggleProgressSnippetFavorite('dispatch-team', [], { storage })).toEqual(['dispatch-team']);
-    expect(toggleProgressSnippetFavorite('dispatch-team', ['dispatch-team'], { storage })).toEqual([]);
+    expect(toggleProgressSnippetFavorite('dispatch-team', [], { storage })).toEqual([
+      'dispatch-team',
+    ]);
+    expect(toggleProgressSnippetFavorite('dispatch-team', ['dispatch-team'], { storage })).toEqual(
+      [],
+    );
   });
 });

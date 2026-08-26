@@ -56,10 +56,7 @@ export const DEFAULT_PROGRESS_SNIPPETS = Object.freeze([
     label: 'Material prepared',
     category: 'Material',
     template: 'Material {material} prepared, ETA {eta}',
-    placeholders: Object.freeze([
-      placeholder('material', 'Material'),
-      placeholder('eta', 'ETA'),
-    ]),
+    placeholders: Object.freeze([placeholder('material', 'Material'), placeholder('eta', 'ETA')]),
   }),
   Object.freeze({
     id: 'jointing-progress',

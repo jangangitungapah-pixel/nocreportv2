@@ -77,7 +77,9 @@ export function ProgressComposer({ onAdd, profileId = 'MANDAU_DEFAULT' }) {
       const labels = result.missingKeys.map(
         (key) => selectedSnippet.placeholders.find((item) => item.key === key)?.label ?? key,
       );
-      setSnippetError(`Fill required placeholder${labels.length === 1 ? '' : 's'}: ${labels.join(', ')}`);
+      setSnippetError(
+        `Fill required placeholder${labels.length === 1 ? '' : 's'}: ${labels.join(', ')}`,
+      );
       return;
     }
 
@@ -191,7 +193,9 @@ export function ProgressComposer({ onAdd, profileId = 'MANDAU_DEFAULT' }) {
               }
               onClick={toggleFavorite}
             >
-              {selectedSnippet && favoriteIds.includes(selectedSnippet.id) ? '★ Favorite' : '☆ Favorite'}
+              {selectedSnippet && favoriteIds.includes(selectedSnippet.id)
+                ? '★ Favorite'
+                : '☆ Favorite'}
             </Button>
             <Button type="button" size="xs" disabled={!selectedSnippet} onClick={insertSnippet}>
               Insert snippet

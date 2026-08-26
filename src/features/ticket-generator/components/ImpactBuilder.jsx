@@ -10,10 +10,7 @@ const EMPTY_IMPACT_VALUES = Object.freeze([]);
 export function ImpactBuilder({ existing = EMPTY_IMPACT_VALUES, onApply }) {
   const [source, setSource] = useState('');
   const [selectedIds, setSelectedIds] = useState(() => new Set());
-  const parsed = useMemo(
-    () => parseImpactCandidates(source, { existing }),
-    [existing, source],
-  );
+  const parsed = useMemo(() => parseImpactCandidates(source, { existing }), [existing, source]);
 
   useEffect(() => {
     setSelectedIds(new Set(parsed.items.map((item) => item.id)));
@@ -54,9 +51,12 @@ export function ImpactBuilder({ existing = EMPTY_IMPACT_VALUES, onApply }) {
 
         <div className="min-h-[6.5rem] rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-2.5">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-[10.5px] font-extrabold text-[var(--text-primary)]">Impact preview</p>
+            <p className="text-[10.5px] font-extrabold text-[var(--text-primary)]">
+              Impact preview
+            </p>
             <span className="text-[9px] font-bold text-[var(--text-faint)]">
-              {parsed.items.length} proposed{skippedCount ? ` · ${skippedCount} duplicate skipped` : ''}
+              {parsed.items.length} proposed
+              {skippedCount ? ` · ${skippedCount} duplicate skipped` : ''}
             </span>
           </div>
 
