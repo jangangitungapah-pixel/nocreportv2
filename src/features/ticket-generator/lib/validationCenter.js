@@ -55,7 +55,7 @@ function lifecycleFindings(ticket) {
   );
 }
 
-function importFindings(importCandidate) {
+function importFindings(importCandidate, { resolvedPrimaryIdentity = false } = {}) {
   if (!importCandidate) return [];
   const findings = [];
   const conflicts = Array.isArray(importCandidate.conflicts) ? importCandidate.conflicts : [];
@@ -64,6 +64,8 @@ function importFindings(importCandidate) {
   for (const conflict of conflicts) {
     const primaryIdentity =
       conflict?.severity === 'blocking' && conflict?.field === 'externalTtNumber';
+    if (primaryIdentity && resolvedPrimaryIdentity) continue;
+
     findings.push(
       finding({
         code: primaryIdentity ? 'PRIMARY_TT_CONFLICT' : 'IMPORT_CONFLICT',
@@ -238,6 +240,7 @@ export function deriveReportValidation(
   {
     formValues = null,
     importCandidate = null,
+    resolvedPrimaryIdentity = false,
     duplicateCandidates = [],
     now = new Date(),
     timezone = 'Asia/Jakarta',
@@ -247,7 +250,7 @@ export function deriveReportValidation(
   const findings = dedupeFindings([
     ...formFindings(formValues),
     ...lifecycleFindings(ticket),
-    ...importFindings(importCandidate),
+    ...importFindings(importCandidate, { resolvedPrimaryIdentity }),
     ...timeFindings(ticket, time),
     ...completenessFindings(ticket, { duplicateCandidates }),
   ]);
