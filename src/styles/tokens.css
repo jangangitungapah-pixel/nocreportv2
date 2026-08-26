@@ -145,7 +145,7 @@
 
   --accent-solid: #7278f5;
   --accent-solid-hover: #8388ff;
-  --accent-on-solid: #ffffff;
+  --accent-on-solid: var(--text-on-inverse);
   --accent-soft: #22284b;
   --accent-soft-strong: #2a315d;
   --accent-text: #adb1ff;
