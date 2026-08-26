@@ -1,0 +1,92 @@
+name: GEN-F7 Generator wiring
+
+on:
+  push:
+    branches:
+      - feature/template-generator-features
+    paths:
+      - .github/workflows/gen-f7-wire-generator.yml
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: feature/template-generator-features
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Apply guarded GEN-F7 wiring patch
+        run: python3 .github/scripts/gen-f7-wire-generator.py
+      - name: Format GEN-F7 wiring
+        run: |
+          npx prettier --write \
+            src/app/components/CommandPalette.jsx \
+            src/app/components/CommandPaletteGenerator.test.jsx \
+            src/shared/lib/generatorWorkspaceCommands.js \
+            src/features/ticket-generator/components/CopyCenter.jsx \
+            src/features/ticket-generator/components/CopyCenter.test.jsx \
+            src/features/ticket-generator/components/OperatorPresetsPanel.jsx \
+            src/features/ticket-generator/components/OperatorPresetsPanel.test.jsx \
+            src/features/ticket-generator/components/ProgressComposer.jsx \
+            src/features/ticket-generator/components/ProgressComposerPresets.test.jsx \
+            src/features/ticket-generator/components/ValidationCenter.jsx \
+            src/features/ticket-generator/components/SmartPasteParser.jsx \
+            src/features/ticket-generator/lib/handoverSummary.js \
+            src/features/ticket-generator/lib/handoverSummary.test.js \
+            src/features/ticket-generator/lib/copyCenter.js \
+            src/features/ticket-generator/lib/copyCenter.test.js \
+            src/features/ticket-generator/lib/operatorPresets.js \
+            src/features/ticket-generator/lib/operatorPresets.test.js \
+            src/features/ticket-generator/pages/TicketGeneratorPage.jsx
+      - name: Focused GEN-F7 UI and page regressions
+        run: |
+          npx vitest run \
+            src/features/ticket-generator/lib/handoverSummary.test.js \
+            src/features/ticket-generator/lib/copyCenter.test.js \
+            src/features/ticket-generator/lib/operatorPresets.test.js \
+            src/features/ticket-generator/components/CopyCenter.test.jsx \
+            src/features/ticket-generator/components/OperatorPresetsPanel.test.jsx \
+            src/features/ticket-generator/components/ProgressComposer.test.jsx \
+            src/features/ticket-generator/components/ProgressComposerPresets.test.jsx \
+            src/features/ticket-generator/components/ValidationCenter.test.jsx \
+            src/features/ticket-generator/components/SmartPasteParser.test.jsx \
+            src/app/components/CommandPalette.test.jsx \
+            src/app/components/CommandPaletteGenerator.test.jsx \
+            src/features/ticket-generator/pages/TicketGeneratorPage.test.jsx \
+            src/features/ticket-generator/pages/TicketGeneratorRecovery.test.jsx \
+            src/features/ticket-generator/pages/TicketGeneratorAuditGate.test.jsx \
+            src/features/ticket-generator/pages/TicketGeneratorImpactBuilder.test.jsx
+      - name: Commit validated GEN-F7 wiring
+        run: |
+          git diff --check
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            src/app/components/CommandPalette.jsx \
+            src/app/components/CommandPaletteGenerator.test.jsx \
+            src/shared/lib/generatorWorkspaceCommands.js \
+            src/features/ticket-generator/components/CopyCenter.jsx \
+            src/features/ticket-generator/components/CopyCenter.test.jsx \
+            src/features/ticket-generator/components/OperatorPresetsPanel.jsx \
+            src/features/ticket-generator/components/OperatorPresetsPanel.test.jsx \
+            src/features/ticket-generator/components/ProgressComposer.jsx \
+            src/features/ticket-generator/components/ProgressComposerPresets.test.jsx \
+            src/features/ticket-generator/components/ValidationCenter.jsx \
+            src/features/ticket-generator/components/SmartPasteParser.jsx \
+            src/features/ticket-generator/lib/handoverSummary.js \
+            src/features/ticket-generator/lib/handoverSummary.test.js \
+            src/features/ticket-generator/lib/copyCenter.js \
+            src/features/ticket-generator/lib/copyCenter.test.js \
+            src/features/ticket-generator/lib/operatorPresets.js \
+            src/features/ticket-generator/lib/operatorPresets.test.js \
+            src/features/ticket-generator/pages/TicketGeneratorPage.jsx
+          git commit -m "feat(generator): wire GEN-F7 operator utilities"
+          git push origin HEAD:feature/template-generator-features
