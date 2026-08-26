@@ -233,6 +233,27 @@ service cloud.firestore {
         || request.resource.data.coordinate.verifiedBy == request.auth.uid;
     }
 
+    function validIncidentGroup(data) {
+      return data.keys().hasOnly([
+          'title',
+          'pathKey',
+          'ticketIds',
+          'createdAt',
+          'createdBy',
+          'updatedAt',
+          'updatedBy'
+        ])
+        && data.title is string
+        && nullableString(data.pathKey)
+        && data.ticketIds is list
+        && data.ticketIds.size() >= 1
+        && data.ticketIds.size() <= 20
+        && data.createdAt is timestamp
+        && data.createdBy is string
+        && data.updatedAt is timestamp
+        && data.updatedBy is string;
+    }
+
     match /users/{userId} {
       allow read: if hasActiveProfile()
         && (request.auth.uid == userId || isAdmin());
@@ -240,6 +261,20 @@ service cloud.firestore {
         && validUserProfile(request.resource.data);
       allow update: if isAdmin()
         && validUserProfile(request.resource.data);
+      allow delete: if false;
+    }
+
+    match /incidentGroups/{groupId} {
+      allow read: if canReadOperations();
+      allow create: if canWriteOperations()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.updatedBy == request.auth.uid
+        && validIncidentGroup(request.resource.data);
+      allow update: if canWriteOperations()
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.createdBy == resource.data.createdBy
+        && request.resource.data.updatedBy == request.auth.uid
+        && validIncidentGroup(request.resource.data);
       allow delete: if false;
     }
 
