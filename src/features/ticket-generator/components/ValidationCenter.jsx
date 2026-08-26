@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { getAuthClient } from '../../../infrastructure/firebase/authClient.js';
+import { getFirebaseConfigStatus } from '../../../infrastructure/firebase/firebaseConfig.js';
 import { AppIcon } from '../../../shared/ui/icon.jsx';
 import {
   duplicateLookupFingerprint,
@@ -40,6 +41,15 @@ function persistedTicketIdFromPathname() {
   const match = window.location.pathname.match(/^\/generator\/([^/]+)\/edit\/?$/);
   if (!match || match[1] === 'new') return null;
   return decodeURIComponent(match[1]);
+}
+
+function hasAuthenticatedFirebaseUser() {
+  try {
+    if (!getFirebaseConfigStatus().configured) return false;
+    return Boolean(getAuthClient().currentUser);
+  } catch {
+    return false;
+  }
 }
 
 function generatorHasUnsavedChanges() {
@@ -84,7 +94,7 @@ export function ValidationCenter({ validation, onFocusField }) {
   }, [duplicateFingerprint]);
 
   useEffect(() => {
-    if (!ticket || !hasDuplicateLookupSignal(ticket) || !getAuthClient().currentUser) {
+    if (!ticket || !hasDuplicateLookupSignal(ticket) || !hasAuthenticatedFirebaseUser()) {
       setDuplicateCandidates([]);
       setDuplicatePending(false);
       setDuplicateError(null);
@@ -117,7 +127,7 @@ export function ValidationCenter({ validation, onFocusField }) {
   }, [duplicateFingerprint, routeTicketId, ticket]);
 
   useEffect(() => {
-    if (!ticket?.incidentGroupId || !routeTicketId || !getAuthClient().currentUser) {
+    if (!ticket?.incidentGroupId || !routeTicketId || !hasAuthenticatedFirebaseUser()) {
       setRelatedGroup(null);
       setRelatedTickets([]);
       setRelatedPending(false);
