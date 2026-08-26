@@ -46,7 +46,10 @@ describe('GEN-F8 evidence workspace contracts', () => {
     });
     expect(created.item.file).toBeInstanceOf(File);
 
-    const noted = updateEvidenceNote(created.item, `  ${'x'.repeat(EVIDENCE_NOTE_MAX_LENGTH + 20)}  `);
+    const noted = updateEvidenceNote(
+      created.item,
+      `  ${'x'.repeat(EVIDENCE_NOTE_MAX_LENGTH + 20)}  `,
+    );
     expect(noted.note).toHaveLength(EVIDENCE_NOTE_MAX_LENGTH);
 
     const scanned = withEvidenceOcrResult(noted, {
