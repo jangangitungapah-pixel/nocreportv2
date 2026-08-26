@@ -4,7 +4,7 @@
 **Evidence annex:** `docs/08-post-mvp/TEMPLATE-GENERATOR-EMAIL-IMPORT-ADDENDUM.md`  
 **Branch:** `feature/template-generator-features`  
 **PR:** #7  
-**Status:** GEN-F0 COMPLETE · GEN-F1 COMPLETE · GEN-F2 IN PROGRESS
+**Status:** GEN-F0 COMPLETE · GEN-F1 COMPLETE · GEN-F2 COMPLETE · GEN-F3 IN PROGRESS
 
 ## GEN-F0 — Baseline, contracts and feature skeleton
 
@@ -122,34 +122,83 @@ GEN-F1 exit criterion is satisfied: a supported Outlook `.msg` can be decoded lo
 
 ## GEN-F2 — Structured metadata + Template Profile + Smart Title
 
-- [ ] Extend Ticket entity with backward-compatible optional schema-v2 operational metadata.
-- [ ] Keep schema-v1 documents readable through backward-compatible mapper defaults.
-- [ ] Persist structured alarm metadata only through normal Ticket Save/update.
-- [ ] Update Firestore writes without bypassing revision protection.
-- [ ] Update Firestore Security Rules for the optional structured metadata shape.
-- [ ] Extend Security Rules emulator matrix for valid/invalid v2 metadata writes.
-- [ ] Persist raw alarm + normalized `alarmFamily` without destroying source text.
-- [ ] Persist `pathKey` + ordered `pathEndpoints` with N-endpoint support.
-- [ ] Persist compact Outlook Sent-time provenance without raw email/body/header data.
-- [ ] Promote `MANDAU_DEFAULT` from contract skeleton into the production Template Profile path.
-- [ ] Add deterministic `MANDAU_DEFAULT` Smart Title generator.
-- [ ] Support transport/family variants in generated titles.
-- [ ] Support N-endpoint ordered paths in generated titles.
-- [ ] Add Generated / Manual override title state.
-- [ ] Manual title edits must not be silently replaced by regenerated metadata.
-- [ ] Add explicit Regenerate action.
-- [ ] Add unit coverage for alarm normalization, path topology/orientation and Smart Title formatter.
-- [ ] Add component coverage for Generated / Manual override / Regenerate behavior.
-- [ ] Preserve canonical report determinism and existing lifecycle/RBAC/OCR contracts.
-- [ ] Full repository Quality green on clean GEN-F2 head.
+- [x] Extend Ticket entity with backward-compatible optional schema-v2 operational metadata.
+- [x] Keep schema-v1 documents readable through backward-compatible mapper defaults.
+- [x] Persist structured alarm metadata only through normal Ticket Save/update.
+- [x] Update Firestore writes without bypassing revision protection.
+- [x] Update Firestore Security Rules for the optional structured metadata shape.
+- [x] Extend Security Rules emulator matrix for valid/invalid v2 metadata writes.
+- [x] Persist raw alarm + normalized `alarmFamily` without destroying source text.
+- [x] Persist `pathKey` + ordered `pathEndpoints` with N-endpoint support.
+- [x] Persist compact Outlook Sent-time provenance without raw email/body/header data.
+- [x] Promote `MANDAU_DEFAULT` from contract skeleton into the production Template Profile path.
+- [x] Add deterministic `MANDAU_DEFAULT` Smart Title generator.
+- [x] Support transport/family variants in generated titles.
+- [x] Support N-endpoint ordered paths in generated titles.
+- [x] Add Generated / Manual override title state.
+- [x] Manual title edits do not get silently replaced by regenerated metadata.
+- [x] Add explicit Regenerate action.
+- [x] Add unit coverage for schema-v2 defaults, alarm normalization, path topology/orientation, metadata/provenance and Smart Title formatting.
+- [x] Add component coverage for Generated / Manual override / Regenerate behavior.
+- [x] Preserve canonical report determinism and existing lifecycle/RBAC/OCR contracts.
+- [x] Full repository Quality green on clean GEN-F2 head.
+- [x] Final committed-format verifier green on clean GEN-F2 head.
+- [x] PR returned to stacked base `feature/ui-density-system` after clean integration QA.
 
-### GEN-F2 exit criterion
+### GEN-F2 completion evidence
 
-Imported operational metadata survives normal Ticket Save safely and remains backward-compatible with existing schema-v1 Tickets, while `MANDAU_DEFAULT` title generation is deterministic, supports transport variants and ordered N-endpoint paths, and never silently overwrites a manual title.
+Production Ticket writes now use backward-compatible schema v2 metadata while schema-v1 Tickets remain readable and may upgrade only through a normal revision-safe Save. Structured alarm/path identity, ordered N-endpoint paths, `incidentKey`, `pathKey`, Template Profile state and compact Outlook Sent provenance are persisted without raw email body/HTML/recipient/header/attachment data. Security Rules permit v1/v2 with controlled v1→v2 migration and reject malformed v2 metadata or v2→v1 downgrade.
+
+`MANDAU_DEFAULT` is now the production Template Profile used by deterministic Smart Title generation. Title generation consumes normalized metadata, supports transport/family variants and ordered N-endpoint paths, preserves manual edits through a `MANUAL` override mode, and returns to generated mode only through explicit Regenerate. The canonical Title TT remains authoritative for primary TT/`incidentKey` compatibility when an operator edits it manually.
+
+**Quality #762 — FULL GREEN** on final clean GEN-F2 head `fb02d59d41e31c14f9b39944b7a3e807fb32cfbb` (run ID `32949117038`).
+
+Validated gates:
+
+- committed Prettier formatting + final committed-format verifier;
+- ESLint;
+- unit/component suite including GEN-F2 schema/metadata/Smart Title regressions;
+- Firebase Emulator repository integration + schema-v2 Security Rules matrix;
+- T7 repository/security hygiene;
+- T8 Firebase release preflight;
+- generic + Firebase-configured production builds;
+- dev smoke;
+- T6 real-browser viewport/touch QA;
+- T7 Playwright lifecycle/RBAC/keyboard/overflow/accessibility QA.
+
+GEN-F2 exit criterion is satisfied: imported operational metadata survives normal Ticket Save safely and remains backward-compatible with schema-v1 Tickets, while deterministic Smart Title generation supports transport variants and ordered N-endpoint paths without silently overwriting a manual title.
+
+## GEN-F3 — Impact Builder + Progress acceleration
+
+- [ ] Add a dedicated Impact candidate parser for operator-pasted service/node lists.
+- [ ] Support multiline Impact parsing with bullet/number normalization.
+- [ ] Filter safe exact-normalized Impact duplicates while preserving meaningful order.
+- [ ] Reuse Impact candidate normalization for imported Impact blocks where appropriate.
+- [ ] Add preview/select proposed Impact items before applying them to the live form.
+- [ ] Keep Impact manually editable after apply; never infer impact from Site ID/topology alone.
+- [ ] Preserve existing report-text Impact import compatibility.
+- [ ] Keep Quick Progress inside the existing Generator workspace.
+- [ ] Preserve current-time default and editable Progress event time.
+- [ ] Preserve pending/error draft retention and stale-revision handling.
+- [ ] Add profile-owned reusable Progress snippet library for Dispatch, Arrival, Investigation, OTDR, Material, Jointing, Monitoring, Clearance and Escalation.
+- [ ] Add deterministic snippet placeholder resolver with required-placeholder validation.
+- [ ] Snippets fill the Progress editor only and never auto-submit.
+- [ ] Keep generated snippet text manually editable before submit.
+- [ ] Add versioned browser-local favorite snippets with invalid/stale storage fail-safe behavior.
+- [ ] Keep `Ctrl/Cmd+Enter` scoped to the Progress editor and add regression coverage.
+- [ ] Persist Progress for existing Tickets only through revision-safe `persistProgressAppend`.
+- [ ] Keep Progress local-only for a new unsaved Ticket until initial create.
+- [ ] Add pure-unit coverage for Impact parsing/de-duplication and snippet placeholders/preferences.
+- [ ] Add component coverage for Impact preview/select, Quick Progress, snippets, favorites and keyboard submit.
+- [ ] Preserve lifecycle/RBAC/canonical report/OCR/import privacy contracts.
+- [ ] Full repository Quality green on clean GEN-F3 head.
+
+### GEN-F3 exit criterion
+
+Routine operator Impact and Progress updates require materially fewer keystrokes while all changes still flow through the existing explicit form and revision-safe persistence boundaries.
 
 ## Remaining phases
 
-- [ ] GEN-F3 — Impact Builder + Progress acceleration
 - [ ] GEN-F4 — Validation Center + Time Intelligence
 - [ ] GEN-F5 — Duplicate Detection + Related Tickets
 - [ ] GEN-F6 — Draft Recovery + Revision Diff
