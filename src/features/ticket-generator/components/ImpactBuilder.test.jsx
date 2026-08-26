@@ -24,7 +24,7 @@ describe('GEN-F3 ImpactBuilder', () => {
 
     const serviceCheckbox = screen.getByText('SERVICE_B').closest('label').querySelector('input');
     fireEvent.click(serviceCheckbox);
-    fireEvent.click(screen.getByRole('button', { name: 'Apply selected (1)' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Apply Impact (1)' }));
 
     expect(onApply).toHaveBeenCalledWith(['SITE_NEW']);
     expect(source).toHaveValue('');
@@ -37,10 +37,9 @@ describe('GEN-F3 ImpactBuilder', () => {
     fireEvent.change(screen.getByLabelText('Paste impact / service / node list'), {
       target: { value: 'SITE_A' },
     });
-    const checkbox = screen.getByText('SITE_A').closest('label').querySelector('input');
-    fireEvent.click(checkbox);
+    fireEvent.click(screen.getByRole('checkbox'));
 
-    expect(screen.getByRole('button', { name: 'Apply selected (0)' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Apply Impact (0)' })).toBeDisabled();
     expect(onApply).not.toHaveBeenCalled();
   });
 });
