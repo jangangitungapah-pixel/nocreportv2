@@ -1,3 +1,5 @@
+import { cleanImpactCandidate, mergeImpactValues } from './impactCandidates.js';
+
 const FIELD_DEFINITIONS = [
   {
     key: 'occurAt',
@@ -31,13 +33,6 @@ function stripOuterEmphasis(value) {
     return normalized.slice(1, -1).trim();
   }
   return normalized;
-}
-
-function cleanImpactLine(line) {
-  return normalizeLine(line)
-    .replace(/^\d+\s*[.)-]\s*/, '')
-    .replace(/^[•-]\s*/, '')
-    .trim();
 }
 
 function toInputValue(year, month, day, hour, minute) {
@@ -249,7 +244,7 @@ export function parseSmartReport(input) {
     }
 
     if (mode === 'impact') {
-      const impact = cleanImpactLine(line);
+      const impact = cleanImpactCandidate(line);
       if (impact) impactRows.push(impact);
       continue;
     }
@@ -282,7 +277,8 @@ export function parseSmartReport(input) {
     }
   }
 
-  values.impactList = impactRows.map((value) => ({ value }));
+  const dedupedImpactRows = mergeImpactValues([], impactRows);
+  values.impactList = dedupedImpactRows.map((value) => ({ value }));
   const progress = inferProgressDateTimes(progressRows, values.occurAt);
   const warnings = buildWarnings({
     values,
@@ -299,7 +295,7 @@ export function parseSmartReport(input) {
     warnings,
     stats: {
       fieldCount: detectedFields.filter((key) => key !== 'progress').length,
-      impactCount: impactRows.length,
+      impactCount: dedupedImpactRows.length,
       progressCount: progress.length,
     },
     canApply: Boolean(values.title || detectedFields.length > 0 || progress.length > 0),

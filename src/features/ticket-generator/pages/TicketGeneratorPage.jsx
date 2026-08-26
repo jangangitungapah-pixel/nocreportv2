@@ -34,6 +34,7 @@ import { ProgressTimeline } from '../components/ProgressTimeline.jsx';
 import { ReportPreview } from '../components/ReportPreview.jsx';
 import { SmartPasteParser } from '../components/SmartPasteParser.jsx';
 import { DEFAULT_TICKET_FORM, buildTicketFromForm } from '../lib/formToTicket.js';
+import { mergeImpactValues } from '../lib/impactCandidates.js';
 import {
   createTicketEditor,
   loadTicketEditor,
@@ -758,6 +759,22 @@ export function TicketGeneratorPage() {
     });
   };
 
+  const applyImpactCandidates = (values) => {
+    const currentImpact = getValues('impactList') ?? [];
+    const mergedImpact = mergeImpactValues(currentImpact, values).map((value) => ({ value }));
+    replace(mergedImpact);
+    setValue('impactList', mergedImpact, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+    pushToast({
+      title: 'Impact proposals applied',
+      message: `${values.length} selected Impact item${values.length === 1 ? '' : 's'} added to the local draft.`,
+      tone: 'success',
+    });
+  };
+
   const applyExtractedCoordinate = (candidate) => {
     setValue('latitude', String(candidate.latitude), {
       shouldDirty: true,
@@ -976,9 +993,11 @@ export function TicketGeneratorPage() {
         append={append}
         remove={remove}
         move={move}
+        currentValues={watchedValues?.impactList ?? []}
+        onApplyCandidates={applyImpactCandidates}
       />
       <CoordinateExtractor onApplyCoordinate={applyExtractedCoordinate} />
-      <ProgressComposer onAdd={addProgress} />
+      <ProgressComposer onAdd={addProgress} profileId={featureMetadata.templateProfileId} />
       <ProgressTimeline
         entries={progressEntries}
         onUpdate={updateProgress}
