@@ -29,8 +29,8 @@ jobs:
           java-version: '21'
       - name: Install dependencies
         run: npm ci
-      - name: Install Playwright runtime
-        run: npm install --no-save --package-lock=false @playwright/test@1.62.1
+      - name: Install browser and runtime fixture tooling
+        run: npm install --no-save --package-lock=false @playwright/test@1.62.1 cfb@1.2.2
       - name: Format F9 source in runner
         run: >-
           npx prettier --write
