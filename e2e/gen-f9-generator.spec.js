@@ -218,7 +218,7 @@ test.describe.serial('GEN-F9 integrated Generator hardening', () => {
     await expect(importSection.getByText('Review detected values before applying')).toBeVisible();
     await importSection.getByRole('button', { name: /Apply selected/ }).click();
 
-    await expect(page.getByLabel('Title')).toHaveValue(title);
+    await expect(page.locator('#ticket-title')).toHaveValue(title);
     const preview = page.getByLabel('Generated NOC report');
     await expect(preview).toContainText('100901_F9_A <> 100902_F9_B <> 100903_F9_C');
     await expect(preview).toContainText('INC-20260827-90090001');
@@ -230,9 +230,7 @@ test.describe.serial('GEN-F9 integrated Generator hardening', () => {
     await login(page);
     await openNewGenerator(page);
 
-    await page
-      .getByLabel('Title')
-      .fill(`[F9-NEW] LINK DOWN [TT : ${duplicate.tt}]`);
+    await page.locator('#ticket-title').fill(`[F9-NEW] LINK DOWN [TT : ${duplicate.tt}]`);
     await page.getByLabel('Occur Time', { exact: true }).fill('2026-08-27T08:05');
 
     const duplicatePanel = page.locator('.generator-duplicate-related');
