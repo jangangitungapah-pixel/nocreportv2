@@ -1,13 +1,19 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 
 const path = 'e2e/gux-5-mobile.spec.js';
-const text = readFileSync(path, 'utf8');
-const from = `  const metrics = await page.evaluate(() => ({
-    viewport: window.innerWidth,
-    documentWidth: document.documentElement.scrollWidth,
-    bodyWidth: document.body.scrollWidth,
-  }));`;
-const to = `  const metrics = await page.evaluate(() => {
+let text = readFileSync(path, 'utf8');
+
+const startMarker = 'async function assertNoHorizontalOverflow(page, label) {';
+const endMarker = '\nasync function assertTouchTargets';
+const start = text.indexOf(startMarker);
+const end = start >= 0 ? text.indexOf(endMarker, start) : -1;
+
+if (start < 0 || end < 0) {
+  throw new Error('GUX-5 overflow diagnostic function boundary not found.');
+}
+
+const replacement = `async function assertNoHorizontalOverflow(page, label) {
+  const metrics = await page.evaluate(() => {
     const viewport = window.innerWidth;
     const offenders = Array.from(document.querySelectorAll('body *'))
       .map((element) => {
@@ -25,30 +31,24 @@ const to = `  const metrics = await page.evaluate(() => {
       .filter((item) => item.right > viewport + 1 || item.left < -1)
       .sort((a, b) => b.right - a.right)
       .slice(0, 12);
+
     return {
       viewport,
       documentWidth: document.documentElement.scrollWidth,
       bodyWidth: document.body.scrollWidth,
       offenders,
     };
-  });`;
+  });
 
-if (!text.includes(to)) {
-  if (!text.includes(from)) throw new Error('GUX-5 overflow diagnostic marker not found.');
-  writeFileSync(path, text.replace(from, to));
-}
-
-const assertionFrom = `  expect(metrics.documentWidth, \`${'${label}'} document width\`).toBeLessThanOrEqual(
-    metrics.viewport + 1,
-  );`;
-const assertionTo = `  expect(
+  expect(
     metrics.documentWidth,
-    \`${'${label}'} document width; offenders=${'${JSON.stringify(metrics.offenders)}'}\`,
-  ).toBeLessThanOrEqual(metrics.viewport + 1);`;
+    \`\${label} document width; offenders=\${JSON.stringify(metrics.offenders)}\`,
+  ).toBeLessThanOrEqual(metrics.viewport + 1);
+  expect(
+    metrics.bodyWidth,
+    \`\${label} body width; offenders=\${JSON.stringify(metrics.offenders)}\`,
+  ).toBeLessThanOrEqual(metrics.viewport + 1);
+}`;
 
-let output = readFileSync(path, 'utf8');
-if (!output.includes(assertionTo)) {
-  if (!output.includes(assertionFrom)) throw new Error('GUX-5 overflow assertion marker not found.');
-  output = output.replace(assertionFrom, assertionTo);
-  writeFileSync(path, output);
-}
+text = text.slice(0, start) + replacement + text.slice(end);
+writeFileSync(path, text);
