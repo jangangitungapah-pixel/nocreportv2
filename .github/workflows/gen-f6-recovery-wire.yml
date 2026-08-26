@@ -1,0 +1,155 @@
+name: GEN-F6 recovery wire
+
+on:
+  push:
+    branches:
+      - feature/template-generator-features
+    paths:
+      - .github/workflows/gen-f6-recovery-wire.yml
+
+permissions:
+  contents: write
+
+jobs:
+  wire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: feature/template-generator-features
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Patch GEN-F6 recovery wiring
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          recovery = Path('src/features/ticket-generator/lib/draftRecovery.js')
+          text = recovery.read_text()
+
+          old_warning = """  const warnings = Array.isArray(candidate.warnings)\n    ? candidate.warnings.slice(0, 20).map((item) => String(item).slice(0, 200))\n    : [];\n  const conflicts = Array.isArray(candidate.conflicts)"""
+          new_warning = """  const warnings = Array.isArray(candidate.warnings) ? candidate.warnings : [];\n  const missingSentTime = warnings.includes(\n    'Email Sent Time was not available; Dispatch Time needs review.',\n  );\n  const conflicts = Array.isArray(candidate.conflicts)"""
+          if old_warning not in text:
+              raise SystemExit('draft warning anchor missing')
+          text = text.replace(old_warning, new_warning, 1)
+          text = text.replace("""    warnings,\n    conflicts,""", """    warningCount: warnings.length,\n    missingSentTime,\n    conflicts,""", 1)
+
+          progress_anchor = """export function sanitizeProgressDraft(progressDraft) {\n  if (!progressDraft) return { occurredAt: '', text: '' };\n  return {\n    occurredAt: String(progressDraft.occurredAt ?? '').slice(0, 40),\n    text: String(progressDraft.text ?? '').slice(0, 5000),\n  };\n}\n"""
+          progress_insert = progress_anchor + """\nexport function sanitizeProgressRecoveryEntries(entries) {\n  if (!Array.isArray(entries)) return [];\n  return entries\n    .slice(0, 100)\n    .map((entry, index) => {\n      const occurredAt = asIsoInstant(entry?.occurredAt);\n      const text = String(entry?.text ?? '').trim().slice(0, 5000);\n      if (!occurredAt || !text) return null;\n      return {\n        id: boundedText(entry?.id, 160) ?? `recovery-progress-${index}`,\n        occurredAt,\n        text,\n        createdAt: asIsoInstant(entry?.createdAt),\n      };\n    })\n    .filter(Boolean);\n}\n"""
+          if progress_anchor not in text:
+              raise SystemExit('progress sanitizer anchor missing')
+          text = text.replace(progress_anchor, progress_insert, 1)
+
+          text = text.replace("""  progressDraft = null,\n  templateProfileId = 'MANDAU_DEFAULT',""", """  progressDraft = null,\n  progressEntries = [],\n  templateProfileId = 'MANDAU_DEFAULT',""", 1)
+          text = text.replace("""    progressDraft: sanitizeProgressDraft(progressDraft),\n    importMetadata:""", """    progressDraft: sanitizeProgressDraft(progressDraft),\n    progressEntries: sanitizeProgressRecoveryEntries(progressEntries),\n    importMetadata:""", 1)
+          recovery.write_text(text)
+
+          test = Path('src/features/ticket-generator/lib/draftRecovery.test.js')
+          t = test.read_text()
+          t = t.replace("""          progressDraft: {\n            occurredAt: '2026-08-27T00:00',\n            text: 'Team OTW ke lokasi.',\n            binary: 'must not persist',\n          },\n          templateProfileId:""", """          progressDraft: {\n            occurredAt: '2026-08-27T00:00',\n            text: 'Team OTW ke lokasi.',\n            binary: 'must not persist',\n          },\n          progressEntries: [\n            {\n              id: 'local-progress-1',\n              occurredAt: new Date('2026-08-26T17:01:00.000Z'),\n              text: 'Local timeline update',\n              createdAt: new Date('2026-08-26T17:01:05.000Z'),\n              createdBy: 'must-not-persist',\n              attachment: 'must-not-persist',\n            },\n          ],\n          featureMetadata: {\n            externalTtNumber: 'INC-20260826-0001',\n            incidentKey: 'INC-20260826-0001',\n            pathKey: 'A<>B',\n            alarmContext: {\n              alarmFamily: 'LINK_DOWN',\n              rawAlarm: 'private raw alarm must not persist',\n              description: 'private description must not persist',\n              pathEndpoints: ['A', 'B'],\n            },\n          },\n          templateProfileId:""", 1)
+          t = t.replace("""    expect(persisted.importMetadata).toEqual({\n      source: {""", """    expect(persisted.progressEntries).toEqual([\n      {\n        id: 'local-progress-1',\n        occurredAt: '2026-08-26T17:01:00.000Z',\n        text: 'Local timeline update',\n        createdAt: '2026-08-26T17:01:05.000Z',\n      },\n    ]);\n    expect(persisted.featureMetadata).toMatchObject({\n      externalTtNumber: 'INC-20260826-0001',\n      incidentKey: 'INC-20260826-0001',\n      pathKey: 'A<>B',\n      alarmContext: { alarmFamily: 'LINK_DOWN', pathEndpoints: ['A', 'B'] },\n    });\n    expect(persisted.importMetadata).toEqual({\n      source: {""", 1)
+          t = t.replace("""      warnings: ['Email Sent Time was not available; Dispatch Time needs review.'],\n      conflicts:""", """      warningCount: 1,\n      missingSentTime: true,\n      conflicts:""", 1)
+          t = t.replace("""    expect(raw).not.toContain('unknownSecretField');""", """    expect(raw).not.toContain('unknownSecretField');\n    expect(raw).not.toContain('private raw alarm');\n    expect(raw).not.toContain('private description');\n    expect(raw).not.toContain('must-not-persist');""", 1)
+          t = t.replace("""      warnings: [],\n      conflicts: [{ field: 'title', severity: 'warning' }],""", """      warningCount: 0,\n      missingSentTime: false,\n      conflicts: [{ field: 'title', severity: 'warning' }],""", 1)
+          test.write_text(t)
+
+          composer = Path('src/features/ticket-generator/components/ProgressComposer.jsx')
+          c = composer.read_text()
+          c = c.replace("""export function ProgressComposer({ onAdd, profileId = 'MANDAU_DEFAULT' }) {""", """export function ProgressComposer({\n  onAdd,\n  profileId = 'MANDAU_DEFAULT',\n  recoveryDraft = null,\n  onDraftChange = null,\n}) {""", 1)
+          effect_anchor = """  useEffect(() => {\n    setFavoriteIds((current) => current.filter((id) => validSnippetIds.includes(id)));\n  }, [validSnippetIds]);\n"""
+          effect_insert = effect_anchor + """\n  useEffect(() => {\n    if (!recoveryDraft) return;\n    const recoveredTime = String(recoveryDraft.occurredAt ?? '').trim();\n    setOccurredAt(recoveredTime || toInputValue(new Date()));\n    setText(String(recoveryDraft.text ?? ''));\n    setError('');\n    setSnippetError('');\n  }, [recoveryDraft]);\n\n  const publishDraft = (nextOccurredAt, nextText) => {\n    onDraftChange?.({ occurredAt: nextOccurredAt, text: nextText });\n  };\n"""
+          if effect_anchor not in c:
+              raise SystemExit('composer effect anchor missing')
+          c = c.replace(effect_anchor, effect_insert, 1)
+          c = c.replace("""    setText(result.text);\n    setSnippetError('');""", """    setText(result.text);\n    publishDraft(occurredAt, result.text);\n    setSnippetError('');""", 1)
+          c = c.replace("""      setText('');\n      setError('');\n      setOccurredAt(toInputValue(new Date()));""", """      const nextOccurredAt = toInputValue(new Date());\n      setText('');\n      setError('');\n      setOccurredAt(nextOccurredAt);\n      publishDraft(nextOccurredAt, '');""", 1)
+          c = c.replace("""          onChange={(event) => setOccurredAt(event.target.value)}""", """          onChange={(event) => {\n            const nextOccurredAt = event.target.value;\n            setOccurredAt(nextOccurredAt);\n            publishDraft(nextOccurredAt, text);\n          }}""", 1)
+          c = c.replace("""          onChange={(event) => {\n            setText(event.target.value);\n            if (error) setError('');\n          }}""", """          onChange={(event) => {\n            const nextText = event.target.value;\n            setText(nextText);\n            publishDraft(occurredAt, nextText);\n            if (error) setError('');\n          }}""", 1)
+          composer.write_text(c)
+
+          composer_test = Path('src/features/ticket-generator/components/ProgressComposer.test.jsx')
+          ct = composer_test.read_text()
+          insert_before = """});\n\ndescribe('GEN-F3 reusable Progress snippets', () => {"""
+          new_test = """  it('restores a local composer draft and reports later edits to the recovery owner', () => {\n    const onDraftChange = vi.fn();\n    render(\n      <ProgressComposer\n        onAdd={vi.fn()}\n        recoveryDraft={{ occurredAt: '2026-08-26T21:15', text: 'Recovered local update' }}\n        onDraftChange={onDraftChange}\n      />,\n    );\n\n    expect(screen.getByLabelText('Event time')).toHaveValue('2026-08-26T21:15');\n    const editor = screen.getByLabelText('Progress update');\n    expect(editor).toHaveValue('Recovered local update');\n\n    fireEvent.change(editor, { target: { value: 'Recovered then edited' } });\n    expect(onDraftChange).toHaveBeenLastCalledWith({\n      occurredAt: '2026-08-26T21:15',\n      text: 'Recovered then edited',\n    });\n  });\n});\n\ndescribe('GEN-F3 reusable Progress snippets', () => {"""
+          if insert_before not in ct:
+              raise SystemExit('composer test anchor missing')
+          ct = ct.replace(insert_before, new_test, 1)
+          composer_test.write_text(ct)
+
+          page = Path('src/features/ticket-generator/pages/TicketGeneratorPage.jsx')
+          p = page.read_text()
+          p = p.replace("""import { CoordinateExtractor } from '../components/CoordinateExtractor.jsx';\nimport { ImpactListEditor }""", """import { CoordinateExtractor } from '../components/CoordinateExtractor.jsx';\nimport { DraftRecoveryNotice } from '../components/DraftRecoveryNotice.jsx';\nimport { ImpactListEditor }""", 1)
+          p = p.replace("""import { DEFAULT_TICKET_FORM, buildTicketFromForm } from '../lib/formToTicket.js';""", """import {\n  clearDraftRecovery,\n  readDraftRecovery,\n  writeDraftRecovery,\n} from '../lib/draftRecovery.js';\nimport { DEFAULT_TICKET_FORM, buildTicketFromForm } from '../lib/formToTicket.js';""", 1)
+
+          helper_anchor = """function topLevelDirtyFields(dirtyFields) {\n  return Object.entries(dirtyFields ?? {})\n    .filter(([, value]) => Boolean(value))\n    .map(([field]) => field);\n}\n"""
+          helper_insert = helper_anchor + """\nconst EMPTY_DRAFT_RECOVERY = Object.freeze({ state: 'missing', payload: null });\nconst EMPTY_PROGRESS_DRAFT = Object.freeze({ occurredAt: '', text: '' });\nconst EMAIL_SENT_TIME_WARNING = 'Email Sent Time was not available; Dispatch Time needs review.';\n\nfunction recoveredProgressEntries(entries) {\n  if (!Array.isArray(entries)) return [];\n  return entries\n    .map((entry) => {\n      const occurredAt = new Date(entry?.occurredAt);\n      const createdAt = entry?.createdAt ? new Date(entry.createdAt) : occurredAt;\n      if (Number.isNaN(occurredAt.getTime()) || !entry?.text?.trim()) return null;\n      return {\n        id: entry.id,\n        occurredAt,\n        text: entry.text.trim(),\n        createdAt: Number.isNaN(createdAt.getTime()) ? occurredAt : createdAt,\n        createdBy: null,\n      };\n    })\n    .filter(Boolean);\n}\n\nfunction recoveredImportReview(metadata) {\n  if (!metadata) return null;\n  return {\n    candidate: {\n      source: metadata.source ?? {},\n      warnings: metadata.missingSentTime ? [EMAIL_SENT_TIME_WARNING] : [],\n      conflicts: Array.isArray(metadata.conflicts) ? metadata.conflicts : [],\n    },\n    identityResolution: metadata.identityResolution ?? null,\n  };\n}\n"""
+          if helper_anchor not in p:
+              raise SystemExit('page helper anchor missing')
+          p = p.replace(helper_anchor, helper_insert, 1)
+
+          state_anchor = """  const [importReview, setImportReview] = useState(null);\n  const [validationNow, setValidationNow] = useState(() => new Date());"""
+          state_insert = """  const [importReview, setImportReview] = useState(null);\n  const [validationNow, setValidationNow] = useState(() => new Date());\n  const [draftRecovery, setDraftRecovery] = useState(EMPTY_DRAFT_RECOVERY);\n  const [draftRecoveryReady, setDraftRecoveryReady] = useState(false);\n  const [progressComposerDraft, setProgressComposerDraft] = useState(EMPTY_PROGRESS_DRAFT);\n  const [progressRecoveryDraft, setProgressRecoveryDraft] = useState(null);"""
+          if state_anchor not in p:
+              raise SystemExit('page state anchor missing')
+          p = p.replace(state_anchor, state_insert, 1)
+
+          p = p.replace("""  const statusDirty = status !== savedStatus;\n  const hasUnsavedChanges = isDirty || progressDirty || featureMetadataDirty || statusDirty;""", """  const statusDirty = status !== savedStatus;\n  const progressComposerDirty = Boolean(progressComposerDraft.text?.trim());\n  const hasUnsavedChanges =\n    isDirty || progressDirty || featureMetadataDirty || statusDirty || progressComposerDirty;""", 1)
+
+          load_local = """    if (localDevelopmentMode || !routeTicketId) {\n      setLoadingTicket(false);\n      setLoadError(null);\n      if (!routeTicketId) setImportReview(null);\n      return;\n    }"""
+          load_local_new = """    if (localDevelopmentMode || !routeTicketId) {\n      setLoadingTicket(false);\n      setLoadError(null);\n      if (!routeTicketId) {\n        setImportReview(null);\n        setDraftRecovery(readDraftRecovery());\n        setDraftRecoveryReady(true);\n      } else {\n        setDraftRecovery(EMPTY_DRAFT_RECOVERY);\n        setDraftRecoveryReady(false);\n      }\n      return;\n    }"""
+          if load_local not in p:
+              raise SystemExit('page local load anchor missing')
+          p = p.replace(load_local, load_local_new, 1)
+          p = p.replace("""      setImportReview(null);\n      setPersistedCoordinateSignature(loaded.coordinateSignature);""", """      setImportReview(null);\n      setPersistedCoordinateSignature(loaded.coordinateSignature);\n      setDraftRecovery(\n        readDraftRecovery({ ticketId: routeTicketId, currentRevision: loaded.ticket.revision }),\n      );\n      setDraftRecoveryReady(true);""", 1)
+
+          before_unload_anchor = """  useEffect(() => {\n    const handleBeforeUnload = (event) => {\n      if (!hasUnsavedChanges) return;\n      event.preventDefault();\n      event.returnValue = '';\n    };\n\n    window.addEventListener('beforeunload', handleBeforeUnload);\n    return () => window.removeEventListener('beforeunload', handleBeforeUnload);\n  }, [hasUnsavedChanges]);\n"""
+          autosave_effect = before_unload_anchor + """\n  useEffect(() => {\n    if (!draftRecoveryReady || loadingTicket) return undefined;\n    if (routeTicketId && localDevelopmentMode) return undefined;\n    if (draftRecovery.state === 'available' || draftRecovery.state === 'stale') return undefined;\n\n    const recoverableDirty =\n      isDirty || progressDirty || featureMetadataDirty || Boolean(progressComposerDraft.text?.trim());\n    if (!recoverableDirty) return undefined;\n\n    const timer = window.setTimeout(() => {\n      writeDraftRecovery({\n        ticketId: routeTicketId ?? null,\n        baseRevision: routeTicketId ? revision : null,\n        formValues: watchedValues ?? {},\n        featureMetadata,\n        progressDraft: progressComposerDraft,\n        progressEntries: routeTicketId ? [] : progressEntries,\n        templateProfileId: featureMetadata.templateProfileId,\n        importReview,\n        dirtyAt: new Date(),\n      });\n    }, 500);\n\n    return () => window.clearTimeout(timer);\n  }, [\n    draftRecovery.state,\n    draftRecoveryReady,\n    featureMetadata,\n    featureMetadataDirty,\n    importReview,\n    isDirty,\n    loadingTicket,\n    localDevelopmentMode,\n    progressComposerDraft,\n    progressDirty,\n    progressEntries,\n    revision,\n    routeTicketId,\n    watchedValues,\n  ]);\n"""
+          if before_unload_anchor not in p:
+              raise SystemExit('page beforeunload anchor missing')
+          p = p.replace(before_unload_anchor, autosave_effect, 1)
+
+          notify_anchor = """  const notifyInvalidForm = () => {"""
+          recovery_handlers = """  const restoreRecoveryDraft = () => {\n    const payload = draftRecovery.payload;\n    if (!payload) return;\n\n    const nextValues = {\n      ...DEFAULT_TICKET_FORM,\n      impactList: [],\n      ...(payload.formValues ?? {}),\n    };\n    reset(nextValues);\n    replace(Array.isArray(nextValues.impactList) ? nextValues.impactList : []);\n    setFeatureMetadata(\n      createEditorFeatureMetadata(\n        payload.featureMetadata ?? { templateProfileId: payload.templateProfileId },\n      ),\n    );\n    setFeatureMetadataDirty(true);\n\n    if (!routeTicketId) {\n      const localProgress = recoveredProgressEntries(payload.progressEntries);\n      setProgressEntries(localProgress);\n      setProgressDirty(localProgress.length > 0);\n    }\n\n    const recoveredDraft = payload.progressDraft ?? EMPTY_PROGRESS_DRAFT;\n    setProgressComposerDraft(recoveredDraft);\n    setProgressRecoveryDraft({ ...recoveredDraft });\n    setImportReview(recoveredImportReview(payload.importMetadata));\n    setDraftRecovery(EMPTY_DRAFT_RECOVERY);\n    pushToast({\n      title: 'Local draft restored',\n      message: 'Recovered values are local and remain unsaved until you explicitly persist them.',\n      tone: 'success',\n    });\n  };\n\n  const discardRecoveryDraft = () => {\n    clearDraftRecovery({ ticketId: routeTicketId ?? null });\n    setDraftRecovery(EMPTY_DRAFT_RECOVERY);\n    pushToast({\n      title: 'Recovery draft discarded',\n      message: 'The local recovery snapshot was removed. Cloud Ticket data was not changed.',\n      tone: 'success',\n    });\n  };\n\n""" + notify_anchor
+          if notify_anchor not in p:
+              raise SystemExit('page notify anchor missing')
+          p = p.replace(notify_anchor, recovery_handlers, 1)
+
+          p = p.replace("""  const persistCoreTicket = async (values) => {\n    if (persistPending) return;""", """  const persistCoreTicket = async (values) => {\n    if (persistPending) return;\n\n    if (!routeTicketId && progressComposerDraft.text?.trim()) {\n      document.getElementById('progress-text')?.focus();\n      pushToast({\n        title: 'Add or clear Progress draft',\n        message: 'Submit the current Progress text before creating the Ticket so it is not silently lost.',\n        tone: 'error',\n      });\n      return;\n    }""", 1)
+          p = p.replace("""      reset(values);\n      setFeatureMetadataDirty(false);\n      setProgressDirty(false);\n      setSavedStatus(status);""", """      reset(values);\n      setFeatureMetadataDirty(false);\n      setProgressDirty(false);\n      setSavedStatus(status);\n      clearDraftRecovery({ ticketId: routeTicketId ?? null });\n      setDraftRecovery(EMPTY_DRAFT_RECOVERY);""", 1)
+          create_anchor = """        setProgressDirty(false);\n        setSavedStatus(status);\n        setPendingNavigationTicketId(created.ticketId);"""
+          create_new = """        setProgressDirty(false);\n        setSavedStatus(status);\n        clearDraftRecovery();\n        setDraftRecovery(EMPTY_DRAFT_RECOVERY);\n        setPendingNavigationTicketId(created.ticketId);"""
+          if create_anchor not in p:
+              raise SystemExit('page create clear anchor missing')
+          p = p.replace(create_anchor, create_new, 1)
+          save_anchor = """      setFeatureMetadataDirty(false);\n      reset(ticketToFormValues(saved.ticket));\n      pushToast({"""
+          save_new = """      setFeatureMetadataDirty(false);\n      reset(ticketToFormValues(saved.ticket));\n      clearDraftRecovery({ ticketId: routeTicketId });\n      setDraftRecovery(EMPTY_DRAFT_RECOVERY);\n      pushToast({"""
+          if save_anchor not in p:
+              raise SystemExit('page save clear anchor missing')
+          p = p.replace(save_anchor, save_new, 1)
+
+          p = p.replace("""      setRevision(result.ticketRevision);\n      setProgressEntries((current) => [...current, result.progress]);\n      setProgressDirty(false);""", """      setRevision(result.ticketRevision);\n      setProgressEntries((current) => [...current, result.progress]);\n      setProgressDirty(false);\n      clearDraftRecovery({ ticketId: routeTicketId });\n      setDraftRecovery(EMPTY_DRAFT_RECOVERY);""", 1)
+
+          editor_anchor = """  const editor = (\n    <div className=\"grid min-w-0 gap-3\">\n      {!routeTicketId ? ("""
+          editor_new = """  const editor = (\n    <div className=\"grid min-w-0 gap-3\">\n      <DraftRecoveryNotice\n        recovery={draftRecovery}\n        currentRevision={revision}\n        currentValues={watchedValues ?? {}}\n        onRestore={restoreRecoveryDraft}\n        onDiscard={discardRecoveryDraft}\n      />\n\n      {!routeTicketId ? ("""
+          if editor_anchor not in p:
+              raise SystemExit('page editor anchor missing')
+          p = p.replace(editor_anchor, editor_new, 1)
+          p = p.replace("""      <ProgressComposer onAdd={addProgress} profileId={featureMetadata.templateProfileId} />""", """      <ProgressComposer\n        onAdd={addProgress}\n        profileId={featureMetadata.templateProfileId}\n        recoveryDraft={progressRecoveryDraft}\n        onDraftChange={setProgressComposerDraft}\n      />""", 1)
+          page.write_text(p)
+          PY
+      - name: Format recovery sources
+        run: npx prettier --write src/features/ticket-generator/lib/draftRecovery.js src/features/ticket-generator/lib/draftRecovery.test.js src/features/ticket-generator/components/ProgressComposer.jsx src/features/ticket-generator/components/ProgressComposer.test.jsx src/features/ticket-generator/components/DraftRecoveryNotice.jsx src/features/ticket-generator/components/DraftRecoveryNotice.test.jsx src/features/ticket-generator/pages/TicketGeneratorPage.jsx
+      - name: Focused recovery tests
+        run: npx vitest run src/features/ticket-generator/lib/draftRecovery.test.js src/features/ticket-generator/components/ProgressComposer.test.jsx src/features/ticket-generator/components/DraftRecoveryNotice.test.jsx src/features/ticket-generator/pages/TicketGeneratorPage.test.jsx
+      - name: Commit recovery wiring
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/features/ticket-generator/lib/draftRecovery.js src/features/ticket-generator/lib/draftRecovery.test.js src/features/ticket-generator/components/ProgressComposer.jsx src/features/ticket-generator/components/ProgressComposer.test.jsx src/features/ticket-generator/components/DraftRecoveryNotice.jsx src/features/ticket-generator/components/DraftRecoveryNotice.test.jsx src/features/ticket-generator/pages/TicketGeneratorPage.jsx
+          git diff --cached --check
+          git commit -m "feat(generator): wire local draft recovery flow"
+          git push origin HEAD:feature/template-generator-features
