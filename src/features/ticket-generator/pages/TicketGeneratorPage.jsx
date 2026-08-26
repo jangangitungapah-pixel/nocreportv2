@@ -41,6 +41,7 @@ import {
   persistTicketTransition,
   saveTicketEditorCore,
 } from '../lib/persistenceService.js';
+import { applySelectiveImport } from '../lib/selectiveApply.js';
 import { ticketToFormValues } from '../lib/ticketToForm.js';
 import { ticketFormSchema } from '../schemas/ticketFormSchema.js';
 
@@ -231,6 +232,12 @@ function toImportedProgressEntries(progress) {
     .filter(Boolean);
 }
 
+function topLevelDirtyFields(dirtyFields) {
+  return Object.entries(dirtyFields ?? {})
+    .filter(([, value]) => Boolean(value))
+    .map(([field]) => field);
+}
+
 function GeneratorLoading() {
   return (
     <div className="grid gap-3" aria-label="Loading Ticket">
@@ -273,7 +280,7 @@ export function TicketGeneratorPage() {
     setValue,
     trigger,
     handleSubmit,
-    formState: { errors, isDirty },
+    formState: { errors, isDirty, dirtyFields },
   } = useForm({
     defaultValues: { ...DEFAULT_TICKET_FORM, impactList: [] },
     mode: 'onBlur',
@@ -655,32 +662,53 @@ export function TicketGeneratorPage() {
     }
   };
 
-  const applySmartParseResult = (parsed) => {
+  const applyUnifiedImport = ({ candidate, confirmedFields, includeProgress }) => {
+    const currentValues = getValues();
+    const result = applySelectiveImport(candidate, currentValues, {
+      dirtyFields: topLevelDirtyFields(dirtyFields),
+      confirmedFields,
+    });
     const scalarFields = ['title', 'occurAt', 'dispatchAt', 'pic', 'rootcause', 'cutPoint'];
+
     for (const field of scalarFields) {
-      if (!parsed.detectedFields.includes(field)) continue;
-      setValue(field, parsed.values[field] ?? '', {
+      if (!result.appliedFields.includes(field)) continue;
+      setValue(field, result.nextValues[field] ?? '', {
         shouldDirty: true,
         shouldTouch: true,
         shouldValidate: true,
       });
     }
 
-    if (parsed.detectedFields.includes('impactList')) {
-      replace(parsed.values.impactList);
-      setValue('impactList', parsed.values.impactList, { shouldDirty: true, shouldTouch: true });
+    if (result.appliedFields.includes('impactList')) {
+      const importedImpact = Array.isArray(result.nextValues.impactList)
+        ? result.nextValues.impactList
+        : [];
+      replace(importedImpact);
+      setValue('impactList', importedImpact, { shouldDirty: true, shouldTouch: true });
     }
 
-    if (parsed.detectedFields.includes('progress')) {
-      const importedProgress = toImportedProgressEntries(parsed.progress);
+    let importedProgressCount = 0;
+    if (includeProgress) {
+      const importedProgress = toImportedProgressEntries(candidate.progress ?? []);
       setProgressEntries(importedProgress);
-      setProgressDirty(importedProgress.length > 0);
+      setProgressDirty(true);
+      importedProgressCount = importedProgress.length;
     }
 
-    clearErrors();
+    if (result.appliedFields.length) clearErrors(result.appliedFields);
+
+    const appliedSummary = [
+      `${result.appliedFields.length} field${result.appliedFields.length === 1 ? '' : 's'}`,
+      includeProgress
+        ? `${importedProgressCount} progress update${importedProgressCount === 1 ? '' : 's'}`
+        : null,
+    ]
+      .filter(Boolean)
+      .join(' + ');
+
     pushToast({
-      title: 'Smart import applied',
-      message: `${parsed.stats.fieldCount} fields, ${parsed.stats.impactCount} impacts, and ${parsed.stats.progressCount} progress updates filled into this draft.`,
+      title: 'Import applied to draft',
+      message: `${appliedSummary || 'Selected values'} updated locally. Nothing was written to Firestore.`,
       tone: 'success',
     });
   };
@@ -724,7 +752,15 @@ export function TicketGeneratorPage() {
 
   const editor = (
     <div className="grid min-w-0 gap-3">
-      {!routeTicketId ? <SmartPasteParser onApply={applySmartParseResult} /> : null}
+      {!routeTicketId ? (
+        <SmartPasteParser
+          onApply={applyUnifiedImport}
+          currentValues={watchedValues ?? {}}
+          dirtyFields={dirtyFields}
+          progressCount={progressEntries.length}
+          progressDirty={progressDirty}
+        />
+      ) : null}
 
       <form
         id="ticket-editor-form"
