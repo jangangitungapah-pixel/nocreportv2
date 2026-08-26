@@ -1,0 +1,14 @@
+name: GEN-F1 msgreader evidence archive
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  archived:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Archived one-time evidence workflow
+        run: echo "GEN-F1 package-backed msgreader evidence completed in run 32933586994. No action is required."

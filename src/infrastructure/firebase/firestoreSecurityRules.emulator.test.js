@@ -103,6 +103,40 @@ function ticketDocument(actorUid, overrides = {}) {
   };
 }
 
+function schemaV2Metadata(overrides = {}) {
+  return {
+    schemaVersion: 2,
+    titleMode: 'MANUAL',
+    templateProfileId: 'MANDAU_DEFAULT',
+    incidentKey: 'INC-20260826-00000054',
+    pathKey: 'NODE_A<>NODE_B',
+    alarmContext: {
+      rawAlarm: 'Link Down',
+      alarmFamily: 'LINK_DOWN',
+      alarmSource: 'NMS',
+      emsAlarmNo: 'EMS-001',
+      siteId: 'NODE_A',
+      siteName: 'NODE A',
+      severity: 'Critical',
+      sourceStatus: 'Open',
+      dispatchTo: 'FIELD TEAM',
+      region: 'JABOTABEK',
+      description: '',
+      lastLinkFlapped: '',
+      transportFamily: 'DWDM',
+      pathEndpoints: ['NODE A', 'NODE B'],
+      externalTtReferences: ['INC-20260826-00000054'],
+    },
+    importProvenance: {
+      sourceKind: 'outlook_msg',
+      dispatchTimeSource: 'PR_CLIENT_SUBMIT_TIME',
+      messageSentAt: new Date('2026-08-26T00:12:26.000Z'),
+    },
+    incidentGroupId: null,
+    ...overrides,
+  };
+}
+
 async function expectPermissionDenied(operation) {
   try {
     await operation();
@@ -193,6 +227,8 @@ describeEmulator.sequential('Firestore Security Rules role matrix', () => {
       patch: { pic: 'Operator A' },
     });
 
+    expect(created.ticket.schemaVersion).toBe(2);
+    expect(saved.ticket.schemaVersion).toBe(2);
     expect(saved.ticket.pic).toBe('Operator A');
     await expect(
       firestoreTicketRepository.archiveTicket({
@@ -200,6 +236,61 @@ describeEmulator.sequential('Firestore Security Rules role matrix', () => {
         expectedRevision: saved.revision,
       }),
     ).rejects.toMatchObject({ code: 'PERMISSION_DENIED' });
+  });
+
+  it('allows validated v2 metadata and a one-way v1 to v2 upgrade', async () => {
+    const db = getFirestoreClient();
+    await signInAs(accounts.operator);
+
+    await setDoc(
+      doc(db, 'tickets', 'valid-v2'),
+      ticketDocument(accounts.operator.uid, schemaV2Metadata()),
+    );
+
+    const legacyRef = doc(db, 'tickets', 'legacy-upgrade');
+    await setDoc(legacyRef, ticketDocument(accounts.operator.uid));
+    await updateDoc(legacyRef, {
+      ...schemaV2Metadata(),
+      updatedAt: new Date('2026-08-21T00:05:00.000Z'),
+      updatedBy: accounts.operator.uid,
+      revision: 2,
+    });
+
+    await expectPermissionDenied(() =>
+      updateDoc(legacyRef, {
+        schemaVersion: 1,
+        updatedAt: new Date('2026-08-21T00:06:00.000Z'),
+        updatedBy: accounts.operator.uid,
+        revision: 3,
+      }),
+    );
+  });
+
+  it('rejects malformed schema-v2 operational metadata', async () => {
+    const db = getFirestoreClient();
+    await signInAs(accounts.operator);
+
+    await expectPermissionDenied(() =>
+      setDoc(
+        doc(db, 'tickets', 'invalid-v2-title-mode'),
+        ticketDocument(accounts.operator.uid, schemaV2Metadata({ titleMode: 'AUTO_MAGIC' })),
+      ),
+    );
+
+    await expectPermissionDenied(() =>
+      setDoc(
+        doc(db, 'tickets', 'invalid-v2-path-size'),
+        ticketDocument(
+          accounts.operator.uid,
+          schemaV2Metadata({
+            alarmContext: {
+              ...schemaV2Metadata().alarmContext,
+              pathEndpoints: Array.from({ length: 17 }, (_, index) => `NODE ${index + 1}`),
+            },
+          }),
+        ),
+      ),
+    );
   });
 
   it('denies inactive users even when their persisted role is Operator', async () => {

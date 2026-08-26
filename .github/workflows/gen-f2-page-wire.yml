@@ -1,0 +1,14 @@
+name: GEN-F2 page wiring archive
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  archived:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Archived one-time wiring workflow
+        run: echo "GEN-F2 page wiring completed in runs 32946510796 and 32946654963. No action is required."

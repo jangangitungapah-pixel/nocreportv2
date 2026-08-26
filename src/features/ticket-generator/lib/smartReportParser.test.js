@@ -120,6 +120,23 @@ describe('smartReportParser', () => {
     expect(parsed.stats).toEqual({ fieldCount: 7, impactCount: 4, progressCount: 16 });
   });
 
+  test('filters exact-normalized duplicate Impact rows while preserving order', () => {
+    const parsed = parseSmartReport(`Title : *[MANDAU] TEST [TT : INC-20260825-00000002]*
+Impact List :
+1. SITE_A
+- site_a
+- SITE A
+- SITE_B
+Occur Time = 25/08/2026 01:10`);
+
+    expect(parsed.values.impactList).toEqual([
+      { value: 'SITE_A' },
+      { value: 'SITE A' },
+      { value: 'SITE_B' },
+    ]);
+    expect(parsed.stats.impactCount).toBe(3);
+  });
+
   test('supports canonical Title and Impact List labels', () => {
     const parsed = parseSmartReport(`Title : *[MANDAU] TEST [TT : INC-20260825-00000001]*
 Impact List :

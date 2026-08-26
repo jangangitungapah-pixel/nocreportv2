@@ -1,8 +1,17 @@
 import { AppIcon } from '../../../shared/ui/icon.jsx';
 import { Button } from '../../../shared/ui/primitives.jsx';
 import { TextInput } from '../../../shared/ui/index.jsx';
+import { ImpactBuilder } from './ImpactBuilder.jsx';
 
-export function ImpactListEditor({ fields, register, append, remove, move }) {
+export function ImpactListEditor({
+  fields,
+  register,
+  append,
+  remove,
+  move,
+  currentValues = [],
+  onApplyCandidates,
+}) {
   return (
     <section className="generator-impact-editor overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
       <header className="flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
@@ -17,6 +26,8 @@ export function ImpactListEditor({ fields, register, append, remove, move }) {
           Add impact
         </Button>
       </header>
+
+      <ImpactBuilder existing={currentValues} onApply={onApplyCandidates} />
 
       {fields.length === 0 ? (
         <p className="px-3 py-3 text-xs font-medium text-[var(--text-muted)]">

@@ -107,6 +107,22 @@ describeEmulator('Firestore Ticket repository emulator integration', () => {
 
     expect(saved.revision).toBe(2);
     expect(saved.ticket.rootcause).toBe('Fiber cut after forest fire impact');
+
+    const auditSnapshot = await getDocs(
+      collection(getFirestoreClient(), 'tickets', created.ticketId, 'auditEvents'),
+    );
+    const updatedAudit = auditSnapshot.docs
+      .map((item) => item.data())
+      .find((event) => event.type === 'TICKET_UPDATED');
+    expect(updatedAudit).toMatchObject({
+      revisionFrom: 1,
+      revisionTo: 2,
+      details: {
+        changes: {
+          rootcause: { from: '', to: 'Fiber cut after forest fire impact' },
+        },
+      },
+    });
   });
 
   it('maintains progress summary fields when backdated progress is appended', async () => {
