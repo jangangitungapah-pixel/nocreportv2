@@ -6,6 +6,7 @@ import { Textarea } from '../../../shared/ui/index.jsx';
 import { parseOutlookMsgImportWithDefaultDecoder } from '../lib/outlookMsgAdapter.js';
 import { parseReportTextImport } from '../lib/reportTextAdapter.js';
 import { buildSelectiveApplyPlan } from '../lib/selectiveApply.js';
+import { importCandidateHasOperationalMetadata } from '../lib/ticketFeatureMetadata.js';
 
 const FIELD_LABELS = {
   title: 'Title',
@@ -59,6 +60,7 @@ export function SmartPasteParser({
   dirtyFields = {},
   progressCount = 0,
   progressDirty = false,
+  metadataPresent = false,
 }) {
   const [mode, setMode] = useState('report_text');
   const [source, setSource] = useState('');
@@ -68,6 +70,7 @@ export function SmartPasteParser({
   const [msgError, setMsgError] = useState('');
   const [selectedFields, setSelectedFields] = useState(() => new Set());
   const [includeProgress, setIncludeProgress] = useState(false);
+  const [includeMetadata, setIncludeMetadata] = useState(false);
   const [identityChoice, setIdentityChoice] = useState('');
 
   const reportCandidate = useMemo(
@@ -85,6 +88,7 @@ export function SmartPasteParser({
         : [],
     [candidate, currentValues, dirtyNames],
   );
+  const hasOperationalMetadata = importCandidateHasOperationalMetadata(candidate);
   const blockingIdentityConflict = candidate?.conflicts?.find(
     (conflict) => conflict.severity === 'blocking' && conflict.field === 'externalTtNumber',
   );
@@ -108,8 +112,17 @@ export function SmartPasteParser({
     setIncludeProgress(
       Boolean(candidate?.progress?.length) && progressCount === 0 && !progressDirty,
     );
+    setIncludeMetadata(hasOperationalMetadata && !metadataPresent);
     setIdentityChoice('');
-  }, [candidate, plan, progressCount, progressDirty, blockingIdentityConflict]);
+  }, [
+    candidate,
+    plan,
+    progressCount,
+    progressDirty,
+    blockingIdentityConflict,
+    hasOperationalMetadata,
+    metadataPresent,
+  ]);
 
   const resetMsg = () => {
     setMsgCandidate(null);
@@ -122,6 +135,7 @@ export function SmartPasteParser({
     setMode(nextMode);
     setSelectedFields(new Set());
     setIncludeProgress(false);
+    setIncludeMetadata(false);
     setIdentityChoice('');
     if (nextMode === 'outlook_msg') resetMsg();
   };
@@ -169,13 +183,16 @@ export function SmartPasteParser({
       candidate: withSelectedFields(candidate, selectedFields),
       confirmedFields,
       includeProgress,
+      includeMetadata,
       identityResolution: chosenIdentity,
     });
   };
 
-  const selectedCount = selectedFields.size + (includeProgress ? 1 : 0);
+  const selectedCount =
+    selectedFields.size + (includeProgress ? 1 : 0) + (includeMetadata ? 1 : 0);
   const hasCandidate = Boolean(candidate);
   const progressReplacement = Boolean(candidate?.progress?.length && progressCount > 0);
+  const metadataReplacement = Boolean(hasOperationalMetadata && metadataPresent);
 
   return (
     <section className="generator-smart-import overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-accent)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
@@ -375,6 +392,37 @@ export function SmartPasteParser({
                       <span className="mt-0.5 block text-[9px] font-bold text-[var(--warning-text)]">
                         Existing timeline content will be replaced — checking this is explicit
                         approval.
+                      </span>
+                    ) : null}
+                  </span>
+                </label>
+              ) : null}
+
+              {hasOperationalMetadata ? (
+                <label
+                  className={`flex items-start gap-2 rounded-[var(--radius-control)] border px-2.5 py-2 ${
+                    metadataReplacement
+                      ? 'border-[var(--warning-border)] bg-[var(--warning-soft)]'
+                      : 'border-[var(--border-subtle)] bg-[var(--surface-muted)]'
+                  }`}
+                >
+                  <input
+                    className="mt-0.5"
+                    type="checkbox"
+                    checked={includeMetadata}
+                    onChange={(event) => setIncludeMetadata(event.target.checked)}
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="text-[10.5px] font-extrabold text-[var(--text-primary)]">
+                      Operational metadata · alarm, path, profile & TT identity
+                    </span>
+                    <span className="mt-0.5 block text-[9px] font-bold text-[var(--text-muted)]">
+                      Stored only after normal Ticket Save. Raw email/body/header/attachment data are
+                      never included.
+                    </span>
+                    {metadataReplacement ? (
+                      <span className="mt-0.5 block text-[9px] font-bold text-[var(--warning-text)]">
+                        Replaces current structured metadata — checking this is explicit approval.
                       </span>
                     ) : null}
                   </span>
