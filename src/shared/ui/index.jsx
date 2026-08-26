@@ -8,6 +8,9 @@ import {
   DialogContent as RadixDialogContent,
   DialogDescription as RadixDialogDescription,
   DialogTitle as RadixDialogTitle,
+  Popover as RadixPopover,
+  PopoverContent as RadixPopoverContent,
+  PopoverTrigger as RadixPopoverTrigger,
 } from './primitives.jsx';
 
 export const Button = CanonicalButton;
@@ -174,7 +177,6 @@ export function SelectField({
   className,
 }) {
   const listId = useId();
-  const rootRef = useRef(null);
   const buttonRef = useRef(null);
   const [open, setOpen] = useState(false);
   const selectedIndex = Math.max(
@@ -187,16 +189,6 @@ export function SelectField({
   useEffect(() => {
     setActiveIndex(selectedIndex);
   }, [selectedIndex]);
-
-  useEffect(() => {
-    if (!open) return undefined;
-
-    const handlePointerDown = (event) => {
-      if (!rootRef.current?.contains(event.target)) setOpen(false);
-    };
-    document.addEventListener('pointerdown', handlePointerDown);
-    return () => document.removeEventListener('pointerdown', handlePointerDown);
-  }, [open]);
 
   const choose = (index) => {
     const option = options[index];
@@ -244,13 +236,6 @@ export function SelectField({
       setActiveIndex(Math.max(0, options.length - 1));
       return;
     }
-    if (event.key === 'Escape') {
-      if (open) {
-        event.preventDefault();
-        setOpen(false);
-      }
-      return;
-    }
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       if (open) choose(activeIndex);
@@ -259,7 +244,7 @@ export function SelectField({
   };
 
   return (
-    <div ref={rootRef} className={cn('relative grid gap-2', className)}>
+    <div className={cn('relative grid gap-2', className)}>
       <label
         id={`${id}-label`}
         htmlFor={id}
@@ -272,46 +257,54 @@ export function SelectField({
         {label}
         {required ? <span className="ml-1 text-[var(--danger-text)]">*</span> : null}
       </label>
-      <button
-        ref={buttonRef}
-        id={id}
-        type="button"
-        role="combobox"
-        aria-controls={listId}
-        aria-expanded={open}
-        aria-haspopup="listbox"
-        aria-labelledby={`${id}-label`}
-        aria-describedby={fieldDescription(id, hint, error)}
-        aria-invalid={Boolean(error)}
-        aria-activedescendant={open ? `${listId}-option-${activeIndex}` : undefined}
-        disabled={disabled}
-        className={cn(
-          'ui-control ui-select-trigger flex min-h-[var(--control-height)] w-full items-center justify-between gap-3 rounded-[var(--radius-control)] border bg-[var(--surface-panel-strong)] px-3.5 text-left text-sm font-semibold text-[var(--text-primary)] shadow-[var(--shadow-xs)] outline-none transition-[background-color,border-color,box-shadow,transform] duration-[var(--motion-base)] hover:border-[var(--border-strong)] focus:border-[var(--accent-solid)] focus:bg-[var(--surface-panel)] focus:ring-4 focus:ring-[var(--focus-soft)] active:scale-[0.995] disabled:cursor-not-allowed disabled:bg-[var(--surface-muted)] disabled:text-[var(--text-muted)] disabled:opacity-65',
-          error ? 'border-[var(--danger-solid)]' : 'border-[var(--border-default)]',
-        )}
-        onClick={() => {
-          if (!disabled) setOpen((current) => !current);
-        }}
-        onKeyDown={onKeyDown}
-      >
-        <span className="min-w-0 truncate">{selected?.label ?? 'Select…'}</span>
-        <span
-          className={cn(
-            'grid h-7 w-7 shrink-0 place-items-center rounded-[var(--radius-control)] bg-[var(--surface-muted)] text-[var(--text-muted)] transition-[transform,background-color,color] duration-[var(--motion-base)]',
-            open && 'rotate-180 bg-[var(--accent-soft)] text-[var(--accent-text)]',
-          )}
-          aria-hidden="true"
-        >
-          <AppIcon name="chevronDown" size={16} />
-        </span>
-      </button>
 
-      {open ? (
-        <div
+      <RadixPopover
+        open={open}
+        onOpenChange={(nextOpen) => {
+          if (!disabled) setOpen(nextOpen);
+        }}
+      >
+        <RadixPopoverTrigger asChild>
+          <button
+            ref={buttonRef}
+            id={id}
+            type="button"
+            role="combobox"
+            aria-controls={listId}
+            aria-expanded={open}
+            aria-haspopup="listbox"
+            aria-labelledby={`${id}-label`}
+            aria-describedby={fieldDescription(id, hint, error)}
+            aria-invalid={Boolean(error)}
+            aria-activedescendant={open ? `${listId}-option-${activeIndex}` : undefined}
+            disabled={disabled}
+            className={cn(
+              'ui-control ui-select-trigger flex min-h-[var(--control-height)] w-full items-center justify-between gap-3 rounded-[var(--radius-control)] border bg-[var(--surface-panel-strong)] px-3.5 text-left text-sm font-semibold text-[var(--text-primary)] shadow-[var(--shadow-xs)] outline-none transition-[background-color,border-color,box-shadow,transform] duration-[var(--motion-base)] hover:border-[var(--border-strong)] focus:border-[var(--accent-solid)] focus:bg-[var(--surface-panel)] focus:ring-4 focus:ring-[var(--focus-soft)] active:scale-[0.995] disabled:cursor-not-allowed disabled:bg-[var(--surface-muted)] disabled:text-[var(--text-muted)] disabled:opacity-65',
+              error ? 'border-[var(--danger-solid)]' : 'border-[var(--border-default)]',
+            )}
+            onKeyDown={onKeyDown}
+          >
+            <span className="min-w-0 truncate">{selected?.label ?? 'Select…'}</span>
+            <span
+              className={cn(
+                'grid h-7 w-7 shrink-0 place-items-center rounded-[var(--radius-control)] bg-[var(--surface-muted)] text-[var(--text-muted)] transition-[transform,background-color,color] duration-[var(--motion-base)]',
+                open && 'rotate-180 bg-[var(--accent-soft)] text-[var(--accent-text)]',
+              )}
+              aria-hidden="true"
+            >
+              <AppIcon name="chevronDown" size={16} />
+            </span>
+          </button>
+        </RadixPopoverTrigger>
+
+        <RadixPopoverContent
           id={listId}
           role="listbox"
           aria-labelledby={`${id}-label`}
-          className="ui-select-popover absolute left-0 right-0 top-[calc(100%+0.45rem)] z-[75] max-h-72 overflow-auto rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-elevated)] p-1.5 shadow-[var(--shadow-lg)] backdrop-blur-xl"
+          align="start"
+          sideOffset={6}
+          onOpenAutoFocus={(event) => event.preventDefault()}
+          className="max-h-72 w-[var(--radix-popover-trigger-width)] overflow-auto p-1.5 backdrop-blur-xl"
         >
           {options.map((option, index) => {
             const selectedOption = option.value === value;
@@ -348,8 +341,8 @@ export function SelectField({
               </button>
             );
           })}
-        </div>
-      ) : null}
+        </RadixPopoverContent>
+      </RadixPopover>
 
       {error ? (
         <p id={`${id}-error`} className="text-xs font-semibold leading-5 text-[var(--danger-text)]">
