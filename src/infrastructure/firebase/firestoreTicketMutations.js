@@ -9,6 +9,7 @@ import {
 
 import {
   TICKET_STATUS,
+  buildTicketUpdatedAuditDetails,
   createEmptyTicket,
   extractExternalTicketNumber,
   normalizeCoordinates,
@@ -37,8 +38,9 @@ function assertExpectedRevision(data, expectedRevision, ticketId) {
   }
 }
 
-function auditData(type, actorUid, details = null) {
+function auditData(type, actorUid, details = null, metadata = null) {
   return {
+    ...(metadata ?? {}),
     type,
     actorUid,
     details,
@@ -171,24 +173,43 @@ export async function saveTicket({ ticketId, expectedRevision, patch = {} }) {
         id: ticketId,
         schemaVersion: 2,
       });
+      const nextExternalTtNumber =
+        patch.externalTtNumber ?? extractExternalTicketNumber(candidate.title) ?? null;
+      const auditedCandidate = createEmptyTicket({
+        ...candidate,
+        externalTtNumber: nextExternalTtNumber,
+      });
+      const revisionFrom = Number(expectedRevision);
+      const revisionTo = revisionFrom + 1;
+      const audit = buildTicketUpdatedAuditDetails({
+        previousTicket: current,
+        nextTicket: auditedCandidate,
+        revisionFrom,
+        revisionTo,
+      });
       const auditRef = doc(collection(ticketRef, 'auditEvents'));
 
       transaction.update(ticketRef, {
-        ...schemaV2FeatureData(candidate),
-        title: candidate.title,
-        externalTtNumber:
-          patch.externalTtNumber ?? extractExternalTicketNumber(candidate.title) ?? null,
-        impactList: candidate.impactList,
-        occurAt: candidate.occurAt,
-        dispatchAt: candidate.dispatchAt,
-        pic: candidate.pic,
-        rootcause: candidate.rootcause,
-        cutPoint: candidate.cutPoint,
+        ...schemaV2FeatureData(auditedCandidate),
+        title: auditedCandidate.title,
+        externalTtNumber: nextExternalTtNumber,
+        impactList: auditedCandidate.impactList,
+        occurAt: auditedCandidate.occurAt,
+        dispatchAt: auditedCandidate.dispatchAt,
+        pic: auditedCandidate.pic,
+        rootcause: auditedCandidate.rootcause,
+        cutPoint: auditedCandidate.cutPoint,
         updatedAt: serverTimestamp(),
         updatedBy: user.uid,
-        revision: Number(expectedRevision) + 1,
+        revision: revisionTo,
       });
-      transaction.set(auditRef, auditData('TICKET_UPDATED', user.uid));
+      transaction.set(
+        auditRef,
+        auditData('TICKET_UPDATED', user.uid, audit.details, {
+          revisionFrom: audit.revisionFrom,
+          revisionTo: audit.revisionTo,
+        }),
+      );
     });
 
     const snapshot = await getDoc(ticketRef);

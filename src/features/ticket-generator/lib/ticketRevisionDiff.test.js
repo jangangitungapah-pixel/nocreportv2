@@ -4,7 +4,7 @@ import {
   REVISION_DIFF_ALARM_FIELDS,
   buildOperationalRevisionDiff,
   buildTicketUpdatedAuditDetails,
-} from './ticketRevisionDiff.js';
+} from '../../../entities/ticket/index.js';
 
 describe('ticketRevisionDiff', () => {
   it('captures compact operational changes with normalized timestamps', () => {
