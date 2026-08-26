@@ -1,0 +1,49 @@
+name: GEN-F9 integrated browser QA
+
+on:
+  push:
+    branches:
+      - feature/template-generator-features
+    paths:
+      - .github/workflows/gen-f9-browser-qa.yml
+
+permissions:
+  contents: read
+
+jobs:
+  browser-hardening:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: feature/template-generator-features
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright runtime
+        run: npm install --no-save --package-lock=false @playwright/test@1.62.1
+      - name: Verify F9 source formatting
+        run: >-
+          npx prettier --check
+          e2e/gen-f9-generator.spec.js
+          scripts/test-gen-f9-e2e.mjs
+          scripts/prepare-gen-f9-msg-fixtures.mjs
+      - name: Prepare pinned runtime MSG fixtures outside the repository
+        run: |
+          rm -rf /tmp/gen-f9-msgreader /tmp/gen-f9-msg
+          git clone https://github.com/HiraokaHyperTools/msgreader-web-ng.git /tmp/gen-f9-msgreader
+          git -C /tmp/gen-f9-msgreader checkout 62c45222668fdc631a33e2fbbb596dd1d6ab770c
+          node scripts/prepare-gen-f9-msg-fixtures.mjs /tmp/gen-f9-msgreader /tmp/gen-f9-msg
+          test -f /tmp/gen-f9-msg/expected.json
+      - name: Run GEN-F9 integrated Generator browser suite
+        env:
+          GEN_F9_MSG_EXPECTED: /tmp/gen-f9-msg/expected.json
+        run: node scripts/test-gen-f9-e2e.mjs
