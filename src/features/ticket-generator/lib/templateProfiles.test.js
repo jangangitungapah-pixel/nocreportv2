@@ -22,6 +22,21 @@ describe('Template Profile foundation', () => {
     });
   });
 
+  it('owns the reusable Progress snippet collection at the profile boundary', () => {
+    expect(MANDAU_DEFAULT_PROFILE.snippetCollection).toHaveLength(9);
+    expect(MANDAU_DEFAULT_PROFILE.snippetCollection.map((snippet) => snippet.category)).toEqual([
+      'Dispatch',
+      'Arrival',
+      'Investigation',
+      'OTDR',
+      'Material',
+      'Jointing',
+      'Monitoring',
+      'Clearance',
+      'Escalation',
+    ]);
+  });
+
   it('returns the default profile and rejects unknown required profiles', () => {
     expect(getTemplateProfile()).toBe(MANDAU_DEFAULT_PROFILE);
     expect(getTemplateProfile(TEMPLATE_PROFILE_IDS.MANDAU_DEFAULT)).toBe(MANDAU_DEFAULT_PROFILE);
