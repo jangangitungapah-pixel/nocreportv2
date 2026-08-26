@@ -20,7 +20,10 @@ const MAX_GROUP_MEMBERS = 20;
 function requireCurrentUser() {
   const user = getAuthClient().currentUser;
   if (!user) {
-    throw createInfrastructureError('NOT_AUTHENTICATED', 'Sign in before modifying related Tickets.');
+    throw createInfrastructureError(
+      'NOT_AUTHENTICATED',
+      'Sign in before modifying related Tickets.',
+    );
   }
   return user;
 }
@@ -42,7 +45,11 @@ function normalizeMemberInputs(members) {
       expectedRevision: Number(member?.expectedRevision),
     }))
     .filter((member) => {
-      if (!member.ticketId || !Number.isInteger(member.expectedRevision) || seen.has(member.ticketId)) {
+      if (
+        !member.ticketId ||
+        !Number.isInteger(member.expectedRevision) ||
+        seen.has(member.ticketId)
+      ) {
         return false;
       }
       seen.add(member.ticketId);
@@ -146,9 +153,13 @@ export async function createIncidentGroupFromTickets({ members, title = '', path
         }
         assertExpectedRevision(snapshot.data(), member.expectedRevision, member.ticketId);
         if (snapshot.data().incidentGroupId) {
-          throw createInfrastructureError('ALREADY_RELATED', 'A Ticket already belongs to an incident group.', {
-            details: { ticketId: member.ticketId, groupId: snapshot.data().incidentGroupId },
-          });
+          throw createInfrastructureError(
+            'ALREADY_RELATED',
+            'A Ticket already belongs to an incident group.',
+            {
+              details: { ticketId: member.ticketId, groupId: snapshot.data().incidentGroupId },
+            },
+          );
         }
         snapshots.push({ member, ticketRef, snapshot });
       }
@@ -212,9 +223,13 @@ export async function linkTicketToIncidentGroup({ groupId, ticketId, expectedRev
       const ticketData = ticketSnapshot.data();
       assertExpectedRevision(ticketData, expectedRevision, ticketId);
       if (ticketData.incidentGroupId && ticketData.incidentGroupId !== groupId) {
-        throw createInfrastructureError('ALREADY_RELATED', 'Ticket already belongs to another incident group.', {
-          details: { ticketId, groupId: ticketData.incidentGroupId },
-        });
+        throw createInfrastructureError(
+          'ALREADY_RELATED',
+          'Ticket already belongs to another incident group.',
+          {
+            details: { ticketId, groupId: ticketData.incidentGroupId },
+          },
+        );
       }
 
       const ticketIds = Array.isArray(groupData.ticketIds) ? [...groupData.ticketIds] : [];
@@ -265,7 +280,10 @@ export async function unlinkTicketFromIncidentGroup({ groupId, ticketId, expecte
       const ticketData = ticketSnapshot.data();
       assertExpectedRevision(ticketData, expectedRevision, ticketId);
       if (ticketData.incidentGroupId !== groupId) {
-        throw createInfrastructureError('VALIDATION_ERROR', 'Ticket is not linked to this incident group.');
+        throw createInfrastructureError(
+          'VALIDATION_ERROR',
+          'Ticket is not linked to this incident group.',
+        );
       }
 
       const ticketIds = Array.isArray(groupData.ticketIds) ? [...groupData.ticketIds] : [];
