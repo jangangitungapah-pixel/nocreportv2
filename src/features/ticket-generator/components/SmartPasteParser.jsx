@@ -4,7 +4,6 @@ import { AppIcon } from '../../../shared/ui/icon.jsx';
 import { Button } from '../../../shared/ui/primitives.jsx';
 import { Textarea } from '../../../shared/ui/index.jsx';
 import { parseSmartReport } from '../lib/smartReportParser.js';
-import '../styles/generatorWorkspace.css';
 
 const FIELD_LABELS = {
   title: 'Title',
