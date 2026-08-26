@@ -54,19 +54,36 @@ describe('GEN-F4 Time Intelligence', () => {
     expect(formatOperationalDuration(result.dispatchDelayMs)).toBe('-5m');
   });
 
-  it('prefers latestProgress summary when available and tolerates missing timestamps', () => {
+  it('uses normalized Outlook Sent provenance instead of reconstructed Dispatch Time', () => {
+    const result = deriveTimeIntelligence({
+      occurAt: '2026-08-26T10:00:00.000Z',
+      dispatchAt: '2026-08-26T10:45:00.000Z',
+      importProvenance: {
+        sourceKind: 'outlook_msg',
+        dispatchTimeSource: 'PR_CLIENT_SUBMIT_TIME',
+        messageSentAt: '2026-08-26T10:08:00.000Z',
+      },
+    });
+
+    expect(result.dispatchAt.toISOString()).toBe('2026-08-26T10:08:00.000Z');
+    expect(result.dispatchDelayMs).toBe(8 * 60_000);
+  });
+
+  it('prefers latestProgress summary and includes it in latest update age', () => {
     const result = deriveTimeIntelligence(
       {
         latestProgress: { occurredAt: '2026-08-26T11:50:00.000Z' },
         progress: [{ occurredAt: '2026-08-26T11:55:00.000Z' }],
+        updatedAt: '2026-08-26T11:30:00.000Z',
       },
       { now: new Date('2026-08-26T12:00:00.000Z') },
     );
 
     expect(result.latestProgressAgeMs).toBe(10 * 60_000);
+    expect(result.latestUpdateAgeMs).toBe(10 * 60_000);
+    expect(result.latestUpdateAt.toISOString()).toBe('2026-08-26T11:50:00.000Z');
     expect(result.incidentElapsedMs).toBeNull();
     expect(result.dispatchDelayMs).toBeNull();
-    expect(result.latestUpdateAgeMs).toBeNull();
   });
 
   it('formats operational durations at minute precision', () => {
