@@ -36,8 +36,17 @@ jobs:
               global text
               count = text.count(old)
               if count != 1:
-                  raise SystemExit(f'Expected exactly one match, got {count}: {old[:100]!r}')
+                  raise SystemExit(f'Expected exactly one match, got {count}: {old[:120]!r}')
               text = text.replace(old, new, 1)
+
+          def replace_exact(old, new, expected):
+              global text
+              count = text.count(old)
+              if count != expected:
+                  raise SystemExit(
+                      f'Expected exactly {expected} matches, got {count}: {old[:120]!r}'
+                  )
+              text = text.replace(old, new)
 
           replace_once(
           """  TICKET_STATUS,\n  formatCoordinatePair,\n  formatTicketReport,\n""",
@@ -51,7 +60,12 @@ jobs:
 
           replace_once(
           """  const [pendingNavigationTicketId, setPendingNavigationTicketId] = useState(null);\n\n  const {\n""",
-          """  const [pendingNavigationTicketId, setPendingNavigationTicketId] = useState(null);\n  const [featureMetadata, setFeatureMetadata] = useState(() =>\n    createEditorFeatureMetadata({ templateProfileId: 'MANDAU_DEFAULT' }),\n  );\n\n  const {\n""",
+          """  const [pendingNavigationTicketId, setPendingNavigationTicketId] = useState(null);\n  const [featureMetadata, setFeatureMetadata] = useState(() =>\n    createEditorFeatureMetadata({ templateProfileId: 'MANDAU_DEFAULT' }),\n  );\n  const [featureMetadataDirty, setFeatureMetadataDirty] = useState(false);\n\n  const {\n""",
+          )
+
+          replace_once(
+          """  const statusDirty = status !== savedStatus;\n  const hasUnsavedChanges = isDirty || progressDirty || statusDirty;\n""",
+          """  const statusDirty = status !== savedStatus;\n  const hasUnsavedChanges = isDirty || progressDirty || featureMetadataDirty || statusDirty;\n""",
           )
 
           replace_once(
@@ -61,27 +75,33 @@ jobs:
 
           replace_once(
           """      setRevision(loaded.ticket.revision);\n      setPersistedCoordinateSignature(loaded.coordinateSignature);\n""",
-          """      setRevision(loaded.ticket.revision);\n      setFeatureMetadata(createEditorFeatureMetadata(loaded.ticket));\n      setPersistedCoordinateSignature(loaded.coordinateSignature);\n""",
+          """      setRevision(loaded.ticket.revision);\n      setFeatureMetadata(createEditorFeatureMetadata(loaded.ticket));\n      setFeatureMetadataDirty(false);\n      setPersistedCoordinateSignature(loaded.coordinateSignature);\n""",
           )
 
           replace_once(
           """      reset(values);\n      setProgressDirty(false);\n      setSavedStatus(status);\n""",
-          """      reset(values);\n      setFeatureMetadata((current) => ({ ...current }));\n      setProgressDirty(false);\n      setSavedStatus(status);\n""",
+          """      reset(values);\n      setFeatureMetadataDirty(false);\n      setProgressDirty(false);\n      setSavedStatus(status);\n""",
+          )
+
+          replace_exact(
+          """    const candidate = buildTicketFromForm(values, { status, progress: progressEntries, revision });\n""",
+          """    const candidate = buildTicketFromForm(values, {\n      status,\n      progress: progressEntries,\n      revision,\n      featureMetadata,\n    });\n""",
+          2,
           )
 
           replace_once(
-          """    const candidate = buildTicketFromForm(values, { status, progress: progressEntries, revision });\n""",
-          """    const candidate = buildTicketFromForm(values, {\n      status,\n      progress: progressEntries,\n      revision,\n      featureMetadata,\n    });\n""",
+          """        reset(values);\n        setProgressDirty(false);\n        setSavedStatus(status);\n""",
+          """        reset(values);\n        setFeatureMetadataDirty(false);\n        setProgressDirty(false);\n        setSavedStatus(status);\n""",
+          )
+
+          replace_once(
+          """      if (!isDirty) {\n        pushToast({\n""",
+          """      if (!isDirty && !featureMetadataDirty) {\n        pushToast({\n""",
           )
 
           replace_once(
           """      setStatus(saved.ticket.status);\n      setSavedStatus(saved.ticket.status);\n      reset(ticketToFormValues(saved.ticket));\n""",
-          """      setStatus(saved.ticket.status);\n      setSavedStatus(saved.ticket.status);\n      setFeatureMetadata(createEditorFeatureMetadata(saved.ticket));\n      reset(ticketToFormValues(saved.ticket));\n""",
-          )
-
-          replace_once(
-          """    const candidate = buildTicketFromForm(values, { status, progress: progressEntries, revision });\n    const transition = validateTicketTransition(candidate, targetStatus);\n""",
-          """    const candidate = buildTicketFromForm(values, {\n      status,\n      progress: progressEntries,\n      revision,\n      featureMetadata,\n    });\n    const transition = validateTicketTransition(candidate, targetStatus);\n""",
+          """      setStatus(saved.ticket.status);\n      setSavedStatus(saved.ticket.status);\n      setFeatureMetadata(createEditorFeatureMetadata(saved.ticket));\n      setFeatureMetadataDirty(false);\n      reset(ticketToFormValues(saved.ticket));\n""",
           )
 
           replace_once(
@@ -91,7 +111,7 @@ jobs:
 
           replace_once(
           """    let importedProgressCount = 0;\n    if (includeProgress) {\n""",
-          """    if (includeMetadata) {\n      setFeatureMetadata(\n        featureMetadataFromImportCandidate(candidate, { identityResolution }),\n      );\n    }\n\n    let importedProgressCount = 0;\n    if (includeProgress) {\n""",
+          """    if (includeMetadata) {\n      setFeatureMetadata(\n        featureMetadataFromImportCandidate(candidate, { identityResolution }),\n      );\n      setFeatureMetadataDirty(true);\n    }\n\n    let importedProgressCount = 0;\n    if (includeProgress) {\n""",
           )
 
           replace_once(
@@ -101,7 +121,7 @@ jobs:
 
           replace_once(
           """  if (loadingTicket) return <GeneratorLoading />;\n""",
-          """  const titleRegistration = register('title');\n  const smartTitleAvailable = canGenerateSmartTitle(ticket);\n  const hasStructuredMetadata = Boolean(\n    featureMetadata.incidentKey ||\n      featureMetadata.pathKey ||\n      featureMetadata.alarmContext?.rawAlarm ||\n      featureMetadata.alarmContext?.transportFamily ||\n      featureMetadata.alarmContext?.pathEndpoints?.length,\n  );\n\n  const regenerateTitle = () => {\n    if (!smartTitleAvailable) return;\n    const generated = generateSmartTitle(ticket);\n    if (!generated) return;\n    setValue('title', generated, {\n      shouldDirty: true,\n      shouldTouch: true,\n      shouldValidate: true,\n    });\n    setFeatureMetadata((current) => ({\n      ...current,\n      titleMode: TICKET_TITLE_MODE.GENERATED,\n      externalTtNumber: ticket.externalTtNumber ?? current.externalTtNumber,\n    }));\n  };\n\n  const handleTitleChange = (event) => {\n    titleRegistration.onChange(event);\n    setFeatureMetadata((current) => ({\n      ...current,\n      titleMode: TICKET_TITLE_MODE.MANUAL,\n      externalTtNumber: extractExternalTicketNumber(event.target.value),\n    }));\n  };\n\n  if (loadingTicket) return <GeneratorLoading />;\n""",
+          """  const titleRegistration = register('title');\n  const smartTitleAvailable = canGenerateSmartTitle(ticket);\n  const hasStructuredMetadata = Boolean(\n    featureMetadata.incidentKey ||\n      featureMetadata.pathKey ||\n      featureMetadata.alarmContext?.rawAlarm ||\n      featureMetadata.alarmContext?.transportFamily ||\n      featureMetadata.alarmContext?.pathEndpoints?.length,\n  );\n\n  const regenerateTitle = () => {\n    if (!smartTitleAvailable) return;\n    const generated = generateSmartTitle(ticket);\n    if (!generated) return;\n    setValue('title', generated, {\n      shouldDirty: true,\n      shouldTouch: true,\n      shouldValidate: true,\n    });\n    setFeatureMetadata((current) => ({\n      ...current,\n      titleMode: TICKET_TITLE_MODE.GENERATED,\n      externalTtNumber: ticket.externalTtNumber ?? current.externalTtNumber,\n    }));\n    setFeatureMetadataDirty(true);\n  };\n\n  const handleTitleChange = (event) => {\n    titleRegistration.onChange(event);\n    setFeatureMetadata((current) => ({\n      ...current,\n      titleMode: TICKET_TITLE_MODE.MANUAL,\n      externalTtNumber: extractExternalTicketNumber(event.target.value),\n    }));\n    setFeatureMetadataDirty(true);\n  };\n\n  if (loadingTicket) return <GeneratorLoading />;\n""",
           )
 
           replace_once(
