@@ -38,6 +38,24 @@ describe('ProgressComposer persistence acknowledgement', () => {
     await waitFor(() => expect(input).toHaveValue(''));
   });
 
+  it('defaults event time to now but lets the operator override it before submit', async () => {
+    const onAdd = vi.fn().mockResolvedValue(true);
+    render(<ProgressComposer onAdd={onAdd} />);
+
+    const eventTime = screen.getByLabelText('Event time');
+    expect(eventTime.value).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
+
+    const overriddenTime = '2026-08-26T07:30';
+    fireEvent.change(eventTime, { target: { value: overriddenTime } });
+    fireEvent.change(screen.getByLabelText('Progress update'), {
+      target: { value: 'Backdated operational update' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Add update' }));
+
+    await waitFor(() => expect(onAdd).toHaveBeenCalledTimes(1));
+    expect(onAdd.mock.calls[0][0].occurredAt.getTime()).toBe(new Date(overriddenTime).getTime());
+  });
+
   it('keeps Ctrl/Cmd+Enter scoped to the Progress editor as the fast submit path', async () => {
     const onAdd = vi.fn().mockResolvedValue(true);
     render(<ProgressComposer onAdd={onAdd} />);
