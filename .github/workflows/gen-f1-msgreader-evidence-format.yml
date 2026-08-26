@@ -1,0 +1,121 @@
+name: GEN-F1 msgreader evidence and format
+
+on:
+  push:
+    branches:
+      - feature/template-generator-features
+    paths:
+      - .github/workflows/gen-f1-msgreader-evidence-format.yml
+
+permissions:
+  contents: write
+
+jobs:
+  verify-and-format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v5
+        with:
+          ref: feature/template-generator-features
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install exact dependencies
+        run: npm ci
+
+      - name: Fetch pinned sanitized upstream sent.msg fixture
+        shell: bash
+        run: |
+          curl --fail --location --silent --show-error \
+            https://raw.githubusercontent.com/HiraokaHyperTools/msgreader-web-ng/62c45222668fdc631a33e2fbbb596dd1d6ab770c/test/sent.msg \
+            --output /tmp/gen-f1-sent.msg
+          test -s /tmp/gen-f1-sent.msg
+
+      - name: Verify real package decoder and app privacy boundary
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFile } from 'node:fs/promises';
+          import { MsgReader } from '@kenjiuno/msgreader-web-ng';
+          import { decodeOutlookMsgBufferWithDefaultDecoder } from './src/features/ticket-generator/lib/outlookMsgAdapter.js';
+
+          const file = await readFile('/tmp/gen-f1-sent.msg');
+          const buffer = file.buffer.slice(file.byteOffset, file.byteOffset + file.byteLength);
+          const fields = new MsgReader(buffer).getFileData();
+          const toIso = (value) => new Date(value).toISOString();
+
+          const expectedSubmit = '2021-02-15T08:19:04.000Z';
+          const expectedDelivery = '2021-02-15T08:19:00.000Z';
+
+          if (fields?.error) throw new Error(`Decoder returned error: ${fields.error}`);
+          if (toIso(fields.clientSubmitTime) !== expectedSubmit) {
+            throw new Error(`Unexpected clientSubmitTime: ${String(fields.clientSubmitTime)}`);
+          }
+          if (toIso(fields.messageDeliveryTime) !== expectedDelivery) {
+            throw new Error(`Unexpected messageDeliveryTime: ${String(fields.messageDeliveryTime)}`);
+          }
+          if (toIso(fields.clientSubmitTime) === toIso(fields.messageDeliveryTime)) {
+            throw new Error('Client Submit Time and Delivery Time unexpectedly collapsed.');
+          }
+
+          const safe = await decodeOutlookMsgBufferWithDefaultDecoder(buffer, {
+            sourceName: 'sent.msg',
+          });
+          if (toIso(safe.clientSubmitTime) !== expectedSubmit) {
+            throw new Error(`Adapter lost Client Submit Time: ${String(safe.clientSubmitTime)}`);
+          }
+          if ('messageDeliveryTime' in safe) {
+            throw new Error('Adapter leaked messageDeliveryTime across the app boundary.');
+          }
+          if ('recipients' in safe || 'attachments' in safe || 'senderEmail' in safe) {
+            throw new Error('Adapter leaked private transport/message fields.');
+          }
+
+          let corruptRejected = false;
+          try {
+            await decodeOutlookMsgBufferWithDefaultDecoder(buffer.slice(0, 512), {
+              sourceName: 'corrupt.msg',
+            });
+          } catch (error) {
+            corruptRejected = Boolean(error?.code);
+          }
+          if (!corruptRejected) throw new Error('Corrupt .msg fixture was not rejected.');
+
+          console.log(`GEN-F1 evidence clientSubmitTime=${toIso(fields.clientSubmitTime)}`);
+          console.log(`GEN-F1 evidence messageDeliveryTime=${toIso(fields.messageDeliveryTime)}`);
+          console.log('GEN-F1 evidence appBoundary=SAFE');
+          console.log('GEN-F1 evidence corruptFixture=REJECTED');
+          NODE
+
+      - name: Apply canonical Prettier formatting
+        run: npm run format
+
+      - name: Persist validated GEN-F1 formatting
+        shell: bash
+        run: |
+          git add -- \
+            src \
+            e2e \
+            scripts \
+            index.html \
+            package.json \
+            playwright.config.js \
+            eslint.config.js \
+            vite.config.js \
+            vitest.config.js
+
+          if git diff --cached --quiet; then
+            echo "No formatting changes to persist."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "style(generator): persist GEN-F1 validated formatting"
+          git push origin HEAD:feature/template-generator-features
