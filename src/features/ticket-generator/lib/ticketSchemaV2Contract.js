@@ -1,3 +1,4 @@
+import { TICKET_TITLE_MODE } from '../../../entities/ticket/index.js';
 import { deriveOperationalIdentity, normalizeAlarm } from './operationalNormalization.js';
 
 export const TICKET_SCHEMA_VERSION_V2 = 2;
@@ -22,8 +23,26 @@ export function createEmptyAlarmContext() {
   };
 }
 
+function normalizeImportProvenance(value) {
+  if (!value || typeof value !== 'object') return null;
+  const sourceKind = typeof value.sourceKind === 'string' ? value.sourceKind.trim() : '';
+  const dispatchTimeSource =
+    typeof value.dispatchTimeSource === 'string' ? value.dispatchTimeSource.trim() : '';
+  const messageSentAt = value.messageSentAt ?? null;
+  if (!sourceKind && !dispatchTimeSource && !messageSentAt) return null;
+  return {
+    sourceKind: sourceKind || null,
+    dispatchTimeSource: dispatchTimeSource || null,
+    messageSentAt,
+  };
+}
+
 export function normalizeTicketFeatureMetadata(ticket = {}) {
   return {
+    titleMode:
+      ticket.titleMode === TICKET_TITLE_MODE.GENERATED
+        ? TICKET_TITLE_MODE.GENERATED
+        : TICKET_TITLE_MODE.MANUAL,
     templateProfileId: ticket.templateProfileId ?? null,
     incidentKey: ticket.incidentKey ?? null,
     pathKey: ticket.pathKey ?? null,
@@ -37,7 +56,7 @@ export function normalizeTicketFeatureMetadata(ticket = {}) {
         ? [...ticket.alarmContext.externalTtReferences]
         : [],
     },
-    importProvenance: ticket.importProvenance ? { ...ticket.importProvenance } : null,
+    importProvenance: normalizeImportProvenance(ticket.importProvenance),
     incidentGroupId: ticket.incidentGroupId ?? null,
   };
 }
