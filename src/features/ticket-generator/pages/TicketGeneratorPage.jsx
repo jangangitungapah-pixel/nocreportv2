@@ -1234,11 +1234,15 @@ export function TicketGeneratorPage() {
 
       <form
         id="ticket-editor-form"
-        className="generator-core-form overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
+        className="generator-authoring-form generator-core-form overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
         onSubmit={submitTicket}
         noValidate
       >
-        <EditorSection title="Ticket Identity" meta="Required for Running">
+        <EditorSection
+          title="Ticket Identity"
+          meta="Required for Running"
+          className="generator-authoring-section generator-authoring-section--identity"
+        >
           <TextInput
             id="ticket-title"
             label="Title"
@@ -1248,7 +1252,7 @@ export function TicketGeneratorPage() {
             {...titleRegistration}
             onChange={handleTitleChange}
           />
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] pt-2 text-[10px]">
+          <div className="generator-title-controlbar mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] pt-2 text-[10px]">
             <span className="font-semibold text-[var(--text-faint)]">
               Smart Title ·{' '}
               {featureMetadata.titleMode === TICKET_TITLE_MODE.GENERATED
@@ -1265,16 +1269,20 @@ export function TicketGeneratorPage() {
               Regenerate
             </Button>
           </div>
-          <div className="mt-2 flex items-center justify-between gap-3 border-t border-[var(--border-subtle)] pt-2 text-[10px]">
+          <div className="generator-tt-detection-bar mt-2 flex items-center justify-between gap-3 border-t border-[var(--border-subtle)] pt-2 text-[10px]">
             <span className="font-semibold text-[var(--text-faint)]">Detected TT</span>
-            <strong className="truncate font-mono text-[var(--text-secondary)]">
+            <strong className="generator-tt-detection-value truncate font-mono text-[var(--text-secondary)]">
               {ticket.externalTtNumber ?? 'Not detected'}
             </strong>
           </div>
         </EditorSection>
 
-        <EditorSection title="Incident Timing" meta="Operational clock">
-          <div className="grid gap-3 md:grid-cols-2">
+        <EditorSection
+          title="Incident Timing"
+          meta="Operational clock"
+          className="generator-authoring-section generator-authoring-section--timing"
+        >
+          <div className="generator-timing-grid grid gap-3 md:grid-cols-2">
             <DateTimeField
               id="occur-at"
               label="Occur Time"
@@ -1291,8 +1299,11 @@ export function TicketGeneratorPage() {
           </div>
         </EditorSection>
 
-        <EditorSection title="Assignment & Diagnosis">
-          <div className="grid gap-3 md:grid-cols-2">
+        <EditorSection
+          title="Assignment & Diagnosis"
+          className="generator-authoring-section generator-authoring-section--diagnosis"
+        >
+          <div className="generator-assignment-grid grid gap-3 md:grid-cols-2">
             <TextInput
               id="pic"
               label="PIC"
@@ -1308,7 +1319,7 @@ export function TicketGeneratorPage() {
               {...register('rootcause')}
             />
           </div>
-          <div className="mt-3">
+          <div className="generator-cutpoint-field mt-3">
             <Textarea
               id="cut-point"
               label="Cut Point"
@@ -1320,8 +1331,12 @@ export function TicketGeneratorPage() {
           </div>
         </EditorSection>
 
-        <EditorSection title="Cut Point Coordinate" meta="Operator verified">
-          <div className="grid gap-3 md:grid-cols-2">
+        <EditorSection
+          title="Cut Point Coordinate"
+          meta="Operator verified"
+          className="generator-authoring-section generator-authoring-section--coordinate"
+        >
+          <div className="generator-coordinate-grid grid gap-3 md:grid-cols-2">
             <TextInput
               id="latitude"
               label="Latitude"
@@ -1340,11 +1355,12 @@ export function TicketGeneratorPage() {
             />
           </div>
           <div
-            className={`mt-2.5 border-l-2 px-2.5 py-1.5 text-[11px] leading-5 ${
+            className={`generator-coordinate-summary mt-2.5 border-l-2 px-2.5 py-1.5 text-[11px] leading-5 ${
               coordinate.valid
                 ? 'border-[var(--border-default)] text-[var(--text-muted)]'
                 : 'border-[var(--danger-solid)] bg-[var(--danger-soft)] text-[var(--danger-text)]'
             }`}
+            data-state={coordinate.valid ? 'valid' : 'invalid'}
           >
             <span className="font-semibold">Normalized:</span> {coordinate.text}
             {ticket.coordinate ? (

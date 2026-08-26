@@ -13,8 +13,8 @@ export function ImpactListEditor({
   onApplyCandidates,
 }) {
   return (
-    <section className="generator-impact-editor overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
-      <header className="flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
+    <section className="generator-authoring-surface generator-impact-editor overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+      <header className="generator-impact-header flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
         <div className="flex min-w-0 items-center gap-2">
           <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Impact List</h3>
           <span className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)]">
@@ -30,15 +30,16 @@ export function ImpactListEditor({
       <ImpactBuilder existing={currentValues} onApply={onApplyCandidates} />
 
       {fields.length === 0 ? (
-        <p className="px-3 py-3 text-xs font-medium text-[var(--text-muted)]">
+        <p className="generator-impact-empty px-3 py-3 text-xs font-medium text-[var(--text-muted)]">
           No impacted service or site recorded.
         </p>
       ) : (
-        <div className="divide-y divide-[var(--border-subtle)]">
+        <div className="generator-impact-list divide-y divide-[var(--border-subtle)]">
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="grid gap-2 px-3 py-2.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end"
+              className="generator-impact-row grid gap-2 px-3 py-2.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end"
+              data-index={index + 1}
             >
               <TextInput
                 id={`impact-${field.id}`}
@@ -46,7 +47,7 @@ export function ImpactListEditor({
                 placeholder="Site, service, or affected item"
                 {...register(`impactList.${index}.value`)}
               />
-              <div className="flex items-center justify-end gap-1">
+              <div className="generator-impact-row-actions flex items-center justify-end gap-1">
                 <Button
                   tone="ghost"
                   size="icon"

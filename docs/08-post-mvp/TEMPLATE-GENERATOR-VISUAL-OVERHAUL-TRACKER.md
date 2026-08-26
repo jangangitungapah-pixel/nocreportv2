@@ -3,7 +3,7 @@
 **PRD:** `docs/08-post-mvp/TEMPLATE-GENERATOR-VISUAL-OVERHAUL-PRD.md`  
 **Branch:** `feature/template-generator-visual-overhaul`  
 **Stacked base:** `feature/template-generator-features`  
-**Status:** GUX-0 COMPLETE · GUX-1 COMPLETE · GUX-2 IN PROGRESS
+**Status:** GUX-0 COMPLETE · GUX-1 COMPLETE · GUX-2 COMPLETE · GUX-3 IN PROGRESS
 
 ## Baseline
 
@@ -52,13 +52,17 @@ GUX-1 presentation changes passed targeted Unified Import, Validation Center and
 
 ## GUX-2 — Core incident authoring
 
-- [ ] Ticket Identity redesign.
-- [ ] timing redesign.
-- [ ] assignment/diagnosis redesign.
-- [ ] coordinate section redesign.
-- [ ] Impact editor/builder redesign.
-- [ ] Smart Title + detected TT scanability.
-- [ ] validation/focus semantics preserved.
+- [x] Ticket Identity redesign.
+- [x] timing redesign.
+- [x] assignment/diagnosis redesign.
+- [x] coordinate section redesign.
+- [x] Impact editor/builder redesign.
+- [x] Smart Title + detected TT scanability.
+- [x] validation/focus semantics preserved.
+
+### GUX-2 automated evidence
+
+GUX-2 presentation changes passed targeted Generator core-authoring, Smart Title and Impact Builder regression coverage, committed Prettier formatting, ESLint, the full unit/component suite and the production build. The implementation adds authoring-specific semantic classes, visual state attributes and CSS hierarchy only. Existing field IDs, React Hook Form registrations, validation focus mapping, Smart Title handlers, coordinate verification semantics, Impact mutation behavior, lifecycle rules, persistence and Firestore contracts remain unchanged.
 
 ## GUX-3 — Operations timeline + evidence
 
