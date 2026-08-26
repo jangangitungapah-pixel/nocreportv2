@@ -3,7 +3,7 @@
 **PRD:** `docs/08-post-mvp/TEMPLATE-GENERATOR-VISUAL-OVERHAUL-PRD.md`  
 **Branch:** `feature/template-generator-visual-overhaul`  
 **Stacked base:** `feature/template-generator-features`  
-**Status:** GUX-0 IN PROGRESS
+**Status:** GUX-0 COMPLETE · GUX-1 IN PROGRESS
 
 ## Baseline
 
@@ -22,17 +22,19 @@
 - [x] Upgrade `EditorSection` hierarchy and spacing.
 - [x] Establish visual tiers for primary authoring, intelligence and utility surfaces.
 - [x] Preserve existing IDs, labels, form behavior, lifecycle actions and keyboard commands.
-- [ ] Update/add focused presentation regression tests if needed.
+- [x] Presentation regression review complete; no new focused test was required for the class-only foundation change.
 - [x] Prettier green.
 - [x] ESLint green.
 - [x] Unit/component suite green.
-- [ ] Focused Generator browser smoke if practical.
+- [x] Generator browser matrix intentionally deferred to GUX-5/GUX-7; no browser result is inferred for GUX-0.
 
 **Exit:** the page reads as one coherent operations workstation without functional behavior changes.
 
 ### GUX-0 automated evidence
 
 One-shot GUX-0 gate applied presentation-only cockpit foundation changes, then passed committed Prettier formatting, ESLint, the full unit/component suite, and the production build before persisting source. No Firestore, RBAC, lifecycle, parser, OCR, report-content, persistence, ID or accessible-label contract was intentionally changed.
+
+The browser-responsive/touch matrix is intentionally not claimed by GUX-0 and remains scheduled for GUX-5/GUX-7.
 
 ## GUX-1 — Import + readiness intelligence
 
