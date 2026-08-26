@@ -1,4 +1,4 @@
-export { createEmptyTicket, normalizeTicket } from './model/ticket.js';
+export { createEmptyTicket, normalizeTicket, TICKET_TITLE_MODE } from './model/ticket.js';
 export {
   TICKET_STATUS,
   isTicketStatus,
