@@ -4,7 +4,7 @@
 **Evidence annex:** `docs/08-post-mvp/TEMPLATE-GENERATOR-EMAIL-IMPORT-ADDENDUM.md`  
 **Branch:** `feature/template-generator-features`  
 **PR:** #7  
-**Status:** GEN-F0 COMPLETE · GEN-F1 COMPLETE · GEN-F2 COMPLETE · GEN-F3 COMPLETE · GEN-F4 COMPLETE · GEN-F5 COMPLETE · GEN-F6 COMPLETE · GEN-F7 IN PROGRESS
+**Status:** GEN-F0 COMPLETE · GEN-F1 COMPLETE · GEN-F2 COMPLETE · GEN-F3 COMPLETE · GEN-F4 COMPLETE · GEN-F5 COMPLETE · GEN-F6 COMPLETE · GEN-F7 COMPLETE · GEN-F8 IN PROGRESS
 
 ## GEN-F0 — Baseline, contracts and feature skeleton
 
@@ -370,26 +370,74 @@ Operators can recover interrupted local authoring without bypassing explicit per
 
 ## GEN-F7 — Handover + Copy Center + Presets + Commands
 
-- [ ] Add versioned browser-local Operator Presets with safe invalid/stale-storage fallback and Reset to defaults.
-- [ ] Support default Template Profile, favorite Progress snippets, operationally allowed default PIC, default Copy action, utility expansion state and default event-time behavior without storing RBAC state.
-- [ ] Generate a deterministic Shift Handover Summary from current Ticket state.
-- [ ] Include TT, status, Occur Time, duration, PIC, Rootcause, Cut Point, recent/latest Progress, Validation Center warnings and related-Ticket count in the Handover model where available.
-- [ ] Keep Handover preview/copy-only by default; no AI or hidden persistence.
-- [ ] Add Copy Center targets for Full Report, Title, Impact, Latest Progress, Full Progress Timeline, Coordinate, primary TT, Handover Summary and operational source/alarm summary.
-- [ ] Route Copy Center output through canonical formatter functions instead of ad-hoc JSX strings.
-- [ ] Add `Ctrl/Cmd+S` Save shortcut scoped safely to the Generator workspace.
-- [ ] Preserve `Ctrl/Cmd+Enter` as Progress-only when the Progress editor owns focus.
-- [ ] Add Command Palette actions for Copy Report, focus Smart Import, focus Progress and focus Validation Center.
-- [ ] Do not add easy accidental keyboard shortcuts for lifecycle transitions.
-- [ ] Keep dialog/menu keyboard scopes safe and preserve accessibility behavior.
-- [ ] Add pure-unit coverage for presets, handover formatting and copy-target formatting.
-- [ ] Add component/page coverage for Copy Center, presets, shortcuts and Command Palette actions.
-- [ ] Preserve lifecycle/RBAC/revision/canonical report/OCR/import privacy/bounded-read contracts.
-- [ ] Full repository Quality green on clean GEN-F7 head.
+- [x] Add versioned browser-local Operator Presets with safe invalid/stale-storage fallback and Reset to defaults.
+- [x] Support default Template Profile, favorite Progress snippets, operationally allowed default PIC, default Copy action, utility expansion state and default event-time behavior without storing RBAC state.
+- [x] Generate a deterministic Shift Handover Summary from current Ticket state.
+- [x] Include TT, status, Occur Time, duration, PIC, Rootcause, Cut Point, recent/latest Progress, Validation Center warnings and related-Ticket count in the Handover model where available.
+- [x] Keep Handover preview/copy-only by default; no AI or hidden persistence.
+- [x] Add Copy Center targets for Full Report, Title, Impact, Latest Progress, Full Progress Timeline, Coordinate, primary TT, Handover Summary and operational source/alarm summary.
+- [x] Route Copy Center output through canonical formatter functions instead of ad-hoc JSX strings.
+- [x] Add `Ctrl/Cmd+S` Save shortcut scoped safely to the Generator workspace.
+- [x] Preserve `Ctrl/Cmd+Enter` as Progress-only when the Progress editor owns focus.
+- [x] Add Command Palette actions for Copy Report, focus Smart Import, focus Progress and focus Validation Center.
+- [x] Do not add easy accidental keyboard shortcuts for lifecycle transitions.
+- [x] Keep dialog/menu keyboard scopes safe and preserve accessibility behavior.
+- [x] Add pure-unit coverage for presets, handover formatting and copy-target formatting.
+- [x] Add component/page coverage for Copy Center, presets, shortcuts and Command Palette actions.
+- [x] Preserve lifecycle/RBAC/revision/canonical report/OCR/import privacy/bounded-read contracts.
+- [x] Full repository Quality green on clean GEN-F7 head.
+- [x] Final committed-format verifier green on clean GEN-F7 head.
+
+### GEN-F7 completion evidence
+
+Operator Presets are versioned browser-local preferences with strict whitelisting, stale/malformed fail-safe behavior and Reset to defaults. They cover Template Profile, favorite Progress snippets, default PIC for new Tickets, default Copy target, utility expansion state and event-time behavior without storing role or permission state. Existing favorite-snippet storage is migrated/synchronized so prior local preferences remain usable.
+
+Shift Handover is deterministic and preview/copy-only. It derives TT, status, Occur Time, duration, PIC, Rootcause, Cut Point, recent Progress, Validation Center warnings and related-Ticket count from the current Ticket workspace without AI or hidden persistence. Copy Center exposes canonical Full Report, Title, Impact, Latest Progress, Full Progress Timeline, Coordinate, primary TT, Handover Summary and operational source/alarm outputs through formatter contracts rather than ad-hoc JSX strings.
+
+Generator keyboard/command acceleration remains scoped: `Ctrl/Cmd+S` submits the explicit Generator form while respecting dialog/menu focus boundaries, `Ctrl/Cmd+Enter` remains Progress-editor-only, and Command Palette actions cover Copy Report, Smart Import focus, Progress focus and Validation Center focus. No lifecycle transition received an accidental shortcut.
+
+**Quality #803 — FULL GREEN** on clean GEN-F7 head `a4ae7d9814fa8f2bd58b164aa07cd75a1770ce9a` (run ID `33004227306`).
+
+Validated gates:
+
+- committed Prettier formatting + final committed-format verifier;
+- ESLint;
+- **311 unit/component tests passed** with 21 emulator-only skips in the normal unit pass;
+- Firebase Emulator Ticket repository integration **6/6**;
+- Firestore Security Rules matrix **9/9**;
+- incident-group repository integration **1/1**;
+- incident-group Security Rules **5/5**;
+- T7 repository/security hygiene: **32 production dependencies referenced**, no committed fixture/test-data files, legacy UI guard clean;
+- T8 Firebase release preflight;
+- generic + Firebase-configured production builds;
+- dev smoke;
+- T6 browser QA at 360x800, 390x844, 412x915 and 1280x900 plus marker-touch QA;
+- Playwright **6/6** covering lifecycle, RBAC, keyboard/dialog focus, themes, responsive overflow and serious axe checks.
+
+### GEN-F7 exit criterion
+
+Operators can prepare deterministic handover/copy outputs and accelerate routine Generator work through safe local presets and scoped commands without bypassing explicit Save, revision protection, lifecycle/RBAC, canonical formatting or privacy boundaries.
+
+## GEN-F8 — Evidence / Attachment Workspace
+
+- [ ] Add a local-only evidence file queue inside the Generator workspace.
+- [ ] Validate supported local image evidence with explicit file type, size and bounded queue limits.
+- [ ] Show thumbnail/filename/size/type while the original local file is available in the current browser session.
+- [ ] Reuse the existing local OCR coordinate pipeline for an explicit per-evidence-item coordinate extraction action.
+- [ ] Keep extracted coordinate candidates operator-reviewable before applying them to Ticket coordinates.
+- [ ] Store only safe extracted coordinate/evidence metadata where recovery requires it; never persist image bytes, blobs, data URLs or object URLs.
+- [ ] Support an operator note per evidence item without embedding raw image content.
+- [ ] Support remove and explicit re-attach behavior for local evidence.
+- [ ] After reload/recovery, represent metadata-only evidence honestly and never imply that the original local file is still available.
+- [ ] Keep local object URLs lifecycle-safe and revoke them when evidence is removed or the workspace unmounts.
+- [ ] Add pure-unit coverage for queue normalization, validation bounds, metadata sanitization and privacy exclusions.
+- [ ] Add component/page coverage for add, remove, re-attach, OCR metadata, operator notes and metadata-only recovery state.
+- [ ] Preserve lifecycle/RBAC/revision/canonical report/import privacy/draft-recovery and bounded-read contracts.
+- [ ] Full repository Quality green on clean GEN-F8 head.
+- [ ] Final committed-format verifier green on clean GEN-F8 head.
 
 ## Remaining phases
 
-- [ ] GEN-F8 — Evidence workspace
 - [ ] GEN-F9 — Integrated hardening / feature-release readiness
 
 ## Protected contracts
