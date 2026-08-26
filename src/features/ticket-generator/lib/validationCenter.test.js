@@ -104,6 +104,26 @@ describe('GEN-F4 Report Validation Center', () => {
     );
   });
 
+  it('clears the primary TT blocker after explicit identity review while retaining other warnings', () => {
+    const result = deriveReportValidation(validTicket(), {
+      formValues: validForm(),
+      resolvedPrimaryIdentity: true,
+      importCandidate: {
+        conflicts: [
+          { severity: 'blocking', field: 'externalTtNumber', candidates: [{ value: 'INC-A' }] },
+          { severity: 'warning', field: 'severity', candidates: [{ value: 'MAJOR' }] },
+        ],
+        warnings: [],
+      },
+    });
+
+    expect(result.blocking.find((item) => item.code === 'PRIMARY_TT_CONFLICT')).toBeUndefined();
+    expect(result.warnings).toEqual(
+      expect.arrayContaining([expect.objectContaining({ code: 'IMPORT_CONFLICT' })]),
+    );
+    expect(result.readyForRunning).toBe(true);
+  });
+
   it('separates warning-only completeness from informational optional gaps', () => {
     const result = deriveReportValidation(
       validTicket({
