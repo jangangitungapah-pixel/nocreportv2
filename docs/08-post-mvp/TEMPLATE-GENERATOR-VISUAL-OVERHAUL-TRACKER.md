@@ -3,7 +3,7 @@
 **PRD:** `docs/08-post-mvp/TEMPLATE-GENERATOR-VISUAL-OVERHAUL-PRD.md`  
 **Branch:** `feature/template-generator-visual-overhaul`  
 **Stacked base:** `feature/template-generator-features`  
-**Status:** GUX-0 COMPLETE · GUX-1 COMPLETE · GUX-2 COMPLETE · GUX-3 COMPLETE · GUX-4 COMPLETE · GUX-5 COMPLETE · GUX-6 COMPLETE · GUX-7 IN PROGRESS — AUTOMATED GATES COMPLETE · HUMAN ACCEPTANCE REQUIRED · GUX-8 IN PROGRESS
+**Status:** GUX-0 COMPLETE · GUX-1 COMPLETE · GUX-2 COMPLETE · GUX-3 COMPLETE · GUX-4 COMPLETE · GUX-5 COMPLETE · GUX-6 COMPLETE · GUX-7 IN PROGRESS — AUTOMATED GATES COMPLETE · HUMAN ACCEPTANCE REQUIRED · GUX-8 AUTOMATED COMPLETE — HUMAN ACCEPTANCE REQUIRED
 
 ## Baseline
 
@@ -150,10 +150,14 @@ The integrated release-readiness gate passed repository formatting plus a commit
 - [x] Keep all new visual rules Generator-scoped; no global color, type, spacing or component reset.
 - [x] Preserve existing labels, IDs, actions, persistence, lifecycle, import, OCR, evidence and audit contracts.
 - [x] Add focused component coverage for stage navigation, blocker focus and readiness progression.
-- [ ] Prettier, ESLint, unit/component, integration, production build and browser gates.
+- [x] Prettier, ESLint, unit/component, integration, production build and browser gates.
 - [ ] human desktop/mobile Light/Dark visual acceptance.
 
 **Exit:** an operator can understand where they are, what remains, and the next useful action without losing direct access to any existing Generator capability.
+
+### GUX-8 automated evidence
+
+GitHub Actions run `33091154205` passed committed Prettier formatting, ESLint, 322 unit/component tests, the Firebase Emulator repository and Firestore Security Rules matrix, release preflight, generic and Firebase-configured production builds, dev-server smoke, the canonical 360/390/412 responsive-touch matrix, and all 19 authenticated Playwright tests. The browser matrix retained Generator import, draft recovery, revision, keyboard Save, Admin lifecycle, Operator/Viewer RBAC, Light/Dark, focus, reduced-motion, responsive overflow and serious/critical axe coverage. Human desktop/mobile Light/Dark visual acceptance remains open, and PR #8 remains draft.
 
 ## Protected contracts
 
