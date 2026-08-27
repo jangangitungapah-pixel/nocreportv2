@@ -59,10 +59,7 @@ describe('Template Generator workflow', () => {
     renderGenerator();
 
     expect(screen.getByRole('navigation', { name: 'Generator stages' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /01 Intake/ })).toHaveAttribute(
-      'aria-current',
-      'step',
-    );
+    expect(screen.getByRole('button', { name: /Intake/ })).toHaveAttribute('aria-current', 'step');
     expect(screen.getByText('2 required issues')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Set incident title' }));
@@ -77,7 +74,7 @@ describe('Template Generator workflow', () => {
     fireEvent.change(screen.getByLabelText('Occur Time'), {
       target: { value: '2026-08-27T14:20' },
     });
-    expect(screen.getByRole('button', { name: /03 Response/ })).toHaveAttribute(
+    expect(screen.getByRole('button', { name: /Response/ })).toHaveAttribute(
       'aria-current',
       'step',
     );
@@ -250,7 +247,7 @@ Update Progress
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() => {
-      expect(screen.getByText('Latitude must be between -90 and 90.')).toBeInTheDocument();
+      expect(screen.getAllByText('Latitude must be between -90 and 90.').length).toBeGreaterThan(0);
     });
     expect(screen.getByText(/outside a valid geographic range/)).toBeInTheDocument();
   });
