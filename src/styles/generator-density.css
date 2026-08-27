@@ -1,8 +1,9 @@
 /*
  * Template Generator density pass.
  *
- * Scoped to Workflow Stage 02 only. This keeps the Incident authoring area compact
- * on desktop/tablet without changing shared controls or the mobile touch contract.
+ * Scoped to Workflow Stages 02 and 03. This keeps the incident and response
+ * authoring areas compact on desktop/tablet without changing shared controls or
+ * the mobile touch contract.
  */
 
 @media (min-width: 768px) {
@@ -164,5 +165,139 @@
 
   .generator-cockpit #generator-stage-incident .generator-impact-row::before {
     display: none;
+  }
+
+  /* Workflow Stage 03: make response tooling read as one compact operating block. */
+  .generator-cockpit #generator-stage-response .generator-flow-stage__content {
+    padding-top: 0.72rem;
+    padding-bottom: 0.9rem;
+  }
+
+  .generator-cockpit #generator-stage-response .generator-flow-stage__header {
+    padding-bottom: 0.58rem;
+  }
+
+  .generator-cockpit #generator-stage-response .generator-flow-stage__description {
+    margin-top: 0.08rem;
+    line-height: 1.35;
+  }
+
+  .generator-cockpit #generator-stage-response .generator-flow-stage__body {
+    gap: 0;
+  }
+
+  .generator-cockpit #generator-stage-response .generator-flow-stage__body > * + * {
+    margin-top: 0.68rem;
+    padding-top: 0;
+  }
+
+  .generator-cockpit
+    #generator-stage-response
+    :is(
+      .generator-evidence-workspace__header,
+      .generator-coordinate-extractor__header,
+      .generator-progress-composer__header,
+      .generator-progress-history__header
+    ) {
+    min-height: 1.75rem;
+    padding-bottom: 0.22rem;
+  }
+
+  /* Evidence stays obvious as a drop target without consuming a full card-height row. */
+  .generator-cockpit #generator-stage-response .generator-evidence-workspace > div:last-child {
+    padding-top: 0.35rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .generator-cockpit #generator-stage-response .generator-evidence-dropzone {
+    min-height: 3rem;
+    padding: 0.5rem 0.65rem;
+  }
+
+  .generator-cockpit #generator-stage-response .generator-evidence-dropzone + p {
+    margin-top: 0.42rem;
+    line-height: 1.35;
+  }
+
+  /* OCR: reduce the empty preview footprint and tighten explanatory/action spacing. */
+  .generator-cockpit #generator-stage-response .generator-coordinate-extractor > div:last-child {
+    padding-top: 0.35rem;
+    padding-bottom: 0.2rem;
+  }
+
+  .generator-cockpit #generator-stage-response .generator-ocr-dropzone {
+    gap: 0.6rem;
+    padding: 0.48rem;
+  }
+
+  .generator-cockpit #generator-stage-response .generator-ocr-dropzone > :is(img, div:first-of-type) {
+    height: 3.4rem;
+  }
+
+  .generator-cockpit #generator-stage-response .generator-ocr-dropzone p + p {
+    margin-top: 0.12rem;
+  }
+
+  .generator-cockpit #generator-stage-response .generator-ocr-dropzone p + div {
+    margin-top: 0.42rem;
+  }
+
+  /* Quick snippets become a utility strip rather than a full secondary panel. */
+  .generator-cockpit #generator-stage-response .generator-progress-snippet-deck {
+    border-bottom: 0;
+    padding: 0.48rem 0;
+  }
+
+  .generator-cockpit #generator-stage-response .generator-progress-snippet-deck > .grid {
+    gap: 0.55rem;
+  }
+
+  /*
+   * Align Event time, Progress update and Add update from the top. The default
+   * `items-end` made Event time sit at the bottom of the textarea and look detached.
+   */
+  .generator-cockpit #generator-stage-response .generator-progress-compose-grid {
+    align-items: start;
+    gap: 0.62rem;
+    padding: 0.48rem 0 0.25rem;
+  }
+
+  .generator-cockpit #generator-stage-response #progress-text {
+    min-height: 4.35rem;
+    height: 4.35rem;
+    padding-block: 0.55rem;
+  }
+
+  .generator-cockpit #generator-stage-response .generator-progress-compose-grid > button {
+    margin-top: 1.72rem;
+  }
+
+  /* Timeline: compact the header, date band and row rhythm while preserving actions. */
+  .generator-cockpit #generator-stage-response .generator-progress-date-band {
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+  }
+
+  .generator-cockpit #generator-stage-response .generator-progress-entry {
+    gap: 0.45rem;
+    padding-top: 0.45rem;
+    padding-bottom: 0.45rem;
+  }
+
+  .generator-cockpit #generator-stage-response .generator-progress-entry::before {
+    top: 0.82rem;
+  }
+
+  .generator-cockpit #generator-stage-response .generator-progress-entry > time {
+    padding-top: 0.1rem;
+  }
+
+  .generator-cockpit #generator-stage-response .generator-progress-entry > p {
+    line-height: 1.45;
+  }
+
+  .generator-cockpit #generator-stage-response .generator-progress-editing {
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
   }
 }
