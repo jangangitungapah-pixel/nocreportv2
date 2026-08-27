@@ -55,6 +55,49 @@ describe('Template Generator workflow', () => {
     expect(screen.queryByRole('button', { name: 'Archive' })).not.toBeInTheDocument();
   });
 
+  it('guides the operator through the spatial workflow using the next blocking action', async () => {
+    renderGenerator();
+
+    expect(screen.getByRole('navigation', { name: 'Generator stages' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /01 Intake/ })).toHaveAttribute(
+      'aria-current',
+      'step',
+    );
+    expect(screen.getByText('2 required issues')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Set incident title' }));
+    expect(screen.getByRole('textbox', { name: /Title/ })).toHaveFocus();
+
+    fireEvent.change(screen.getByRole('textbox', { name: /Title/ }), {
+      target: { value: '[MANDAU] LINK DOWN' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Add occur time' }));
+    expect(screen.getByLabelText('Occur Time')).toHaveFocus();
+
+    fireEvent.change(screen.getByLabelText('Occur Time'), {
+      target: { value: '2026-08-27T14:20' },
+    });
+    expect(screen.getByRole('button', { name: /03 Response/ })).toHaveAttribute(
+      'aria-current',
+      'step',
+    );
+    expect(screen.getByText('Ready for Running')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add first progress' }));
+    expect(screen.getByRole('textbox', { name: 'Progress update' })).toHaveFocus();
+
+    fireEvent.change(screen.getByRole('textbox', { name: 'Progress update' }), {
+      target: { value: 'team OTW to cut point' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Add update' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Review live output' })).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Review live output' }));
+    expect(screen.getByLabelText('Generated NOC report').closest('aside')).toHaveFocus();
+  });
+
   it('activates the keyboard-accessible resizable editor/preview split at desktop width', () => {
     mockViewport({ desktop: true });
     renderGenerator();

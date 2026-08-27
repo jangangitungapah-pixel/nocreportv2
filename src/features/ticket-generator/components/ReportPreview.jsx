@@ -4,6 +4,7 @@ import { Button, ScrollArea } from '../../../shared/ui/primitives.jsx';
 
 export function ReportPreview({
   report,
+  validation,
   onCopy,
   copyPending = false,
   className,
@@ -13,6 +14,8 @@ export function ReportPreview({
 }) {
   return (
     <aside
+      id="generator-report-preview"
+      tabIndex={-1}
       className={cn(
         'generator-report-preview min-w-0',
         fill ? 'h-full min-h-0' : 'xl:sticky xl:top-20 xl:self-start',
@@ -34,6 +37,25 @@ export function ReportPreview({
             </Button>
           ) : null}
         </div>
+        {validation ? (
+          <div
+            className="generator-preview-readiness"
+            data-state={validation.readyForRunning ? 'ready' : 'blocked'}
+          >
+            <span className="generator-preview-readiness__signal" aria-hidden="true" />
+            <div className="min-w-0">
+              <strong>
+                {validation.readyForRunning
+                  ? 'Ready for Running'
+                  : `${validation.counts.blocking} required issue${validation.counts.blocking === 1 ? '' : 's'}`}
+              </strong>
+              <span>
+                {validation.counts.warning} warning{validation.counts.warning === 1 ? '' : 's'} ·{' '}
+                {validation.counts.info} note{validation.counts.info === 1 ? '' : 's'}
+              </span>
+            </div>
+          </div>
+        ) : null}
         <div className="generator-report-preview__stage min-h-0 flex-1 bg-[var(--surface-muted)] p-1.5">
           <ScrollArea
             className={cn(

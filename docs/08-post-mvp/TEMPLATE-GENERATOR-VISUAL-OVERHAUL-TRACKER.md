@@ -3,7 +3,7 @@
 **PRD:** `docs/08-post-mvp/TEMPLATE-GENERATOR-VISUAL-OVERHAUL-PRD.md`  
 **Branch:** `feature/template-generator-visual-overhaul`  
 **Stacked base:** `feature/template-generator-features`  
-**Status:** GUX-0 COMPLETE · GUX-1 COMPLETE · GUX-2 COMPLETE · GUX-3 COMPLETE · GUX-4 COMPLETE · GUX-5 COMPLETE · GUX-6 COMPLETE · GUX-7 IN PROGRESS — AUTOMATED GATES COMPLETE · HUMAN ACCEPTANCE REQUIRED
+**Status:** GUX-0 COMPLETE · GUX-1 COMPLETE · GUX-2 COMPLETE · GUX-3 COMPLETE · GUX-4 COMPLETE · GUX-5 COMPLETE · GUX-6 COMPLETE · GUX-7 IN PROGRESS — AUTOMATED GATES COMPLETE · HUMAN ACCEPTANCE REQUIRED · GUX-8 IN PROGRESS
 
 ## Baseline
 
@@ -139,6 +139,21 @@ GUX-6 passed dedicated authenticated Chromium coverage in Light and Dark themes.
 ### GUX-7 automated evidence
 
 The integrated release-readiness gate passed repository formatting plus a committed-diff verifier, ESLint, the full unit/component suite, Firebase Emulator repository and Firestore Security Rules matrices, dependency/security hygiene, release preflight, generic and Firebase-configured production builds, dev-server smoke, the canonical T6 viewport/touch browser gate, and the complete authenticated Playwright suite. Runtime Outlook `.msg` coverage used the pinned upstream fixture commit and included import replacement decisions, draft recovery, revision history and Generator keyboard Save. Admin lifecycle, Operator/Viewer RBAC, responsive overflow, Light/Dark, serious/critical axe, focus, touch and reduced-motion coverage all remained green. Human desktop/mobile visual acceptance and explicit permission to mark PR #8 ready remain intentionally open.
+
+## GUX-8 — Spatial flow refinement
+
+- [x] Add a scan-first 01–04 workflow map without converting the Generator into a blocking wizard.
+- [x] Group existing modules into one continuous incident canvas with Intake, Incident, Response and Handover stages.
+- [x] Add contextual next-best-action guidance driven by the existing validation findings.
+- [x] Add persistent live-output readiness context without changing canonical report content.
+- [x] Preserve the desktop resizable split and intentional mobile editor-before-preview order.
+- [x] Keep all new visual rules Generator-scoped; no global color, type, spacing or component reset.
+- [x] Preserve existing labels, IDs, actions, persistence, lifecycle, import, OCR, evidence and audit contracts.
+- [x] Add focused component coverage for stage navigation, blocker focus and readiness progression.
+- [ ] Prettier, ESLint, unit/component, integration, production build and browser gates.
+- [ ] human desktop/mobile Light/Dark visual acceptance.
+
+**Exit:** an operator can understand where they are, what remains, and the next useful action without losing direct access to any existing Generator capability.
 
 ## Protected contracts
 

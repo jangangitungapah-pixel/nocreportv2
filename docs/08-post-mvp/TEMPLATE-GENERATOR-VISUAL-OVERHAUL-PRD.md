@@ -160,6 +160,17 @@ Goal: establish a strong workspace hierarchy before redesigning individual modul
 - Light/Dark axe + overflow;
 - human desktop/mobile visual acceptance.
 
+### GUX-8 — Spatial flow refinement
+
+- expose the existing workflow as four navigable stages: Intake, Incident, Response and Handover;
+- keep the stages non-blocking so experienced operators can jump directly to any module;
+- group modules into one continuous incident canvas with a compact stage rail;
+- derive a single next-best-action from the existing validation contract and operational context;
+- keep canonical output persistent and add a compact readiness summary around it;
+- preserve the resizable desktop split and editor-before-preview mobile order;
+- prefer Generator-scoped composition styles over global design-system resets;
+- preserve all protected functional, data, privacy, lifecycle and accessibility contracts.
+
 ## 6. Desktop information architecture
 
 Preferred hierarchy:
