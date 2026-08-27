@@ -246,7 +246,7 @@ export function ProgressComposer({
         ) : null}
       </div>
 
-      <div className="generator-progress-compose-grid grid gap-2.5 p-3 lg:grid-cols-[190px_minmax(0,1fr)_auto] lg:items-end">
+      <div className="generator-progress-compose-grid grid gap-2.5 p-3 lg:grid-cols-[220px_minmax(0,1fr)_auto] lg:items-end">
         <DateTimeField
           id="progress-time"
           label="Event time"
