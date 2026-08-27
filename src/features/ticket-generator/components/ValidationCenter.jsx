@@ -20,6 +20,8 @@ const SEVERITY_META = Object.freeze({
   info: { label: 'Info', className: 'text-[var(--text-muted)]' },
 });
 
+const VALIDATION_CENTER_CONTENT_ID = 'generator-validation-center-content';
+
 function Metric({ label, value }) {
   return (
     <div className="generator-readiness-metric min-w-0 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-2.5 py-2">
@@ -90,6 +92,7 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
   const [relatedError, setRelatedError] = useState(null);
   const [relatePendingId, setRelatePendingId] = useState(null);
   const [unlinkPending, setUnlinkPending] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     duplicateAcknowledgedRef.current = false;
@@ -283,7 +286,11 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
         className="generator-intelligence-surface generator-validation-center overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
         tabIndex={-1}
       >
-        <header className="generator-intelligence-header generator-validation-center__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5">
+        <header
+          className={`generator-intelligence-header generator-validation-center__header flex min-h-10 flex-wrap items-center justify-between gap-2 px-3 py-1.5 ${
+            isCollapsed ? '' : 'border-b border-[var(--border-subtle)]'
+          }`}
+        >
           <div className="flex min-w-0 items-center gap-2">
             <AppIcon name={ready ? 'check' : 'info'} size={14} />
             <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Validation Center</h3>
@@ -297,69 +304,90 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
               {ready ? 'Running ready' : `${displayValidation?.counts?.blocking ?? 0} blocking`}
             </span>
           </div>
-          <p className="text-[9px] font-semibold text-[var(--text-faint)]">
-            Derived · {time.timezone ?? 'Asia/Jakarta'} · minute refresh
-          </p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-[9px] font-semibold text-[var(--text-faint)]">
+              Derived · {time.timezone ?? 'Asia/Jakarta'} · minute refresh
+            </p>
+            <button
+              type="button"
+              className="inline-flex size-7 shrink-0 items-center justify-center rounded-[var(--radius-control)] text-[var(--text-muted)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+              aria-expanded={!isCollapsed}
+              aria-controls={VALIDATION_CENTER_CONTENT_ID}
+              aria-label={`${isCollapsed ? 'Expand' : 'Collapse'} Validation Center`}
+              title={`${isCollapsed ? 'Expand' : 'Collapse'} Validation Center`}
+              onClick={() => setIsCollapsed((collapsed) => !collapsed)}
+            >
+              <AppIcon
+                name="chevronDown"
+                size={14}
+                className={`transition-transform motion-reduce:transition-none ${
+                  isCollapsed ? '-rotate-90' : ''
+                }`}
+              />
+            </button>
+          </div>
         </header>
 
-        <div className="generator-readiness-metrics grid gap-2 border-b border-[var(--border-subtle)] p-3 sm:grid-cols-2 xl:grid-cols-5">
-          <Metric label="Incident elapsed" value={time.incidentElapsedMs} />
-          <Metric label="Dispatch delay" value={time.dispatchDelayMs} />
-          <Metric label="Latest Progress age" value={time.latestProgressAgeMs} />
-          <Metric label="Resolved duration" value={time.resolvedDurationMs} />
-          <Metric label="Latest update age" value={time.latestUpdateAgeMs} />
-        </div>
+        <div id={VALIDATION_CENTER_CONTENT_ID} hidden={isCollapsed}>
+          <div className="generator-readiness-metrics grid gap-2 border-b border-[var(--border-subtle)] p-3 sm:grid-cols-2 xl:grid-cols-5">
+            <Metric label="Incident elapsed" value={time.incidentElapsedMs} />
+            <Metric label="Dispatch delay" value={time.dispatchDelayMs} />
+            <Metric label="Latest Progress age" value={time.latestProgressAgeMs} />
+            <Metric label="Resolved duration" value={time.resolvedDurationMs} />
+            <Metric label="Latest update age" value={time.latestUpdateAgeMs} />
+          </div>
 
-        <div className="generator-readiness-findings p-3">
-          {findings.length ? (
-            <div className="grid gap-1.5">
-              {findings.map((item) => {
-                const meta = SEVERITY_META[item.severity] ?? SEVERITY_META.info;
-                const interactive = Boolean(item.field && onFocusField);
-                const content = (
-                  <>
-                    <span
-                      className={`shrink-0 text-[9px] font-extrabold uppercase ${meta.className}`}
-                    >
-                      {meta.label}
-                    </span>
-                    <span className="min-w-0 flex-1 text-left text-[10.5px] leading-5 text-[var(--text-secondary)]">
-                      {item.message}
-                    </span>
-                    {interactive ? (
-                      <span className="shrink-0 text-[9px] font-bold text-[var(--accent-text)]">
-                        Focus
+          <div className="generator-readiness-findings p-3">
+            {findings.length ? (
+              <div className="grid gap-1.5">
+                {findings.map((item) => {
+                  const meta = SEVERITY_META[item.severity] ?? SEVERITY_META.info;
+                  const interactive = Boolean(item.field && onFocusField);
+                  const content = (
+                    <>
+                      <span
+                        className={`shrink-0 text-[9px] font-extrabold uppercase ${meta.className}`}
+                      >
+                        {meta.label}
                       </span>
-                    ) : null}
-                  </>
-                );
+                      <span className="min-w-0 flex-1 text-left text-[10.5px] leading-5 text-[var(--text-secondary)]">
+                        {item.message}
+                      </span>
+                      {interactive ? (
+                        <span className="shrink-0 text-[9px] font-bold text-[var(--accent-text)]">
+                          Focus
+                        </span>
+                      ) : null}
+                    </>
+                  );
 
-                return interactive ? (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className="generator-finding generator-finding--interactive flex min-h-9 w-full items-center gap-2 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-2.5 py-1.5 text-left transition-colors hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
-                    data-severity={item.severity}
-                    onClick={() => onFocusField(item.field)}
-                  >
-                    {content}
-                  </button>
-                ) : (
-                  <div
-                    key={item.id}
-                    className="generator-finding flex min-h-9 items-center gap-2 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-2.5 py-1.5"
-                    data-severity={item.severity}
-                  >
-                    {content}
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="text-[10.5px] leading-5 text-[var(--text-muted)]">
-              No derived findings. Field validation and lifecycle rules are currently satisfied.
-            </p>
-          )}
+                  return interactive ? (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className="generator-finding generator-finding--interactive flex min-h-9 w-full items-center gap-2 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-2.5 py-1.5 text-left transition-colors hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                      data-severity={item.severity}
+                      onClick={() => onFocusField(item.field)}
+                    >
+                      {content}
+                    </button>
+                  ) : (
+                    <div
+                      key={item.id}
+                      className="generator-finding flex min-h-9 items-center gap-2 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-2.5 py-1.5"
+                      data-severity={item.severity}
+                    >
+                      {content}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-[10.5px] leading-5 text-[var(--text-muted)]">
+                No derived findings. Field validation and lifecycle rules are currently satisfied.
+              </p>
+            )}
+          </div>
         </div>
       </section>
     </div>
