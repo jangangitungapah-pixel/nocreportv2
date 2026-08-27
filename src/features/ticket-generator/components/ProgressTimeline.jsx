@@ -62,15 +62,15 @@ export function ProgressTimeline({ entries, onUpdate, onRemove }) {
 
   if (sorted.length === 0) {
     return (
-      <div className="generator-progress-empty rounded-[var(--radius-panel)] border border-dashed border-[var(--border-default)] bg-[var(--surface-panel)] px-3 py-3 text-xs font-medium text-[var(--text-muted)]">
+      <div className="generator-operations-empty generator-progress-empty rounded-[var(--radius-panel)] border border-dashed border-[var(--border-default)] bg-[var(--surface-panel)] px-3 py-3 text-xs font-medium text-[var(--text-muted)]">
         No progress updates yet.
       </div>
     );
   }
 
   return (
-    <section className="generator-progress-history overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
-      <header className="flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
+    <section className="generator-operations-surface generator-progress-history overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+      <header className="generator-operations-header generator-progress-history__header flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
         <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Recorded Progress</h3>
         <span className="font-mono text-[9.5px] font-semibold text-[var(--text-faint)]">
           {sorted.length} update{sorted.length === 1 ? '' : 's'}
@@ -87,13 +87,13 @@ export function ProgressTimeline({ entries, onUpdate, onRemove }) {
           return (
             <div key={entry.id}>
               {showGroup ? (
-                <div className="bg-[var(--surface-muted)] px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)]">
+                <div className="generator-progress-date-band bg-[var(--surface-muted)] px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)]">
                   {group}
                 </div>
               ) : null}
 
               {editing ? (
-                <div className="grid gap-2.5 bg-[var(--accent-soft)] px-3 py-3">
+                <div className="generator-progress-editing grid gap-2.5 bg-[var(--accent-soft)] px-3 py-3">
                   <div className="grid gap-2.5 md:grid-cols-[190px_minmax(0,1fr)]">
                     <DateTimeField
                       id={`edit-progress-time-${entry.id}`}
@@ -123,7 +123,7 @@ export function ProgressTimeline({ entries, onUpdate, onRemove }) {
                   </div>
                 </div>
               ) : (
-                <div className="group grid gap-2 px-3 py-2.5 sm:grid-cols-[64px_minmax(0,1fr)_auto] sm:items-start">
+                <div className="generator-progress-entry group grid gap-2 px-3 py-2.5 sm:grid-cols-[64px_minmax(0,1fr)_auto] sm:items-start">
                   <time className="pt-0.5 font-mono text-[10.5px] font-bold tabular-nums text-[var(--accent-text)]">
                     {formatProgressTime(entry.occurredAt)}
                   </time>

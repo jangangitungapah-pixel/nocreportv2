@@ -204,18 +204,18 @@ export function SmartPasteParser({
   return (
     <section
       id="generator-smart-import"
-      className="generator-smart-import overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-accent)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
+      className="generator-intelligence-surface generator-smart-import overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-accent)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
       tabIndex={-1}
     >
-      <header className="flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5">
-        <div className="flex min-w-0 items-center gap-2">
+      <header className="generator-intelligence-header generator-smart-import__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5">
+        <div className="generator-intelligence-title flex min-w-0 items-center gap-2">
           <AppIcon name="generator" size={14} className="text-[var(--accent-text)]" />
           <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Unified Import</h3>
           <span className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)]">
             Local only · no API
           </span>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="generator-import-source-switch flex items-center gap-1">
           <Button
             tone={mode === 'report_text' ? 'secondary' : 'ghost'}
             size="xs"
@@ -233,7 +233,7 @@ export function SmartPasteParser({
         </div>
       </header>
 
-      <div className="p-3">
+      <div className="generator-smart-import__body p-3">
         {mode === 'report_text' ? (
           <Textarea
             id="smart-report-paste"
@@ -245,7 +245,7 @@ export function SmartPasteParser({
           />
         ) : (
           <div className="grid gap-2.5">
-            <div className="rounded-[var(--radius-control)] border border-dashed border-[var(--border-default)] bg-[var(--surface-muted)] p-3">
+            <div className="generator-import-dropzone rounded-[var(--radius-control)] border border-dashed border-[var(--border-default)] bg-[var(--surface-muted)] p-3">
               <label
                 htmlFor="outlook-msg-import"
                 className="block text-[11px] font-extrabold text-[var(--text-primary)]"
@@ -283,7 +283,7 @@ export function SmartPasteParser({
         )}
 
         {hasCandidate ? (
-          <div className="mt-3 border-t border-[var(--border-subtle)] pt-3">
+          <div className="generator-import-review mt-3 border-t border-[var(--border-subtle)] pt-3">
             <div className="flex flex-wrap items-start justify-between gap-2.5">
               <div className="min-w-0 flex-1">
                 <p className="text-[11px] font-bold text-[var(--text-primary)]">
@@ -294,13 +294,13 @@ export function SmartPasteParser({
                   silently overwritten.
                 </p>
               </div>
-              <span className="shrink-0 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-2 py-0.5 font-mono text-[9px] font-bold text-[var(--text-faint)]">
+              <span className="generator-source-badge shrink-0 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-2 py-0.5 font-mono text-[9px] font-bold text-[var(--text-faint)]">
                 {candidate.source.kind === 'outlook_msg' ? 'OUTLOOK_MSG' : 'REPORT_TEXT'}
               </span>
             </div>
 
             {blockingIdentityConflict ? (
-              <div className="mt-2.5 rounded-[var(--radius-control)] border border-[var(--danger-border)] bg-[var(--danger-soft)] p-2.5">
+              <div className="generator-intelligence-alert generator-intelligence-alert--blocking mt-2.5 rounded-[var(--radius-control)] border border-[var(--danger-border)] bg-[var(--danger-soft)] p-2.5">
                 <p className="text-[10.5px] font-extrabold text-[var(--danger-text)]">
                   Blocking TT identity conflict
                 </p>
@@ -362,7 +362,7 @@ export function SmartPasteParser({
               </div>
             ) : null}
 
-            <div className="mt-2.5 grid gap-1.5">
+            <div className="generator-import-plan mt-2.5 grid gap-1.5">
               {plan.map((item) => {
                 const selected = selectedFields.has(item.field);
                 const disabled =
@@ -375,7 +375,7 @@ export function SmartPasteParser({
                 return (
                   <label
                     key={item.field}
-                    className={`flex min-h-10 items-start gap-2 rounded-[var(--radius-control)] border px-2.5 py-1.5 ${
+                    className={`generator-import-plan-row flex min-h-10 items-start gap-2 rounded-[var(--radius-control)] border px-2.5 py-1.5 ${
                       item.replacement
                         ? 'border-[var(--warning-border)] bg-[var(--warning-soft)]'
                         : 'border-[var(--border-subtle)] bg-[var(--surface-muted)]'
@@ -462,7 +462,7 @@ export function SmartPasteParser({
               </label>
             ) : null}
 
-            <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] pt-2.5">
+            <div className="generator-import-apply-bar mt-2.5 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] pt-2.5">
               <p className="text-[9.5px] text-[var(--text-faint)]">
                 {selectedCount} selection{selectedCount === 1 ? '' : 's'} · Apply only updates the
                 form. Save remains explicit.

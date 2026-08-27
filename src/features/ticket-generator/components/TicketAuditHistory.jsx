@@ -118,10 +118,10 @@ export function TicketAuditHistory({ ticketId, enabled = false, limit = 50 }) {
 
   return (
     <section
-      className="overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
+      className="generator-output-surface generator-audit-history overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
       aria-label="Revision history"
     >
-      <header className="flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
+      <header className="generator-output-header generator-audit-history__header flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
         <div>
           <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Revision History</h3>
           <p className="text-[9px] font-semibold text-[var(--text-faint)]">
@@ -134,15 +134,20 @@ export function TicketAuditHistory({ ticketId, enabled = false, limit = 50 }) {
       </header>
 
       {loading ? (
-        <p className="px-3 py-4 text-[10px] text-[var(--text-muted)]">Loading revision history…</p>
+        <p className="generator-audit-state px-3 py-4 text-[10px] text-[var(--text-muted)]">
+          Loading revision history…
+        </p>
       ) : null}
       {error ? (
-        <p className="px-3 py-4 text-[10px] font-semibold text-[var(--danger-text)]" role="alert">
+        <p
+          className="generator-audit-state generator-audit-state--error px-3 py-4 text-[10px] font-semibold text-[var(--danger-text)]"
+          role="alert"
+        >
           Revision history could not be loaded.
         </p>
       ) : null}
       {!loading && !error && !visibleEvents.length ? (
-        <p className="px-3 py-4 text-[10px] text-[var(--text-muted)]">
+        <p className="generator-audit-state px-3 py-4 text-[10px] text-[var(--text-muted)]">
           No audit events recorded yet.
         </p>
       ) : null}
@@ -153,7 +158,7 @@ export function TicketAuditHistory({ ticketId, enabled = false, limit = 50 }) {
             const changes = changeEntries(event);
             const summary = eventSummary(event);
             return (
-              <article key={event.id} className="px-3 py-2.5">
+              <article key={event.id} className="generator-audit-event px-3 py-2.5">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="text-[10.5px] font-extrabold text-[var(--text-secondary)]">
@@ -179,7 +184,7 @@ export function TicketAuditHistory({ ticketId, enabled = false, limit = 50 }) {
                     {changes.map(([field, change]) => (
                       <div
                         key={field}
-                        className="grid gap-1 rounded-[var(--radius-control)] bg-[var(--surface-muted)] px-2 py-1.5 text-[9.5px] sm:grid-cols-[120px_minmax(0,1fr)]"
+                        className="generator-audit-change grid gap-1 rounded-[var(--radius-control)] bg-[var(--surface-muted)] px-2 py-1.5 text-[9.5px] sm:grid-cols-[120px_minmax(0,1fr)]"
                       >
                         <strong className="text-[var(--text-secondary)]">
                           {FIELD_LABELS[field] ?? field}

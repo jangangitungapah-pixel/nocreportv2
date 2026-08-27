@@ -11,7 +11,7 @@ const EVENT_TIME_OPTIONS = Object.freeze([
 
 function UtilityToggle({ label, checked, onChange }) {
   return (
-    <label className="flex min-h-9 items-center justify-between gap-3 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-2.5 py-1.5 text-[10px] font-semibold text-[var(--text-secondary)]">
+    <label className="generator-preset-toggle flex min-h-9 items-center justify-between gap-3 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-2.5 py-1.5 text-[10px] font-semibold text-[var(--text-secondary)]">
       <span>{label}</span>
       <input
         type="checkbox"
@@ -32,10 +32,10 @@ export function OperatorPresetsPanel({ presets, onChange, onReset, expanded = fa
   return (
     <section
       id="generator-operator-presets"
-      className="generator-operator-presets overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
+      className="generator-output-surface generator-operator-presets overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
       tabIndex={-1}
     >
-      <header className="flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5">
+      <header className="generator-output-header generator-operator-presets__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5">
         <div>
           <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Operator Presets</h3>
           <p className="text-[9px] font-semibold text-[var(--text-faint)]">
@@ -60,7 +60,7 @@ export function OperatorPresetsPanel({ presets, onChange, onReset, expanded = fa
       </header>
 
       {expanded ? (
-        <div className="grid gap-3 p-3">
+        <div className="generator-operator-presets__body grid gap-3 p-3">
           <div className="grid gap-3 md:grid-cols-2">
             <SelectField
               id="preset-template-profile"
@@ -92,7 +92,7 @@ export function OperatorPresetsPanel({ presets, onChange, onReset, expanded = fa
             />
           </div>
 
-          <div className="grid gap-2 md:grid-cols-2">
+          <div className="generator-preset-utilities grid gap-2 md:grid-cols-2">
             <UtilityToggle
               label="Copy Center expanded by default"
               checked={presets.utilityState.copyCenterExpanded}
@@ -105,7 +105,7 @@ export function OperatorPresetsPanel({ presets, onChange, onReset, expanded = fa
             />
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] pt-2.5">
+          <div className="generator-operator-presets__footer flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] pt-2.5">
             <p className="max-w-xl text-[9.5px] leading-5 text-[var(--text-muted)]">
               Favorite Progress snippets stay synchronized with the existing Quick Progress favorite
               control. Presets are applied only as defaults and never overwrite an existing

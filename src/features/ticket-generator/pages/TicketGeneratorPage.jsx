@@ -78,19 +78,83 @@ import { ticketFormSchema } from '../schemas/ticketFormSchema.js';
 function EditorSection({ title, meta, children, className = '' }) {
   return (
     <section
-      className={`border-b border-[var(--border-subtle)] px-3 py-3 last:border-b-0 md:px-4 ${className}`}
+      className={`generator-editor-section border-b border-[var(--border-subtle)] px-3 py-3 last:border-b-0 md:px-4 ${className}`}
     >
-      <div className="mb-2.5 flex min-h-6 items-center justify-between gap-3">
-        <h3 className="text-[12px] font-extrabold tracking-[-0.01em] text-[var(--text-primary)]">
+      <div className="generator-editor-section__header mb-2.5 flex min-h-6 items-center justify-between gap-3">
+        <h3 className="generator-editor-section__title text-[12px] font-extrabold tracking-[-0.01em] text-[var(--text-primary)]">
           {title}
         </h3>
         {meta ? (
-          <span className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)]">
+          <span className="generator-editor-section__meta text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)]">
             {meta}
           </span>
         ) : null}
       </div>
       {children}
+    </section>
+  );
+}
+
+function WorkflowStage({ id, number, title, description, state, stateLabel, children }) {
+  return (
+    <section
+      id={id}
+      tabIndex={-1}
+      className="generator-flow-stage"
+      data-state={state}
+      aria-labelledby={`${id}-title`}
+    >
+      <div className="generator-flow-stage__rail" aria-hidden="true">
+        <span className="generator-flow-stage__number">{number}</span>
+      </div>
+      <div className="generator-flow-stage__content">
+        <header className="generator-flow-stage__header">
+          <div className="min-w-0">
+            <p className="generator-flow-stage__eyebrow">Workflow stage {number}</p>
+            <h2 id={`${id}-title`} className="generator-flow-stage__title">
+              {title}
+            </h2>
+            <p className="generator-flow-stage__description">{description}</p>
+          </div>
+          <span className="generator-flow-stage__status">{stateLabel}</span>
+        </header>
+        <div className="generator-flow-stage__body">{children}</div>
+      </div>
+    </section>
+  );
+}
+
+function GeneratorWorkflowDeck({ stages, nextAction }) {
+  return (
+    <section className="generator-workflow-deck" aria-label="Ticket workflow">
+      <nav className="generator-workflow-map" aria-label="Generator stages">
+        {stages.map((stage) => (
+          <button
+            key={stage.number}
+            type="button"
+            className="generator-workflow-step"
+            data-state={stage.state}
+            aria-current={stage.state === 'current' ? 'step' : undefined}
+            onClick={() => focusWorkspaceElement(stage.targetId)}
+          >
+            <span className="generator-workflow-step__number">{stage.number}</span>
+            <span className="generator-workflow-step__copy">
+              <strong>{stage.label}</strong>
+              <small>{stage.statusLabel}</small>
+            </span>
+          </button>
+        ))}
+      </nav>
+
+      <div className="generator-next-action">
+        <div className="generator-next-action__copy">
+          <span>Next best action</span>
+          <strong>{nextAction.detail}</strong>
+        </div>
+        <Button size="sm" onClick={nextAction.onClick}>
+          {nextAction.label}
+        </Button>
+      </div>
     </section>
   );
 }
@@ -108,8 +172,8 @@ function GeneratorCommandBar({
   onCopy,
 }) {
   return (
-    <section className="sticky top-2 z-20 flex min-h-12 flex-wrap items-center gap-2 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[color-mix(in_srgb,var(--surface-panel)_94%,transparent)] px-2.5 py-2 shadow-[var(--shadow-sm)] backdrop-blur-xl">
-      <div className="flex min-w-0 flex-1 items-center gap-2.5">
+    <section className="generator-command-bar sticky top-2 z-20 flex min-h-12 flex-wrap items-center gap-2 rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[color-mix(in_srgb,var(--surface-panel)_94%,transparent)] px-2.5 py-2 shadow-[var(--shadow-sm)] backdrop-blur-xl">
+      <div className="generator-command-context flex min-w-0 flex-1 items-center gap-2.5">
         <StatusBadge status={status} />
         <div className="min-w-0">
           <p className="truncate font-mono text-[10.5px] font-bold text-[var(--text-secondary)]">
@@ -140,7 +204,7 @@ function GeneratorCommandBar({
         </span>
       </div>
 
-      <div className="ml-auto flex flex-wrap items-center justify-end gap-1.5">
+      <div className="generator-command-actions ml-auto flex flex-wrap items-center justify-end gap-1.5">
         {routeTicketId ? (
           <Button asChild tone="ghost" size="sm">
             <Link to={`/tickets/${routeTicketId}`}>
@@ -305,11 +369,18 @@ function recoveredImportReview(metadata) {
   };
 }
 
+function preferredWorkspaceScrollBehavior() {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return 'smooth';
+  }
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+}
+
 function focusWorkspaceElement(id) {
   if (typeof document === 'undefined') return false;
   const target = document.getElementById(id);
   if (!target) return false;
-  target.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+  target.scrollIntoView?.({ block: 'center', behavior: preferredWorkspaceScrollBehavior() });
   target.focus?.();
   return true;
 }
@@ -518,7 +589,10 @@ export function TicketGeneratorPage() {
 
     const timer = window.setTimeout(() => {
       const progressInput = document.getElementById('progress-text');
-      progressInput?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+      progressInput?.scrollIntoView?.({
+        block: 'center',
+        behavior: preferredWorkspaceScrollBehavior(),
+      });
       progressInput?.focus();
     }, 0);
 
@@ -1139,7 +1213,7 @@ export function TicketGeneratorPage() {
     };
     const target = fieldIds[field] ? document.getElementById(fieldIds[field]) : null;
     if (target) {
-      target.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+      target.scrollIntoView?.({ block: 'center', behavior: preferredWorkspaceScrollBehavior() });
       target.focus?.();
       return;
     }
@@ -1149,7 +1223,7 @@ export function TicketGeneratorPage() {
         : field === 'description'
           ? document.querySelector('.generator-smart-import')
           : null;
-    section?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+    section?.scrollIntoView?.({ block: 'center', behavior: preferredWorkspaceScrollBehavior() });
   };
 
   const titleRegistration = register('title');
@@ -1179,6 +1253,89 @@ export function TicketGeneratorPage() {
     setFeatureMetadataDirty(true);
   };
 
+  const firstBlockingFinding = validation.blocking[0] ?? null;
+  const hasTitle = Boolean(ticket.title?.trim());
+  const hasOccurTime = Boolean(ticket.occurAt);
+  const hasResponseContext = Boolean(
+    progressEntries.length ||
+    ticket.impactList?.length ||
+    ticket.pic?.trim() ||
+    ticket.rootcause?.trim() ||
+    ticket.cutPoint?.trim() ||
+    evidenceItems.length,
+  );
+  const hasCoreBlocker = validation.blocking.some((finding) => finding.source !== 'import');
+  const incidentCoreReady = hasTitle && hasOccurTime && coordinate.valid && !hasCoreBlocker;
+  const activeWorkflowStage =
+    firstBlockingFinding?.source === 'import' || !hasTitle
+      ? '01'
+      : !incidentCoreReady
+        ? '02'
+        : !hasResponseContext
+          ? '03'
+          : '04';
+  const workflowState = (number, completed) => {
+    if (activeWorkflowStage === number) return 'current';
+    return completed ? 'complete' : 'upcoming';
+  };
+  const workflowStages = [
+    {
+      number: '01',
+      label: 'Intake',
+      statusLabel: hasTitle ? 'Identified' : 'Start here',
+      state: workflowState('01', hasTitle),
+      targetId: 'generator-stage-intake',
+    },
+    {
+      number: '02',
+      label: 'Incident',
+      statusLabel: incidentCoreReady ? 'Core ready' : 'Required',
+      state: workflowState('02', incidentCoreReady),
+      targetId: 'generator-stage-incident',
+    },
+    {
+      number: '03',
+      label: 'Response',
+      statusLabel: hasResponseContext ? 'Context added' : 'Operational',
+      state: workflowState('03', hasResponseContext),
+      targetId: 'generator-stage-response',
+    },
+    {
+      number: '04',
+      label: 'Handover',
+      statusLabel: validation.readyForRunning
+        ? 'Ready to review'
+        : `${validation.counts.blocking} blocking`,
+      state: workflowState('04', validation.readyForRunning && hasResponseContext),
+      targetId: 'generator-stage-handover',
+    },
+  ];
+  const nextAction = firstBlockingFinding
+    ? {
+        label:
+          firstBlockingFinding.field === 'title'
+            ? 'Set incident title'
+            : firstBlockingFinding.field === 'occurAt'
+              ? 'Add occur time'
+              : 'Resolve next blocker',
+        detail: firstBlockingFinding.message,
+        onClick: () => focusValidationField(firstBlockingFinding.field),
+      }
+    : !hasResponseContext
+      ? {
+          label: 'Add first progress',
+          detail: 'Add operational context, or jump directly to Handover.',
+          onClick: () => focusWorkspaceElement('progress-text'),
+        }
+      : {
+          label: 'Review live output',
+          detail:
+            validation.counts.warning > 0
+              ? `Ready for Running · ${validation.counts.warning} warning${validation.counts.warning === 1 ? '' : 's'} to review.`
+              : 'Required fields are ready for final review.',
+          onClick: () => focusWorkspaceElement('generator-report-preview'),
+        };
+
   const handleTitleChange = (event) => {
     titleRegistration.onChange(event);
     setFeatureMetadata((current) => ({
@@ -1205,235 +1362,292 @@ export function TicketGeneratorPage() {
   }
 
   const editor = (
-    <div className="grid min-w-0 gap-3">
-      <DraftRecoveryNotice
-        recovery={draftRecovery}
-        currentRevision={revision}
-        currentValues={watchedValues ?? {}}
-        onRestore={restoreRecoveryDraft}
-        onDiscard={discardRecoveryDraft}
-      />
-
-      {!routeTicketId ? (
-        <SmartPasteParser
-          onApply={applyUnifiedImport}
-          currentValues={watchedValues ?? {}}
-          dirtyFields={dirtyFields}
-          progressCount={progressEntries.length}
-          progressDirty={progressDirty}
-          metadataPresent={hasStructuredMetadata}
-          onAnalysisChange={setImportReview}
-        />
-      ) : null}
-
-      <ValidationCenter
-        validation={validation}
-        onFocusField={focusValidationField}
-        onOperationalContextChange={updateHandoverContext}
-      />
-
-      <form
-        id="ticket-editor-form"
-        className="overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
-        onSubmit={submitTicket}
-        noValidate
+    <div className="generator-editor-stack min-w-0">
+      <WorkflowStage
+        id="generator-stage-intake"
+        number="01"
+        title="Intake & readiness"
+        description="Bring in the incident, then clear the issues that affect lifecycle readiness."
+        state={workflowStages[0].state}
+        stateLabel={workflowStages[0].statusLabel}
       >
-        <EditorSection title="Ticket Identity" meta="Required for Running">
-          <TextInput
-            id="ticket-title"
-            label="Title"
-            required
-            placeholder="[MANDAU] LINK DOWN ... [TT : INC-...]"
-            error={errors.title?.message}
-            {...titleRegistration}
-            onChange={handleTitleChange}
+        <DraftRecoveryNotice
+          recovery={draftRecovery}
+          currentRevision={revision}
+          currentValues={watchedValues ?? {}}
+          onRestore={restoreRecoveryDraft}
+          onDiscard={discardRecoveryDraft}
+        />
+
+        {!routeTicketId ? (
+          <SmartPasteParser
+            onApply={applyUnifiedImport}
+            currentValues={watchedValues ?? {}}
+            dirtyFields={dirtyFields}
+            progressCount={progressEntries.length}
+            progressDirty={progressDirty}
+            metadataPresent={hasStructuredMetadata}
+            onAnalysisChange={setImportReview}
           />
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] pt-2 text-[10px]">
-            <span className="font-semibold text-[var(--text-faint)]">
-              Smart Title ·{' '}
-              {featureMetadata.titleMode === TICKET_TITLE_MODE.GENERATED
-                ? 'Generated'
-                : 'Manual override'}
-            </span>
-            <Button
-              type="button"
-              tone="ghost"
-              size="xs"
-              disabled={!smartTitleAvailable}
-              onClick={regenerateTitle}
-            >
-              Regenerate
-            </Button>
-          </div>
-          <div className="mt-2 flex items-center justify-between gap-3 border-t border-[var(--border-subtle)] pt-2 text-[10px]">
-            <span className="font-semibold text-[var(--text-faint)]">Detected TT</span>
-            <strong className="truncate font-mono text-[var(--text-secondary)]">
-              {ticket.externalTtNumber ?? 'Not detected'}
-            </strong>
-          </div>
-        </EditorSection>
+        ) : null}
 
-        <EditorSection title="Incident Timing" meta="Operational clock">
-          <div className="grid gap-3 md:grid-cols-2">
-            <DateTimeField
-              id="occur-at"
-              label="Occur Time"
-              hint="Required to mark Running"
-              error={errors.occurAt?.message}
-              {...register('occurAt')}
-            />
-            <DateTimeField
-              id="dispatch-at"
-              label="Dispatch Time"
-              error={errors.dispatchAt?.message}
-              {...register('dispatchAt')}
-            />
-          </div>
-        </EditorSection>
+        <ValidationCenter
+          validation={validation}
+          onFocusField={focusValidationField}
+          onOperationalContextChange={updateHandoverContext}
+        />
+      </WorkflowStage>
 
-        <EditorSection title="Assignment & Diagnosis">
-          <div className="grid gap-3 md:grid-cols-2">
-            <TextInput
-              id="pic"
-              label="PIC"
-              placeholder="Agus (majalengka)"
-              error={errors.pic?.message}
-              {...register('pic')}
-            />
-            <TextInput
-              id="rootcause"
-              label="Rootcause"
-              placeholder="impact forest burning"
-              error={errors.rootcause?.message}
-              {...register('rootcause')}
-            />
-          </div>
-          <div className="mt-3">
-            <Textarea
-              id="cut-point"
-              label="Cut Point"
-              rows={3}
-              placeholder="OTDR FO CUT at KM 24 from majalengka..."
-              error={errors.cutPoint?.message}
-              {...register('cutPoint')}
-            />
-          </div>
-        </EditorSection>
-
-        <EditorSection title="Cut Point Coordinate" meta="Operator verified">
-          <div className="grid gap-3 md:grid-cols-2">
-            <TextInput
-              id="latitude"
-              label="Latitude"
-              inputMode="decimal"
-              placeholder="-6.12345"
-              error={errors.latitude?.message}
-              {...register('latitude')}
-            />
-            <TextInput
-              id="longitude"
-              label="Longitude"
-              inputMode="decimal"
-              placeholder="107.12345"
-              error={errors.longitude?.message}
-              {...register('longitude')}
-            />
-          </div>
-          <div
-            className={`mt-2.5 border-l-2 px-2.5 py-1.5 text-[11px] leading-5 ${
-              coordinate.valid
-                ? 'border-[var(--border-default)] text-[var(--text-muted)]'
-                : 'border-[var(--danger-solid)] bg-[var(--danger-soft)] text-[var(--danger-text)]'
-            }`}
+      <WorkflowStage
+        id="generator-stage-incident"
+        number="02"
+        title="Define the incident"
+        description="Confirm identity, operational clock, ownership, diagnosis, and affected scope."
+        state={workflowStages[1].state}
+        stateLabel={workflowStages[1].statusLabel}
+      >
+        <form
+          id="ticket-editor-form"
+          className="generator-authoring-form generator-core-form overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
+          onSubmit={submitTicket}
+          noValidate
+        >
+          <EditorSection
+            title="Ticket Identity"
+            meta="Required for Running"
+            className="generator-authoring-section generator-authoring-section--identity"
           >
-            <span className="font-semibold">Normalized:</span> {coordinate.text}
-            {ticket.coordinate ? (
-              <span className="ml-1.5 text-[var(--text-faint)]">
-                · {ticket.coordinate.source === 'ocr' ? 'Local OCR verified' : 'Manual entry'}
-                {ticket.coordinate.detectedFormat ? ` · ${ticket.coordinate.detectedFormat}` : ''}
+            <TextInput
+              id="ticket-title"
+              label="Title"
+              required
+              placeholder="[MANDAU] LINK DOWN ... [TT : INC-...]"
+              error={errors.title?.message}
+              {...titleRegistration}
+              onChange={handleTitleChange}
+            />
+            <div className="generator-title-controlbar mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] pt-2 text-[10px]">
+              <span className="font-semibold text-[var(--text-faint)]">
+                Smart Title ·{' '}
+                {featureMetadata.titleMode === TICKET_TITLE_MODE.GENERATED
+                  ? 'Generated'
+                  : 'Manual override'}
               </span>
-            ) : null}
-          </div>
-        </EditorSection>
-      </form>
+              <Button
+                type="button"
+                tone="ghost"
+                size="xs"
+                disabled={!smartTitleAvailable}
+                onClick={regenerateTitle}
+              >
+                Regenerate
+              </Button>
+            </div>
+            <div className="generator-tt-detection-bar mt-2 flex items-center justify-between gap-3 border-t border-[var(--border-subtle)] pt-2 text-[10px]">
+              <span className="font-semibold text-[var(--text-faint)]">Detected TT</span>
+              <strong className="generator-tt-detection-value truncate font-mono text-[var(--text-secondary)]">
+                {ticket.externalTtNumber ?? 'Not detected'}
+              </strong>
+            </div>
+          </EditorSection>
 
-      <ImpactListEditor
-        fields={fields}
-        register={register}
-        append={append}
-        remove={remove}
-        move={move}
-        currentValues={watchedValues?.impactList ?? []}
-        onApplyCandidates={applyImpactCandidates}
-      />
-      <EvidenceWorkspace
-        items={evidenceItems}
-        onItemsChange={setEvidenceItems}
-        onApplyCoordinate={applyExtractedCoordinate}
-      />
-      <CoordinateExtractor onApplyCoordinate={applyExtractedCoordinate} />
-      <ProgressComposer
-        onAdd={addProgress}
-        profileId={featureMetadata.templateProfileId}
-        recoveryDraft={progressRecoveryDraft}
-        onDraftChange={setProgressComposerDraft}
-        favoriteSnippetIds={operatorPresets.favoriteProgressSnippetIds}
-        onFavoriteSnippetIdsChange={updateFavoriteSnippetIds}
-        eventTimeBehavior={operatorPresets.eventTimeBehavior}
-      />
-      <ProgressTimeline
-        entries={progressEntries}
-        onUpdate={updateProgress}
-        onRemove={setRemoveProgressId}
-      />
-      <CopyCenter
-        ticket={ticket}
-        validationFindings={handoverContext.validationFindings}
-        relatedTicketCount={handoverContext.relatedTicketCount}
-        selectedTargetId={selectedCopyTarget}
-        expanded={operatorPresets.utilityState.copyCenterExpanded}
-        handoverExpanded={operatorPresets.utilityState.handoverExpanded}
-        onSelectedTargetChange={setSelectedCopyTargetId}
-        onExpandedChange={(expanded) =>
-          persistOperatorPresetState({
-            ...operatorPresets,
-            utilityState: { ...operatorPresets.utilityState, copyCenterExpanded: expanded },
-          })
-        }
-        onHandoverExpandedChange={(expanded) =>
-          persistOperatorPresetState({
-            ...operatorPresets,
-            utilityState: { ...operatorPresets.utilityState, handoverExpanded: expanded },
-          })
-        }
-        onCopy={copyUtilityTarget}
-      />
-      <OperatorPresetsPanel
-        presets={operatorPresets}
-        expanded={operatorPresets.utilityState.presetsExpanded}
-        onChange={persistOperatorPresetState}
-        onReset={resetOperatorPresetState}
-      />
-      <TicketAuditHistory
-        ticketId={routeTicketId}
-        enabled={Boolean(routeTicketId && !localDevelopmentMode && canReadAudit)}
-        limit={50}
-      />
+          <EditorSection
+            title="Incident Timing"
+            meta="Operational clock"
+            className="generator-authoring-section generator-authoring-section--timing"
+          >
+            <div className="generator-timing-grid grid gap-3 md:grid-cols-2">
+              <DateTimeField
+                id="occur-at"
+                label="Occur Time"
+                hint="Required to mark Running"
+                error={errors.occurAt?.message}
+                {...register('occurAt')}
+              />
+              <DateTimeField
+                id="dispatch-at"
+                label="Dispatch Time"
+                error={errors.dispatchAt?.message}
+                {...register('dispatchAt')}
+              />
+            </div>
+          </EditorSection>
+
+          <EditorSection
+            title="Assignment & Diagnosis"
+            className="generator-authoring-section generator-authoring-section--diagnosis"
+          >
+            <div className="generator-assignment-grid grid gap-3 md:grid-cols-2">
+              <TextInput
+                id="pic"
+                label="PIC"
+                placeholder="Agus (majalengka)"
+                error={errors.pic?.message}
+                {...register('pic')}
+              />
+              <TextInput
+                id="rootcause"
+                label="Rootcause"
+                placeholder="impact forest burning"
+                error={errors.rootcause?.message}
+                {...register('rootcause')}
+              />
+            </div>
+            <div className="generator-cutpoint-field mt-3">
+              <Textarea
+                id="cut-point"
+                label="Cut Point"
+                rows={3}
+                placeholder="OTDR FO CUT at KM 24 from majalengka..."
+                error={errors.cutPoint?.message}
+                {...register('cutPoint')}
+              />
+            </div>
+          </EditorSection>
+
+          <EditorSection
+            title="Cut Point Coordinate"
+            meta="Operator verified"
+            className="generator-authoring-section generator-authoring-section--coordinate"
+          >
+            <div className="generator-coordinate-grid grid gap-3 md:grid-cols-2">
+              <TextInput
+                id="latitude"
+                label="Latitude"
+                inputMode="decimal"
+                placeholder="-6.12345"
+                error={errors.latitude?.message}
+                {...register('latitude')}
+              />
+              <TextInput
+                id="longitude"
+                label="Longitude"
+                inputMode="decimal"
+                placeholder="107.12345"
+                error={errors.longitude?.message}
+                {...register('longitude')}
+              />
+            </div>
+            <div
+              className={`generator-coordinate-summary mt-2.5 border-l-2 px-2.5 py-1.5 text-[11px] leading-5 ${
+                coordinate.valid
+                  ? 'border-[var(--border-default)] text-[var(--text-muted)]'
+                  : 'border-[var(--danger-solid)] bg-[var(--danger-soft)] text-[var(--danger-text)]'
+              }`}
+              data-state={coordinate.valid ? 'valid' : 'invalid'}
+            >
+              <span className="font-semibold">Normalized:</span> {coordinate.text}
+              {ticket.coordinate ? (
+                <span className="ml-1.5 text-[var(--text-faint)]">
+                  · {ticket.coordinate.source === 'ocr' ? 'Local OCR verified' : 'Manual entry'}
+                  {ticket.coordinate.detectedFormat ? ` · ${ticket.coordinate.detectedFormat}` : ''}
+                </span>
+              ) : null}
+            </div>
+          </EditorSection>
+        </form>
+
+        <ImpactListEditor
+          fields={fields}
+          register={register}
+          append={append}
+          remove={remove}
+          move={move}
+          currentValues={watchedValues?.impactList ?? []}
+          onApplyCandidates={applyImpactCandidates}
+        />
+      </WorkflowStage>
+
+      <WorkflowStage
+        id="generator-stage-response"
+        number="03"
+        title="Coordinate the response"
+        description="Capture evidence locally, verify coordinates, and keep the shift timeline current."
+        state={workflowStages[2].state}
+        stateLabel={workflowStages[2].statusLabel}
+      >
+        <EvidenceWorkspace
+          items={evidenceItems}
+          onItemsChange={setEvidenceItems}
+          onApplyCoordinate={applyExtractedCoordinate}
+        />
+        <CoordinateExtractor onApplyCoordinate={applyExtractedCoordinate} />
+        <ProgressComposer
+          onAdd={addProgress}
+          profileId={featureMetadata.templateProfileId}
+          recoveryDraft={progressRecoveryDraft}
+          onDraftChange={setProgressComposerDraft}
+          favoriteSnippetIds={operatorPresets.favoriteProgressSnippetIds}
+          onFavoriteSnippetIdsChange={updateFavoriteSnippetIds}
+          eventTimeBehavior={operatorPresets.eventTimeBehavior}
+        />
+        <ProgressTimeline
+          entries={progressEntries}
+          onUpdate={updateProgress}
+          onRemove={setRemoveProgressId}
+        />
+      </WorkflowStage>
+
+      <WorkflowStage
+        id="generator-stage-handover"
+        number="04"
+        title="Review & handover"
+        description="Use the canonical output, shift handover, presets, and immutable audit context."
+        state={workflowStages[3].state}
+        stateLabel={workflowStages[3].statusLabel}
+      >
+        <CopyCenter
+          ticket={ticket}
+          validationFindings={handoverContext.validationFindings}
+          relatedTicketCount={handoverContext.relatedTicketCount}
+          selectedTargetId={selectedCopyTarget}
+          expanded={operatorPresets.utilityState.copyCenterExpanded}
+          handoverExpanded={operatorPresets.utilityState.handoverExpanded}
+          onSelectedTargetChange={setSelectedCopyTargetId}
+          onExpandedChange={(expanded) =>
+            persistOperatorPresetState({
+              ...operatorPresets,
+              utilityState: { ...operatorPresets.utilityState, copyCenterExpanded: expanded },
+            })
+          }
+          onHandoverExpandedChange={(expanded) =>
+            persistOperatorPresetState({
+              ...operatorPresets,
+              utilityState: { ...operatorPresets.utilityState, handoverExpanded: expanded },
+            })
+          }
+          onCopy={copyUtilityTarget}
+        />
+        <OperatorPresetsPanel
+          presets={operatorPresets}
+          expanded={operatorPresets.utilityState.presetsExpanded}
+          onChange={persistOperatorPresetState}
+          onReset={resetOperatorPresetState}
+        />
+        <TicketAuditHistory
+          ticketId={routeTicketId}
+          enabled={Boolean(routeTicketId && !localDevelopmentMode && canReadAudit)}
+          limit={50}
+        />
+      </WorkflowStage>
     </div>
   );
 
   const preview = (
-    <ReportPreview
-      report={report}
-      onCopy={copyReport}
-      copyPending={copyPending}
-      fill
-      showCopyAction={false}
-    />
+    <div className="generator-preview-stage">
+      <ReportPreview
+        report={report}
+        validation={validation}
+        onCopy={copyReport}
+        copyPending={copyPending}
+        fill
+        showCopyAction={false}
+      />
+    </div>
   );
 
   return (
-    <div className="grid gap-3">
+    <div className="generator-cockpit grid gap-3">
       <PageHeader
         title={routeTicketId ? 'Edit Ticket' : 'New Ticket'}
         eyebrow="Template Generator"
@@ -1457,6 +1671,8 @@ export function TicketGeneratorPage() {
         onCopy={copyReport}
       />
 
+      <GeneratorWorkflowDeck stages={workflowStages} nextAction={nextAction} />
+
       <ResizableWorkspace
         id="generator-editor-preview"
         primaryId="editor"
@@ -1466,7 +1682,8 @@ export function TicketGeneratorPage() {
         secondaryMin="320px"
         primary={editor}
         secondary={preview}
-        className="h-[calc(100vh-10.5rem)] min-h-[620px]"
+        className="generator-cockpit-workspace h-[calc(100vh-15rem)] min-h-[560px]"
+        mobileClassName="generator-cockpit-mobile-flow"
       />
 
       <ConfirmDialog

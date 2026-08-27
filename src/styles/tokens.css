@@ -47,6 +47,7 @@
 
   --success-solid: #139767;
   --success-soft: #e9f8f2;
+  --success-border: #9bd8c1;
   --success-text: #0b7650;
   --warning-solid: #d98916;
   --warning-soft: #fff6df;
@@ -155,6 +156,7 @@
 
   --success-solid: #37bd89;
   --success-soft: #123128;
+  --success-border: #2f6b57;
   --success-text: #77ddb4;
   --warning-solid: #e7a33b;
   --warning-soft: #382810;

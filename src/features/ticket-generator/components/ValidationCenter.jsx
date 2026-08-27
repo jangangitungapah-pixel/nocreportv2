@@ -22,7 +22,7 @@ const SEVERITY_META = Object.freeze({
 
 function Metric({ label, value }) {
   return (
-    <div className="min-w-0 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-2.5 py-2">
+    <div className="generator-readiness-metric min-w-0 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-2.5 py-2">
       <p className="text-[9px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-faint)]">
         {label}
       </p>
@@ -61,11 +61,18 @@ function reloadEditor() {
   }
 }
 
+function preferredWorkspaceScrollBehavior() {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+    return 'smooth';
+  }
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+}
+
 function focusDuplicateReview() {
   if (typeof document === 'undefined') return;
   document
     .querySelector('.generator-duplicate-related')
-    ?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+    ?.scrollIntoView?.({ block: 'center', behavior: preferredWorkspaceScrollBehavior() });
 }
 
 export function ValidationCenter({ validation, onFocusField, onOperationalContextChange }) {
@@ -251,7 +258,7 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
   }, [displayValidation?.findings, onOperationalContextChange, relatedTickets.length]);
 
   return (
-    <div className="grid gap-3">
+    <div className="generator-readiness-stack grid gap-3">
       <DuplicateRelatedPanel
         candidates={duplicateCandidates}
         duplicatePending={duplicatePending}
@@ -273,10 +280,10 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
 
       <section
         id="generator-validation-center"
-        className="generator-validation-center overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
+        className="generator-intelligence-surface generator-validation-center overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
         tabIndex={-1}
       >
-        <header className="flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5">
+        <header className="generator-intelligence-header generator-validation-center__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5">
           <div className="flex min-w-0 items-center gap-2">
             <AppIcon name={ready ? 'check' : 'info'} size={14} />
             <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Validation Center</h3>
@@ -295,7 +302,7 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
           </p>
         </header>
 
-        <div className="grid gap-2 border-b border-[var(--border-subtle)] p-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="generator-readiness-metrics grid gap-2 border-b border-[var(--border-subtle)] p-3 sm:grid-cols-2 xl:grid-cols-5">
           <Metric label="Incident elapsed" value={time.incidentElapsedMs} />
           <Metric label="Dispatch delay" value={time.dispatchDelayMs} />
           <Metric label="Latest Progress age" value={time.latestProgressAgeMs} />
@@ -303,7 +310,7 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
           <Metric label="Latest update age" value={time.latestUpdateAgeMs} />
         </div>
 
-        <div className="p-3">
+        <div className="generator-readiness-findings p-3">
           {findings.length ? (
             <div className="grid gap-1.5">
               {findings.map((item) => {
@@ -331,7 +338,8 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
                   <button
                     key={item.id}
                     type="button"
-                    className="flex min-h-9 w-full items-center gap-2 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-2.5 py-1.5 text-left transition-colors hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                    className="generator-finding generator-finding--interactive flex min-h-9 w-full items-center gap-2 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-2.5 py-1.5 text-left transition-colors hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                    data-severity={item.severity}
                     onClick={() => onFocusField(item.field)}
                   >
                     {content}
@@ -339,7 +347,8 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
                 ) : (
                   <div
                     key={item.id}
-                    className="flex min-h-9 items-center gap-2 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-2.5 py-1.5"
+                    className="generator-finding flex min-h-9 items-center gap-2 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-2.5 py-1.5"
+                    data-severity={item.severity}
                   >
                     {content}
                   </div>

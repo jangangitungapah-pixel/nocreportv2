@@ -142,7 +142,7 @@ function EvidenceItem({ item, onChange, onRemove, onApplyCoordinate }) {
   const recoveredCoordinate = item.ocr?.selectedCoordinate ?? null;
 
   return (
-    <article className="overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel-strong)]">
+    <article className="generator-evidence-card overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel-strong)]">
       <div className="grid gap-3 p-3 md:grid-cols-[150px_minmax(0,1fr)]">
         <LocalPreview file={item.file} name={item.name} />
 
@@ -157,7 +157,7 @@ function EvidenceItem({ item, onChange, onRemove, onApplyCoordinate }) {
               </p>
             </div>
             <span
-              className={`rounded-full border px-2 py-0.5 text-[8.5px] font-extrabold uppercase tracking-[0.08em] ${
+              className={`generator-evidence-state-badge rounded-full border px-2 py-0.5 text-[8.5px] font-extrabold uppercase tracking-[0.08em] ${
                 item.localFileAvailable
                   ? 'border-[var(--success-border)] bg-[var(--success-soft)] text-[var(--success-text)]'
                   : 'border-[var(--warning-border)] bg-[var(--warning-soft)] text-[var(--warning-text)]'
@@ -234,7 +234,10 @@ function EvidenceItem({ item, onChange, onRemove, onApplyCoordinate }) {
       </div>
 
       {scan.phase === 'processing' ? (
-        <div className="border-t border-[var(--border-subtle)] px-3 py-2" aria-live="polite">
+        <div
+          className="generator-evidence-scan border-t border-[var(--border-subtle)] px-3 py-2"
+          aria-live="polite"
+        >
           <div className="flex items-center justify-between gap-2 text-[9.5px] font-bold text-[var(--text-secondary)]">
             <span>{scan.status || 'Scanning locally…'}</span>
             <span className="font-mono">
@@ -245,7 +248,7 @@ function EvidenceItem({ item, onChange, onRemove, onApplyCoordinate }) {
       ) : null}
 
       {scan.phase === 'review' ? (
-        <div className="border-t border-[var(--border-subtle)] bg-[var(--accent-soft)] p-3">
+        <div className="generator-evidence-review border-t border-[var(--border-subtle)] bg-[var(--accent-soft)] p-3">
           <p className="text-[10px] font-bold text-[var(--text-secondary)]">
             Review OCR coordinate candidate before applying it to the Ticket.
           </p>
@@ -284,7 +287,7 @@ function EvidenceItem({ item, onChange, onRemove, onApplyCoordinate }) {
       ) : null}
 
       {recoveredCoordinate ? (
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] px-3 py-2">
+        <div className="generator-evidence-selected flex flex-wrap items-center justify-between gap-2 border-t border-[var(--border-subtle)] px-3 py-2">
           <p className="font-mono text-[9.5px] font-bold text-[var(--text-secondary)]">
             Selected coordinate · {recoveredCoordinate.formatted}
           </p>
@@ -334,10 +337,10 @@ export function EvidenceWorkspace({ items = [], onItemsChange, onApplyCoordinate
   return (
     <section
       id="generator-evidence-workspace"
-      className="generator-evidence-workspace overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
+      className="generator-operations-surface generator-evidence-workspace overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
       tabIndex={-1}
     >
-      <header className="flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5">
+      <header className="generator-operations-header generator-evidence-workspace__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5">
         <div className="flex min-w-0 items-center gap-2">
           <AppIcon name="map" size={14} className="text-[var(--accent-text)]" />
           <div>
@@ -368,7 +371,7 @@ export function EvidenceWorkspace({ items = [], onItemsChange, onApplyCoordinate
           }}
         />
 
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-[var(--radius-control)] border border-dashed border-[var(--border-default)] bg-[var(--surface-muted)] px-3 py-2.5">
+        <div className="generator-evidence-dropzone flex flex-wrap items-center justify-between gap-2 rounded-[var(--radius-control)] border border-dashed border-[var(--border-default)] bg-[var(--surface-muted)] px-3 py-2.5">
           <div>
             <p className="text-[10.5px] font-bold text-[var(--text-primary)]">
               Attach local evidence

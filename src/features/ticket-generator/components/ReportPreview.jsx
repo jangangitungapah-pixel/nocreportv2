@@ -4,6 +4,7 @@ import { Button, ScrollArea } from '../../../shared/ui/primitives.jsx';
 
 export function ReportPreview({
   report,
+  validation,
   onCopy,
   copyPending = false,
   className,
@@ -13,14 +14,16 @@ export function ReportPreview({
 }) {
   return (
     <aside
+      id="generator-report-preview"
+      tabIndex={-1}
       className={cn(
         'generator-report-preview min-w-0',
         fill ? 'h-full min-h-0' : 'xl:sticky xl:top-20 xl:self-start',
         className,
       )}
     >
-      <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
-        <div className="flex min-h-10 shrink-0 items-center justify-between gap-2 border-b border-[var(--border-subtle)] bg-[var(--surface-panel-strong)] px-3">
+      <section className="generator-output-surface generator-report-preview__surface flex h-full min-h-0 flex-col overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+        <div className="generator-output-header generator-report-preview__header flex min-h-10 shrink-0 items-center justify-between gap-2 border-b border-[var(--border-subtle)] bg-[var(--surface-panel-strong)] px-3">
           <div className="min-w-0">
             <p className="text-[9px] font-extrabold uppercase tracking-[0.12em] text-[var(--text-faint)]">
               Live output
@@ -34,15 +37,34 @@ export function ReportPreview({
             </Button>
           ) : null}
         </div>
-        <div className="min-h-0 flex-1 bg-[var(--surface-muted)] p-1.5">
+        {validation ? (
+          <div
+            className="generator-preview-readiness"
+            data-state={validation.readyForRunning ? 'ready' : 'blocked'}
+          >
+            <span className="generator-preview-readiness__signal" aria-hidden="true" />
+            <div className="min-w-0">
+              <strong>
+                {validation.readyForRunning
+                  ? 'Ready for Running'
+                  : `${validation.counts.blocking} required issue${validation.counts.blocking === 1 ? '' : 's'}`}
+              </strong>
+              <span>
+                {validation.counts.warning} warning{validation.counts.warning === 1 ? '' : 's'} ·{' '}
+                {validation.counts.info} note{validation.counts.info === 1 ? '' : 's'}
+              </span>
+            </div>
+          </div>
+        ) : null}
+        <div className="generator-report-preview__stage min-h-0 flex-1 bg-[var(--surface-muted)] p-1.5">
           <ScrollArea
             className={cn(
-              'rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)]',
+              'generator-report-preview__document rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)]',
               fill ? 'h-full min-h-0' : 'max-h-[calc(100vh-8.5rem)] min-h-72',
             )}
           >
             <pre
-              className="min-h-full whitespace-pre-wrap break-words p-3 font-mono text-[12px] leading-5 text-[var(--text-primary)]"
+              className="generator-report-preview__content min-h-full whitespace-pre-wrap break-words p-3 font-mono text-[12px] leading-5 text-[var(--text-primary)]"
               aria-label="Generated NOC report"
             >
               {report}

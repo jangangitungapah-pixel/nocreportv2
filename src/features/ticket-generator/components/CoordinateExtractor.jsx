@@ -15,7 +15,7 @@ function CandidateButton({ candidate, label, onApply }) {
   return (
     <button
       type="button"
-      className="flex min-h-10 w-full items-center justify-between gap-3 border-t border-[var(--border-subtle)] px-3 py-2 text-left transition-colors first:border-t-0 hover:bg-[var(--surface-panel-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
+      className="generator-ocr-candidate flex min-h-10 w-full items-center justify-between gap-3 border-t border-[var(--border-subtle)] px-3 py-2 text-left transition-colors first:border-t-0 hover:bg-[var(--surface-panel-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
       onClick={() => onApply(candidate)}
     >
       <span className="min-w-0">
@@ -131,8 +131,8 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
       : null;
 
   return (
-    <section className="overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
-      <header className="flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3">
+    <section className="generator-operations-surface generator-coordinate-extractor overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+      <header className="generator-operations-header generator-coordinate-extractor__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3">
         <div className="flex min-w-0 items-center gap-2">
           <AppIcon name="map" size={14} className="text-[var(--accent-text)]" />
           <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Cut Point Photo OCR</h3>
@@ -147,7 +147,7 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
 
       <div className="p-3">
         <div
-          className={`grid gap-3 border border-dashed p-2.5 transition-colors sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center ${
+          className={`generator-ocr-dropzone grid gap-3 border border-dashed p-2.5 transition-colors sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center ${
             dragActive
               ? 'border-[var(--accent-solid)] bg-[var(--accent-soft)]'
               : 'border-[var(--border-default)] bg-[var(--surface-muted)]'
@@ -211,7 +211,7 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
 
         {phase === 'processing' ? (
           <div
-            className="mt-2.5 border-l-2 border-[var(--accent-solid)] px-2.5 py-1.5"
+            className="generator-ocr-progress mt-2.5 border-l-2 border-[var(--accent-solid)] px-2.5 py-1.5"
             aria-live="polite"
           >
             <div className="flex items-center justify-between gap-3 text-[10px] font-bold">
@@ -236,7 +236,7 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
         ) : null}
 
         {phase === 'detected' && successfulCandidate ? (
-          <div className="mt-2.5 overflow-hidden border border-[var(--border-accent)] bg-[var(--accent-soft)]">
+          <div className="generator-ocr-result generator-ocr-result--detected mt-2.5 overflow-hidden border border-[var(--border-accent)] bg-[var(--accent-soft)]">
             <p className="px-3 py-2 text-[10.5px] font-medium leading-4 text-[var(--text-secondary)]">
               Coordinate detected{sourceLabel ? ` from ${sourceLabel}` : ''}
               {Number.isFinite(confidence) ? ` · OCR confidence ${Math.round(confidence)}%` : ''}.
@@ -251,7 +251,7 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
         ) : null}
 
         {phase === 'ambiguous' ? (
-          <div className="mt-2.5 overflow-hidden border border-[var(--warning-border)] bg-[var(--warning-soft)]">
+          <div className="generator-ocr-result generator-ocr-result--ambiguous mt-2.5 overflow-hidden border border-[var(--warning-border)] bg-[var(--warning-soft)]">
             <p className="px-3 py-2 text-[10.5px] font-bold leading-4 text-[var(--warning-text)]">
               Multiple coordinate candidates found. Choose the correct pair.
             </p>
@@ -281,7 +281,7 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
         ) : null}
 
         {analysis?.normalizedText ? (
-          <details className="mt-2.5 border-t border-[var(--border-subtle)] pt-2.5">
+          <details className="generator-ocr-details mt-2.5 border-t border-[var(--border-subtle)] pt-2.5">
             <summary className="cursor-pointer text-[10.5px] font-bold text-[var(--text-secondary)]">
               Review OCR text{sourceLabel ? ` · ${sourceLabel}` : ''}
             </summary>
@@ -292,7 +292,7 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
         ) : null}
 
         {attempts.length > 1 ? (
-          <details className="mt-2 border-t border-[var(--border-subtle)] pt-2">
+          <details className="generator-ocr-details mt-2 border-t border-[var(--border-subtle)] pt-2">
             <summary className="cursor-pointer text-[10.5px] font-bold text-[var(--text-muted)]">
               OCR attempts ({attempts.length})
             </summary>
