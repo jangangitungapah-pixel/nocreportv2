@@ -5,6 +5,7 @@ import App from './app/App.jsx';
 import './styles/app.css';
 import './styles/generator-clean.css';
 import './styles/generator-polish.css';
+import './styles/generator-density.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
