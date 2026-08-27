@@ -51,6 +51,44 @@ describe('GEN-F4 ValidationCenter UI', () => {
     expect(onFocusField).toHaveBeenCalledWith('title');
   });
 
+  it('collapses and expands readiness details while keeping the summary visible', () => {
+    render(
+      <ValidationCenter
+        validation={{
+          readyForRunning: false,
+          counts: { blocking: 1, warning: 0, info: 0 },
+          time: {
+            timezone: 'Asia/Jakarta',
+            incidentElapsedMs: 60_000,
+          },
+          findings: [
+            {
+              id: 'blocking:RUNNING_REQUIRED_TITLE:title',
+              severity: 'blocking',
+              code: 'RUNNING_REQUIRED_TITLE',
+              field: 'title',
+              message: 'Title is required.',
+            },
+          ],
+        }}
+      />,
+    );
+
+    const collapseButton = screen.getByRole('button', { name: 'Collapse Validation Center' });
+    expect(collapseButton).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText('Incident elapsed')).toBeVisible();
+
+    fireEvent.click(collapseButton);
+
+    const expandButton = screen.getByRole('button', { name: 'Expand Validation Center' });
+    expect(expandButton).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByText('Incident elapsed')).not.toBeVisible();
+    expect(screen.getByText('1 blocking')).toBeVisible();
+
+    fireEvent.click(expandButton);
+    expect(screen.getByText('Incident elapsed')).toBeVisible();
+  });
+
   it('shows Running ready when no blockers remain', () => {
     render(
       <ValidationCenter
