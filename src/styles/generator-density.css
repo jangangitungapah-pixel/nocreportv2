@@ -149,13 +149,20 @@
     padding-block: 0.45rem;
   }
 
+  /*
+   * The TextInput label already contains the Impact number. The older decorative
+   * ::before counter becomes redundant at this compact density and can overlap the
+   * label, so remove that second number and reclaim its reserved left gutter.
+   */
   .generator-cockpit #generator-stage-incident .generator-impact-row {
     gap: 0.35rem;
     padding-top: 0.45rem;
+    padding-right: 0;
     padding-bottom: 0.45rem;
+    padding-left: 0;
   }
 
   .generator-cockpit #generator-stage-incident .generator-impact-row::before {
-    top: 0.62rem;
+    display: none;
   }
 }
