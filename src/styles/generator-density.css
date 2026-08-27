@@ -255,6 +255,8 @@
   /*
    * Align Event time, Progress update and Add update from the top. The default
    * `items-end` made Event time sit at the bottom of the textarea and look detached.
+   * Every grid child is also allowed to shrink so native datetime intrinsic sizing
+   * cannot spill into the progress editor column.
    */
   .generator-cockpit #generator-stage-response .generator-progress-compose-grid {
     align-items: start;
@@ -262,7 +264,20 @@
     padding: 0.48rem 0 0.25rem;
   }
 
+  .generator-cockpit #generator-stage-response .generator-progress-compose-grid > * {
+    min-width: 0;
+  }
+
+  .generator-cockpit #generator-stage-response #progress-time {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
   .generator-cockpit #generator-stage-response #progress-text {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
     min-height: 4.35rem;
     height: 4.35rem;
     padding-block: 0.55rem;
