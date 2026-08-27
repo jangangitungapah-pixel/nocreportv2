@@ -242,26 +242,37 @@
     margin-top: 0.42rem;
   }
 
-  /* Quick snippets become a utility strip rather than a full secondary panel. */
+  /* Quick snippet is one clear control row. Placeholder fields expand beneath only when needed. */
   .generator-cockpit #generator-stage-response .generator-progress-snippet-deck {
     border-bottom: 0;
-    padding: 0.48rem 0;
+    padding: 0.42rem 0 0.3rem;
   }
 
-  .generator-cockpit #generator-stage-response .generator-progress-snippet-deck > .grid {
+  .generator-cockpit #generator-stage-response .generator-progress-snippet-row {
     gap: 0.55rem;
   }
 
+  .generator-cockpit #generator-stage-response .generator-progress-snippet-row > * {
+    min-width: 0;
+  }
+
+  .generator-cockpit #generator-stage-response .generator-progress-snippet-actions {
+    white-space: nowrap;
+  }
+
+  .generator-cockpit #generator-stage-response .generator-progress-snippet-placeholders {
+    margin-top: 0.45rem;
+  }
+
   /*
-   * Align Event time, Progress update and Add update from the top. The default
-   * `items-end` made Event time sit at the bottom of the textarea and look detached.
-   * Every grid child is also allowed to shrink so native datetime intrinsic sizing
-   * cannot spill into the progress editor column.
+   * Event time, Progress update and Add update share the same control baseline.
+   * Keep the progress editor single-row by default; long updates remain scrollable
+   * and the existing Ctrl/Cmd+Enter behavior is unchanged.
    */
   .generator-cockpit #generator-stage-response .generator-progress-compose-grid {
     align-items: start;
-    gap: 0.62rem;
-    padding: 0.48rem 0 0.25rem;
+    gap: 0.55rem;
+    padding: 0.38rem 0 0.2rem;
   }
 
   .generator-cockpit #generator-stage-response .generator-progress-compose-grid > * {
@@ -278,13 +289,17 @@
     width: 100%;
     min-width: 0;
     max-width: 100%;
-    min-height: 4.35rem;
-    height: 4.35rem;
-    padding-block: 0.55rem;
+    min-height: var(--control-height);
+    height: var(--control-height);
+    padding-block: 0.48rem;
+    line-height: 1.35;
+    overflow-y: auto;
   }
 
-  .generator-cockpit #generator-stage-response .generator-progress-compose-grid > button {
-    margin-top: 1.72rem;
+  .generator-cockpit #generator-stage-response .generator-progress-submit {
+    min-height: var(--control-height);
+    height: var(--control-height);
+    margin-top: 0;
   }
 
   /* Timeline: compact the header, date band and row rhythm while preserving actions. */
@@ -314,5 +329,11 @@
   .generator-cockpit #generator-stage-response .generator-progress-editing {
     padding-top: 0.6rem;
     padding-bottom: 0.6rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .generator-cockpit #generator-stage-response .generator-progress-submit {
+    margin-top: 1.62rem;
   }
 }
