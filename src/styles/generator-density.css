@@ -1,0 +1,145 @@
+/*
+ * Template Generator density pass.
+ *
+ * Scoped to Workflow Stage 02 only. This keeps the Incident authoring area compact
+ * on desktop/tablet without changing shared controls or the mobile touch contract.
+ */
+
+@media (min-width: 768px) {
+  .generator-cockpit #generator-stage-incident .generator-flow-stage__content {
+    padding-top: 0.72rem;
+    padding-bottom: 0.9rem;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-flow-stage__header {
+    padding-bottom: 0.58rem;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-flow-stage__description {
+    margin-top: 0.08rem;
+    line-height: 1.35;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-flow-stage__body {
+    gap: 0;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-flow-stage__body > * + * {
+    margin-top: 0.52rem;
+    padding-top: 0;
+  }
+
+  /* Core incident form: reduce vertical travel while keeping every field readable. */
+  .generator-cockpit #generator-stage-incident .generator-editor-section {
+    padding-block: 0.54rem;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-editor-section:first-child {
+    padding-top: 0;
+  }
+
+  .generator-cockpit
+    #generator-stage-incident
+    .generator-editor-section
+    + .generator-editor-section {
+    margin-top: 0;
+    padding-top: 0.58rem;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-editor-section__header {
+    min-height: 1.25rem;
+    margin-bottom: 0.38rem;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-editor-section__title {
+    line-height: 1.2;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-editor-section__meta {
+    line-height: 1.2;
+  }
+
+  /* Title metadata should read as one compact utility band below the field. */
+  .generator-cockpit #generator-stage-incident .generator-title-controlbar,
+  .generator-cockpit #generator-stage-incident .generator-tt-detection-bar {
+    min-height: 1.35rem;
+    margin-top: 0.18rem;
+    padding-top: 0.12rem;
+    line-height: 1.25;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-title-controlbar + .generator-tt-detection-bar {
+    margin-top: 0.08rem;
+  }
+
+  /* Tighten paired fields so Timing / Diagnosis / Coordinates scan as compact rows. */
+  .generator-cockpit
+    #generator-stage-incident
+    :is(.generator-timing-grid, .generator-assignment-grid, .generator-coordinate-grid) {
+    gap: 0.62rem;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-cutpoint-field {
+    margin-top: 0.52rem;
+    padding-top: 0;
+  }
+
+  .generator-cockpit #generator-stage-incident #cut-point {
+    min-height: 4.25rem;
+    height: 4.25rem;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-coordinate-summary {
+    margin-top: 0.28rem;
+    padding-block: 0.2rem;
+    line-height: 1.4;
+  }
+
+  /* Impact belongs to Stage 02, so keep it visually attached to the form. */
+  .generator-cockpit #generator-stage-incident .generator-impact-header {
+    min-height: 1.8rem;
+    padding-top: 0;
+    padding-bottom: 0.2rem;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-impact-builder {
+    padding-top: 0.12rem;
+    padding-bottom: 0.42rem;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-impact-builder-grid {
+    gap: 0.55rem;
+  }
+
+  .generator-cockpit #generator-stage-incident #impact-builder-source {
+    min-height: 4.8rem;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-impact-preview {
+    min-height: 4.8rem;
+    padding: 0.55rem;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-impact-candidates {
+    margin-top: 0.35rem;
+    gap: 0.2rem;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-impact-builder-actions {
+    margin-top: 0.35rem;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-impact-empty {
+    padding-block: 0.45rem;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-impact-row {
+    gap: 0.35rem;
+    padding-top: 0.45rem;
+    padding-bottom: 0.45rem;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-impact-row::before {
+    top: 0.62rem;
+  }
+}
