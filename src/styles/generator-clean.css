@@ -1,0 +1,425 @@
+/*
+ * Template Generator clean hierarchy pass.
+ *
+ * This stylesheet is intentionally scoped to .generator-cockpit and loaded after
+ * app.css. The goal is to remove redundant card-within-card framing while keeping
+ * meaningful controls, state boundaries, focus treatment, and workflow structure.
+ */
+
+.generator-cockpit {
+  --generator-clean-divider: color-mix(in srgb, var(--border-subtle) 82%, transparent);
+  --generator-clean-divider-strong: color-mix(
+    in srgb,
+    var(--border-default) 72%,
+    transparent
+  );
+  --generator-clean-soft: color-mix(in srgb, var(--surface-muted) 54%, transparent);
+}
+
+/* Keep one clear workspace boundary, then let the content breathe inside it. */
+.generator-cockpit .generator-cockpit-workspace {
+  border-color: color-mix(in srgb, var(--accent-solid) 10%, var(--border-subtle));
+  background: var(--surface-panel);
+  box-shadow: var(--shadow-xs);
+}
+
+.generator-cockpit .generator-editor-stack {
+  padding: 0.35rem 0.8rem 1.15rem;
+  background: transparent;
+}
+
+/* Workflow stages become open sections instead of four stacked cards. */
+.generator-cockpit .generator-flow-stage {
+  grid-template-columns: 2.75rem minmax(0, 1fr);
+  border: 0;
+  border-bottom: 1px solid var(--generator-clean-divider);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.generator-cockpit .generator-flow-stage:first-child,
+.generator-cockpit .generator-flow-stage:last-child {
+  border-radius: 0;
+}
+
+.generator-cockpit .generator-flow-stage:last-child {
+  border-bottom: 0;
+}
+
+.generator-cockpit .generator-flow-stage[data-state='current'] {
+  border-color: var(--generator-clean-divider);
+  box-shadow: inset 2px 0 0 var(--accent-solid);
+}
+
+.generator-cockpit .generator-flow-stage__rail {
+  border-right: 0;
+  background: transparent;
+  padding-top: 1.05rem;
+}
+
+.generator-cockpit .generator-flow-stage__rail::after {
+  background: linear-gradient(
+    var(--generator-clean-divider-strong),
+    var(--generator-clean-divider) 72%,
+    transparent
+  );
+}
+
+.generator-cockpit .generator-flow-stage__number {
+  border-color: var(--generator-clean-divider-strong);
+  background: var(--surface-panel);
+  box-shadow: none;
+}
+
+.generator-cockpit .generator-flow-stage[data-state='current'] .generator-flow-stage__number {
+  box-shadow: 0 0 0 3px var(--focus-soft);
+}
+
+.generator-cockpit .generator-flow-stage__content {
+  padding: 1rem 0.85rem 1.2rem 0.55rem;
+}
+
+.generator-cockpit .generator-flow-stage__header {
+  padding: 0 0.1rem 0.85rem;
+}
+
+.generator-cockpit .generator-flow-stage__body {
+  gap: 0.4rem;
+}
+
+/* Separate sibling tools with whitespace and one hairline, not another card shell. */
+.generator-cockpit .generator-flow-stage__body > * + * {
+  margin-top: 0.45rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--generator-clean-divider);
+}
+
+/* Major Generator surfaces are now open sections. Interactive controls inside remain framed. */
+.generator-cockpit
+  :is(
+    .generator-intelligence-surface,
+    .generator-authoring-form,
+    .generator-authoring-surface,
+    .generator-operations-surface,
+    .generator-output-surface
+  ) {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.generator-cockpit .generator-intelligence-surface::after,
+.generator-cockpit .generator-authoring-form::before,
+.generator-cockpit .generator-authoring-surface::before {
+  display: none;
+}
+
+.generator-cockpit
+  :is(
+    .generator-intelligence-header,
+    .generator-operations-header,
+    .generator-impact-header,
+    .generator-output-header
+  ) {
+  border-bottom-color: var(--generator-clean-divider);
+  background: transparent;
+  backdrop-filter: none;
+  padding-inline: 0;
+}
+
+/* Remove decorative wrappers around metadata. The information remains, the chrome does not. */
+.generator-cockpit .generator-import-source-switch,
+.generator-cockpit .generator-editor-section__meta,
+.generator-cockpit .generator-authoring-section .generator-editor-section__meta {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding-inline: 0;
+}
+
+/* Unified Import: textarea/dropzone is the interaction surface, so the parent does not need a card. */
+.generator-cockpit .generator-smart-import__body {
+  padding-inline: 0;
+}
+
+.generator-cockpit .generator-import-review {
+  border-top-color: var(--generator-clean-divider);
+}
+
+.generator-cockpit .generator-import-plan-row {
+  border-color: transparent;
+  background: var(--generator-clean-soft);
+}
+
+.generator-cockpit .generator-import-plan-row:has(input:checked) {
+  border-color: transparent;
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--accent-solid) 70%, transparent);
+}
+
+/* Validation Center: metrics and findings read like a dashboard list, not a tray of mini cards. */
+.generator-cockpit .generator-readiness-metrics {
+  gap: 0.25rem 0.5rem;
+  border-bottom-color: var(--generator-clean-divider);
+  background: transparent;
+  padding-inline: 0;
+}
+
+.generator-cockpit .generator-readiness-metric {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding-inline: 0.65rem;
+}
+
+.generator-cockpit .generator-readiness-metric:first-child {
+  padding-left: 0.15rem;
+}
+
+.generator-cockpit .generator-readiness-metric::after {
+  display: none;
+}
+
+.generator-cockpit .generator-readiness-findings {
+  background: transparent;
+  padding-inline: 0;
+}
+
+.generator-cockpit .generator-readiness-findings > .grid {
+  gap: 0;
+}
+
+.generator-cockpit .generator-finding,
+.generator-cockpit .generator-finding--interactive {
+  min-height: 2.2rem;
+  border: 0;
+  border-bottom: 1px solid var(--generator-clean-divider);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding-inline: 0.35rem;
+}
+
+.generator-cockpit .generator-readiness-findings .generator-finding:last-child {
+  border-bottom: 0;
+}
+
+.generator-cockpit .generator-finding--interactive:hover {
+  border-color: var(--generator-clean-divider);
+  background: color-mix(in srgb, var(--accent-soft) 18%, transparent);
+}
+
+/* Core authoring form: keep section dividers and fields, remove the large container card. */
+.generator-cockpit .generator-core-form {
+  background: transparent;
+  box-shadow: none;
+}
+
+.generator-cockpit .generator-editor-section {
+  border-bottom-color: var(--generator-clean-divider);
+  padding-inline: 0;
+  padding-block: 1rem;
+}
+
+.generator-cockpit .generator-editor-section:first-child {
+  padding-top: 0.15rem;
+}
+
+.generator-cockpit .generator-editor-section:hover {
+  background: transparent;
+}
+
+.generator-cockpit .generator-authoring-section--identity {
+  background: transparent;
+}
+
+.generator-cockpit .generator-authoring-section::before {
+  width: 2px;
+  opacity: 0.5;
+}
+
+.generator-cockpit .generator-title-controlbar {
+  background: transparent;
+}
+
+.generator-cockpit .generator-tt-detection-value {
+  border: 0;
+  background: var(--generator-clean-soft);
+  box-shadow: none;
+}
+
+.generator-cockpit
+  :is(.generator-timing-grid, .generator-assignment-grid, .generator-coordinate-grid)
+  > * {
+  background: transparent;
+}
+
+.generator-cockpit .generator-coordinate-summary {
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+  background: transparent;
+}
+
+/* Impact area: one section, with a soft preview zone instead of another bordered panel. */
+.generator-cockpit .generator-impact-builder {
+  border-bottom-color: var(--generator-clean-divider);
+  background: transparent;
+  padding-inline: 0;
+}
+
+.generator-cockpit .generator-impact-preview {
+  border: 0;
+  background: var(--generator-clean-soft);
+  box-shadow: none;
+}
+
+.generator-cockpit .generator-impact-empty {
+  background: transparent;
+  padding-inline: 0;
+}
+
+.generator-cockpit .generator-impact-list {
+  border-color: var(--generator-clean-divider);
+}
+
+/* Response tools: preserve dropzones/results because they are interactive, flatten their parent shells. */
+.generator-cockpit .generator-evidence-workspace > div:last-child,
+.generator-cockpit .generator-operations-surface > div:last-child {
+  padding-inline: 0;
+}
+
+.generator-cockpit .generator-evidence-card {
+  border-color: var(--generator-clean-divider);
+  background: color-mix(in srgb, var(--surface-panel) 76%, var(--surface-muted));
+  box-shadow: none;
+}
+
+.generator-cockpit .generator-evidence-card:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+.generator-cockpit .generator-progress-snippet-deck,
+.generator-cockpit .generator-operations-empty {
+  border-color: transparent;
+  background: var(--generator-clean-soft);
+  box-shadow: none;
+}
+
+/* Handover/output tools: retain only the controls that need a visual target. */
+.generator-cockpit .generator-copy-center__command,
+.generator-cockpit .generator-preset-utilities {
+  border: 0;
+  background: var(--generator-clean-soft);
+  box-shadow: none;
+}
+
+.generator-cockpit .generator-copy-preview,
+.generator-cockpit .generator-handover-card__content,
+.generator-cockpit .generator-audit-change {
+  border: 0;
+  border-left: 2px solid var(--generator-clean-divider-strong);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.generator-cockpit .generator-handover-card,
+.generator-cockpit .generator-handover-card__header,
+.generator-cockpit .generator-audit-state {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Preview is already a dedicated pane. Remove the extra card and paper-within-card effect. */
+.generator-cockpit .generator-preview-stage {
+  padding: 0;
+  background: var(--surface-panel);
+}
+
+.generator-cockpit .generator-report-preview__surface {
+  border: 0;
+  border-radius: 0;
+  background: var(--surface-panel);
+  box-shadow: none;
+}
+
+.generator-cockpit .generator-report-preview__header {
+  padding-inline: 0.85rem;
+}
+
+.generator-cockpit .generator-preview-readiness {
+  background: transparent;
+}
+
+.generator-cockpit .generator-report-preview__stage {
+  background: color-mix(in srgb, var(--surface-muted) 48%, var(--surface-panel));
+  padding: 0.75rem;
+}
+
+.generator-cockpit .generator-report-preview__document {
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--surface-panel);
+  box-shadow: none;
+}
+
+/* Top-level controls remain distinct, but lose the ornamental shine. */
+.generator-cockpit .generator-command-bar {
+  background: color-mix(in srgb, var(--surface-panel) 96%, transparent);
+  box-shadow: var(--shadow-xs);
+}
+
+.generator-cockpit .generator-command-bar::before {
+  display: none;
+}
+
+.generator-cockpit .generator-workflow-deck {
+  background: color-mix(in srgb, var(--surface-panel) 96%, transparent);
+  box-shadow: none;
+}
+
+.generator-cockpit .generator-next-action {
+  background: color-mix(in srgb, var(--surface-muted) 55%, transparent);
+}
+
+@media (max-width: 767px) {
+  .generator-cockpit .generator-editor-stack {
+    padding: 0 0.15rem 0.8rem;
+  }
+
+  .generator-cockpit .generator-flow-stage {
+    grid-template-columns: minmax(0, 1fr);
+    border: 0;
+    border-bottom: 1px solid var(--generator-clean-divider);
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .generator-cockpit .generator-flow-stage + .generator-flow-stage {
+    margin-top: 0;
+  }
+
+  .generator-cockpit .generator-flow-stage[data-state='current'] {
+    box-shadow: inset 0 2px 0 var(--accent-solid);
+  }
+
+  .generator-cockpit .generator-flow-stage__rail {
+    padding-inline: 0.15rem;
+  }
+
+  .generator-cockpit .generator-flow-stage__content {
+    padding: 0.7rem 0.15rem 1rem;
+  }
+
+  .generator-cockpit .generator-editor-section {
+    padding-inline: 0;
+  }
+
+  .generator-cockpit .generator-cockpit-mobile-flow > .generator-preview-stage {
+    border-color: var(--generator-clean-divider);
+    border-radius: var(--radius-panel);
+    overflow: hidden;
+  }
+}
