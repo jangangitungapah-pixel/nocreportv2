@@ -182,7 +182,7 @@ export function ProgressComposer({
       </header>
 
       <div className="generator-progress-snippet-deck border-b border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3">
-        <div className="grid gap-2 lg:grid-cols-[minmax(220px,0.7fr)_minmax(0,1fr)_auto] lg:items-end">
+        <div className="generator-progress-snippet-row grid gap-2 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
           <SelectField
             id="progress-quick-snippet"
             label="Quick snippet"
@@ -191,31 +191,7 @@ export function ProgressComposer({
             options={snippetOptions}
           />
 
-          {selectedSnippet ? (
-            <div className="grid gap-2 sm:grid-cols-2">
-              {selectedSnippet.placeholders.map((item) => (
-                <TextInput
-                  key={item.key}
-                  id={`progress-snippet-${item.key}`}
-                  label={`${item.label}${item.required ? ' *' : ''}`}
-                  value={placeholderValues[item.key] ?? ''}
-                  onChange={(event) => {
-                    setPlaceholderValues((current) => ({
-                      ...current,
-                      [item.key]: event.target.value,
-                    }));
-                    if (snippetError) setSnippetError('');
-                  }}
-                />
-              ))}
-            </div>
-          ) : (
-            <p className="self-center text-[10px] leading-5 text-[var(--text-muted)]">
-              Snippets only fill the editor. Review or edit the text before submitting.
-            </p>
-          )}
-
-          <div className="flex items-center justify-end gap-1.5">
+          <div className="generator-progress-snippet-actions flex items-center justify-end gap-1.5">
             <Button
               type="button"
               tone="ghost"
@@ -239,6 +215,27 @@ export function ProgressComposer({
             </Button>
           </div>
         </div>
+
+        {selectedSnippet ? (
+          <div className="generator-progress-snippet-placeholders mt-2 grid gap-2 sm:grid-cols-2">
+            {selectedSnippet.placeholders.map((item) => (
+              <TextInput
+                key={item.key}
+                id={`progress-snippet-${item.key}`}
+                label={`${item.label}${item.required ? ' *' : ''}`}
+                value={placeholderValues[item.key] ?? ''}
+                onChange={(event) => {
+                  setPlaceholderValues((current) => ({
+                    ...current,
+                    [item.key]: event.target.value,
+                  }));
+                  if (snippetError) setSnippetError('');
+                }}
+              />
+            ))}
+          </div>
+        ) : null}
+
         {snippetError ? (
           <p className="mt-2 text-[10px] font-bold text-[var(--danger-text)]" role="alert">
             {snippetError}
@@ -246,7 +243,7 @@ export function ProgressComposer({
         ) : null}
       </div>
 
-      <div className="generator-progress-compose-grid grid gap-2.5 p-3 lg:grid-cols-[220px_minmax(0,1fr)_auto] lg:items-end">
+      <div className="generator-progress-compose-grid grid gap-2.5 p-3 lg:grid-cols-[220px_minmax(0,1fr)_auto] lg:items-start">
         <DateTimeField
           id="progress-time"
           label="Event time"
@@ -260,7 +257,7 @@ export function ProgressComposer({
         <Textarea
           id="progress-text"
           label="Progress update"
-          rows={2}
+          rows={1}
           value={text}
           error={error}
           placeholder="team OTW ke lokasi CP, ETA 75 menit"
@@ -277,7 +274,13 @@ export function ProgressComposer({
             }
           }}
         />
-        <Button type="button" size="sm" disabled={submitting} onClick={() => void submit()}>
+        <Button
+          className="generator-progress-submit"
+          type="button"
+          size="sm"
+          disabled={submitting}
+          onClick={() => void submit()}
+        >
           <AppIcon name="plus" size={14} />
           {submitting ? 'Adding…' : 'Add update'}
         </Button>
