@@ -59,12 +59,19 @@
     line-height: 1.2;
   }
 
-  /* Title metadata should read as one compact utility band below the field. */
+  /*
+   * Title metadata is deliberately flush with the Title field. Earlier hierarchy
+   * passes used a small negative inline margin; the parent form clips overflow,
+   * which could shave the first glyph at this density.
+   */
   .generator-cockpit #generator-stage-incident .generator-title-controlbar,
   .generator-cockpit #generator-stage-incident .generator-tt-detection-bar {
+    min-width: 0;
     min-height: 1.35rem;
     margin-top: 0.18rem;
+    margin-inline: 0;
     padding-top: 0.12rem;
+    padding-inline: 0;
     line-height: 1.25;
   }
 
@@ -72,11 +79,20 @@
     margin-top: 0.08rem;
   }
 
-  /* Tighten paired fields so Timing / Diagnosis / Coordinates scan as compact rows. */
+  /*
+   * FieldFrames have different row counts when a hint is present. Prevent the
+   * two-column grid from stretching the shorter field to the taller sibling,
+   * otherwise Dispatch Time drifts down relative to Occur Time.
+   */
   .generator-cockpit
     #generator-stage-incident
     :is(.generator-timing-grid, .generator-assignment-grid, .generator-coordinate-grid) {
+    align-items: start;
     gap: 0.62rem;
+  }
+
+  .generator-cockpit #generator-stage-incident .generator-timing-grid > * {
+    align-self: start;
   }
 
   .generator-cockpit #generator-stage-incident .generator-cutpoint-field {
