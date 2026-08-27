@@ -1,6 +1,7 @@
 import { firestoreTicketRepository } from '../../../infrastructure/firebase/index.js';
 
 const MAX_EDITOR_PROGRESS = 1000;
+const MAX_REVISION_HISTORY = 50;
 
 function coordinateSignature(coordinate) {
   if (!coordinate) return 'none';
@@ -38,6 +39,13 @@ export async function loadTicketEditor(ticketId) {
   return { ticket, progress, coordinateSignature: coordinateSignature(ticket.coordinate) };
 }
 
+export function loadTicketRevisionHistory(ticketId, { limit = MAX_REVISION_HISTORY } = {}) {
+  return firestoreTicketRepository.listTicketAuditEvents({
+    ticketId,
+    limit: Math.min(Math.max(1, Number(limit) || MAX_REVISION_HISTORY), MAX_REVISION_HISTORY),
+  });
+}
+
 export async function createTicketEditor(ticket, progressEntries = []) {
   const created = await firestoreTicketRepository.createTicket(ticket);
   let revision = created.ticket.revision;
@@ -65,7 +73,16 @@ export async function saveTicketEditorCore({
     ticketId,
     expectedRevision,
     patch: {
+      schemaVersion: 2,
       title: ticket.title,
+      titleMode: ticket.titleMode,
+      externalTtNumber: ticket.externalTtNumber,
+      templateProfileId: ticket.templateProfileId,
+      incidentKey: ticket.incidentKey,
+      pathKey: ticket.pathKey,
+      alarmContext: ticket.alarmContext,
+      importProvenance: ticket.importProvenance,
+      incidentGroupId: ticket.incidentGroupId,
       impactList: ticket.impactList,
       occurAt: ticket.occurAt,
       dispatchAt: ticket.dispatchAt,

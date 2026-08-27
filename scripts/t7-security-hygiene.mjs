@@ -25,6 +25,9 @@ const TEXT_EXTENSIONS = new Set([
   '.yaml',
 ]);
 const SOURCE_EXTENSIONS = new Set(['.js', '.jsx', '.mjs', '.cjs']);
+const UI_SOURCE_EXTENSIONS = new Set(['.js', '.jsx', '.css']);
+const LEGACY_UI_ROOTS = ['src/app/', 'src/features/', 'src/shared/', 'src/styles/'];
+const ALLOWED_IMPORTANT_FILES = new Set(['src/styles/app.css']);
 const FORBIDDEN_FILE_PATTERNS = [
   /(^|\/)(service[-_.]?account|serviceAccount).*\.json$/i,
   /\.(pem|p12|pfx|key)$/i,
@@ -60,6 +63,33 @@ const PRODUCTION_DEBUG_PATTERNS = [
   {
     pattern: /\bdebugger\s*;/,
     message: 'debugger statements are not allowed in production source',
+  },
+];
+const LEGACY_UI_PATTERNS = [
+  {
+    pattern: /\bUiIcon\b/,
+    message: 'legacy UiIcon is forbidden; use the canonical AppIcon adapter',
+  },
+  {
+    pattern: /\bspatial-panel-elevated\b/,
+    message: 'obsolete elevated/hero panel treatment is forbidden on production UI surfaces',
+  },
+  {
+    pattern: /hover:-translate-y/,
+    message: 'routine hover translate movement conflicts with stable dense-workstation geometry',
+  },
+  {
+    pattern: /<select(?:\s|>)/i,
+    message:
+      'visible native select controls are forbidden; use the canonical product selector layer',
+  },
+  {
+    pattern: /path:\s*['"]\/generator\/:ticketId['"]/,
+    message: 'compatibility /generator/:ticketId route must not be reintroduced',
+  },
+  {
+    pattern: /function\s+TicketRoutePage\b/,
+    message: 'legacy TicketRoutePage permission delegator must not be reintroduced',
   },
 ];
 
@@ -113,6 +143,22 @@ for (const absolute of allFiles) {
   if (path.startsWith('src/')) {
     for (const rule of PRODUCTION_DEBUG_PATTERNS) {
       if (rule.pattern.test(content)) violations.push(`${path}: ${rule.message}`);
+    }
+
+    if (
+      LEGACY_UI_ROOTS.some((root) => path.startsWith(root)) &&
+      UI_SOURCE_EXTENSIONS.has(extname(path)) &&
+      !/\.test\.[cm]?[jt]sx?$/.test(path)
+    ) {
+      for (const rule of LEGACY_UI_PATTERNS) {
+        if (rule.pattern.test(content)) violations.push(`${path}: ${rule.message}`);
+      }
+
+      if (!ALLOWED_IMPORTANT_FILES.has(path) && /!important/.test(content)) {
+        violations.push(
+          `${path}: legacy CSS !important overrides are forbidden in production UI source`,
+        );
+      }
     }
   }
 }
@@ -174,5 +220,5 @@ if (violations.length) {
 }
 
 console.log(
-  `T7 security and repository hygiene gate passed (${Object.keys(packageJson.dependencies ?? {}).length} production dependencies referenced; ${fixturePaths.length} committed fixture/test-data files accounted for).`,
+  `T7 security and repository hygiene gate passed (${Object.keys(packageJson.dependencies ?? {}).length} production dependencies referenced; ${fixturePaths.length} committed fixture/test-data files accounted for; legacy UI guard clean).`,
 );

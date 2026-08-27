@@ -1,15 +1,33 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
+import { PageHeader } from '../../../app/components/PageHeader.jsx';
+import { useAuth } from '../../../app/providers/AuthProvider.jsx';
 import { useToast } from '../../../app/providers/ToastProvider.jsx';
 import {
   formatCoordinatePair,
   formatDateTime,
   formatTicketReport,
 } from '../../../entities/ticket/index.js';
+import { CAPABILITY } from '../../../entities/user/authorization.js';
+import { AppIcon } from '../../../shared/ui/icon.jsx';
+import { Button } from '../../../shared/ui/primitives.jsx';
 import { ErrorState, Skeleton, StatusBadge } from '../../../shared/ui/index.jsx';
 import { ReportPreview } from '../components/ReportPreview.jsx';
 import { loadTicketEditor } from '../lib/persistenceService.js';
+
+function DetailItem({ label, value }) {
+  return (
+    <div className="border-t border-[var(--border-subtle)] py-3 first:border-t-0 md:first:border-t">
+      <dt className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)]">
+        {label}
+      </dt>
+      <dd className="mt-1 whitespace-pre-wrap text-[13px] font-semibold leading-5 text-[var(--text-secondary)]">
+        {value || '—'}
+      </dd>
+    </div>
+  );
+}
 
 async function copyPlainText(text) {
   if (navigator.clipboard?.writeText) {
@@ -29,27 +47,16 @@ async function copyPlainText(text) {
   if (!copied) throw new Error('Clipboard copy failed.');
 }
 
-function Detail({ label, value }) {
-  return (
-    <div>
-      <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
-        {label}
-      </dt>
-      <dd className="mt-1 whitespace-pre-wrap text-sm leading-6 text-[var(--text-secondary)]">
-        {value || '—'}
-      </dd>
-    </div>
-  );
-}
-
 export function TicketViewerPage() {
   const { ticketId } = useParams();
+  const { can } = useAuth();
   const { pushToast } = useToast();
   const [ticket, setTicket] = useState(null);
   const [progress, setProgress] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [copyPending, setCopyPending] = useState(false);
+  const canEdit = can(CAPABILITY.EDIT_TICKET);
 
   const loadTicket = useCallback(async () => {
     setLoading(true);
@@ -98,12 +105,12 @@ export function TicketViewerPage() {
 
   if (loading) {
     return (
-      <div
-        className="grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(340px,2fr)]"
-        aria-label="Loading Ticket"
-      >
-        <Skeleton className="h-[34rem]" />
-        <Skeleton className="h-[34rem]" />
+      <div className="grid gap-3" role="status" aria-live="polite" aria-label="Loading Ticket">
+        <Skeleton className="h-14" />
+        <div className="grid gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)]">
+          <Skeleton className="h-[32rem]" />
+          <Skeleton className="h-[32rem]" />
+        </div>
       </div>
     );
   }
@@ -124,65 +131,122 @@ export function TicketViewerPage() {
       : '—';
 
   return (
-    <div className="space-y-5">
-      <section className="rounded-xl border border-[var(--border-subtle)] bg-[var(--accent-soft)] p-4 text-sm text-[var(--accent-text)]">
-        <p className="font-semibold">Viewer read-only mode</p>
-        <p className="mt-1 text-xs leading-5">
-          You can inspect this Ticket and copy the generated report. Ticket, progress, lifecycle,
-          and coordinate mutations are disabled for the Viewer role.
-        </p>
-      </section>
+    <div className="grid gap-3">
+      <PageHeader
+        title={ticket.externalTtNumber || 'Ticket Detail'}
+        eyebrow="Read-only inspection"
+        description={ticket.title || 'Untitled Ticket'}
+        actions={
+          <>
+            <Button tone="secondary" size="sm" onClick={copyReport} disabled={copyPending}>
+              <AppIcon name="copy" size={14} />
+              {copyPending ? 'Copying…' : 'Copy Report'}
+            </Button>
+            {canEdit ? (
+              <Button asChild tone="primary" size="sm">
+                <Link to={`/generator/${ticketId}/edit`}>
+                  <AppIcon name="edit" size={14} />
+                  Edit Ticket
+                </Link>
+              </Button>
+            ) : null}
+          </>
+        }
+      />
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(340px,2fr)]">
-        <div className="space-y-5">
-          <section className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-5 shadow-[var(--shadow-sm)]">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="font-mono text-xs font-semibold text-[var(--text-muted)]">
-                  {ticket.externalTtNumber || 'No TT detected'}
+      <div
+        className="flex min-h-9 flex-wrap items-center gap-2 border-b border-[var(--border-subtle)] pb-2"
+        role="group"
+        aria-label="Ticket review metadata"
+      >
+        <StatusBadge status={ticket.status} />
+        <span className="inline-flex min-h-6 items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-2.5 text-[10px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-secondary)]">
+          <AppIcon name="info" size={12} />
+          Read only
+        </span>
+        <span className="font-mono text-[10px] font-semibold text-[var(--text-faint)]">
+          Revision {ticket.revision}
+        </span>
+        <span className="ml-auto hidden text-[10px] font-medium text-[var(--text-faint)] sm:inline">
+          Persisted inspection · no mutation controls
+        </span>
+      </div>
+
+      <div className="grid min-w-0 gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(360px,0.65fr)]">
+        <div className="grid min-w-0 content-start gap-3">
+          <section className="overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+            <header className="flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
+              <div>
+                <p className="text-[9px] font-extrabold uppercase tracking-[0.12em] text-[var(--text-faint)]">
+                  Incident data
                 </p>
-                <h2 className="mt-2 break-words text-lg font-bold">
-                  {ticket.title || 'Untitled Ticket'}
-                </h2>
+                <h3 className="text-xs font-bold text-[var(--text-primary)]">
+                  Operational context
+                </h3>
               </div>
-              <StatusBadge status={ticket.status} />
-            </div>
-
-            <dl className="mt-6 grid gap-5 md:grid-cols-2">
-              <Detail label="Occur Time" value={formatDateTime(ticket.occurAt)} />
-              <Detail label="Dispatch Time" value={formatDateTime(ticket.dispatchAt)} />
-              <Detail label="PIC" value={ticket.pic} />
-              <Detail label="Rootcause" value={ticket.rootcause} />
-              <Detail label="Cut Point" value={ticket.cutPoint} />
-              <Detail label="Coordinate" value={coordinate} />
+              <span className="text-[10px] font-semibold text-[var(--text-faint)]">6 fields</span>
+            </header>
+            <dl className="grid px-3 md:grid-cols-2 md:gap-x-5 xl:grid-cols-3">
+              <DetailItem label="Occur Time" value={formatDateTime(ticket.occurAt)} />
+              <DetailItem label="Dispatch Time" value={formatDateTime(ticket.dispatchAt)} />
+              <DetailItem label="PIC" value={ticket.pic} />
+              <DetailItem label="Rootcause" value={ticket.rootcause} />
+              <DetailItem label="Cut Point" value={ticket.cutPoint} />
+              <DetailItem label="Coordinate" value={coordinate} />
             </dl>
           </section>
 
-          <section className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-5 shadow-[var(--shadow-sm)]">
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-sm font-bold">Progress Timeline</h3>
-              <span className="text-xs text-[var(--text-muted)]">{progress.length} update(s)</span>
-            </div>
+          <section className="overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+            <header className="flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
+              <div>
+                <p className="text-[9px] font-extrabold uppercase tracking-[0.12em] text-[var(--text-faint)]">
+                  Incident history
+                </p>
+                <h3 className="text-xs font-bold text-[var(--text-primary)]">Progress Timeline</h3>
+              </div>
+              <span className="font-mono text-[10px] font-semibold text-[var(--text-faint)]">
+                {progress.length} update{progress.length === 1 ? '' : 's'}
+              </span>
+            </header>
+
             {progress.length ? (
-              <ol className="mt-4 space-y-3">
-                {progress.map((entry) => (
-                  <li key={entry.id} className="rounded-lg bg-[var(--surface-muted)] p-3">
-                    <p className="text-xs font-semibold text-[var(--text-muted)]">
-                      {formatDateTime(entry.occurredAt)}
-                    </p>
-                    <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-[var(--text-secondary)]">
-                      {entry.text}
-                    </p>
+              <ol className="divide-y divide-[var(--border-subtle)]">
+                {progress.map((entry, index) => (
+                  <li
+                    key={entry.id}
+                    className="grid grid-cols-[32px_minmax(0,1fr)] gap-2.5 px-3 py-2.5"
+                  >
+                    <span
+                      className="mt-0.5 grid h-7 w-7 place-items-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-muted)] font-mono text-[9px] font-black text-[var(--accent-text)]"
+                      aria-hidden="true"
+                    >
+                      {index + 1}
+                    </span>
+                    <div className="min-w-0">
+                      <time className="font-mono text-[10px] font-bold text-[var(--text-faint)]">
+                        {formatDateTime(entry.occurredAt)}
+                      </time>
+                      <p className="mt-0.5 whitespace-pre-wrap text-[13px] font-medium leading-5 text-[var(--text-secondary)]">
+                        {entry.text}
+                      </p>
+                    </div>
                   </li>
                 ))}
               </ol>
             ) : (
-              <p className="mt-4 text-sm text-[var(--text-muted)]">No progress update recorded.</p>
+              <p className="px-3 py-5 text-center text-xs font-medium text-[var(--text-muted)]">
+                No progress update recorded.
+              </p>
             )}
           </section>
         </div>
 
-        <ReportPreview report={report} onCopy={copyReport} copyPending={copyPending} />
+        <ReportPreview
+          report={report}
+          onCopy={copyReport}
+          copyPending={copyPending}
+          showCopyAction={false}
+        />
       </div>
     </div>
   );

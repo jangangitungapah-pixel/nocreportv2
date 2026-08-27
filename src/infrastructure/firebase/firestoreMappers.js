@@ -36,6 +36,15 @@ function mapLatestProgress(latestProgress) {
   };
 }
 
+function mapImportProvenance(importProvenance) {
+  if (!importProvenance) return null;
+  return {
+    sourceKind: importProvenance.sourceKind ?? null,
+    dispatchTimeSource: importProvenance.dispatchTimeSource ?? null,
+    messageSentAt: toDate(importProvenance.messageSentAt),
+  };
+}
+
 export function mapTicketData(id, data = {}) {
   return createEmptyTicket({
     id,
@@ -43,6 +52,7 @@ export function mapTicketData(id, data = {}) {
     occurAt: toDate(data.occurAt),
     dispatchAt: toDate(data.dispatchAt),
     coordinate: mapCoordinate(data.coordinate),
+    importProvenance: mapImportProvenance(data.importProvenance),
     latestProgress: mapLatestProgress(data.latestProgress),
     createdAt: toDate(data.createdAt),
     updatedAt: toDate(data.updatedAt),

@@ -41,6 +41,17 @@ describe('application shell', () => {
     ).toBeInTheDocument();
   });
 
+  it('opens the global command palette from the keyboard shortcut', () => {
+    renderRoute();
+
+    fireEvent.keyDown(document, { key: 'k', ctrlKey: true });
+
+    const palette = screen.getByRole('dialog', { name: 'Command palette' });
+    expect(palette).toBeInTheDocument();
+    expect(within(palette).getByText('Template Generator')).toBeInTheDocument();
+    expect(within(palette).getByText('Archive & Restore')).toBeInTheDocument();
+  });
+
   it('persists a user-selected dark theme', () => {
     renderRoute();
 
@@ -51,8 +62,29 @@ describe('application shell', () => {
     expect(screen.getByRole('button', { name: 'Switch to light mode' })).toBeInTheDocument();
   });
 
-  it('supports the lazy ticket editor route', async () => {
-    renderRoute('/generator/ticket-123');
+  it('persists theme changes through the account-menu Radix Switch', async () => {
+    renderRoute();
+
+    const accountMenuTrigger = screen.getByRole('button', { name: 'Open account menu' });
+    accountMenuTrigger.focus();
+    fireEvent.keyDown(accountMenuTrigger, { key: 'Enter' });
+    const themeSwitch = await screen.findByRole('switch', { name: 'Dark mode' });
+
+    expect(themeSwitch).toHaveAttribute('data-state', 'unchecked');
+    fireEvent.click(themeSwitch);
+
+    expect(document.documentElement.dataset.theme).toBe('dark');
+    expect(window.localStorage.getItem('nocreport-theme')).toBe('dark');
+    expect(themeSwitch).toHaveAttribute('data-state', 'checked');
+
+    fireEvent.click(themeSwitch);
+    expect(document.documentElement.dataset.theme).toBe('light');
+    expect(window.localStorage.getItem('nocreport-theme')).toBe('light');
+    expect(themeSwitch).toHaveAttribute('data-state', 'unchecked');
+  });
+
+  it('supports the canonical explicit ticket editor route', async () => {
+    renderRoute('/generator/ticket-123/edit');
 
     expect(await screen.findByRole('heading', { name: 'Template Generator' })).toBeInTheDocument();
     expect(await screen.findByText('Ticket Identity')).toBeInTheDocument();

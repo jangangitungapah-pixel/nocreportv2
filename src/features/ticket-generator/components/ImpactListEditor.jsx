@@ -1,52 +1,79 @@
-import { Button, IconButton, TextInput } from '../../../shared/ui/index.jsx';
+import { AppIcon } from '../../../shared/ui/icon.jsx';
+import { Button } from '../../../shared/ui/primitives.jsx';
+import { TextInput } from '../../../shared/ui/index.jsx';
+import { ImpactBuilder } from './ImpactBuilder.jsx';
 
-export function ImpactListEditor({ fields, register, append, remove, move }) {
+export function ImpactListEditor({
+  fields,
+  register,
+  append,
+  remove,
+  move,
+  currentValues = [],
+  onApplyCandidates,
+}) {
   return (
-    <section className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-5 shadow-[var(--shadow-sm)]">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 className="text-sm font-bold">Impact List</h3>
-          <p className="mt-1 text-xs leading-5 text-[var(--text-muted)]">
-            Optional. The whole section disappears from the generated report when empty.
-          </p>
+    <section className="generator-authoring-surface generator-impact-editor overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+      <header className="generator-impact-header flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Impact List</h3>
+          <span className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)]">
+            Optional · hidden when empty
+          </span>
         </div>
-        <Button tone="secondary" onClick={() => append({ value: '' })}>
+        <Button tone="ghost" size="xs" onClick={() => append({ value: '' })}>
+          <AppIcon name="plus" size={13} />
           Add impact
         </Button>
-      </div>
+      </header>
+
+      <ImpactBuilder existing={currentValues} onApply={onApplyCandidates} />
 
       {fields.length === 0 ? (
-        <p className="mt-4 rounded-lg bg-[var(--surface-muted)] p-3 text-sm text-[var(--text-secondary)]">
-          No impacted service/site recorded.
+        <p className="generator-impact-empty px-3 py-3 text-xs font-medium text-[var(--text-muted)]">
+          No impacted service or site recorded.
         </p>
       ) : (
-        <div className="mt-4 space-y-3">
+        <div className="generator-impact-list divide-y divide-[var(--border-subtle)]">
           {fields.map((field, index) => (
-            <div key={field.id} className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+            <div
+              key={field.id}
+              className="generator-impact-row grid gap-2 px-3 py-2.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end"
+              data-index={index + 1}
+            >
               <TextInput
                 id={`impact-${field.id}`}
                 label={`Impact ${index + 1}`}
                 placeholder="Site, service, or affected item"
                 {...register(`impactList.${index}.value`)}
               />
-              <div className="flex items-end gap-1">
-                <IconButton
-                  label={`Move Impact ${index + 1} up`}
+              <div className="generator-impact-row-actions flex items-center justify-end gap-1">
+                <Button
+                  tone="ghost"
+                  size="icon"
+                  aria-label={`Move Impact ${index + 1} up`}
                   disabled={index === 0}
                   onClick={() => move(index, index - 1)}
                 >
-                  ↑
-                </IconButton>
-                <IconButton
-                  label={`Move Impact ${index + 1} down`}
+                  <AppIcon name="arrowUp" size={14} />
+                </Button>
+                <Button
+                  tone="ghost"
+                  size="icon"
+                  aria-label={`Move Impact ${index + 1} down`}
                   disabled={index === fields.length - 1}
                   onClick={() => move(index, index + 1)}
                 >
-                  ↓
-                </IconButton>
-                <IconButton label={`Remove Impact ${index + 1}`} onClick={() => remove(index)}>
-                  ×
-                </IconButton>
+                  <AppIcon name="arrowDown" size={14} />
+                </Button>
+                <Button
+                  tone="ghost"
+                  size="icon"
+                  aria-label={`Remove Impact ${index + 1}`}
+                  onClick={() => remove(index)}
+                >
+                  <AppIcon name="close" size={14} />
+                </Button>
               </div>
             </div>
           ))}

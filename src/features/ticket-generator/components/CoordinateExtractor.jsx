@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 
 import { analyzeCoordinateOcrText } from '../../../infrastructure/ocr/coordinateCandidates.js';
 import { validateOcrImageFile } from '../../../infrastructure/ocr/imageValidation.js';
-import { Button } from '../../../shared/ui/index.jsx';
+import { AppIcon } from '../../../shared/ui/icon.jsx';
+import { Button } from '../../../shared/ui/primitives.jsx';
 
 const ACCEPTED_TYPES = 'image/jpeg,image/png,image/webp';
 
@@ -14,18 +15,20 @@ function CandidateButton({ candidate, label, onApply }) {
   return (
     <button
       type="button"
-      className="flex min-h-11 w-full items-center justify-between gap-3 rounded-lg border border-[var(--border-default)] bg-[var(--surface-panel)] px-3 py-2 text-left text-sm transition hover:border-[var(--accent-solid)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+      className="generator-ocr-candidate flex min-h-10 w-full items-center justify-between gap-3 border-t border-[var(--border-subtle)] px-3 py-2 text-left transition-colors first:border-t-0 hover:bg-[var(--surface-panel-strong)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)]"
       onClick={() => onApply(candidate)}
     >
-      <span>
-        <span className="block text-xs font-semibold uppercase tracking-[0.08em] text-[var(--text-muted)]">
+      <span className="min-w-0">
+        <span className="block text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)]">
           {label}
         </span>
-        <span className="mt-1 block font-mono font-semibold text-[var(--text-primary)]">
+        <span className="mt-0.5 block truncate font-mono text-[11px] font-bold text-[var(--text-primary)]">
           {candidate.formatted}
         </span>
       </span>
-      <span className="shrink-0 text-xs font-bold text-[var(--accent-text)]">Apply & verify</span>
+      <span className="shrink-0 text-[10px] font-extrabold text-[var(--accent-text)]">
+        Apply & verify
+      </span>
     </button>
   );
 }
@@ -96,15 +99,10 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
       setSourceLabel(result.sourceLabel ?? '');
       setAttempts(result.attempts ?? []);
 
-      if (nextAnalysis.status === 'success') {
-        setPhase('detected');
-      } else if (nextAnalysis.status === 'ambiguous') {
-        setPhase('ambiguous');
-      } else if (nextAnalysis.status === 'invalid') {
-        setPhase('invalid');
-      } else {
-        setPhase('not_found');
-      }
+      if (nextAnalysis.status === 'success') setPhase('detected');
+      else if (nextAnalysis.status === 'ambiguous') setPhase('ambiguous');
+      else if (nextAnalysis.status === 'invalid') setPhase('invalid');
+      else setPhase('not_found');
     } catch (scanError) {
       setPhase('error');
       setError(scanError instanceof Error ? scanError.message : 'OCR processing failed.');
@@ -133,180 +131,186 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
       : null;
 
   return (
-    <section className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-5 shadow-[var(--shadow-sm)]">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 className="text-sm font-bold">Cut Point Photo OCR</h3>
-          <p className="mt-1 max-w-2xl text-xs leading-5 text-[var(--text-muted)]">
-            The image stays in this browser session. It is not uploaded or stored; only coordinates
-            can move to the Ticket data model after verification.
-          </p>
+    <section className="generator-operations-surface generator-coordinate-extractor overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+      <header className="generator-operations-header generator-coordinate-extractor__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <AppIcon name="map" size={14} className="text-[var(--accent-text)]" />
+          <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Cut Point Photo OCR</h3>
+          <span className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--success-text)]">
+            Local only
+          </span>
         </div>
-        <span className="rounded-full bg-[var(--success-soft)] px-2.5 py-1 text-[11px] font-bold text-[var(--success-text)]">
-          Local only
+        <span className="hidden text-[9.5px] font-medium text-[var(--text-faint)] sm:inline">
+          Photo never leaves this browser
         </span>
-      </div>
+      </header>
 
-      <div
-        className={`mt-4 rounded-xl border border-dashed p-4 transition ${
-          dragActive
-            ? 'border-[var(--accent-solid)] bg-[var(--accent-soft)]'
-            : 'border-[var(--border-default)] bg-[var(--surface-muted)]'
-        }`}
-        onDragEnter={(event) => {
-          event.preventDefault();
-          setDragActive(true);
-        }}
-        onDragOver={(event) => {
-          event.preventDefault();
-          setDragActive(true);
-        }}
-        onDragLeave={(event) => {
-          event.preventDefault();
-          if (event.currentTarget === event.target) setDragActive(false);
-        }}
-        onDrop={(event) => {
-          event.preventDefault();
-          setDragActive(false);
-          selectFile(event.dataTransfer.files?.[0]);
-        }}
-      >
-        <input
-          ref={inputRef}
-          className="sr-only"
-          type="file"
-          accept={ACCEPTED_TYPES}
-          aria-label="Choose Cut Point photo"
-          onChange={(event) => selectFile(event.target.files?.[0])}
-        />
+      <div className="p-3">
+        <div
+          className={`generator-ocr-dropzone grid gap-3 border border-dashed p-2.5 transition-colors sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center ${
+            dragActive
+              ? 'border-[var(--accent-solid)] bg-[var(--accent-soft)]'
+              : 'border-[var(--border-default)] bg-[var(--surface-muted)]'
+          }`}
+          onDragEnter={(event) => {
+            event.preventDefault();
+            setDragActive(true);
+          }}
+          onDragOver={(event) => {
+            event.preventDefault();
+            setDragActive(true);
+          }}
+          onDragLeave={(event) => {
+            event.preventDefault();
+            if (event.currentTarget === event.target) setDragActive(false);
+          }}
+          onDrop={(event) => {
+            event.preventDefault();
+            setDragActive(false);
+            selectFile(event.dataTransfer.files?.[0]);
+          }}
+        >
+          <input
+            ref={inputRef}
+            className="sr-only"
+            type="file"
+            accept={ACCEPTED_TYPES}
+            aria-label="Choose Cut Point photo"
+            onChange={(event) => selectFile(event.target.files?.[0])}
+          />
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           {previewUrl ? (
             <img
               src={previewUrl}
               alt="Local Cut Point preview"
-              className="h-28 w-full rounded-lg border border-[var(--border-subtle)] object-cover sm:w-40"
+              className="h-20 w-full border border-[var(--border-subtle)] object-cover sm:h-16"
             />
           ) : (
-            <div className="grid h-28 w-full place-items-center rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-panel)] text-xs font-semibold text-[var(--text-muted)] sm:w-40">
+            <div className="grid h-20 place-items-center border border-[var(--border-subtle)] bg-[var(--surface-panel)] text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)] sm:h-16">
               No image
             </div>
           )}
 
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold">{file ? file.name : 'Drop a geotag photo here'}</p>
-            <p className="mt-1 text-xs leading-5 text-[var(--text-muted)]">
-              JPG, PNG, or WebP · maximum 15 MB · mobile photo picker supported
+          <div className="min-w-0">
+            <p className="truncate text-[11.5px] font-bold text-[var(--text-primary)]">
+              {file ? file.name : 'Drop a geotag photo here'}
             </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Button tone="secondary" onClick={() => inputRef.current?.click()}>
+            <p className="mt-0.5 text-[10px] leading-4 text-[var(--text-muted)]">
+              JPG, PNG, WebP · max 15 MB · mobile picker supported
+            </p>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              <Button tone="secondary" size="xs" onClick={() => inputRef.current?.click()}>
                 Choose image
               </Button>
-              <Button disabled={!file || phase === 'processing'} onClick={scanImage}>
+              <Button size="xs" disabled={!file || phase === 'processing'} onClick={scanImage}>
                 {phase === 'processing' ? 'Scanning…' : 'Scan coordinates'}
               </Button>
             </div>
           </div>
         </div>
-      </div>
 
-      {phase === 'processing' ? (
-        <div className="mt-4 rounded-lg bg-[var(--surface-muted)] p-3" aria-live="polite">
-          <div className="flex items-center justify-between gap-3 text-xs font-semibold">
-            <span>{progress.status || 'Starting OCR worker…'}</span>
-            <span className="tabular-nums">{formatPercent(progress.progress)}</span>
+        {phase === 'processing' ? (
+          <div
+            className="generator-ocr-progress mt-2.5 border-l-2 border-[var(--accent-solid)] px-2.5 py-1.5"
+            aria-live="polite"
+          >
+            <div className="flex items-center justify-between gap-3 text-[10px] font-bold">
+              <span>{progress.status || 'Starting OCR worker…'}</span>
+              <span className="font-mono text-[var(--accent-text)]">
+                {formatPercent(progress.progress)}
+              </span>
+            </div>
+            <div className="mt-1.5 h-1 overflow-hidden bg-[var(--border-subtle)]">
+              <div
+                className="h-full bg-[var(--accent-solid)] transition-[width] duration-200"
+                style={{ width: formatPercent(progress.progress) }}
+              />
+            </div>
           </div>
-          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[var(--border-subtle)]">
-            <div
-              className="h-full rounded-full bg-[var(--accent-solid)] transition-[width]"
-              style={{ width: formatPercent(progress.progress) }}
-            />
-          </div>
-        </div>
-      ) : null}
+        ) : null}
 
-      {error ? (
-        <div className="mt-4 rounded-lg border border-[var(--danger-border)] bg-[var(--danger-soft)] p-3 text-sm text-[var(--danger-text)]">
-          {error}
-        </div>
-      ) : null}
-
-      {phase === 'detected' && successfulCandidate ? (
-        <div className="mt-4 space-y-2">
-          <p className="text-xs font-semibold text-[var(--text-secondary)]">
-            Coordinate candidate detected
-            {sourceLabel ? ` from ${sourceLabel}` : ''}
-            {Number.isFinite(confidence) ? ` · OCR confidence ${Math.round(confidence)}%` : ''}.
-            Verify it before applying.
+        {error ? (
+          <p className="mt-2.5 border-l-2 border-[var(--danger-solid)] bg-[var(--danger-soft)] px-2.5 py-1.5 text-[11px] font-medium leading-5 text-[var(--danger-text)]">
+            {error}
           </p>
-          <CandidateButton
-            candidate={successfulCandidate}
-            label={analysis.format}
-            onApply={applyCandidate}
-          />
-        </div>
-      ) : null}
+        ) : null}
 
-      {phase === 'ambiguous' ? (
-        <div className="mt-4 space-y-2">
-          <p className="text-sm font-semibold text-[var(--danger-text)]">
-            Coordinate result requires verification. Choose the correct Latitude/Longitude pair.
-          </p>
-          {analysis.candidates.map((candidate, index) => (
+        {phase === 'detected' && successfulCandidate ? (
+          <div className="generator-ocr-result generator-ocr-result--detected mt-2.5 overflow-hidden border border-[var(--border-accent)] bg-[var(--accent-soft)]">
+            <p className="px-3 py-2 text-[10.5px] font-medium leading-4 text-[var(--text-secondary)]">
+              Coordinate detected{sourceLabel ? ` from ${sourceLabel}` : ''}
+              {Number.isFinite(confidence) ? ` · OCR confidence ${Math.round(confidence)}%` : ''}.
+              Verify before applying.
+            </p>
             <CandidateButton
-              key={candidate.formatted}
-              candidate={candidate}
-              label={`Candidate ${index + 1}`}
+              candidate={successfulCandidate}
+              label={analysis.format}
               onApply={applyCandidate}
             />
-          ))}
-        </div>
-      ) : null}
+          </div>
+        ) : null}
 
-      {phase === 'verified' ? (
-        <div className="mt-4 rounded-lg bg-[var(--success-soft)] p-3 text-sm font-semibold text-[var(--success-text)]">
-          Coordinate applied to editable Latitude/Longitude fields. Review them before Save.
-        </div>
-      ) : null}
-
-      {phase === 'not_found' || phase === 'invalid' ? (
-        <div className="mt-4 rounded-lg border border-[var(--border-default)] bg-[var(--surface-muted)] p-3 text-sm text-[var(--text-secondary)]">
-          {phase === 'not_found'
-            ? 'No supported coordinate pattern was detected after region-first and full-image OCR. Enter Latitude/Longitude manually or try another photo.'
-            : 'OCR found coordinate-like text, but the resulting location is invalid. Please correct it manually.'}
-        </div>
-      ) : null}
-
-      {analysis?.normalizedText ? (
-        <details className="mt-4 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3">
-          <summary className="cursor-pointer text-xs font-semibold text-[var(--text-secondary)]">
-            Review OCR text{sourceLabel ? ` · ${sourceLabel}` : ''}
-          </summary>
-          <pre className="mt-3 max-h-44 overflow-auto whitespace-pre-wrap break-words text-xs leading-5 text-[var(--text-secondary)]">
-            {analysis.normalizedText}
-          </pre>
-        </details>
-      ) : null}
-
-      {attempts.length > 1 ? (
-        <details className="mt-3 rounded-lg border border-[var(--border-subtle)] p-3">
-          <summary className="cursor-pointer text-xs font-semibold text-[var(--text-muted)]">
-            OCR attempts ({attempts.length})
-          </summary>
-          <div className="mt-3 space-y-3">
-            {attempts.map((attempt) => (
-              <div key={attempt.id} className="rounded-lg bg-[var(--surface-muted)] p-3">
-                <p className="text-xs font-bold text-[var(--text-secondary)]">
-                  {attempt.label} · {Math.round(attempt.confidence || 0)}%
-                </p>
-                <pre className="mt-2 max-h-32 overflow-auto whitespace-pre-wrap break-words text-xs leading-5 text-[var(--text-muted)]">
-                  {attempt.text || '(no text)'}
-                </pre>
-              </div>
+        {phase === 'ambiguous' ? (
+          <div className="generator-ocr-result generator-ocr-result--ambiguous mt-2.5 overflow-hidden border border-[var(--warning-border)] bg-[var(--warning-soft)]">
+            <p className="px-3 py-2 text-[10.5px] font-bold leading-4 text-[var(--warning-text)]">
+              Multiple coordinate candidates found. Choose the correct pair.
+            </p>
+            {analysis.candidates.map((candidate, index) => (
+              <CandidateButton
+                key={candidate.formatted}
+                candidate={candidate}
+                label={`Candidate ${index + 1}`}
+                onApply={applyCandidate}
+              />
             ))}
           </div>
-        </details>
-      ) : null}
+        ) : null}
+
+        {phase === 'verified' ? (
+          <p className="mt-2.5 border-l-2 border-[var(--success-solid)] bg-[var(--success-soft)] px-2.5 py-1.5 text-[11px] font-semibold leading-5 text-[var(--success-text)]">
+            Coordinate applied to editable Latitude/Longitude fields. Review them before Save.
+          </p>
+        ) : null}
+
+        {phase === 'not_found' || phase === 'invalid' ? (
+          <p className="mt-2.5 border-l-2 border-[var(--border-default)] px-2.5 py-1.5 text-[10.5px] leading-5 text-[var(--text-secondary)]">
+            {phase === 'not_found'
+              ? 'No supported coordinate pattern was detected. Enter Latitude/Longitude manually or try another photo.'
+              : 'OCR found coordinate-like text, but the location is invalid. Correct it manually.'}
+          </p>
+        ) : null}
+
+        {analysis?.normalizedText ? (
+          <details className="generator-ocr-details mt-2.5 border-t border-[var(--border-subtle)] pt-2.5">
+            <summary className="cursor-pointer text-[10.5px] font-bold text-[var(--text-secondary)]">
+              Review OCR text{sourceLabel ? ` · ${sourceLabel}` : ''}
+            </summary>
+            <pre className="mt-2 max-h-36 overflow-auto whitespace-pre-wrap break-words bg-[var(--surface-muted)] p-2.5 font-mono text-[10px] leading-4 text-[var(--text-secondary)]">
+              {analysis.normalizedText}
+            </pre>
+          </details>
+        ) : null}
+
+        {attempts.length > 1 ? (
+          <details className="generator-ocr-details mt-2 border-t border-[var(--border-subtle)] pt-2">
+            <summary className="cursor-pointer text-[10.5px] font-bold text-[var(--text-muted)]">
+              OCR attempts ({attempts.length})
+            </summary>
+            <div className="mt-2 divide-y divide-[var(--border-subtle)]">
+              {attempts.map((attempt) => (
+                <div key={attempt.id} className="py-2">
+                  <p className="text-[10px] font-bold text-[var(--text-secondary)]">
+                    {attempt.label} · {Math.round(attempt.confidence || 0)}%
+                  </p>
+                  <pre className="mt-1 max-h-28 overflow-auto whitespace-pre-wrap break-words font-mono text-[9.5px] leading-4 text-[var(--text-muted)]">
+                    {attempt.text || '(no text)'}
+                  </pre>
+                </div>
+              ))}
+            </div>
+          </details>
+        ) : null}
+      </div>
     </section>
   );
 }

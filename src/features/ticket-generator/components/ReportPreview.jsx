@@ -1,26 +1,76 @@
-import { Button } from '../../../shared/ui/index.jsx';
+import { cn } from '../../../shared/lib/cn.js';
+import { AppIcon } from '../../../shared/ui/icon.jsx';
+import { Button, ScrollArea } from '../../../shared/ui/primitives.jsx';
 
-export function ReportPreview({ report, onCopy, copyPending = false }) {
+export function ReportPreview({
+  report,
+  validation,
+  onCopy,
+  copyPending = false,
+  className,
+  fill = false,
+  showCopyAction = true,
+  title = 'Report Preview',
+}) {
   return (
-    <aside className="xl:sticky xl:top-20 xl:self-start">
-      <section className="overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-sm)]">
-        <div className="flex items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-4 py-3">
-          <div>
-            <h3 className="text-sm font-bold">Live Report Preview</h3>
-            <p className="mt-0.5 text-xs text-[var(--text-muted)]">
-              Exact plain text used by Copy Report.
+    <aside
+      id="generator-report-preview"
+      tabIndex={-1}
+      className={cn(
+        'generator-report-preview min-w-0',
+        fill ? 'h-full min-h-0' : 'xl:sticky xl:top-20 xl:self-start',
+        className,
+      )}
+    >
+      <section className="generator-output-surface generator-report-preview__surface flex h-full min-h-0 flex-col overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+        <div className="generator-output-header generator-report-preview__header flex min-h-10 shrink-0 items-center justify-between gap-2 border-b border-[var(--border-subtle)] bg-[var(--surface-panel-strong)] px-3">
+          <div className="min-w-0">
+            <p className="text-[9px] font-extrabold uppercase tracking-[0.12em] text-[var(--text-faint)]">
+              Live output
             </p>
+            <h3 className="truncate text-xs font-bold text-[var(--text-primary)]">{title}</h3>
           </div>
-          <Button onClick={onCopy} disabled={copyPending}>
-            {copyPending ? 'Copying…' : 'Copy Report'}
-          </Button>
+          {showCopyAction ? (
+            <Button tone="secondary" size="sm" onClick={onCopy} disabled={copyPending}>
+              <AppIcon name="copy" size={14} />
+              {copyPending ? 'Copying…' : 'Copy Report'}
+            </Button>
+          ) : null}
         </div>
-        <pre
-          className="max-h-[calc(100vh-10rem)] min-h-80 overflow-auto whitespace-pre-wrap break-words bg-[var(--surface-muted)] p-4 text-[13px] leading-6 text-[var(--text-primary)]"
-          aria-label="Generated NOC report"
-        >
-          {report}
-        </pre>
+        {validation ? (
+          <div
+            className="generator-preview-readiness"
+            data-state={validation.readyForRunning ? 'ready' : 'blocked'}
+          >
+            <span className="generator-preview-readiness__signal" aria-hidden="true" />
+            <div className="min-w-0">
+              <strong>
+                {validation.readyForRunning
+                  ? 'Ready for Running'
+                  : `${validation.counts.blocking} required issue${validation.counts.blocking === 1 ? '' : 's'}`}
+              </strong>
+              <span>
+                {validation.counts.warning} warning{validation.counts.warning === 1 ? '' : 's'} ·{' '}
+                {validation.counts.info} note{validation.counts.info === 1 ? '' : 's'}
+              </span>
+            </div>
+          </div>
+        ) : null}
+        <div className="generator-report-preview__stage min-h-0 flex-1 bg-[var(--surface-muted)] p-1.5">
+          <ScrollArea
+            className={cn(
+              'generator-report-preview__document rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)]',
+              fill ? 'h-full min-h-0' : 'max-h-[calc(100vh-8.5rem)] min-h-72',
+            )}
+          >
+            <pre
+              className="generator-report-preview__content min-h-full whitespace-pre-wrap break-words p-3 font-mono text-[12px] leading-5 text-[var(--text-primary)]"
+              aria-label="Generated NOC report"
+            >
+              {report}
+            </pre>
+          </ScrollArea>
+        </div>
       </section>
     </aside>
   );

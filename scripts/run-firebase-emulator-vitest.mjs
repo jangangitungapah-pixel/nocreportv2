@@ -18,6 +18,8 @@ const testEnvironment = {
 const emulatorTestFiles = [
   'src/infrastructure/firebase/firestoreTicketRepository.emulator.test.js',
   'src/infrastructure/firebase/firestoreSecurityRules.emulator.test.js',
+  'src/infrastructure/firebase/firestoreIncidentGroups.emulator.test.js',
+  'src/infrastructure/firebase/firestoreIncidentGroups.rules.emulator.test.js',
 ];
 
 for (const testFile of emulatorTestFiles) {

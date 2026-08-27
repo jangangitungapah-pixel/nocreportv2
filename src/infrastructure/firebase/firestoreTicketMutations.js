@@ -9,6 +9,7 @@ import {
 
 import {
   TICKET_STATUS,
+  buildTicketUpdatedAuditDetails,
   createEmptyTicket,
   extractExternalTicketNumber,
   normalizeCoordinates,
@@ -37,12 +38,26 @@ function assertExpectedRevision(data, expectedRevision, ticketId) {
   }
 }
 
-function auditData(type, actorUid, details = null) {
+function auditData(type, actorUid, details = null, metadata = null) {
   return {
+    ...(metadata ?? {}),
     type,
     actorUid,
     details,
     createdAt: serverTimestamp(),
+  };
+}
+
+function schemaV2FeatureData(ticket) {
+  return {
+    schemaVersion: 2,
+    titleMode: ticket.titleMode,
+    templateProfileId: ticket.templateProfileId,
+    incidentKey: ticket.incidentKey,
+    pathKey: ticket.pathKey,
+    alarmContext: ticket.alarmContext,
+    importProvenance: ticket.importProvenance,
+    incidentGroupId: ticket.incidentGroupId,
   };
 }
 
@@ -89,7 +104,11 @@ export async function createTicket(input = {}) {
   try {
     const db = getFirestoreClient();
     const user = requireCurrentUser();
-    const ticket = createEmptyTicket({ ...input, status: input.status ?? TICKET_STATUS.DRAFT });
+    const ticket = createEmptyTicket({
+      ...input,
+      schemaVersion: 2,
+      status: input.status ?? TICKET_STATUS.DRAFT,
+    });
     validateCreationStatus(ticket);
 
     const ticketRef = doc(collection(db, 'tickets'));
@@ -98,9 +117,9 @@ export async function createTicket(input = {}) {
     const batch = writeBatch(db);
 
     batch.set(ticketRef, {
-      schemaVersion: 1,
+      ...schemaV2FeatureData(ticket),
       title: ticket.title,
-      externalTtNumber: extractExternalTicketNumber(ticket.title),
+      externalTtNumber: ticket.externalTtNumber ?? extractExternalTicketNumber(ticket.title),
       impactList: ticket.impactList,
       occurAt: ticket.occurAt,
       dispatchAt: ticket.dispatchAt,
@@ -148,23 +167,49 @@ export async function saveTicket({ ticketId, expectedRevision, patch = {} }) {
 
       assertExpectedRevision(snapshot.data(), expectedRevision, ticketId);
       const current = mapTicketSnapshot(snapshot);
-      const candidate = createEmptyTicket({ ...current, ...patch, id: ticketId });
+      const candidate = createEmptyTicket({
+        ...current,
+        ...patch,
+        id: ticketId,
+        schemaVersion: 2,
+      });
+      const nextExternalTtNumber =
+        patch.externalTtNumber ?? extractExternalTicketNumber(candidate.title) ?? null;
+      const auditedCandidate = createEmptyTicket({
+        ...candidate,
+        externalTtNumber: nextExternalTtNumber,
+      });
+      const revisionFrom = Number(expectedRevision);
+      const revisionTo = revisionFrom + 1;
+      const audit = buildTicketUpdatedAuditDetails({
+        previousTicket: current,
+        nextTicket: auditedCandidate,
+        revisionFrom,
+        revisionTo,
+      });
       const auditRef = doc(collection(ticketRef, 'auditEvents'));
 
       transaction.update(ticketRef, {
-        title: candidate.title,
-        externalTtNumber: extractExternalTicketNumber(candidate.title),
-        impactList: candidate.impactList,
-        occurAt: candidate.occurAt,
-        dispatchAt: candidate.dispatchAt,
-        pic: candidate.pic,
-        rootcause: candidate.rootcause,
-        cutPoint: candidate.cutPoint,
+        ...schemaV2FeatureData(auditedCandidate),
+        title: auditedCandidate.title,
+        externalTtNumber: nextExternalTtNumber,
+        impactList: auditedCandidate.impactList,
+        occurAt: auditedCandidate.occurAt,
+        dispatchAt: auditedCandidate.dispatchAt,
+        pic: auditedCandidate.pic,
+        rootcause: auditedCandidate.rootcause,
+        cutPoint: auditedCandidate.cutPoint,
         updatedAt: serverTimestamp(),
         updatedBy: user.uid,
-        revision: Number(expectedRevision) + 1,
+        revision: revisionTo,
       });
-      transaction.set(auditRef, auditData('TICKET_UPDATED', user.uid));
+      transaction.set(
+        auditRef,
+        auditData('TICKET_UPDATED', user.uid, audit.details, {
+          revisionFrom: audit.revisionFrom,
+          revisionTo: audit.revisionTo,
+        }),
+      );
     });
 
     const snapshot = await getDoc(ticketRef);

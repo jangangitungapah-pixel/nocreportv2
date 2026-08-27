@@ -1,4 +1,4 @@
-export { createEmptyTicket, normalizeTicket } from './model/ticket.js';
+export { createEmptyTicket, normalizeTicket, TICKET_TITLE_MODE } from './model/ticket.js';
 export {
   TICKET_STATUS,
   isTicketStatus,
@@ -20,3 +20,9 @@ export {
   parseCoordinateText,
   validateCoordinatePair,
 } from './lib/coordinates.js';
+export {
+  REVISION_DIFF_ALARM_FIELDS,
+  REVISION_DIFF_FIELDS,
+  buildOperationalRevisionDiff,
+  buildTicketUpdatedAuditDetails,
+} from './lib/revision-diff.js';

@@ -1,7 +1,9 @@
 import { useState } from 'react';
 
 import { formatProgressTime, sortProgressTimeline } from '../../../entities/ticket/index.js';
-import { Button, DateTimeField, IconButton, Textarea } from '../../../shared/ui/index.jsx';
+import { AppIcon } from '../../../shared/ui/icon.jsx';
+import { Button } from '../../../shared/ui/primitives.jsx';
+import { DateTimeField, Textarea } from '../../../shared/ui/index.jsx';
 
 function toInputValue(value) {
   const date = value instanceof Date ? value : new Date(value);
@@ -60,16 +62,22 @@ export function ProgressTimeline({ entries, onUpdate, onRemove }) {
 
   if (sorted.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-[var(--border-default)] bg-[var(--surface-panel)] p-5 text-sm text-[var(--text-secondary)]">
+      <div className="generator-operations-empty generator-progress-empty rounded-[var(--radius-panel)] border border-dashed border-[var(--border-default)] bg-[var(--surface-panel)] px-3 py-3 text-xs font-medium text-[var(--text-muted)]">
         No progress updates yet.
       </div>
     );
   }
 
   return (
-    <section className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-5 shadow-[var(--shadow-sm)]">
-      <h3 className="text-sm font-bold">Recorded Progress</h3>
-      <div className="mt-4 space-y-2">
+    <section className="generator-operations-surface generator-progress-history overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+      <header className="generator-operations-header generator-progress-history__header flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
+        <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Recorded Progress</h3>
+        <span className="font-mono text-[9.5px] font-semibold text-[var(--text-faint)]">
+          {sorted.length} update{sorted.length === 1 ? '' : 's'}
+        </span>
+      </header>
+
+      <div className="divide-y divide-[var(--border-subtle)]">
         {sorted.map((entry) => {
           const group = dateKey(entry.occurredAt);
           const showGroup = group !== lastDate;
@@ -79,14 +87,14 @@ export function ProgressTimeline({ entries, onUpdate, onRemove }) {
           return (
             <div key={entry.id}>
               {showGroup ? (
-                <p className="pb-2 pt-3 text-xs font-bold uppercase tracking-[0.1em] text-[var(--text-muted)] first:pt-0">
+                <div className="generator-progress-date-band bg-[var(--surface-muted)] px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)]">
                   {group}
-                </p>
+                </div>
               ) : null}
 
               {editing ? (
-                <div className="rounded-xl border border-[var(--accent-solid)] bg-[var(--accent-soft)] p-3">
-                  <div className="grid gap-3 md:grid-cols-[210px_minmax(0,1fr)]">
+                <div className="generator-progress-editing grid gap-2.5 bg-[var(--accent-soft)] px-3 py-3">
+                  <div className="grid gap-2.5 md:grid-cols-[190px_minmax(0,1fr)]">
                     <DateTimeField
                       id={`edit-progress-time-${entry.id}`}
                       label="Event time"
@@ -105,26 +113,40 @@ export function ProgressTimeline({ entries, onUpdate, onRemove }) {
                       }}
                     />
                   </div>
-                  <div className="mt-3 flex justify-end gap-2">
-                    <Button tone="secondary" onClick={cancelEdit}>
+                  <div className="flex justify-end gap-1.5">
+                    <Button tone="ghost" size="sm" onClick={cancelEdit}>
                       Cancel
                     </Button>
-                    <Button onClick={() => saveEdit(entry)}>Save correction</Button>
+                    <Button size="sm" onClick={() => saveEdit(entry)}>
+                      Save correction
+                    </Button>
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-[52px_minmax(0,1fr)_auto] items-start gap-3 rounded-lg px-2 py-2 hover:bg-[var(--surface-muted)]">
-                  <time className="pt-1 text-sm font-bold tabular-nums text-[var(--text-muted)]">
+                <div className="generator-progress-entry group grid gap-2 px-3 py-2.5 sm:grid-cols-[64px_minmax(0,1fr)_auto] sm:items-start">
+                  <time className="pt-0.5 font-mono text-[10.5px] font-bold tabular-nums text-[var(--accent-text)]">
                     {formatProgressTime(entry.occurredAt)}
                   </time>
-                  <p className="pt-1 text-sm leading-5 text-[var(--text-primary)]">{entry.text}</p>
-                  <div className="flex gap-1">
-                    <IconButton label="Edit progress update" onClick={() => beginEdit(entry)}>
-                      ✎
-                    </IconButton>
-                    <IconButton label="Remove progress update" onClick={() => onRemove(entry.id)}>
-                      ×
-                    </IconButton>
+                  <p className="whitespace-pre-wrap text-[12.5px] font-medium leading-5 text-[var(--text-primary)]">
+                    {entry.text}
+                  </p>
+                  <div className="flex justify-end gap-1 sm:opacity-65 sm:transition-opacity sm:group-hover:opacity-100">
+                    <Button
+                      tone="ghost"
+                      size="icon"
+                      aria-label="Edit progress update"
+                      onClick={() => beginEdit(entry)}
+                    >
+                      <AppIcon name="edit" size={14} />
+                    </Button>
+                    <Button
+                      tone="ghost"
+                      size="icon"
+                      aria-label="Remove progress update"
+                      onClick={() => onRemove(entry.id)}
+                    >
+                      <AppIcon name="close" size={14} />
+                    </Button>
                   </div>
                 </div>
               )}

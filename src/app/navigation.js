@@ -6,14 +6,14 @@ export const PRIMARY_NAVIGATION = [
     label: 'Dashboard',
     shortLabel: 'Home',
     to: '/dashboard',
-    icon: 'D',
+    icon: 'dashboard',
   },
   {
     key: 'generator',
     label: 'Template Generator',
     shortLabel: 'Generate',
     to: '/generator/new',
-    icon: 'G',
+    icon: 'generator',
     requiredCapability: CAPABILITY.CREATE_TICKET,
   },
   {
@@ -21,24 +21,58 @@ export const PRIMARY_NAVIGATION = [
     label: 'Running Ticket',
     shortLabel: 'Running',
     to: '/running',
-    icon: 'R',
+    icon: 'running',
   },
   {
     key: 'cut-points',
     label: 'Cut Point Tracker',
     shortLabel: 'Map',
     to: '/cut-points',
-    icon: 'M',
+    icon: 'map',
   },
   {
     key: 'archive',
     label: 'Archive & Restore',
     shortLabel: 'Archive',
     to: '/archive',
-    icon: 'A',
+    icon: 'archive',
     requiredCapability: CAPABILITY.ARCHIVE_RESTORE,
   },
 ];
+
+const PAGE_META = Object.freeze({
+  dashboard: Object.freeze({ key: 'dashboard', label: 'Dashboard', eyebrow: 'Operations' }),
+  generator: Object.freeze({
+    key: 'generator',
+    label: 'Template Generator',
+    eyebrow: 'Ticket workspace',
+  }),
+  running: Object.freeze({ key: 'running', label: 'Running Ticket', eyebrow: 'Live queue' }),
+  cutPoints: Object.freeze({
+    key: 'cut-points',
+    label: 'Cut Point Tracker',
+    eyebrow: 'Spatial operations',
+  }),
+  archive: Object.freeze({
+    key: 'archive',
+    label: 'Archive & Restore',
+    eyebrow: 'Lifecycle history',
+  }),
+  ticketDetail: Object.freeze({
+    key: 'ticket-detail',
+    label: 'Ticket Detail',
+    eyebrow: 'Safe review',
+  }),
+});
+
+export function getPageMeta(pathname) {
+  if (pathname.startsWith('/tickets')) return PAGE_META.ticketDetail;
+  if (pathname.startsWith('/generator')) return PAGE_META.generator;
+  if (pathname.startsWith('/running')) return PAGE_META.running;
+  if (pathname.startsWith('/cut-points')) return PAGE_META.cutPoints;
+  if (pathname.startsWith('/archive')) return PAGE_META.archive;
+  return PAGE_META.dashboard;
+}
 
 export function isNavigationItemActive(pathname, item) {
   if (item.key === 'generator') {
