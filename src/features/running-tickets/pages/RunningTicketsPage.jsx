@@ -415,7 +415,7 @@ export function RunningTicketsPage() {
       : 'Try a different TT number, title, PIC, Cut Point, search term, or coordinate filter.';
 
   return (
-    <div className="grid gap-3">
+    <div className="page-stack running-page grid gap-3">
       <PageHeader
         title="Running Tickets"
         eyebrow="Live queue"

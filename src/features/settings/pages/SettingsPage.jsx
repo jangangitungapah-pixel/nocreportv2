@@ -84,7 +84,7 @@ export function SettingsPage() {
   };
 
   return (
-    <div className="grid gap-3">
+    <div className="page-stack settings-page grid gap-3">
       <PageHeader
         title="Settings"
         eyebrow="Workspace"

@@ -393,7 +393,7 @@ export function ArchiveManagementPage() {
   );
 
   return (
-    <div className="grid gap-3">
+    <div className="page-stack archive-page grid gap-3">
       <PageHeader
         title="Archive & Restore"
         eyebrow="Admin lifecycle controls"

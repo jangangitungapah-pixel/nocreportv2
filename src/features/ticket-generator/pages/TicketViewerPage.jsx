@@ -141,7 +141,7 @@ export function TicketViewerPage() {
   const lifecycleLabel = ticket.status === TICKET_STATUS.RUNNING ? 'Running Queue' : 'Lifecycle';
 
   return (
-    <div className="grid gap-3">
+    <div className="page-stack ticket-viewer-page grid gap-3">
       <PageHeader
         title={ticket.externalTtNumber || 'Ticket Detail'}
         eyebrow="Read-only inspection"

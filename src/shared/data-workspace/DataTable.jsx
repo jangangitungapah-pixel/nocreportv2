@@ -63,7 +63,7 @@ function DefaultMobileRow({ row, table }) {
   const secondaryCells = cells.filter((cell) => cell !== primaryCell);
 
   return (
-    <article className="rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-3 shadow-[var(--shadow-xs)]">
+    <article className="data-mobile-card rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-3 shadow-[var(--shadow-xs)]">
       {primaryCell ? (
         <div className="text-sm font-bold tracking-[-0.01em] text-[var(--text-primary)]">
           <table.FlexRender cell={primaryCell} />
@@ -249,7 +249,7 @@ export function DataTable({
             </table>
           </div>
 
-          <div className="grid gap-2 md:hidden" data-testid="data-table-mobile" role="list">
+          <div className="data-mobile-list grid gap-2 md:hidden" data-testid="data-table-mobile" role="list">
             {rows.map((row) => (
               <div key={row.id} role="listitem">
                 {MobileRow ? (

@@ -28,6 +28,8 @@ import { useAuth } from '../providers/AuthProvider.jsx';
 import { useTheme } from '../providers/ThemeProvider.jsx';
 import { useToast } from '../providers/ToastProvider.jsx';
 
+const MOBILE_NAVIGATION_KEYS = new Set(['dashboard', 'generator', 'running', 'cut-points']);
+
 function NavigationLink({ item }) {
   const location = useLocation();
   const active = isNavigationItemActive(location.pathname, item);
@@ -36,7 +38,7 @@ function NavigationLink({ item }) {
     <Link
       to={item.to}
       aria-current={active ? 'page' : undefined}
-      className={`group flex min-h-[38px] select-none items-center gap-2 rounded-[var(--radius-control)] border px-2.5 text-xs font-bold tracking-[-0.01em] transition-[background-color,border-color,color] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
+      className={`app-nav-link group flex min-h-[38px] select-none items-center gap-2 rounded-[var(--radius-control)] border px-2.5 text-xs font-bold tracking-[-0.01em] transition-[background-color,border-color,color] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] ${
         active
           ? 'border-[var(--border-accent)] bg-[var(--accent-soft)] text-[var(--accent-text)]'
           : 'border-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] hover:text-[var(--text-primary)]'
@@ -100,6 +102,7 @@ export function AppShell() {
   const visibleNavigation = PRIMARY_NAVIGATION.filter(
     (item) => !item.requiredCapability || can(item.requiredCapability),
   );
+  const mobileNavigation = visibleNavigation.filter((item) => MOBILE_NAVIGATION_KEYS.has(item.key));
   const accountLabel = localDevelopmentMode
     ? 'Local development'
     : profile?.displayName || profile?.email || 'Firebase user';
@@ -136,11 +139,11 @@ export function AppShell() {
 
   return (
     <TooltipProvider delayDuration={350}>
-      <div className="min-h-screen text-[var(--text-primary)]">
+      <div className="app-shell min-h-screen text-[var(--text-primary)]">
         <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
 
-        <aside className="fixed inset-y-0 left-0 z-40 hidden w-[244px] border-r border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] p-2.5 backdrop-blur-2xl lg:flex lg:flex-col">
-          <div className="flex min-h-[52px] items-center px-2">
+        <aside className="app-shell__sidebar fixed inset-y-0 left-0 z-40 hidden w-[220px] border-r border-[var(--border-subtle)] bg-[var(--surface-panel)] p-2.5 lg:flex lg:flex-col">
+          <div className="app-shell__brand flex min-h-[52px] items-center px-2">
             <BrandLockup eager />
           </div>
 
@@ -163,7 +166,7 @@ export function AppShell() {
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="flex min-h-[44px] w-full items-center gap-2 rounded-[var(--radius-control)] px-2 text-left transition-colors hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                  className="app-shell__account flex min-h-[44px] w-full items-center gap-2 rounded-[var(--radius-control)] px-2 text-left transition-colors hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                   aria-label="Open account menu"
                 >
                   <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[8px] bg-[var(--accent-soft)] text-[10px] font-extrabold text-[var(--accent-text)]">
@@ -206,8 +209,8 @@ export function AppShell() {
           </div>
         </aside>
 
-        <div className="lg:pl-[244px]">
-          <header className="sticky top-0 z-30 border-b border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] backdrop-blur-2xl">
+        <div className="app-shell__content lg:pl-[220px]">
+          <header className="app-shell__topbar sticky top-0 z-30 border-b border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] backdrop-blur-2xl">
             <div className="mx-auto flex min-h-[50px] w-full max-w-[var(--page-max)] items-center justify-between gap-3 px-3 md:px-4 lg:px-5">
               <PageHeader
                 variant="shell"
@@ -226,7 +229,7 @@ export function AppShell() {
                 <button
                   type="button"
                   onClick={() => setCommandOpen(true)}
-                  className="hidden min-h-[34px] items-center gap-2 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-2.5 text-xs font-bold text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] md:flex"
+                  className="app-shell__command-trigger hidden min-h-[34px] items-center gap-2 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-2.5 text-xs font-semibold text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-muted)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] md:flex"
                   aria-label="Open command palette"
                 >
                   <AppIcon name="search" size={14} />
@@ -264,17 +267,17 @@ export function AppShell() {
             </div>
           </header>
 
-          <main className="mx-auto w-full max-w-[var(--page-max)] px-3 pb-24 pt-3 md:px-4 md:pt-4 lg:px-5 lg:pb-8">
+          <main className="app-shell__main mx-auto w-full max-w-[var(--page-max)] px-3 pb-24 pt-3 md:px-4 md:pt-4 lg:px-5 lg:pb-8">
             <Outlet key={`${location.pathname}:${workspaceRevision}`} />
           </main>
         </div>
 
         <nav
-          className="fixed inset-x-2 bottom-2 z-50 grid gap-0.5 rounded-[14px] border border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] p-1 pb-[max(0.25rem,env(safe-area-inset-bottom))] shadow-[var(--shadow-lg)] backdrop-blur-2xl lg:hidden"
-          style={{ gridTemplateColumns: `repeat(${visibleNavigation.length}, minmax(0, 1fr))` }}
+          className="app-shell__mobile-nav fixed inset-x-2 bottom-2 z-50 grid gap-0.5 rounded-[14px] border border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] p-1 pb-[max(0.25rem,env(safe-area-inset-bottom))] shadow-[var(--shadow-lg)] backdrop-blur-2xl lg:hidden"
+          style={{ gridTemplateColumns: `repeat(${mobileNavigation.length}, minmax(0, 1fr))` }}
           aria-label="Mobile primary navigation"
         >
-          {visibleNavigation.map((item) => {
+          {mobileNavigation.map((item) => {
             const active = isNavigationItemActive(location.pathname, item);
             return (
               <Link

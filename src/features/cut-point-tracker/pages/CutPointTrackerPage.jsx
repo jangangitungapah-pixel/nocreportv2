@@ -525,7 +525,7 @@ export function CutPointTrackerPage() {
   );
 
   return (
-    <div className="grid gap-3 overflow-x-hidden">
+    <div className="page-stack cut-point-page grid gap-3 overflow-x-hidden">
       <PageHeader
         title="Cut Point Tracker"
         eyebrow="Geographic incident view"

@@ -77,7 +77,7 @@ export function DataWorkspaceEmptyState({
   return (
     <div
       className={cn(
-        'grid min-h-40 place-items-center rounded-[var(--radius-panel)] border border-dashed border-[var(--border-default)] bg-[var(--surface-panel)] px-4 py-8 text-center',
+        'data-workspace-empty grid min-h-40 place-items-center rounded-[var(--radius-panel)] border border-dashed border-[var(--border-default)] bg-[var(--surface-panel)] px-4 py-8 text-center',
         className,
       )}
     >

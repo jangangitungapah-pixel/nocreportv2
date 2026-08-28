@@ -1655,7 +1655,7 @@ export function TicketGeneratorPage() {
   );
 
   return (
-    <div className="generator-cockpit grid gap-3">
+    <div className="page-stack generator-cockpit grid gap-3">
       <PageHeader
         title={routeTicketId ? 'Edit Ticket' : 'New Ticket'}
         eyebrow="Template Generator"
@@ -1685,7 +1685,7 @@ export function TicketGeneratorPage() {
         id="generator-editor-preview"
         primaryId="editor"
         secondaryId="preview"
-        primaryDefault={64}
+        primaryDefault={61}
         primaryMin="500px"
         secondaryMin="320px"
         primary={editor}

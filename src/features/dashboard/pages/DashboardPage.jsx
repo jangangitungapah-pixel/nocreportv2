@@ -28,24 +28,21 @@ function formatDateTime(value) {
 }
 
 const METRIC_META = Object.freeze([
-  { key: 'runningCount', label: 'Running', hint: 'active now', accent: 'var(--success-solid)' },
+  { key: 'runningCount', label: 'Running', hint: 'active now' },
   {
     key: 'ticketsTodayCount',
     label: 'Today',
     hint: 'occurred today',
-    accent: 'var(--accent-solid)',
   },
   {
     key: 'resolvedTodayCount',
     label: 'Resolved',
     hint: 'resolved today',
-    accent: 'var(--accent-cyan)',
   },
   {
     key: 'cutPointCount',
     label: 'Cut Points',
     hint: 'with coordinates',
-    accent: 'var(--accent-violet)',
   },
 ]);
 
@@ -53,34 +50,29 @@ function MetricStrip({ summary }) {
   return (
     <section
       aria-label="Today's operational pulse"
-      className="grid overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)] sm:grid-cols-2 xl:grid-cols-4"
+      className="dashboard-metric-strip grid overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)] sm:grid-cols-2 xl:grid-cols-4"
     >
       {METRIC_META.map((metric, index) => (
         <article
           key={metric.key}
-          className="relative min-h-[78px] px-3 py-2.5 sm:px-4 xl:border-l xl:border-[var(--border-subtle)] xl:first:border-l-0"
+          className="dashboard-metric relative min-h-[78px] px-3 py-2.5 sm:px-4 xl:border-l xl:border-[var(--border-subtle)] xl:first:border-l-0"
         >
-          <span
-            className="absolute inset-x-0 top-0 h-0.5 opacity-80"
-            style={{ background: metric.accent }}
-            aria-hidden="true"
-          />
           {index > 0 ? (
             <span
-              className="absolute inset-x-3 top-0 h-px bg-[var(--border-subtle)] sm:hidden"
+              className="dashboard-metric__mobile-divider absolute inset-x-3 top-0 h-px bg-[var(--border-subtle)] sm:hidden"
               aria-hidden="true"
             />
           ) : null}
-          <div className="flex items-end justify-between gap-3">
+          <div className="dashboard-metric__layout flex items-end justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.11em] text-[var(--text-muted)]">
+              <p className="dashboard-metric__label text-[10px] font-bold uppercase tracking-[0.11em] text-[var(--text-muted)]">
                 {metric.label}
               </p>
-              <p className="mt-1 font-[var(--font-display)] text-[28px] font-bold leading-none tracking-[-0.055em] text-[var(--text-primary)]">
+              <p className="dashboard-metric__value mt-1 font-[var(--font-display)] text-[26px] font-semibold leading-none tracking-[-0.05em] text-[var(--text-primary)]">
                 {summary[metric.key]}
               </p>
             </div>
-            <span className="mb-0.5 text-[10px] font-semibold text-[var(--text-faint)]">
+            <span className="dashboard-metric__hint mb-0.5 text-[10px] font-medium text-[var(--text-faint)]">
               {metric.hint}
             </span>
           </div>
@@ -125,7 +117,7 @@ function RecentActivity({ tickets }) {
   return (
     <section
       aria-labelledby="dashboard-recent-heading"
-      className="overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
+      className="dashboard-activity overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
     >
       <div className="flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3 md:px-4">
         <div className="flex min-w-0 items-center gap-2.5">
@@ -145,12 +137,13 @@ function RecentActivity({ tickets }) {
       </div>
 
       {tickets.length === 0 ? (
-        <div className="grid min-h-36 place-items-center px-4 py-7 text-center">
-          <div>
-            <p className="text-sm font-semibold text-[var(--text-secondary)]">
+        <div className="dashboard-activity__empty grid min-h-28 place-items-center px-4 py-6 text-center">
+          <div className="max-w-sm">
+            <span className="dashboard-activity__empty-mark mx-auto mb-3 block h-1 w-8 rounded-full bg-[var(--accent-solid)]" aria-hidden="true" />
+            <p className="text-[13px] font-semibold text-[var(--text-secondary)]">
               No persisted Tickets yet.
             </p>
-            <p className="mt-1 text-xs text-[var(--text-muted)]">
+            <p className="mt-1 text-[11px] text-[var(--text-muted)]">
               Recent operational activity will appear here.
             </p>
           </div>
@@ -203,7 +196,7 @@ export function DashboardPage() {
   }, [loadSummary]);
 
   return (
-    <div className="grid gap-3">
+    <div className="page-stack dashboard-page grid gap-3">
       <PageHeader
         title="Operational overview"
         eyebrow="Dashboard"
