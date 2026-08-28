@@ -340,7 +340,7 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
 
         <div id={VALIDATION_CENTER_CONTENT_ID} hidden={isCollapsed}>
           <div className="generator-readiness-metrics grid gap-2 border-b border-[var(--border-subtle)] p-3 sm:grid-cols-2 xl:grid-cols-5">
-            <Metric label="Incident elapsed" value={time.incidentElapsedMs} />
+            <Metric label="MTTR" value={time.mttrMs} />
             <Metric label="Dispatch delay" value={time.dispatchDelayMs} />
             <Metric label="Latest Progress age" value={time.latestProgressAgeMs} />
             <Metric label="Resolved duration" value={time.resolvedDurationMs} />
