@@ -2,6 +2,7 @@ const DEFAULT_TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const DEFAULT_ATTRIBUTION = '© OpenStreetMap contributors';
 const INDONESIA_CENTER = [-2.5, 118];
 const INDONESIA_ZOOM = 5;
+const MARKER_FOCUS_ZOOM = 13;
 
 export const MAP_MARKER_TOUCH_SIZE = 44;
 
@@ -10,6 +11,22 @@ export function readMapConfig(env = import.meta.env) {
     tileUrl: String(env?.VITE_MAP_TILE_URL ?? '').trim() || DEFAULT_TILE_URL,
     attribution: String(env?.VITE_MAP_ATTRIBUTION ?? '').trim() || DEFAULT_ATTRIBUTION,
   };
+}
+
+export function isValidLeafletCoordinate(latitude, longitude) {
+  return (
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude) &&
+    latitude >= -90 &&
+    latitude <= 90 &&
+    longitude >= -180 &&
+    longitude <= 180
+  );
+}
+
+export function safeFocusZoom(zoom) {
+  const numericZoom = Number(zoom);
+  return Number.isFinite(numericZoom) ? Math.max(numericZoom, MARKER_FOCUS_ZOOM) : MARKER_FOCUS_ZOOM;
 }
 
 function textLine(label, value) {
@@ -95,8 +112,12 @@ export async function createLeafletMap({
 
     const coordinates = [];
     for (const markerData of markers) {
+      const latitude = Number(markerData?.latitude);
+      const longitude = Number(markerData?.longitude);
+      if (!markerData?.ticketId || !isValidLeafletCoordinate(latitude, longitude)) continue;
+
       const markerLabel = markerData.externalTtNumber || markerData.title || 'Cut Point';
-      const marker = L.marker([markerData.latitude, markerData.longitude], {
+      const marker = L.marker([latitude, longitude], {
         icon: markerIcon,
         keyboard: true,
         title: markerLabel,
@@ -105,22 +126,35 @@ export async function createLeafletMap({
       marker.bindPopup(createPopupNode(markerData, onOpenTicket), { maxWidth: 320 });
       marker.addTo(markerLayer);
       markerReferences.set(markerData.ticketId, marker);
-      coordinates.push([markerData.latitude, markerData.longitude]);
+      coordinates.push([latitude, longitude]);
     }
 
     if (coordinates.length === 0) {
       map.setView(INDONESIA_CENTER, INDONESIA_ZOOM);
     } else if (coordinates.length === 1) {
-      map.setView(coordinates[0], 13);
+      map.setView(coordinates[0], MARKER_FOCUS_ZOOM);
     } else {
-      map.fitBounds(coordinates, { padding: [36, 36], maxZoom: 13 });
+      map.fitBounds(coordinates, { padding: [36, 36], maxZoom: MARKER_FOCUS_ZOOM });
     }
   }
 
   function focusMarker(ticketId) {
     const marker = markerReferences.get(ticketId);
     if (!marker) return false;
-    map.flyTo(marker.getLatLng(), Math.max(map.getZoom(), 13), { duration: 0.35 });
+
+    const latLng = marker.getLatLng();
+    if (!isValidLeafletCoordinate(Number(latLng?.lat), Number(latLng?.lng))) return false;
+
+    /*
+     * ResizableWorkspace can briefly leave Leaflet with a stale/zero cached viewport
+     * while its panels settle. Leaflet flyTo() performs animated projection math from
+     * that viewport and can turn it into NaN coordinates. Refresh the size and use a
+     * deterministic non-animated focus instead. The visible result is the same for the
+     * operator, while avoiding the invalid LatLng animation loop.
+     */
+    map.stop();
+    map.invalidateSize({ pan: false, debounceMoveend: true });
+    map.setView(latLng, safeFocusZoom(map.getZoom()), { animate: false });
     marker.openPopup();
     return true;
   }
