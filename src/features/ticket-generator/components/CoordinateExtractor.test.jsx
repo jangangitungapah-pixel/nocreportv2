@@ -96,7 +96,9 @@ describe('CoordinateExtractor', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Scan coordinates' }));
 
     await waitFor(() => {
-      expect(screen.getByText(/Gemini did not find a visible supported coordinate pair/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Gemini did not find a visible supported coordinate pair/),
+      ).toBeInTheDocument();
     });
   });
 });
