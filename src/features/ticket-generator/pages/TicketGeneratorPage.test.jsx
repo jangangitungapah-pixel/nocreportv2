@@ -165,7 +165,8 @@ Update Progress
       target: { value: 'SITE_MAJALENGKA' },
     });
 
-    expect(preview).toHaveTextContent('Title : *[MANDAU] LINK DOWN, [TT : INC-20260818-00015849]*');
+    expect(preview).toHaveTextContent('*[MANDAU] LINK DOWN, [TT : INC-20260818-00015849]*');
+    expect(preview).not.toHaveTextContent('Title :');
     expect(preview).toHaveTextContent('Impact List : 1. SITE_MAJALENGKA');
     expect(screen.getByText('INC-20260818-00015849', { selector: 'strong' })).toBeInTheDocument();
   });
