@@ -86,6 +86,7 @@ export async function saveTicketEditorCore({
       impactList: ticket.impactList,
       occurAt: ticket.occurAt,
       dispatchAt: ticket.dispatchAt,
+      closedAt: ticket.closedAt,
       pic: ticket.pic,
       rootcause: ticket.rootcause,
       cutPoint: ticket.cutPoint,
