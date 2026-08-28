@@ -401,13 +401,13 @@
   .generator-cockpit .generator-report-preview {
     position: sticky;
     top: 0.5rem;
-    height: auto !important;
+    height: auto;
     min-height: 0;
     max-height: min(72vh, 52rem);
   }
 
   .generator-cockpit .generator-report-preview__surface {
-    height: auto !important;
+    height: auto;
     min-height: 0;
     max-height: min(72vh, 52rem);
   }
@@ -418,7 +418,7 @@
   }
 
   .generator-cockpit .generator-report-preview__document {
-    height: auto !important;
+    height: auto;
     min-height: 24rem;
     max-height: min(60vh, 44rem);
   }
