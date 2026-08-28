@@ -347,3 +347,18 @@
     line-height: 1.58;
   }
 }
+
+/*
+ * When an uploaded preview is an <img>, the metadata/action container becomes the
+ * first <div> child. The preview selectors above must not leave that content box
+ * with preview dimensions, otherwise the Scan coordinates action gets clipped.
+ */
+.generator-cockpit #generator-stage-response .generator-ocr-dropzone > div.min-w-0 {
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  font-size: inherit;
+  letter-spacing: normal;
+}
