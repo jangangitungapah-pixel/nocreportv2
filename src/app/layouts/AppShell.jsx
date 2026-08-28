@@ -26,6 +26,7 @@ import { PageHeader } from '../components/PageHeader.jsx';
 import { PRIMARY_NAVIGATION, isNavigationItemActive } from '../navigation.js';
 import { useAuth } from '../providers/AuthProvider.jsx';
 import { useTheme } from '../providers/ThemeProvider.jsx';
+import { useToast } from '../providers/ToastProvider.jsx';
 
 function NavigationLink({ item }) {
   const location = useLocation();
@@ -59,22 +60,31 @@ function NavigationLink({ item }) {
 
 function ticketWorkspaceSubscription(pathname) {
   if (pathname.startsWith('/dashboard')) {
-    return { scope: TICKET_WORKSPACE_SCOPE.DASHBOARD, ticketId: null };
+    return { scope: TICKET_WORKSPACE_SCOPE.DASHBOARD, ticketId: null, behavior: 'refresh' };
   }
   if (pathname.startsWith('/running')) {
-    return { scope: TICKET_WORKSPACE_SCOPE.RUNNING, ticketId: null };
+    return { scope: TICKET_WORKSPACE_SCOPE.RUNNING, ticketId: null, behavior: 'refresh' };
   }
   if (pathname.startsWith('/cut-points')) {
-    return { scope: TICKET_WORKSPACE_SCOPE.CUT_POINTS, ticketId: null };
+    return { scope: TICKET_WORKSPACE_SCOPE.CUT_POINTS, ticketId: null, behavior: 'refresh' };
   }
   if (pathname.startsWith('/archive')) {
-    return { scope: TICKET_WORKSPACE_SCOPE.ARCHIVE, ticketId: null };
+    return { scope: TICKET_WORKSPACE_SCOPE.ARCHIVE, ticketId: null, behavior: 'refresh' };
   }
   if (pathname.startsWith('/tickets/')) {
     const ticketId = pathname.split('/')[2];
     return {
       scope: TICKET_WORKSPACE_SCOPE.TICKET,
       ticketId: ticketId ? decodeURIComponent(ticketId) : null,
+      behavior: 'refresh',
+    };
+  }
+  if (pathname.startsWith('/generator/') && pathname.endsWith('/edit')) {
+    const ticketId = pathname.split('/')[2];
+    return {
+      scope: TICKET_WORKSPACE_SCOPE.TICKET,
+      ticketId: ticketId ? decodeURIComponent(ticketId) : null,
+      behavior: 'warn',
     };
   }
   return null;
@@ -86,6 +96,7 @@ export function AppShell() {
   const [workspaceRevision, setWorkspaceRevision] = useState(0);
   const { can, firebaseConfigured, localDevelopmentMode, profile, role, signOut } = useAuth();
   const { theme, setTheme, toggleTheme } = useTheme();
+  const { pushToast } = useToast();
   const visibleNavigation = PRIMARY_NAVIGATION.filter(
     (item) => !item.requiredCapability || can(item.requiredCapability),
   );
@@ -98,11 +109,22 @@ export function AppShell() {
   );
   const workspaceScope = workspaceSubscription?.scope ?? null;
   const workspaceTicketId = workspaceSubscription?.ticketId ?? null;
+  const workspaceBehavior = workspaceSubscription?.behavior ?? 'refresh';
 
   useEffect(() => {
     if (!workspaceScope || localDevelopmentMode) return undefined;
     return subscribeTicketWorkspaceChanges(
-      () => setWorkspaceRevision((current) => current + 1),
+      (change) => {
+        if (workspaceBehavior === 'warn') {
+          pushToast({
+            title: 'Ticket changed in another tab',
+            message: `A newer persisted revision${change.revision ? ` (${change.revision})` : ''} exists. Your editor was kept intact; review the latest Ticket before saving if needed.`,
+            tone: 'warning',
+          });
+          return;
+        }
+        setWorkspaceRevision((current) => current + 1);
+      },
       {
         scopes: [workspaceScope],
         ticketId: workspaceTicketId,
@@ -110,7 +132,7 @@ export function AppShell() {
         ignoreCurrentSource: true,
       },
     );
-  }, [localDevelopmentMode, workspaceScope, workspaceTicketId]);
+  }, [localDevelopmentMode, pushToast, workspaceBehavior, workspaceScope, workspaceTicketId]);
 
   return (
     <TooltipProvider delayDuration={350}>
