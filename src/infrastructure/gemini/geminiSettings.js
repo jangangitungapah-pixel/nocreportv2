@@ -23,7 +23,7 @@ export function saveGeminiApiKey(apiKey) {
   try {
     if (normalized) window.localStorage.setItem(STORAGE_KEY, normalized);
     else window.localStorage.removeItem(STORAGE_KEY);
-    window.dispatchEvent(new Event(SETTINGS_EVENT));
+    window.dispatchEvent(new globalThis.Event(SETTINGS_EVENT));
   } catch {
     // A privacy-restricted browser may reject localStorage. The caller still keeps
     // the in-memory value, while OCR will surface that no persisted key is available.
