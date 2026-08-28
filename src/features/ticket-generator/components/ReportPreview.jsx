@@ -33,7 +33,6 @@ function deriveCopilot(validation) {
   const findings = validation?.findings ?? [];
   const blocking = findings.find((item) => item.severity === 'blocking') ?? null;
   const warning = findings.find((item) => item.severity === 'warning') ?? null;
-  const next = blocking ?? warning;
 
   if (blocking?.source === 'import') {
     return {
