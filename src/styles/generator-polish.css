@@ -8,11 +8,7 @@
 
 .generator-cockpit {
   --generator-polish-divider: color-mix(in srgb, var(--border-subtle) 68%, transparent);
-  --generator-polish-divider-strong: color-mix(
-    in srgb,
-    var(--border-default) 64%,
-    transparent
-  );
+  --generator-polish-divider-strong: color-mix(in srgb, var(--border-default) 64%, transparent);
   --generator-polish-hover: color-mix(in srgb, var(--accent-soft) 13%, transparent);
   gap: 0.7rem;
 }
