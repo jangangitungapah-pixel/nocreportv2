@@ -11,6 +11,7 @@ import './styles/generator-final-polish.css';
 import './styles/generator-focus.css';
 import './styles/generator-header-polish.css';
 import './styles/generator-refinement.css';
+import './styles/cut-point-tracker-polish.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
