@@ -1,0 +1,18 @@
+/*
+ * Generator incident timing alignment.
+ *
+ * DateTimeField uses an internal CSS grid. Timing fields with helper text have
+ * one more row than fields without helper text, so stretching the outer grid
+ * items can distribute extra vertical space and push the shorter field's input
+ * downward. Keep every timing field content-start aligned instead.
+ */
+
+.generator-timing-grid {
+  align-items: start;
+}
+
+.generator-timing-grid > * {
+  min-width: 0;
+  align-self: start;
+  align-content: start;
+}
