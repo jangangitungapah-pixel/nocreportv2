@@ -116,7 +116,10 @@ function groupEventsByDay(events) {
 
 function AuditLoadingSkeleton() {
   return (
-    <div className="generator-audit-loading grid gap-1.5 px-3 py-2.5" aria-label="Loading revision history">
+    <div
+      className="generator-audit-loading grid gap-1.5 px-3 py-2.5"
+      aria-label="Loading revision history"
+    >
       {[0, 1, 2].map((row) => (
         <div key={row} className="flex items-center gap-2" aria-hidden="true">
           <span className="size-1.5 rounded-full bg-[var(--border-default)]" />
