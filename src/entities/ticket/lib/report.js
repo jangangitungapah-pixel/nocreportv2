@@ -36,6 +36,9 @@ export function formatTicketReport(ticket = {}) {
 
   lines.push(`Occur Time = ${formatDateTime(ticket.occurAt)}`);
   lines.push(`Dispatch Time = ${formatDateTime(ticket.dispatchAt)}`);
+  if (ticket.closedAt) {
+    lines.push(`Closed Time = ${formatDateTime(ticket.closedAt)}`);
+  }
   lines.push(`PIC = ${reportValue(ticket.pic)}`);
   lines.push(`Rootcause = ${reportValue(ticket.rootcause)}`);
   lines.push(`Cut Point = ${reportValue(ticket.cutPoint)}`);
