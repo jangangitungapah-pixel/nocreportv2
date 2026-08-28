@@ -50,6 +50,16 @@ describe('Cut Point marker data', () => {
     });
   });
 
+  it('does not coerce blank or missing persisted coordinates to zero', () => {
+    const markers = buildCutPointMarkers([
+      ticket({ id: 'blank', coordinate: { latitude: '', longitude: '', verified: true } }),
+      ticket({ id: 'null', coordinate: { latitude: null, longitude: null, verified: true } }),
+      ticket({ id: 'undefined', coordinate: { latitude: undefined, longitude: 107, verified: true } }),
+    ]);
+
+    expect(markers).toEqual([]);
+  });
+
   it('filters markers by status and operational search fields', () => {
     const markers = buildCutPointMarkers([
       ticket(),
