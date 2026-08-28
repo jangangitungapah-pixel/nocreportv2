@@ -34,4 +34,15 @@ describe('form to Ticket coordinate metadata', () => {
     expect(ticket.coordinate).toBeNull();
     expect(ticket.hasCoordinates).toBe(false);
   });
+
+  it('maps optional Closed Time into Ticket timing', () => {
+    const ticket = buildTicketFromForm({
+      ...DEFAULT_TICKET_FORM,
+      occurAt: '2026-08-26T19:00',
+      closedAt: '2026-08-26T20:15',
+    });
+
+    expect(ticket.closedAt).toBeInstanceOf(Date);
+    expect(ticket.closedAt.getTime()).toBe(new Date('2026-08-26T20:15').getTime());
+  });
 });
