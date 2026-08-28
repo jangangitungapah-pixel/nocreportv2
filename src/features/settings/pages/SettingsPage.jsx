@@ -157,13 +157,14 @@ export function SettingsPage() {
                   <dd className="font-bold text-[var(--text-primary)]">Gemini API</dd>
                 </div>
                 <div className="flex items-center justify-between gap-3">
-                  <dt className="font-semibold text-[var(--text-muted)]">Storage</dt>
+                  <dt className="font-semibold text-[var(--text-muted)]">API key storage</dt>
                   <dd className="font-bold text-[var(--text-primary)]">Browser only</dd>
                 </div>
               </dl>
               <p className="mt-3 border-t border-[var(--border-subtle)] pt-3 text-[10px] leading-4 text-[var(--text-muted)]">
-                When Scan coordinates is pressed, the selected Cut Point image is sent to the Gemini
-                API for analysis. The request is stateless and is configured with store disabled.
+                When Scan coordinates is pressed, the selected Cut Point image is sent directly to
+                the Gemini generateContent endpoint for coordinate extraction. The API key remains
+                stored only in this browser.
               </p>
             </aside>
           </div>
