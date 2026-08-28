@@ -10,6 +10,7 @@ const SAFE_FORM_FIELDS = Object.freeze([
   'impactList',
   'occurAt',
   'dispatchAt',
+  'closedAt',
   'pic',
   'rootcause',
   'cutPoint',
