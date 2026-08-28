@@ -106,7 +106,9 @@ function apiErrorMessage(status, payload) {
   if (status >= 500) {
     return 'Gemini API is temporarily unavailable. Try scanning again in a moment.';
   }
-  return detail ? `Gemini API request failed: ${detail}` : `Gemini API request failed (${status}).`;
+  return detail
+    ? `Gemini API request failed: ${detail}`
+    : `Gemini API request failed (${status}).`;
 }
 
 async function readResponsePayload(response) {
@@ -127,7 +129,7 @@ async function fileToBase64(file) {
     binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
   }
 
-  return btoa(binary);
+  return globalThis.btoa(binary);
 }
 
 export function normalizeGeminiCoordinatePayload(payload) {
@@ -183,7 +185,7 @@ export function normalizeGeminiCoordinatePayload(payload) {
   };
 }
 
-export async function testGeminiApiKey(apiKey, { fetchImpl = fetch } = {}) {
+export async function testGeminiApiKey(apiKey, { fetchImpl = globalThis.fetch } = {}) {
   const key = normalizedKey(apiKey);
   if (!key) throw new Error('Enter a Gemini API key first.');
 
@@ -199,7 +201,7 @@ export async function testGeminiApiKey(apiKey, { fetchImpl = fetch } = {}) {
 
 export async function recognizeCoordinateWithGemini(
   file,
-  { apiKey, onProgress, fetchImpl = fetch } = {},
+  { apiKey, onProgress, fetchImpl = globalThis.fetch } = {},
 ) {
   const key = normalizedKey(apiKey);
   if (!key) {
@@ -245,7 +247,9 @@ export async function recognizeCoordinateWithGemini(
   try {
     structured = parseJsonText(outputText);
   } catch {
-    throw new Error('Gemini returned an unreadable coordinate response. Try scanning the image again.');
+    throw new Error(
+      'Gemini returned an unreadable coordinate response. Try scanning the image again.',
+    );
   }
 
   const analysis = normalizeGeminiCoordinatePayload(structured);
