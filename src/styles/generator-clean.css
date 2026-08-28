@@ -8,11 +8,7 @@
 
 .generator-cockpit {
   --generator-clean-divider: color-mix(in srgb, var(--border-subtle) 82%, transparent);
-  --generator-clean-divider-strong: color-mix(
-    in srgb,
-    var(--border-default) 72%,
-    transparent
-  );
+  --generator-clean-divider-strong: color-mix(in srgb, var(--border-default) 72%, transparent);
   --generator-clean-soft: color-mix(in srgb, var(--surface-muted) 54%, transparent);
 }
 
