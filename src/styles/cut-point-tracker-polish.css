@@ -66,7 +66,7 @@ header:has(+ [aria-label='Cut Point workspace summary']) > div:last-child button
   min-height: 2.45rem;
   align-items: center;
   gap: 0.38rem;
-  margin-left: 0 !important;
+  margin-left: 0;
   overflow: hidden;
   border: 1px solid var(--border-subtle);
   border-radius: 0.7rem;
@@ -112,8 +112,8 @@ header:has(+ [aria-label='Cut Point workspace summary']) > div:last-child button
 
 /* Desktop board shell. */
 #cut-point-map-workspace {
-  min-height: 35rem !important;
-  height: calc(100dvh - 11.15rem) !important;
+  min-height: 35rem;
+  height: calc(100dvh - 11.15rem);
 }
 
 #cut-point-map-workspace [role='separator'] {
@@ -241,9 +241,9 @@ section[aria-labelledby='mapped-incidents-heading'] article {
   width: calc(100% - 0.8rem);
   margin: 0.4rem;
   overflow: hidden;
-  border: 1px solid transparent !important;
+  border: 1px solid transparent;
   border-radius: 0.72rem;
-  background: var(--surface-panel) !important;
+  background: var(--surface-panel);
   padding: 0.72rem 0.72rem 0.62rem 0.8rem;
   box-shadow: 0 1px 0 var(--border-subtle);
   transition:
@@ -254,19 +254,19 @@ section[aria-labelledby='mapped-incidents-heading'] article {
 }
 
 section[aria-labelledby='mapped-incidents-heading'] article:hover {
-  border-color: var(--border-default) !important;
-  background: var(--surface-panel-strong) !important;
+  border-color: var(--border-default);
+  background: var(--surface-panel-strong);
   box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
 }
 
 section[aria-labelledby='mapped-incidents-heading'] article[data-selected='true'] {
-  border-color: var(--border-accent) !important;
+  border-color: var(--border-accent);
   background: linear-gradient(
     135deg,
     color-mix(in srgb, var(--accent-soft) 78%, var(--surface-panel)),
     var(--surface-panel) 66%
-  ) !important;
+  );
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--accent-solid) 12%, transparent),
     var(--shadow-sm);
@@ -328,7 +328,7 @@ section[aria-labelledby='mapped-incidents-heading'] article > div:last-child {
 }
 
 section[aria-labelledby='mapped-incidents-heading'] article > div:last-child :is(button, a) {
-  min-height: 1.9rem !important;
+  min-height: 1.9rem;
   border-radius: 0.48rem;
   font-size: 9.5px;
 }
@@ -343,19 +343,19 @@ section[aria-labelledby='mapped-incidents-heading'] article[data-selected='true'
 section:has(> [aria-label='Cut Point map']) {
   isolation: isolate;
   min-height: 34rem;
-  border-color: var(--border-default) !important;
-  border-radius: 0.95rem !important;
+  border-color: var(--border-default);
+  border-radius: 0.95rem;
   background:
     radial-gradient(circle at 72% 18%, var(--accent-glow), transparent 32%),
     linear-gradient(var(--border-subtle) 1px, transparent 1px),
     linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px),
-    var(--surface-muted) !important;
+    var(--surface-muted);
   background-size:
     auto,
     32px 32px,
     32px 32px,
     auto;
-  box-shadow: 0 12px 38px color-mix(in srgb, var(--text-primary) 5%, transparent) !important;
+  box-shadow: 0 12px 38px color-mix(in srgb, var(--text-primary) 5%, transparent);
 }
 
 section:has(> [aria-label='Cut Point map'])::before {
@@ -406,43 +406,43 @@ section:has(> [aria-label='Cut Point map']) .leaflet-container {
     radial-gradient(circle at 70% 16%, var(--accent-glow), transparent 34%),
     linear-gradient(var(--border-subtle) 1px, transparent 1px),
     linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px),
-    var(--surface-muted) !important;
+    var(--surface-muted);
   background-size:
     auto,
     32px 32px,
     32px 32px,
-    auto !important;
+    auto;
 }
 
 section:has(> [aria-label='Cut Point map']) .leaflet-control-zoom {
-  margin-top: 0.8rem !important;
-  margin-left: 0.8rem !important;
+  margin-top: 0.8rem;
+  margin-left: 0.8rem;
 }
 
 section:has(> [aria-label='Cut Point map']) .leaflet-bar {
-  border-radius: 0.65rem !important;
-  box-shadow: var(--shadow-sm) !important;
+  border-radius: 0.65rem;
+  box-shadow: var(--shadow-sm);
 }
 
 section:has(> [aria-label='Cut Point map']) .leaflet-bar a,
 section:has(> [aria-label='Cut Point map']) .leaflet-bar a:hover {
-  width: 2.2rem !important;
-  height: 2.2rem !important;
-  font-size: 17px !important;
+  width: 2.2rem;
+  height: 2.2rem;
+  font-size: 17px;
 }
 
 section:has(> [aria-label='Cut Point map']) .leaflet-control-attribution {
-  margin: 0 0.7rem 0.7rem 0 !important;
+  margin: 0 0.7rem 0.7rem 0;
   opacity: 0.82;
 }
 
 section:has(> [aria-label='Cut Point map']) .leaflet-popup-content-wrapper {
-  border-radius: 0.85rem !important;
-  box-shadow: 0 16px 42px color-mix(in srgb, var(--text-primary) 14%, transparent) !important;
+  border-radius: 0.85rem;
+  box-shadow: 0 16px 42px color-mix(in srgb, var(--text-primary) 14%, transparent);
 }
 
 section:has(> [aria-label='Cut Point map']) .leaflet-popup-content {
-  padding: 0.8rem !important;
+  padding: 0.8rem;
 }
 
 /* Alerts float as compact geographic HUDs instead of spanning the whole map. */
