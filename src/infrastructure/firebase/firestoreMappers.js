@@ -51,6 +51,7 @@ export function mapTicketData(id, data = {}) {
     ...data,
     occurAt: toDate(data.occurAt),
     dispatchAt: toDate(data.dispatchAt),
+    closedAt: toDate(data.closedAt),
     coordinate: mapCoordinate(data.coordinate),
     importProvenance: mapImportProvenance(data.importProvenance),
     latestProgress: mapLatestProgress(data.latestProgress),
