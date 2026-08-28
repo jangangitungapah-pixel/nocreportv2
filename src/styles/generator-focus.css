@@ -1,30 +1,39 @@
 /*
- * Template Generator focus-visibility guard.
+ * Template Generator focus treatment.
  *
- * Several Generator sections intentionally use overflow clipping for compact
- * surfaces. Canonical controls use outer box-shadow focus rings, which can be
- * shaved off at the left/right edge of those sections. Keep the accessibility
- * signal fully visible by rendering focus rings inward inside this workspace.
- * This is scoped to .generator-cockpit so the shared design system elsewhere is
- * unchanged.
+ * Keep keyboard focus obvious without the heavy outer halo that made compact
+ * controls look double-bordered. Inside the Generator, field focus is expressed
+ * by the canonical accent border; button/link focus uses a restrained inset ring.
+ * Scoped to .generator-cockpit so the shared design system elsewhere is unchanged.
  */
 
-/* TextInput, Textarea, DateTimeField and SelectField all expose .ui-control. */
+/*
+ * TextInput, Textarea, DateTimeField and SelectField all expose .ui-control.
+ * Remove the 4px Tailwind focus halo and keep a crisp accent border instead.
+ */
 .generator-cockpit .ui-control:focus {
-  --tw-ring-inset: inset;
+  border-color: var(--accent-solid) !important;
+  box-shadow: var(--shadow-xs) !important;
 }
 
-/* Calendar/field affordances use the same containment rule. */
+/* Calendar/field affordances keep a small inward keyboard-focus cue. */
 .generator-cockpit .ui-field-trigger:focus-visible {
   --tw-ring-inset: inset;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: inset 0 0 0 1px var(--focus-ring);
+  box-shadow: var(--tw-ring-shadow) !important;
 }
 
 /*
- * Canonical buttons/links use a 2px outer ring plus a 2px offset. Within the
- * Generator, move that ring inward and remove the external offset so controls
- * near clipped edges never lose half of their focus indicator.
+ * Canonical buttons/links should not draw a thick outer halo either. Use a
+ * single-pixel inset cue so focus remains keyboard-visible without changing
+ * layout or being clipped by compact section boundaries.
  */
 .generator-cockpit :is(button, a):focus-visible {
   --tw-ring-inset: inset;
   --tw-ring-offset-width: 0px;
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: inset 0 0 0 1px var(--focus-ring);
+  box-shadow: var(--tw-ring-shadow) !important;
 }
