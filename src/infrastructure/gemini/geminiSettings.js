@@ -1,4 +1,4 @@
-export const GEMINI_MODEL = 'gemini-3.7-flash';
+export const GEMINI_MODEL = 'gemini-3.6-flash';
 
 const STORAGE_KEY = 'nocreportv2:gemini-api-key:v1';
 const SETTINGS_EVENT = 'nocreport:gemini-settings-change';
