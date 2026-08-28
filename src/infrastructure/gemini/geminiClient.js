@@ -410,11 +410,11 @@ export async function recognizeCoordinateWithGemini(
     text: parsed.structured.rawText ?? '',
     analysis: parsed.analysis,
     confidence: null,
-    sourceLabel: `Gemini 3.7 Flash · ${transportLabel}`,
+    sourceLabel: `Gemini 3.6 Flash · ${transportLabel}`,
     attempts: [
       {
         id: `${GEMINI_MODEL}:${transportLabel}`,
-        label: `Gemini 3.7 Flash · ${transportLabel}`,
+        label: `Gemini 3.6 Flash · ${transportLabel}`,
         confidence: null,
         text: parsed.structured.rawText ?? '',
       },
