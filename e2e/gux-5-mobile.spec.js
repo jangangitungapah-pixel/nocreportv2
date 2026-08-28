@@ -167,21 +167,13 @@ for (const viewport of viewports) {
 
     const mobileFlow = page.locator('.generator-cockpit-mobile-flow');
     await expect(mobileFlow).toBeVisible();
-    const ordering = await page.evaluate(() => {
-      const editor = document.querySelector(
-        '.generator-cockpit-mobile-flow > .generator-editor-stack',
-      );
-      const preview = document.querySelector(
-        '.generator-cockpit-mobile-flow > .generator-preview-stage',
-      );
-      const editorRect = editor?.getBoundingClientRect();
-      const previewRect = preview?.getBoundingClientRect();
-      return {
-        editorTop: editorRect?.top ?? Number.NaN,
-        previewTop: previewRect?.top ?? Number.NaN,
-      };
-    });
-    expect(ordering.previewTop).toBeGreaterThan(ordering.editorTop);
+    await expect(mobileFlow.locator('.generator-flow-stage[data-expanded="true"]')).toHaveCount(1);
+    await expect(
+      mobileFlow
+        .locator('.generator-flow-stage[data-expanded="false"] .generator-flow-stage__body')
+        .first(),
+    ).toBeHidden();
+    await expect(mobileFlow.locator(':scope > .generator-preview-stage')).toBeHidden();
 
     const commandBar = page.locator('.generator-command-bar');
     await expect(commandBar).toBeVisible();
@@ -194,31 +186,34 @@ for (const viewport of viewports) {
 
     await assertNoHorizontalOverflow(page, `${viewport.width}px initial Generator`);
 
+    expect(await commandBar.evaluate((element) => window.getComputedStyle(element).position)).toBe(
+      'static',
+    );
+
+    await page.getByRole('button', { name: /Response/ }).click();
+    const responseStage = page.locator('#generator-stage-response');
+    await expect(responseStage).toHaveAttribute('data-expanded', 'true');
     await page.locator('.generator-progress-composer').scrollIntoViewIfNeeded();
-    const sticky = await commandBar.evaluate((element) => {
-      const rect = element.getBoundingClientRect();
-      return {
-        position: window.getComputedStyle(element).position,
-        top: rect.top,
-        bottom: rect.bottom,
-      };
-    });
-    expect(sticky.position).toBe('sticky');
-    expect(sticky.top).toBeGreaterThanOrEqual(0);
-    expect(sticky.top).toBeLessThan(32);
-    expect(sticky.bottom).toBeLessThanOrEqual(viewport.height);
-    await expect(commandBar.getByRole('button', { name: 'Save' })).toBeVisible();
-    await assertNoHorizontalOverflow(page, `${viewport.width}px scrolled Generator`);
+    await expect(page.locator('.generator-progress-composer')).toBeVisible();
+    await assertNoHorizontalOverflow(page, `${viewport.width}px response stage`);
+
+    await page.getByRole('button', { name: /Handover/ }).click();
+    await expect(page.locator('#generator-stage-handover')).toHaveAttribute(
+      'data-expanded',
+      'true',
+    );
+    await assertNoHorizontalOverflow(page, `${viewport.width}px handover stage`);
 
     const report = page.getByLabel('Generated NOC report');
-    await report.scrollIntoViewIfNeeded();
     await expect(report).toContainText(
       '100901_MOBILE_ALPHA <> 100902_MOBILE_BETA <> 100903_MOBILE_GAMMA',
     );
     await expect(report).toContainText('INC-20260827-95550001');
     await assertNoHorizontalOverflow(page, `${viewport.width}px live output`);
 
+    await page.getByRole('button', { name: /Incident/ }).click();
     const primaryField = page.locator('#ticket-title');
+    await expect(primaryField).toBeVisible();
     const fieldBox = await primaryField.boundingBox();
     expect(fieldBox?.height ?? 0).toBeGreaterThanOrEqual(43.5);
   });

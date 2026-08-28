@@ -166,8 +166,8 @@ export function DataTable({
   return (
     <section className={cn('grid gap-2.5', className)} aria-label={ariaLabel}>
       {searchable || showColumnVisibility || toolbar ? (
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div className="min-w-0 flex-1 sm:max-w-sm">
+        <div className="data-table-toolbar flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+          <div className="data-table-toolbar__search min-w-0 flex-1 sm:max-w-sm">
             {searchable ? (
               <TextInput
                 id={`${ariaLabel.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-search`}
@@ -180,9 +180,13 @@ export function DataTable({
               />
             ) : null}
           </div>
-          <div className="flex flex-wrap items-center justify-end gap-2">
+          <div className="data-table-toolbar__actions flex flex-wrap items-center justify-end gap-2">
             {toolbar}
-            {showColumnVisibility ? <ColumnVisibilityMenu table={table} /> : null}
+            {showColumnVisibility ? (
+              <div className="data-table-column-visibility">
+                <ColumnVisibilityMenu table={table} />
+              </div>
+            ) : null}
           </div>
         </div>
       ) : null}
@@ -249,7 +253,11 @@ export function DataTable({
             </table>
           </div>
 
-          <div className="data-mobile-list grid gap-2 md:hidden" data-testid="data-table-mobile" role="list">
+          <div
+            className="data-mobile-list grid gap-2 md:hidden"
+            data-testid="data-table-mobile"
+            role="list"
+          >
             {rows.map((row) => (
               <div key={row.id} role="listitem">
                 {MobileRow ? (

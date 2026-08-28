@@ -164,6 +164,7 @@ export function CutPointTrackerPage() {
   const [tileWarning, setTileWarning] = useState(false);
   const [mapRevision, setMapRevision] = useState(0);
   const [mapReadyRevision, setMapReadyRevision] = useState(0);
+  const [mobileWorkspaceView, setMobileWorkspaceView] = useState('map');
   const requestedTicketId = useMemo(
     () => new globalThis.URLSearchParams(location.search).get('ticket')?.trim() || null,
     [location.search],
@@ -324,13 +325,26 @@ export function CutPointTrackerPage() {
 
   const locateMarker = (marker) => {
     setSelectedTicketId(marker.ticketId);
+    setMobileWorkspaceView('map');
     navigate(`/cut-points?ticket=${encodeURIComponent(marker.ticketId)}`, { replace: true });
     mapClientRef.current?.focusMarker(marker.ticketId);
+    window.requestAnimationFrame(() => {
+      mapClientRef.current?.invalidateSize();
+      mapClientRef.current?.focusMarker(marker.ticketId);
+    });
+  };
+
+  const changeMobileWorkspaceView = (value) => {
+    if (!value) return;
+    setMobileWorkspaceView(value);
+    if (value === 'map') {
+      window.requestAnimationFrame(() => mapClientRef.current?.invalidateSize());
+    }
   };
 
   const mappedIncidentPane = (
     <section
-      className="order-2 flex min-h-0 flex-col overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)] xl:order-none xl:h-full"
+      className="cut-point-incident-pane order-2 flex min-h-0 flex-col overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)] xl:order-none xl:h-full"
       aria-labelledby="mapped-incidents-heading"
     >
       <header className="flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3">
@@ -454,7 +468,7 @@ export function CutPointTrackerPage() {
   );
 
   const mapPane = (
-    <section className="order-1 relative min-h-[52vh] overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-muted)] shadow-[var(--shadow-xs)] xl:order-none xl:h-full xl:min-h-0">
+    <section className="cut-point-map-pane order-1 relative min-h-[52vh] overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-muted)] shadow-[var(--shadow-xs)] xl:order-none xl:h-full xl:min-h-0">
       <div className="pointer-events-none absolute inset-x-2.5 top-2.5 z-[490] flex flex-wrap items-center justify-between gap-1.5">
         <span className="inline-flex min-h-6 items-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-panel-translucent)] px-2 text-[9px] font-extrabold uppercase tracking-[0.08em] text-[var(--text-secondary)] backdrop-blur-lg">
           OpenStreetMap context
@@ -559,6 +573,23 @@ export function CutPointTrackerPage() {
         </span>
       </div>
 
+      <ToggleGroup
+        type="single"
+        value={mobileWorkspaceView}
+        className="cut-point-view-switch"
+        aria-label="Cut Point workspace view"
+        onValueChange={changeMobileWorkspaceView}
+      >
+        <ToggleGroupItem value="map" aria-label="Show map">
+          <AppIcon name="map" size={14} />
+          Map
+        </ToggleGroupItem>
+        <ToggleGroupItem value="incidents" aria-label="Show mapped incidents">
+          <AppIcon name="generator" size={14} />
+          Incidents <span className="font-mono">{visibleMarkers.length}</span>
+        </ToggleGroupItem>
+      </ToggleGroup>
+
       {requestedTicketId && !loading && !queryError && !requestedMarkerAvailable ? (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-[var(--radius-control)] border border-[var(--warning-border)] bg-[var(--warning-soft)] px-3 py-2 text-[10.5px] text-[var(--warning-text)]">
           <span>
@@ -589,7 +620,7 @@ export function CutPointTrackerPage() {
         primary={mappedIncidentPane}
         secondary={mapPane}
         className="h-[calc(100vh-9rem)] min-h-[620px]"
-        mobileClassName="min-w-0"
+        mobileClassName={`cut-point-mobile-workspace cut-point-mobile-workspace--${mobileWorkspaceView} min-w-0`}
       />
     </div>
   );

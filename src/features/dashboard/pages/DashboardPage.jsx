@@ -95,18 +95,18 @@ function RecentTicketRow({ ticket }) {
   return (
     <Link
       to={`/tickets/${ticket.id}`}
-      className="group grid min-h-[54px] select-none gap-1.5 border-t border-[var(--border-subtle)] px-3 py-2.5 transition-colors first:border-t-0 hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)] md:grid-cols-[140px_minmax(0,1fr)_110px_128px] md:items-center md:gap-3 md:px-4 md:py-2"
+      className="dashboard-ticket-row group grid min-h-[54px] select-none gap-1.5 border-t border-[var(--border-subtle)] px-3 py-2.5 transition-colors first:border-t-0 hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--focus-ring)] md:grid-cols-[140px_minmax(0,1fr)_110px_128px] md:items-center md:gap-3 md:px-4 md:py-2"
     >
-      <p className="truncate font-mono text-[11px] font-bold text-[var(--text-muted)]">
+      <p className="dashboard-ticket-row__tt truncate font-mono text-[11px] font-bold text-[var(--text-muted)]">
         {ticket.externalTtNumber ?? 'No TT detected'}
       </p>
-      <p className="line-clamp-2 min-w-0 text-[13px] font-semibold leading-5 tracking-[-0.01em] text-[var(--text-primary)] md:truncate">
+      <p className="dashboard-ticket-row__title line-clamp-2 min-w-0 text-[13px] font-semibold leading-5 tracking-[-0.01em] text-[var(--text-primary)] md:truncate">
         {ticket.title || 'Untitled ticket'}
       </p>
-      <div className="flex items-center md:block">
+      <div className="dashboard-ticket-row__status flex items-center md:block">
         <StatusBadge status={ticket.status} />
       </div>
-      <p className="text-[11px] font-medium text-[var(--text-muted)] md:text-right">
+      <p className="dashboard-ticket-row__time text-[11px] font-medium text-[var(--text-muted)] md:text-right">
         {formatDateTime(ticket.updatedAt)}
       </p>
     </Link>
@@ -139,7 +139,10 @@ function RecentActivity({ tickets }) {
       {tickets.length === 0 ? (
         <div className="dashboard-activity__empty grid min-h-28 place-items-center px-4 py-6 text-center">
           <div className="max-w-sm">
-            <span className="dashboard-activity__empty-mark mx-auto mb-3 block h-1 w-8 rounded-full bg-[var(--accent-solid)]" aria-hidden="true" />
+            <span
+              className="dashboard-activity__empty-mark mx-auto mb-3 block h-1 w-8 rounded-full bg-[var(--accent-solid)]"
+              aria-hidden="true"
+            />
             <p className="text-[13px] font-semibold text-[var(--text-secondary)]">
               No persisted Tickets yet.
             </p>

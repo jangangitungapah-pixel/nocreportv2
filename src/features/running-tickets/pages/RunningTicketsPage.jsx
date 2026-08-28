@@ -93,40 +93,40 @@ function RunningMobileRow({ row, getActions }) {
   const ticket = row.original;
 
   return (
-    <article className="rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-3 py-2.5 shadow-[var(--shadow-xs)]">
-      <div className="flex items-start justify-between gap-3">
+    <article className="running-ticket-card rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-3 py-2.5 shadow-[var(--shadow-xs)]">
+      <div className="running-ticket-card__header flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 items-center gap-2">
-            <p className="truncate font-mono text-[10.5px] font-bold text-[var(--text-muted)]">
+          <div className="running-ticket-card__identity flex min-w-0 items-center gap-2">
+            <p className="running-ticket-card__tt truncate font-mono text-[10.5px] font-bold text-[var(--text-muted)]">
               {ticket.externalTtNumber ?? 'No TT detected'}
             </p>
             <StatusBadge status={ticket.status} />
           </div>
           <Link
             to={`/tickets/${ticket.id}`}
-            className="mt-1.5 block line-clamp-2 rounded-sm text-[13px] font-bold leading-5 tracking-[-0.01em] text-[var(--text-primary)] hover:text-[var(--accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+            className="running-ticket-card__title mt-1.5 block line-clamp-2 rounded-sm text-[13px] font-bold leading-5 tracking-[-0.01em] text-[var(--text-primary)] hover:text-[var(--accent-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
           >
             {ticket.title || 'Untitled ticket'}
           </Link>
         </div>
-        <p className="shrink-0 text-[10px] font-semibold text-[var(--text-faint)]">
+        <p className="running-ticket-card__updated shrink-0 text-[10px] font-semibold text-[var(--text-faint)]">
           {formatDateTime(ticket.updatedAt) || '—'}
         </p>
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-medium text-[var(--text-muted)]">
+      <div className="running-ticket-card__facts mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-medium text-[var(--text-muted)]">
         <span>PIC {ticket.pic || '—'}</span>
         <span>Occur {formatDateTime(ticket.occurAt) || '—'}</span>
         <span>{ticket.hasCoordinates ? 'Coordinate available' : 'No coordinate'}</span>
       </div>
 
-      <p className="mt-2 line-clamp-2 text-[11px] leading-4.5 text-[var(--text-secondary)]">
+      <p className="running-ticket-card__latest mt-2 line-clamp-2 text-[11px] leading-4.5 text-[var(--text-secondary)]">
         <span className="font-bold text-[var(--text-muted)]">Latest:</span>{' '}
         {ticket.latestProgress?.text || 'No progress update yet'}
       </p>
 
-      <div className="mt-2 flex items-end justify-between gap-3 border-t border-[var(--border-subtle)] pt-2">
-        <p className="line-clamp-1 min-w-0 text-[10.5px] font-medium text-[var(--text-faint)]">
+      <div className="running-ticket-card__footer mt-2 flex items-end justify-between gap-3 border-t border-[var(--border-subtle)] pt-2">
+        <p className="running-ticket-card__cutpoint line-clamp-1 min-w-0 text-[10.5px] font-medium text-[var(--text-faint)]">
           {ticket.cutPoint || 'Cut Point not recorded'}
         </p>
         <div className="shrink-0 [&_button]:h-11 [&_button]:w-11">

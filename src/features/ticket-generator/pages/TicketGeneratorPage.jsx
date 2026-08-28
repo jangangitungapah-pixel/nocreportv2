@@ -95,13 +95,24 @@ function EditorSection({ title, meta, children, className = '' }) {
   );
 }
 
-function WorkflowStage({ id, number, title, description, state, stateLabel, children }) {
+function WorkflowStage({
+  id,
+  number,
+  title,
+  description,
+  state,
+  stateLabel,
+  expanded,
+  onToggle,
+  children,
+}) {
   return (
     <section
       id={id}
       tabIndex={-1}
       className="generator-flow-stage"
       data-state={state}
+      data-expanded={expanded ? 'true' : 'false'}
       aria-labelledby={`${id}-title`}
     >
       <div className="generator-flow-stage__rail" aria-hidden="true">
@@ -116,15 +127,30 @@ function WorkflowStage({ id, number, title, description, state, stateLabel, chil
             </h2>
             <p className="generator-flow-stage__description">{description}</p>
           </div>
-          <span className="generator-flow-stage__status">{stateLabel}</span>
+          <div className="generator-flow-stage__header-actions">
+            <span className="generator-flow-stage__status">{stateLabel}</span>
+            <button
+              type="button"
+              className="generator-flow-stage__toggle"
+              aria-expanded={expanded}
+              aria-controls={`${id}-body`}
+              aria-label={`${expanded ? 'Collapse' : 'Open'} workflow stage ${number}`}
+              title={`${expanded ? 'Collapse' : 'Open'} ${title}`}
+              onClick={onToggle}
+            >
+              <AppIcon name="chevronDown" size={15} />
+            </button>
+          </div>
         </header>
-        <div className="generator-flow-stage__body">{children}</div>
+        <div id={`${id}-body`} className="generator-flow-stage__body">
+          {children}
+        </div>
       </div>
     </section>
   );
 }
 
-function GeneratorWorkflowDeck({ stages, nextAction }) {
+function GeneratorWorkflowDeck({ stages, nextAction, onSelectStage }) {
   return (
     <section className="generator-workflow-deck" aria-label="Ticket workflow">
       <nav className="generator-workflow-map" aria-label="Generator stages">
@@ -135,7 +161,7 @@ function GeneratorWorkflowDeck({ stages, nextAction }) {
             className="generator-workflow-step"
             data-state={stage.state}
             aria-current={stage.state === 'current' ? 'step' : undefined}
-            onClick={() => focusWorkspaceElement(stage.targetId)}
+            onClick={() => onSelectStage(stage)}
           >
             <span className="generator-workflow-step__number">{stage.number}</span>
             <span className="generator-workflow-step__copy">
@@ -438,6 +464,7 @@ export function TicketGeneratorPage() {
   const [progressComposerDraft, setProgressComposerDraft] = useState(EMPTY_PROGRESS_DRAFT);
   const [progressRecoveryDraft, setProgressRecoveryDraft] = useState(null);
   const [evidenceItems, setEvidenceItems] = useState([]);
+  const [expandedWorkflowStage, setExpandedWorkflowStage] = useState(null);
 
   const {
     control,
@@ -1199,7 +1226,30 @@ export function TicketGeneratorPage() {
     });
   };
 
+  const focusAfterWorkflowStageOpens = (callback) => {
+    if (typeof window === 'undefined' || typeof window.requestAnimationFrame !== 'function') {
+      callback();
+      return;
+    }
+    window.requestAnimationFrame(() => window.requestAnimationFrame(callback));
+  };
+
+  const openWorkflowStage = (number, targetId) => {
+    setExpandedWorkflowStage(number);
+    focusAfterWorkflowStageOpens(() => focusWorkspaceElement(targetId));
+  };
+
   const focusValidationField = (field) => {
+    const fieldStage =
+      field === 'description'
+        ? '01'
+        : field === 'progress'
+          ? '03'
+          : field === 'audit'
+            ? '04'
+            : '02';
+    setExpandedWorkflowStage(fieldStage);
+
     const fieldIds = {
       title: 'ticket-title',
       occurAt: 'occur-at',
@@ -1212,19 +1262,21 @@ export function TicketGeneratorPage() {
       longitude: 'longitude',
       progress: 'progress-text',
     };
-    const target = fieldIds[field] ? document.getElementById(fieldIds[field]) : null;
-    if (target) {
-      target.scrollIntoView?.({ block: 'center', behavior: preferredWorkspaceScrollBehavior() });
-      target.focus?.();
-      return;
-    }
-    const section =
-      field === 'impactList'
-        ? document.querySelector('.generator-impact-editor')
-        : field === 'description'
-          ? document.querySelector('.generator-smart-import')
-          : null;
-    section?.scrollIntoView?.({ block: 'center', behavior: preferredWorkspaceScrollBehavior() });
+    focusAfterWorkflowStageOpens(() => {
+      const target = fieldIds[field] ? document.getElementById(fieldIds[field]) : null;
+      if (target) {
+        target.scrollIntoView?.({ block: 'center', behavior: preferredWorkspaceScrollBehavior() });
+        target.focus?.();
+        return;
+      }
+      const section =
+        field === 'impactList'
+          ? document.querySelector('.generator-impact-editor')
+          : field === 'description'
+            ? document.querySelector('.generator-smart-import')
+            : null;
+      section?.scrollIntoView?.({ block: 'center', behavior: preferredWorkspaceScrollBehavior() });
+    });
   };
 
   const titleRegistration = register('title');
@@ -1268,7 +1320,7 @@ export function TicketGeneratorPage() {
   const hasCoreBlocker = validation.blocking.some((finding) => finding.source !== 'import');
   const incidentCoreReady = hasTitle && hasOccurTime && coordinate.valid && !hasCoreBlocker;
   const activeWorkflowStage =
-    firstBlockingFinding?.source === 'import' || !hasTitle
+    firstBlockingFinding?.source === 'import'
       ? '01'
       : !incidentCoreReady
         ? '02'
@@ -1311,6 +1363,7 @@ export function TicketGeneratorPage() {
       targetId: 'generator-stage-handover',
     },
   ];
+  const visibleWorkflowStage = expandedWorkflowStage ?? activeWorkflowStage;
   const nextAction = firstBlockingFinding
     ? {
         label:
@@ -1326,7 +1379,7 @@ export function TicketGeneratorPage() {
       ? {
           label: 'Add first progress',
           detail: 'Add operational context, or jump directly to Handover.',
-          onClick: () => focusWorkspaceElement('progress-text'),
+          onClick: () => openWorkflowStage('03', 'progress-text'),
         }
       : {
           label: 'Review live output',
@@ -1334,7 +1387,7 @@ export function TicketGeneratorPage() {
             validation.counts.warning > 0
               ? `Ready for Running · ${validation.counts.warning} warning${validation.counts.warning === 1 ? '' : 's'} to review.`
               : 'Required fields are ready for final review.',
-          onClick: () => focusWorkspaceElement('generator-report-preview'),
+          onClick: () => openWorkflowStage('04', 'generator-stage-handover'),
         };
 
   const handleTitleChange = (event) => {
@@ -1371,6 +1424,8 @@ export function TicketGeneratorPage() {
         description="Bring in the incident, then clear the issues that affect lifecycle readiness."
         state={workflowStages[0].state}
         stateLabel={workflowStages[0].statusLabel}
+        expanded={visibleWorkflowStage === '01'}
+        onToggle={() => setExpandedWorkflowStage(visibleWorkflowStage === '01' ? null : '01')}
       >
         <DraftRecoveryNotice
           recovery={draftRecovery}
@@ -1406,6 +1461,8 @@ export function TicketGeneratorPage() {
         description="Confirm identity, operational clock, ownership, diagnosis, and affected scope."
         state={workflowStages[1].state}
         stateLabel={workflowStages[1].statusLabel}
+        expanded={visibleWorkflowStage === '02'}
+        onToggle={() => setExpandedWorkflowStage(visibleWorkflowStage === '02' ? null : '02')}
       >
         <form
           id="ticket-editor-form"
@@ -1573,6 +1630,8 @@ export function TicketGeneratorPage() {
         description="Capture evidence locally, verify coordinates, and keep the shift timeline current."
         state={workflowStages[2].state}
         stateLabel={workflowStages[2].statusLabel}
+        expanded={visibleWorkflowStage === '03'}
+        onToggle={() => setExpandedWorkflowStage(visibleWorkflowStage === '03' ? null : '03')}
       >
         <EvidenceWorkspace
           items={evidenceItems}
@@ -1603,6 +1662,8 @@ export function TicketGeneratorPage() {
         description="Use the canonical output, shift handover, presets, and immutable audit context."
         state={workflowStages[3].state}
         stateLabel={workflowStages[3].statusLabel}
+        expanded={visibleWorkflowStage === '04'}
+        onToggle={() => setExpandedWorkflowStage(visibleWorkflowStage === '04' ? null : '04')}
       >
         <CopyCenter
           ticket={ticket}
@@ -1679,7 +1740,11 @@ export function TicketGeneratorPage() {
         onCopy={copyReport}
       />
 
-      <GeneratorWorkflowDeck stages={workflowStages} nextAction={nextAction} />
+      <GeneratorWorkflowDeck
+        stages={workflowStages}
+        nextAction={nextAction}
+        onSelectStage={(stage) => openWorkflowStage(stage.number, stage.targetId)}
+      />
 
       <ResizableWorkspace
         id="generator-editor-preview"
