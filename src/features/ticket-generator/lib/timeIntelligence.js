@@ -60,7 +60,10 @@ export function deriveTimeIntelligence(
   const current = validDate(now) ?? new Date();
   const occurAt = validDate(ticket?.occurAt);
   const dispatchAt = normalizedDispatchAt(ticket);
+  const closedAt = validDate(ticket?.closedAt);
   const resolvedAt = validDate(ticket?.resolvedAt);
+  const mttrStopAt = closedAt ?? resolvedAt ?? current;
+  const mttrMs = occurAt ? nonNegativeDuration(mttrStopAt, occurAt) : null;
   const updatedAt = validDate(ticket?.updatedAt);
   const progressAt = latestProgressAt(ticket);
   const latestUpdateAt = latestDate(updatedAt, progressAt);
@@ -69,7 +72,10 @@ export function deriveTimeIntelligence(
     timezone,
     calculatedAt: current,
     refreshAfterMs: TIME_INTELLIGENCE_REFRESH_MS,
-    incidentElapsedMs: occurAt ? nonNegativeDuration(resolvedAt ?? current, occurAt) : null,
+    incidentElapsedMs: mttrMs,
+    mttrMs,
+    mttrStopped: Boolean(closedAt || resolvedAt),
+    mttrStopAt,
     dispatchDelayMs: occurAt && dispatchAt ? signedDuration(dispatchAt, occurAt) : null,
     latestProgressAgeMs: progressAt ? nonNegativeDuration(current, progressAt) : null,
     resolvedDurationMs: occurAt && resolvedAt ? nonNegativeDuration(resolvedAt, occurAt) : null,
@@ -78,6 +84,7 @@ export function deriveTimeIntelligence(
     latestUpdateAt,
     occurAt,
     dispatchAt,
+    closedAt,
     resolvedAt,
     updatedAt,
   };
