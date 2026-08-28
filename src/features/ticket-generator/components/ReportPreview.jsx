@@ -2,6 +2,74 @@ import { cn } from '../../../shared/lib/cn.js';
 import { AppIcon } from '../../../shared/ui/icon.jsx';
 import { Button, ScrollArea } from '../../../shared/ui/primitives.jsx';
 
+function focusValidationField(field) {
+  if (typeof document === 'undefined') return;
+  const fieldIds = {
+    title: 'ticket-title',
+    occurAt: 'occur-at',
+    dispatchAt: 'dispatch-at',
+    closedAt: 'closed-at',
+    pic: 'pic',
+    rootcause: 'rootcause',
+    cutPoint: 'cut-point',
+    latitude: 'latitude',
+    longitude: 'longitude',
+    progress: 'progress-text',
+  };
+  const target = fieldIds[field] ? document.getElementById(fieldIds[field]) : null;
+  if (target) {
+    target.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+    target.focus?.();
+    return;
+  }
+  if (field === 'impactList') {
+    document
+      .querySelector('.generator-impact-editor')
+      ?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+  }
+}
+
+function deriveCopilot(validation) {
+  const findings = validation?.findings ?? [];
+  const blocking = findings.find((item) => item.severity === 'blocking') ?? null;
+  const warning = findings.find((item) => item.severity === 'warning') ?? null;
+  const next = blocking ?? warning;
+
+  if (blocking?.source === 'import') {
+    return {
+      stage: '01 · Intake',
+      label: 'Next required',
+      detail: blocking.message,
+      field: blocking.field,
+    };
+  }
+
+  if (blocking) {
+    return {
+      stage: '02 · Define the incident',
+      label: 'Next required',
+      detail: blocking.message,
+      field: blocking.field,
+    };
+  }
+
+  if (warning) {
+    return {
+      stage: '04 · Review & handover',
+      label: 'Review next',
+      detail: warning.message,
+      field: warning.field,
+    };
+  }
+
+  return {
+    stage: '04 · Review & handover',
+    label: 'Next step',
+    detail: 'Required fields are ready. Review the canonical report before lifecycle action.',
+    field: null,
+  };
+}
+
 export function ReportPreview({
   report,
   validation,
@@ -12,6 +80,8 @@ export function ReportPreview({
   showCopyAction = true,
   title = 'Report Preview',
 }) {
+  const copilot = deriveCopilot(validation);
+
   return (
     <aside
       id="generator-report-preview"
@@ -71,6 +141,28 @@ export function ReportPreview({
             </pre>
           </ScrollArea>
         </div>
+        {validation ? (
+          <div className="generator-preview-copilot shrink-0 border-t border-[var(--border-subtle)]">
+            <div className="generator-preview-copilot__stage">
+              <span>Current stage</span>
+              <strong>{copilot.stage}</strong>
+            </div>
+            <div className="generator-preview-copilot__next">
+              <span>{copilot.label}</span>
+              <strong>{copilot.detail}</strong>
+            </div>
+            {copilot.field ? (
+              <button
+                type="button"
+                className="generator-preview-copilot__action"
+                onClick={() => focusValidationField(copilot.field)}
+              >
+                Go to field
+                <AppIcon name="arrowDown" size={12} className="-rotate-90" />
+              </button>
+            ) : null}
+          </div>
+        ) : null}
       </section>
     </aside>
   );
