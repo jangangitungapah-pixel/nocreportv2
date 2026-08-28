@@ -1,0 +1,526 @@
+/*
+ * Cut Point Tracker workspace polish.
+ *
+ * This layer is intentionally scoped through the tracker landmarks already
+ * exposed by the page (`Cut Point workspace summary`, `mapped-incidents-heading`
+ * and `Cut Point map`). It upgrades density, hierarchy and geographic context
+ * without changing shared surfaces used by the rest of the app.
+ */
+
+/* Page header: quieter than the shell title, stronger than a generic form header. */
+header:has(+ [aria-label='Cut Point workspace summary']) {
+  min-height: 0;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 0;
+  padding: 0.15rem 0 0.35rem;
+}
+
+header:has(+ [aria-label='Cut Point workspace summary']) > div:first-child {
+  display: grid;
+  gap: 0.08rem;
+}
+
+header:has(+ [aria-label='Cut Point workspace summary']) p:first-child {
+  color: var(--accent-text);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+}
+
+header:has(+ [aria-label='Cut Point workspace summary']) h2 {
+  margin-top: 0;
+  font-size: clamp(1.1rem, 1.45vw, 1.38rem);
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+}
+
+header:has(+ [aria-label='Cut Point workspace summary']) h2 + p {
+  max-width: 58rem;
+  margin-top: 0.2rem;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+header:has(+ [aria-label='Cut Point workspace summary']) > div:last-child button {
+  min-height: 2.35rem;
+  border-color: var(--border-default);
+  background: var(--surface-panel);
+  box-shadow: var(--shadow-xs);
+}
+
+/* Operational counters become a compact four-cell HUD instead of a loose text row. */
+[aria-label='Cut Point workspace summary'] {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  min-height: 0;
+  gap: 0.45rem;
+  border: 0;
+  padding: 0;
+  font-size: 10px;
+}
+
+[aria-label='Cut Point workspace summary'] > span {
+  display: flex;
+  min-width: 0;
+  min-height: 2.45rem;
+  align-items: center;
+  gap: 0.38rem;
+  margin-left: 0 !important;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.7rem;
+  background: color-mix(in srgb, var(--surface-panel) 94%, transparent);
+  padding: 0.45rem 0.65rem;
+  color: var(--text-muted);
+  box-shadow: var(--shadow-xs);
+}
+
+[aria-label='Cut Point workspace summary'] > span::before {
+  width: 0.38rem;
+  height: 0.38rem;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--border-strong);
+  content: '';
+}
+
+[aria-label='Cut Point workspace summary'] > span:nth-child(2)::before {
+  background: var(--success-solid);
+  box-shadow: 0 0 0 3px var(--success-soft);
+}
+
+[aria-label='Cut Point workspace summary'] > span:nth-child(3)::before {
+  background: var(--accent-solid);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+[aria-label='Cut Point workspace summary'] > span:last-child {
+  justify-content: flex-end;
+  font-size: 9px;
+  text-align: right;
+}
+
+[aria-label='Cut Point workspace summary'] > span:last-child::before {
+  display: none;
+}
+
+[aria-label='Cut Point workspace summary'] strong {
+  font-size: 11px;
+  font-weight: 850;
+}
+
+/* Desktop board shell. */
+#cut-point-map-workspace {
+  min-height: 35rem !important;
+  height: calc(100dvh - 11.15rem) !important;
+}
+
+#cut-point-map-workspace [role='separator'] {
+  width: 0.65rem;
+  margin-inline: 0.2rem;
+  background: transparent;
+}
+
+#cut-point-map-workspace [role='separator'] > span {
+  top: 2.2rem;
+  bottom: 2.2rem;
+  width: 2px;
+  border-radius: 999px;
+  background: var(--border-subtle);
+}
+
+#cut-point-map-workspace [role='separator']:hover > span,
+#cut-point-map-workspace [role='separator']:focus-visible > span {
+  background: var(--accent-solid);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* Incident rail */
+section[aria-labelledby='mapped-incidents-heading'] {
+  border-color: var(--border-default);
+  border-radius: 0.95rem;
+  background: var(--surface-panel);
+  box-shadow: 0 10px 34px color-mix(in srgb, var(--text-primary) 4%, transparent);
+}
+
+section[aria-labelledby='mapped-incidents-heading'] > header {
+  min-height: 3.35rem;
+  padding: 0.65rem 0.8rem;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--surface-panel-strong) 88%, transparent),
+    var(--surface-panel)
+  );
+}
+
+section[aria-labelledby='mapped-incidents-heading'] > header p {
+  color: var(--text-faint);
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+}
+
+section[aria-labelledby='mapped-incidents-heading'] > header h2 {
+  margin-top: 0.06rem;
+  font-size: 13px;
+  letter-spacing: -0.02em;
+}
+
+section[aria-labelledby='mapped-incidents-heading'] > header > span {
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: var(--surface-muted);
+  padding: 0.2rem 0.48rem;
+  font-size: 8.5px;
+}
+
+/* Search + filter control zone */
+section[aria-labelledby='mapped-incidents-heading'] > header + div {
+  gap: 0.65rem;
+  border-bottom-color: var(--border-default);
+  background: color-mix(in srgb, var(--surface-muted) 52%, var(--surface-panel));
+  padding: 0.65rem 0.72rem 0.6rem;
+}
+
+section[aria-labelledby='mapped-incidents-heading'] #cut-point-search {
+  min-height: 2.55rem;
+  border-color: var(--border-default);
+  border-radius: 0.68rem;
+  background: var(--surface-panel);
+  font-size: 11.5px;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, white 36%, transparent);
+}
+
+section[aria-labelledby='mapped-incidents-heading'] #cut-point-search:focus {
+  border-color: var(--accent-solid);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+section[aria-labelledby='mapped-incidents-heading'] label[for='cut-point-search'] {
+  margin-bottom: 0.28rem;
+  color: var(--text-secondary);
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+section[aria-labelledby='mapped-incidents-heading'] [role='radiogroup'] {
+  gap: 0.15rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.62rem;
+  background: var(--surface-panel);
+  padding: 0.15rem;
+}
+
+section[aria-labelledby='mapped-incidents-heading'] [role='radio'] {
+  min-height: 1.85rem;
+  border: 0;
+  border-radius: 0.46rem;
+  padding-inline: 0.65rem;
+  font-size: 9.5px;
+}
+
+section[aria-labelledby='mapped-incidents-heading'] [role='radio'][data-state='on'] {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  box-shadow: inset 0 0 0 1px var(--border-accent);
+}
+
+section[aria-labelledby='mapped-incidents-heading'] > header + div + p {
+  min-height: 1.95rem;
+  display: flex;
+  align-items: center;
+  border-bottom-color: var(--border-subtle);
+  background: var(--surface-panel);
+  padding: 0.35rem 0.75rem;
+  color: var(--text-faint);
+  font-size: 9px;
+}
+
+/* Incident rows become compact selectable cards, not long table stripes. */
+section[aria-labelledby='mapped-incidents-heading'] article {
+  width: calc(100% - 0.8rem);
+  margin: 0.4rem;
+  overflow: hidden;
+  border: 1px solid transparent !important;
+  border-radius: 0.72rem;
+  background: var(--surface-panel) !important;
+  padding: 0.72rem 0.72rem 0.62rem 0.8rem;
+  box-shadow: 0 1px 0 var(--border-subtle);
+  transition:
+    border-color var(--motion-fast) ease-out,
+    background-color var(--motion-fast) ease-out,
+    box-shadow var(--motion-fast) ease-out,
+    transform var(--motion-fast) ease-out;
+}
+
+section[aria-labelledby='mapped-incidents-heading'] article:hover {
+  border-color: var(--border-default) !important;
+  background: var(--surface-panel-strong) !important;
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+section[aria-labelledby='mapped-incidents-heading'] article[data-selected='true'] {
+  border-color: var(--border-accent) !important;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent-soft) 78%, var(--surface-panel)),
+    var(--surface-panel) 66%
+  ) !important;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--accent-solid) 12%, transparent),
+    var(--shadow-sm);
+}
+
+section[aria-labelledby='mapped-incidents-heading'] article > span:first-child {
+  top: 0.65rem;
+  bottom: 0.65rem;
+  left: 0.25rem;
+  width: 3px;
+  border-radius: 999px;
+}
+
+section[aria-labelledby='mapped-incidents-heading'] article h3 {
+  margin-top: 0.32rem;
+  color: var(--text-primary);
+  font-size: 12.5px;
+  line-height: 1.42;
+  letter-spacing: -0.018em;
+}
+
+section[aria-labelledby='mapped-incidents-heading'] article h3 + p {
+  margin-top: 0.42rem;
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+section[aria-labelledby='mapped-incidents-heading'] article h3 + p + div {
+  margin-top: 0.32rem;
+  gap: 0.32rem 0.55rem;
+  font-size: 9px;
+}
+
+section[aria-labelledby='mapped-incidents-heading'] article h3 + p + div span:last-child {
+  display: inline-flex;
+  min-height: 1.3rem;
+  align-items: center;
+  border: 1px solid var(--border-accent);
+  border-radius: 999px;
+  background: var(--accent-soft);
+  padding: 0.12rem 0.42rem;
+}
+
+section[aria-labelledby='mapped-incidents-heading'] article p[class*='border-l-2'] {
+  margin-top: 0.48rem;
+  border-left-color: var(--border-accent);
+  border-radius: 0 0.4rem 0.4rem 0;
+  background: var(--surface-muted);
+  padding: 0.28rem 0.45rem;
+  color: var(--text-secondary);
+  font-size: 9.5px;
+  line-height: 1.45;
+}
+
+section[aria-labelledby='mapped-incidents-heading'] article > div:last-child {
+  margin-top: 0.48rem;
+  padding-top: 0.42rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+section[aria-labelledby='mapped-incidents-heading'] article > div:last-child :is(button, a) {
+  min-height: 1.9rem !important;
+  border-radius: 0.48rem;
+  font-size: 9.5px;
+}
+
+section[aria-labelledby='mapped-incidents-heading'] article[data-selected='true'] > div:last-child button {
+  background: var(--accent-solid);
+  color: var(--accent-on-solid);
+}
+
+/* Map canvas. The subtle geographic grid keeps the workspace intentional while
+   tile images are still loading or unavailable. */
+section:has(> [aria-label='Cut Point map']) {
+  isolation: isolate;
+  min-height: 34rem;
+  border-color: var(--border-default) !important;
+  border-radius: 0.95rem !important;
+  background:
+    radial-gradient(circle at 72% 18%, var(--accent-glow), transparent 32%),
+    linear-gradient(var(--border-subtle) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px),
+    var(--surface-muted) !important;
+  background-size:
+    auto,
+    32px 32px,
+    32px 32px,
+    auto;
+  box-shadow: 0 12px 38px color-mix(in srgb, var(--text-primary) 5%, transparent) !important;
+}
+
+section:has(> [aria-label='Cut Point map'])::before {
+  position: absolute;
+  inset: 0;
+  z-index: 470;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface-panel) 24%, transparent), transparent 18%),
+    linear-gradient(90deg, color-mix(in srgb, var(--surface-panel) 14%, transparent), transparent 20%);
+  content: '';
+}
+
+section:has(> [aria-label='Cut Point map']) > div:first-child {
+  inset: 0.8rem 0.8rem auto auto;
+  z-index: 495;
+  width: auto;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+section:has(> [aria-label='Cut Point map']) > div:first-child > span {
+  min-height: 1.75rem;
+  border-color: color-mix(in srgb, var(--border-default) 80%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-panel) 84%, transparent);
+  padding-inline: 0.58rem;
+  color: var(--text-secondary);
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  box-shadow: var(--shadow-xs);
+  backdrop-filter: blur(18px) saturate(130%);
+}
+
+section:has(> [aria-label='Cut Point map']) > div:first-child > span:last-child:not(:first-child) {
+  border-color: var(--border-accent);
+  background: color-mix(in srgb, var(--accent-soft) 88%, transparent);
+  color: var(--accent-text);
+}
+
+section:has(> [aria-label='Cut Point map']) [aria-label='Cut Point map'] {
+  z-index: 0;
+  border-radius: inherit;
+}
+
+section:has(> [aria-label='Cut Point map']) .leaflet-container {
+  background:
+    radial-gradient(circle at 70% 16%, var(--accent-glow), transparent 34%),
+    linear-gradient(var(--border-subtle) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px),
+    var(--surface-muted) !important;
+  background-size:
+    auto,
+    32px 32px,
+    32px 32px,
+    auto !important;
+}
+
+section:has(> [aria-label='Cut Point map']) .leaflet-control-zoom {
+  margin-top: 0.8rem !important;
+  margin-left: 0.8rem !important;
+}
+
+section:has(> [aria-label='Cut Point map']) .leaflet-bar {
+  border-radius: 0.65rem !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+section:has(> [aria-label='Cut Point map']) .leaflet-bar a,
+section:has(> [aria-label='Cut Point map']) .leaflet-bar a:hover {
+  width: 2.2rem !important;
+  height: 2.2rem !important;
+  font-size: 17px !important;
+}
+
+section:has(> [aria-label='Cut Point map']) .leaflet-control-attribution {
+  margin: 0 0.7rem 0.7rem 0 !important;
+  opacity: 0.82;
+}
+
+section:has(> [aria-label='Cut Point map']) .leaflet-popup-content-wrapper {
+  border-radius: 0.85rem !important;
+  box-shadow: 0 16px 42px color-mix(in srgb, var(--text-primary) 14%, transparent) !important;
+}
+
+section:has(> [aria-label='Cut Point map']) .leaflet-popup-content {
+  padding: 0.8rem !important;
+}
+
+/* Alerts float as compact geographic HUDs instead of spanning the whole map. */
+section:has(> [aria-label='Cut Point map']) > div[class*='top-12'] {
+  right: auto;
+  width: min(26rem, calc(100% - 1.5rem));
+  margin-left: 0.75rem;
+  border-radius: 0.65rem;
+  box-shadow: var(--shadow-md);
+}
+
+/* Responsive flow: map first for geographic orientation, incident rail second. */
+@media (max-width: 1279px) {
+  [aria-label='Cut Point workspace summary'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  section:has(> [aria-label='Cut Point map']) {
+    min-height: min(62vh, 34rem);
+  }
+
+  section[aria-labelledby='mapped-incidents-heading'] {
+    max-height: none;
+  }
+}
+
+@media (max-width: 640px) {
+  header:has(+ [aria-label='Cut Point workspace summary']) {
+    align-items: flex-start;
+  }
+
+  header:has(+ [aria-label='Cut Point workspace summary']) > div:last-child {
+    width: 100%;
+  }
+
+  header:has(+ [aria-label='Cut Point workspace summary']) > div:last-child button {
+    width: 100%;
+  }
+
+  [aria-label='Cut Point workspace summary'] {
+    gap: 0.35rem;
+  }
+
+  [aria-label='Cut Point workspace summary'] > span {
+    min-height: 2.2rem;
+    padding: 0.35rem 0.5rem;
+    font-size: 9px;
+  }
+
+  [aria-label='Cut Point workspace summary'] > span:last-child {
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  section[aria-labelledby='mapped-incidents-heading'] > header + div > div:last-child {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  section[aria-labelledby='mapped-incidents-heading'] [role='radiogroup'] {
+    width: 100%;
+  }
+
+  section[aria-labelledby='mapped-incidents-heading'] [role='radio'] {
+    flex: 1;
+  }
+
+  section[aria-labelledby='mapped-incidents-heading'] article {
+    width: calc(100% - 0.5rem);
+    margin: 0.25rem;
+  }
+
+  section:has(> [aria-label='Cut Point map']) > div:first-child {
+    top: 0.65rem;
+    right: 0.65rem;
+  }
+
+  section:has(> [aria-label='Cut Point map']) > div:first-child > span:first-child {
+    display: none;
+  }
+}
