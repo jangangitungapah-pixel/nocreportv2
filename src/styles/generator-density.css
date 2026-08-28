@@ -76,7 +76,10 @@
     line-height: 1.25;
   }
 
-  .generator-cockpit #generator-stage-incident .generator-title-controlbar + .generator-tt-detection-bar {
+  .generator-cockpit
+    #generator-stage-incident
+    .generator-title-controlbar
+    + .generator-tt-detection-bar {
     margin-top: 0.08rem;
   }
 
@@ -230,7 +233,10 @@
     padding: 0.48rem;
   }
 
-  .generator-cockpit #generator-stage-response .generator-ocr-dropzone > :is(img, div:first-of-type) {
+  .generator-cockpit
+    #generator-stage-response
+    .generator-ocr-dropzone
+    > :is(img, div:first-of-type) {
     height: 3.4rem;
   }
 
