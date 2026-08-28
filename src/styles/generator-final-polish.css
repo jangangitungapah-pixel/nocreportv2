@@ -25,16 +25,16 @@
 }
 
 .generator-cockpit .generator-next-action button {
-  border: 1px solid var(--border-default) !important;
-  background: var(--generator-final-secondary) !important;
-  color: var(--text-secondary) !important;
-  box-shadow: none !important;
+  border: 1px solid var(--border-default);
+  background: var(--generator-final-secondary);
+  color: var(--text-secondary);
+  box-shadow: none;
 }
 
 .generator-cockpit .generator-next-action button:hover {
-  border-color: var(--border-accent) !important;
-  background: var(--accent-soft) !important;
-  color: var(--accent-text) !important;
+  border-color: var(--border-accent);
+  background: var(--accent-soft);
+  color: var(--accent-text);
 }
 
 /* Stronger labels, without bringing back card chrome. */
@@ -58,7 +58,7 @@
 
 /* Impact preview exists only when there are candidates, so reclaim the full input width otherwise. */
 .generator-cockpit #generator-stage-incident .generator-impact-builder-grid:not(:has(.generator-impact-preview)) {
-  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .generator-cockpit #generator-stage-incident .generator-impact-builder-grid:not(:has(.generator-impact-preview)) #impact-builder-source {
@@ -198,7 +198,7 @@
 /* Report preview: no full-height lane divider. The document itself is the boundary. */
 @media (min-width: 1280px) {
   .generator-cockpit .generator-preview-stage {
-    border-left: 0 !important;
+    border-left: 0;
     padding-left: 1.15rem;
   }
 }
@@ -223,9 +223,9 @@
 }
 
 .generator-cockpit #generator-stage-handover .generator-flow-stage__body > * {
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-  border-top: 0 !important;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
   border-bottom: 1px solid var(--generator-final-divider);
 }
 
