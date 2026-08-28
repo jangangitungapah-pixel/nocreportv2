@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 
 import { analyzeCoordinateOcrText } from '../../../infrastructure/ocr/coordinateCandidates.js';
@@ -36,6 +37,7 @@ function CandidateButton({ candidate, label, onApply }) {
 
 export function CoordinateExtractor({ onApplyCoordinate }) {
   const inputRef = useRef(null);
+  const [portalTarget, setPortalTarget] = useState(null);
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState('');
   const [dragActive, setDragActive] = useState(false);
@@ -46,6 +48,11 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
   const [confidence, setConfidence] = useState(null);
   const [sourceLabel, setSourceLabel] = useState('');
   const [attempts, setAttempts] = useState([]);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    setPortalTarget(document.querySelector('.generator-authoring-section--coordinate'));
+  }, []);
 
   useEffect(() => {
     if (!file) {
@@ -132,18 +139,18 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
       : null;
   const needsGeminiKey = error.includes('Gemini API key');
 
-  return (
-    <section className="generator-operations-surface generator-coordinate-extractor overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
+  const content = (
+    <section className="generator-operations-surface generator-coordinate-extractor generator-coordinate-extractor--inline overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
       <header className="generator-operations-header generator-coordinate-extractor__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3">
         <div className="flex min-w-0 items-center gap-2">
           <AppIcon name="map" size={14} className="text-[var(--accent-text)]" />
-          <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Cut Point Photo OCR</h3>
+          <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Photo coordinate</h3>
           <span className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-text)]">
-            Gemini API
+            Gemini 3.6 Flash
           </span>
         </div>
         <span className="hidden text-[9.5px] font-medium text-[var(--text-faint)] sm:inline">
-          Image is sent to Gemini only when you scan
+          Scan a geotag photo to fill the coordinate fields above
         </span>
       </header>
 
@@ -198,7 +205,7 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
               {file ? file.name : 'Drop a geotag photo here'}
             </p>
             <p className="mt-0.5 text-[10px] leading-4 text-[var(--text-muted)]">
-              JPG, PNG, WebP · max 15 MB · Gemini analysis on scan
+              JPG, PNG, WebP · max 15 MB · sent to Gemini only when Scan is pressed
             </p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               <Button tone="secondary" size="xs" onClick={() => inputRef.current?.click()}>
@@ -279,7 +286,7 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
 
         {phase === 'verified' ? (
           <p className="mt-2.5 border-l-2 border-[var(--success-solid)] bg-[var(--success-soft)] px-2.5 py-1.5 text-[11px] font-semibold leading-5 text-[var(--success-text)]">
-            Coordinate applied to editable Latitude/Longitude fields. Review them before Save.
+            Coordinate applied to editable Latitude/Longitude fields above. Review them before Save.
           </p>
         ) : null}
 
@@ -327,4 +334,6 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
       </div>
     </section>
   );
+
+  return portalTarget ? createPortal(content, portalTarget) : content;
 }
