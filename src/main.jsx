@@ -8,6 +8,7 @@ import './styles/generator-polish.css';
 import './styles/generator-density.css';
 import './styles/generator-copy-trim.css';
 import './styles/generator-final-polish.css';
+import './styles/generator-focus.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
