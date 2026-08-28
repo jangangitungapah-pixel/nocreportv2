@@ -78,7 +78,9 @@ export function publishTicketWorkspaceChange(change) {
   const payload = normalizeChange(change);
   if (!browserAvailable()) return payload;
 
-  window.dispatchEvent(new CustomEvent(TICKET_WORKSPACE_SYNC_EVENT, { detail: payload }));
+  window.dispatchEvent(
+    new globalThis.CustomEvent(TICKET_WORKSPACE_SYNC_EVENT, { detail: payload }),
+  );
 
   if (typeof globalThis.BroadcastChannel === 'function') {
     const channel = new globalThis.BroadcastChannel(TICKET_WORKSPACE_SYNC_CHANNEL);
