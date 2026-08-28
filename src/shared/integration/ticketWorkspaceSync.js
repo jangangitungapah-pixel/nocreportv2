@@ -11,7 +11,7 @@ export const TICKET_WORKSPACE_SCOPE = Object.freeze({
 });
 
 const ALL_TICKET_SCOPES = Object.freeze(Object.values(TICKET_WORKSPACE_SCOPE));
-let fallbackSourceId = null;
+let tabSourceId = null;
 
 function browserAvailable() {
   return typeof window !== 'undefined';
@@ -30,17 +30,8 @@ function randomId() {
 
 function currentSourceId() {
   if (!browserAvailable()) return 'server';
-  const key = 'nocreportv2:workspace-source:v1';
-  try {
-    const existing = window.sessionStorage.getItem(key);
-    if (existing) return existing;
-    const created = randomId();
-    window.sessionStorage.setItem(key, created);
-    return created;
-  } catch {
-    if (!fallbackSourceId) fallbackSourceId = randomId();
-    return fallbackSourceId;
-  }
+  if (!tabSourceId) tabSourceId = randomId();
+  return tabSourceId;
 }
 
 function optionalNumber(value) {
