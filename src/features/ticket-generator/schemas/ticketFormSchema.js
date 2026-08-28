@@ -2,6 +2,12 @@ import { z } from 'zod';
 
 import { validateCoordinatePair } from '../../../entities/ticket/index.js';
 
+function validDate(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 export const ticketFormSchema = z
   .object({
     title: z.string(),
@@ -19,6 +25,16 @@ export const ticketFormSchema = z
     coordinateVerified: z.boolean().default(true),
   })
   .superRefine((value, context) => {
+    const occurAt = validDate(value.occurAt);
+    const closedAt = validDate(value.closedAt);
+    if (occurAt && closedAt && closedAt.getTime() < occurAt.getTime()) {
+      context.addIssue({
+        code: 'custom',
+        path: ['closedAt'],
+        message: 'Closed Time cannot be earlier than Occur Time.',
+      });
+    }
+
     const latitude = value.latitude.trim();
     const longitude = value.longitude.trim();
 
