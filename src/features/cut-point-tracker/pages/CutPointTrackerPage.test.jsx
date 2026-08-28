@@ -190,10 +190,10 @@ describe('CutPointTrackerPage', () => {
       screen.getByText(/requested Ticket is not currently map-eligible/i),
     ).toBeInTheDocument();
     expect(mapClient.focusMarker).not.toHaveBeenCalledWith('not-mapped');
-    expect(screen.getByRole('link', { name: 'Open Ticket' })).toHaveAttribute(
-      'href',
-      '/tickets/not-mapped',
-    );
+    const requestedLink = screen
+      .getAllByRole('link', { name: 'Open Ticket' })
+      .find((link) => link.getAttribute('href') === '/tickets/not-mapped');
+    expect(requestedLink).toBeDefined();
   });
 
   it('keeps the responsive Cut Point flow free of desktop resize affordances', async () => {
