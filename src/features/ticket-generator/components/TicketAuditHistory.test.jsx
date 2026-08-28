@@ -41,12 +41,14 @@ describe('TicketAuditHistory', () => {
     expect(screen.getByText('Team A → Team B')).toBeInTheDocument();
     expect(screen.getByText('Cut Point')).toBeInTheDocument();
     expect(screen.getByText('KM 20 → KM 24')).toBeInTheDocument();
-    expect(screen.getByText('Immutable audit · latest 50')).toBeInTheDocument();
+    expect(screen.getByText('1 event')).toBeInTheDocument();
+    expect(screen.queryByText(/Immutable audit/i)).not.toBeInTheDocument();
+    expect(screen.queryByText('Admin')).not.toBeInTheDocument();
 
     expect(loadTicketRevisionHistory).toHaveBeenCalledWith('ticket-1', { limit: 50 });
   });
 
-  it('keeps legacy TICKET_UPDATED events readable when no diff exists', async () => {
+  it('keeps legacy TICKET_UPDATED events readable without low-value explanation copy', async () => {
     loadTicketRevisionHistory.mockResolvedValue([
       {
         id: 'legacy-1',
@@ -61,11 +63,23 @@ describe('TicketAuditHistory', () => {
     render(<TicketAuditHistory ticketId="ticket-legacy" enabled />);
 
     expect(await screen.findByText('Ticket updated')).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        'Legacy update event. Compact field diff was not recorded for this revision.',
-      ),
-    ).toBeInTheDocument();
+    expect(screen.queryByText(/Legacy update event/i)).not.toBeInTheDocument();
+  });
+
+  it('hides opaque progress ids from the visual audit list', async () => {
+    loadTicketRevisionHistory.mockResolvedValue([
+      {
+        id: 'progress-event',
+        type: 'PROGRESS_ADDED',
+        createdAt: new Date('2026-08-26T17:01:00.000Z'),
+        details: { progressId: 'vQR1OQyjpPjzv66MbkWa' },
+      },
+    ]);
+
+    render(<TicketAuditHistory ticketId="ticket-progress" enabled />);
+
+    expect(await screen.findByText('Progress added')).toBeInTheDocument();
+    expect(screen.queryByText(/vQR1OQyjpPjzv66MbkWa/)).not.toBeInTheDocument();
   });
 
   it('does not query audit history when the capability is disabled', async () => {
