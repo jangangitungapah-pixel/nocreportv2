@@ -67,7 +67,7 @@ describe('Gemini coordinate client', () => {
 
     expect(fetchImpl).toHaveBeenCalledTimes(2);
     expect(fetchImpl).toHaveBeenLastCalledWith(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent',
       expect.objectContaining({
         method: 'POST',
         headers: expect.objectContaining({ 'x-goog-api-key': 'AIza-test' }),
@@ -113,6 +113,7 @@ describe('Gemini coordinate client', () => {
     expect(result.analysis).toEqual(
       expect.objectContaining({ status: 'success', latitude: -6.2, longitude: 106.8 }),
     );
+    expect(result.sourceLabel).toContain('Gemini 3.6 Flash');
     expect(result.sourceLabel).toContain('Generate Content fallback');
     expect(fetchImpl).toHaveBeenCalledTimes(4);
     expect(onProgress).toHaveBeenCalledWith(
