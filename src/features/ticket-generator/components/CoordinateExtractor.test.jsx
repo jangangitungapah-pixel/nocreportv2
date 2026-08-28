@@ -85,8 +85,8 @@ describe('CoordinateExtractor', () => {
     expect(recognizeImageText).not.toHaveBeenCalled();
   });
 
-  it('reports a no-coordinate OCR result without blocking manual entry', async () => {
-    recognizeImageText.mockResolvedValue({ text: 'Bandung 18 Aug 2026', confidence: 74 });
+  it('reports a no-coordinate Gemini result without blocking manual entry', async () => {
+    recognizeImageText.mockResolvedValue({ text: 'Bandung 18 Aug 2026', confidence: null });
     render(<CoordinateExtractor onApplyCoordinate={vi.fn()} />);
 
     const file = new File(['image'], 'cut-point.jpg', { type: 'image/jpeg' });
@@ -96,7 +96,7 @@ describe('CoordinateExtractor', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Scan coordinates' }));
 
     await waitFor(() => {
-      expect(screen.getByText(/No supported coordinate pattern was detected/)).toBeInTheDocument();
+      expect(screen.getByText(/Gemini did not find a visible supported coordinate pair/)).toBeInTheDocument();
     });
   });
 });

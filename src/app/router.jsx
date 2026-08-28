@@ -65,6 +65,20 @@ async function loadArchiveRoute() {
   return { Component: ArchiveRoute };
 }
 
+async function loadSettingsRoute() {
+  const { SettingsPage } = await import('../features/settings/pages/SettingsPage.jsx');
+
+  function SettingsRoute() {
+    return (
+      <ProtectedRoute allowedRoles={[USER_ROLE.ADMIN, USER_ROLE.OPERATOR]}>
+        <SettingsPage />
+      </ProtectedRoute>
+    );
+  }
+
+  return { Component: SettingsRoute };
+}
+
 export const routeObjects = [
   {
     path: '/login',
@@ -84,6 +98,7 @@ export const routeObjects = [
           { path: '/running', element: <RunningTicketsPage /> },
           { path: '/cut-points', lazy: loadCutPointTrackerRoute },
           { path: '/archive', lazy: loadArchiveRoute },
+          { path: '/settings', lazy: loadSettingsRoute },
         ],
       },
     ],

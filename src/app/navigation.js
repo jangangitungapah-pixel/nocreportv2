@@ -38,6 +38,14 @@ export const PRIMARY_NAVIGATION = [
     icon: 'archive',
     requiredCapability: CAPABILITY.ARCHIVE_RESTORE,
   },
+  {
+    key: 'settings',
+    label: 'Settings',
+    shortLabel: 'Settings',
+    to: '/settings',
+    icon: 'settings',
+    requiredCapability: CAPABILITY.CREATE_TICKET,
+  },
 ];
 
 const PAGE_META = Object.freeze({
@@ -58,6 +66,7 @@ const PAGE_META = Object.freeze({
     label: 'Archive & Restore',
     eyebrow: 'Lifecycle history',
   }),
+  settings: Object.freeze({ key: 'settings', label: 'Settings', eyebrow: 'Workspace' }),
   ticketDetail: Object.freeze({
     key: 'ticket-detail',
     label: 'Ticket Detail',
@@ -71,6 +80,7 @@ export function getPageMeta(pathname) {
   if (pathname.startsWith('/running')) return PAGE_META.running;
   if (pathname.startsWith('/cut-points')) return PAGE_META.cutPoints;
   if (pathname.startsWith('/archive')) return PAGE_META.archive;
+  if (pathname.startsWith('/settings')) return PAGE_META.settings;
   return PAGE_META.dashboard;
 }
 

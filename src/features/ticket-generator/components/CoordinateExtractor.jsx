@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { analyzeCoordinateOcrText } from '../../../infrastructure/ocr/coordinateCandidates.js';
 import { validateOcrImageFile } from '../../../infrastructure/ocr/imageValidation.js';
@@ -105,7 +106,7 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
       else setPhase('not_found');
     } catch (scanError) {
       setPhase('error');
-      setError(scanError instanceof Error ? scanError.message : 'OCR processing failed.');
+      setError(scanError instanceof Error ? scanError.message : 'Coordinate analysis failed.');
     }
   };
 
@@ -129,6 +130,7 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
           formatted: analysis.formatted,
         }
       : null;
+  const needsGeminiKey = error.includes('Gemini API key');
 
   return (
     <section className="generator-operations-surface generator-coordinate-extractor overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
@@ -136,12 +138,12 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
         <div className="flex min-w-0 items-center gap-2">
           <AppIcon name="map" size={14} className="text-[var(--accent-text)]" />
           <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Cut Point Photo OCR</h3>
-          <span className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--success-text)]">
-            Local only
+          <span className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-text)]">
+            Gemini API
           </span>
         </div>
         <span className="hidden text-[9.5px] font-medium text-[var(--text-faint)] sm:inline">
-          Photo never leaves this browser
+          Image is sent to Gemini only when you scan
         </span>
       </header>
 
@@ -196,7 +198,7 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
               {file ? file.name : 'Drop a geotag photo here'}
             </p>
             <p className="mt-0.5 text-[10px] leading-4 text-[var(--text-muted)]">
-              JPG, PNG, WebP · max 15 MB · mobile picker supported
+              JPG, PNG, WebP · max 15 MB · Gemini analysis on scan
             </p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               <Button tone="secondary" size="xs" onClick={() => inputRef.current?.click()}>
@@ -215,7 +217,7 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
             aria-live="polite"
           >
             <div className="flex items-center justify-between gap-3 text-[10px] font-bold">
-              <span>{progress.status || 'Starting OCR worker…'}</span>
+              <span>{progress.status || 'Starting Gemini analysis…'}</span>
               <span className="font-mono text-[var(--accent-text)]">
                 {formatPercent(progress.progress)}
               </span>
@@ -230,9 +232,18 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
         ) : null}
 
         {error ? (
-          <p className="mt-2.5 border-l-2 border-[var(--danger-solid)] bg-[var(--danger-soft)] px-2.5 py-1.5 text-[11px] font-medium leading-5 text-[var(--danger-text)]">
-            {error}
-          </p>
+          <div className="mt-2.5 grid gap-2">
+            <p className="border-l-2 border-[var(--danger-solid)] bg-[var(--danger-soft)] px-2.5 py-1.5 text-[11px] font-medium leading-5 text-[var(--danger-text)]">
+              {error}
+            </p>
+            {needsGeminiKey ? (
+              <div>
+                <Button asChild tone="secondary" size="xs">
+                  <Link to="/settings">Open Settings</Link>
+                </Button>
+              </div>
+            ) : null}
+          </div>
         ) : null}
 
         {phase === 'detected' && successfulCandidate ? (
@@ -275,15 +286,15 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
         {phase === 'not_found' || phase === 'invalid' ? (
           <p className="mt-2.5 border-l-2 border-[var(--border-default)] px-2.5 py-1.5 text-[10.5px] leading-5 text-[var(--text-secondary)]">
             {phase === 'not_found'
-              ? 'No supported coordinate pattern was detected. Enter Latitude/Longitude manually or try another photo.'
-              : 'OCR found coordinate-like text, but the location is invalid. Correct it manually.'}
+              ? 'Gemini did not find a visible supported coordinate pair. Enter Latitude/Longitude manually or try another photo.'
+              : 'Gemini found coordinate-like content, but the location is invalid. Correct it manually.'}
           </p>
         ) : null}
 
         {analysis?.normalizedText ? (
           <details className="generator-ocr-details mt-2.5 border-t border-[var(--border-subtle)] pt-2.5">
             <summary className="cursor-pointer text-[10.5px] font-bold text-[var(--text-secondary)]">
-              Review OCR text{sourceLabel ? ` · ${sourceLabel}` : ''}
+              Review detected text{sourceLabel ? ` · ${sourceLabel}` : ''}
             </summary>
             <pre className="mt-2 max-h-36 overflow-auto whitespace-pre-wrap break-words bg-[var(--surface-muted)] p-2.5 font-mono text-[10px] leading-4 text-[var(--text-secondary)]">
               {analysis.normalizedText}
@@ -300,7 +311,10 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
               {attempts.map((attempt) => (
                 <div key={attempt.id} className="py-2">
                   <p className="text-[10px] font-bold text-[var(--text-secondary)]">
-                    {attempt.label} · {Math.round(attempt.confidence || 0)}%
+                    {attempt.label}
+                    {Number.isFinite(attempt.confidence)
+                      ? ` · ${Math.round(attempt.confidence)}%`
+                      : ''}
                   </p>
                   <pre className="mt-1 max-h-28 overflow-auto whitespace-pre-wrap break-words font-mono text-[9.5px] leading-4 text-[var(--text-muted)]">
                     {attempt.text || '(no text)'}
