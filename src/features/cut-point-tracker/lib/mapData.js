@@ -1,5 +1,11 @@
 import { formatCoordinatePair, formatDateTime } from '../../../entities/ticket/index.js';
 
+function coordinateNumber(value) {
+  if (value === null || value === undefined) return Number.NaN;
+  if (typeof value === 'string' && !value.trim()) return Number.NaN;
+  return Number(value);
+}
+
 export function isValidMapCoordinate(latitude, longitude) {
   return (
     Number.isFinite(latitude) &&
@@ -15,8 +21,8 @@ export function buildCutPointMarkers(tickets = []) {
   if (!Array.isArray(tickets)) return [];
 
   return tickets.flatMap((ticket) => {
-    const latitude = Number(ticket?.coordinate?.latitude);
-    const longitude = Number(ticket?.coordinate?.longitude);
+    const latitude = coordinateNumber(ticket?.coordinate?.latitude);
+    const longitude = coordinateNumber(ticket?.coordinate?.longitude);
 
     if (
       !ticket?.id ||
