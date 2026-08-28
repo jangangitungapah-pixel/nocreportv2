@@ -8,7 +8,7 @@ export const ticketFormSchema = z
     impactList: z.array(z.object({ value: z.string() })),
     occurAt: z.string(),
     dispatchAt: z.string(),
-    closedAt: z.string(),
+    closedAt: z.string().default(''),
     pic: z.string(),
     rootcause: z.string(),
     cutPoint: z.string(),
