@@ -57,12 +57,26 @@ function NavigationLink({ item }) {
   );
 }
 
-function ticketWorkspaceScope(pathname) {
-  if (pathname.startsWith('/dashboard')) return TICKET_WORKSPACE_SCOPE.DASHBOARD;
-  if (pathname.startsWith('/running')) return TICKET_WORKSPACE_SCOPE.RUNNING;
-  if (pathname.startsWith('/cut-points')) return TICKET_WORKSPACE_SCOPE.CUT_POINTS;
-  if (pathname.startsWith('/archive')) return TICKET_WORKSPACE_SCOPE.ARCHIVE;
-  if (pathname.startsWith('/tickets/')) return TICKET_WORKSPACE_SCOPE.TICKET;
+function ticketWorkspaceSubscription(pathname) {
+  if (pathname.startsWith('/dashboard')) {
+    return { scope: TICKET_WORKSPACE_SCOPE.DASHBOARD, ticketId: null };
+  }
+  if (pathname.startsWith('/running')) {
+    return { scope: TICKET_WORKSPACE_SCOPE.RUNNING, ticketId: null };
+  }
+  if (pathname.startsWith('/cut-points')) {
+    return { scope: TICKET_WORKSPACE_SCOPE.CUT_POINTS, ticketId: null };
+  }
+  if (pathname.startsWith('/archive')) {
+    return { scope: TICKET_WORKSPACE_SCOPE.ARCHIVE, ticketId: null };
+  }
+  if (pathname.startsWith('/tickets/')) {
+    const ticketId = pathname.split('/')[2];
+    return {
+      scope: TICKET_WORKSPACE_SCOPE.TICKET,
+      ticketId: ticketId ? decodeURIComponent(ticketId) : null,
+    };
+  }
   return null;
 }
 
@@ -86,15 +100,20 @@ export function AppShell() {
   const accountLabel = localDevelopmentMode
     ? 'Local development'
     : profile?.displayName || profile?.email || 'Firebase user';
-  const workspaceScope = useMemo(() => ticketWorkspaceScope(location.pathname), [location.pathname]);
+  const workspaceSubscription = useMemo(
+    () => ticketWorkspaceSubscription(location.pathname),
+    [location.pathname],
+  );
+  const workspaceScope = workspaceSubscription?.scope ?? null;
+  const workspaceTicketId = workspaceSubscription?.ticketId ?? null;
 
   useEffect(() => {
     if (!workspaceScope || localDevelopmentMode) return undefined;
     return subscribeTicketWorkspaceChanges(
       () => setWorkspaceRevision((current) => current + 1),
-      { scopes: [workspaceScope], debounceMs: 160 },
+      { scopes: [workspaceScope], ticketId: workspaceTicketId, debounceMs: 160 },
     );
-  }, [localDevelopmentMode, workspaceScope]);
+  }, [localDevelopmentMode, workspaceScope, workspaceTicketId]);
 
   useEffect(() => {
     if (!workspaceScope || localDevelopmentMode) return undefined;
