@@ -27,7 +27,7 @@ function formatImpactList(impactList) {
 }
 
 export function formatTicketReport(ticket = {}) {
-  const lines = [`Title : ${formatTitle(ticket.title)}`];
+  const lines = [formatTitle(ticket.title)];
   const impactLines = formatImpactList(ticket.impactList);
 
   if (impactLines.length > 0) {
