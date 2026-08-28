@@ -113,6 +113,18 @@ function timeFindings(ticket, time) {
     );
   }
 
+  if (time.occurAt && time.closedAt && time.closedAt.getTime() < time.occurAt.getTime()) {
+    findings.push(
+      finding({
+        code: 'CLOSED_BEFORE_OCCUR',
+        severity: VALIDATION_SEVERITY.BLOCKING,
+        message: 'Closed Time cannot be earlier than Occur Time.',
+        field: 'closedAt',
+        source: 'time',
+      }),
+    );
+  }
+
   if (time.occurAt && time.resolvedAt && time.resolvedAt.getTime() < time.occurAt.getTime()) {
     findings.push(
       finding({
