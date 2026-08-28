@@ -43,16 +43,19 @@ describe('GEN-F4 ValidationCenter UI', () => {
     );
 
     expect(screen.getByText('1 blocking')).toBeInTheDocument();
+    expect(screen.getByText('Asia/Jakarta', { exact: false })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Expand Validation Center' }));
+
     expect(screen.getByText('MTTR')).toBeInTheDocument();
     expect(screen.getByText('2h 5m')).toBeInTheDocument();
     expect(screen.getByText('10m')).toBeInTheDocument();
-    expect(screen.getByText('Asia/Jakarta', { exact: false })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: /Title is required/i }));
     expect(onFocusField).toHaveBeenCalledWith('title');
   });
 
-  it('collapses and expands readiness details while keeping the summary visible', () => {
+  it('starts compact and expands readiness details while keeping the summary visible', () => {
     render(
       <ValidationCenter
         validation={{
@@ -75,19 +78,19 @@ describe('GEN-F4 ValidationCenter UI', () => {
       />,
     );
 
-    const collapseButton = screen.getByRole('button', { name: 'Collapse Validation Center' });
-    expect(collapseButton).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByText('MTTR')).toBeVisible();
-
-    fireEvent.click(collapseButton);
-
     const expandButton = screen.getByRole('button', { name: 'Expand Validation Center' });
     expect(expandButton).toHaveAttribute('aria-expanded', 'false');
     expect(screen.getByText('MTTR')).not.toBeVisible();
     expect(screen.getByText('1 blocking')).toBeVisible();
 
     fireEvent.click(expandButton);
+
+    const collapseButton = screen.getByRole('button', { name: 'Collapse Validation Center' });
+    expect(collapseButton).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByText('MTTR')).toBeVisible();
+
+    fireEvent.click(collapseButton);
+    expect(screen.getByText('MTTR')).not.toBeVisible();
   });
 
   it('shows a compact collapsed Running ready state when no blockers remain', () => {
