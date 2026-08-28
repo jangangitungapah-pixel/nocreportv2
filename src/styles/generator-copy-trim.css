@@ -63,7 +63,7 @@
 }
 
 .generator-cockpit .generator-title-controlbar {
-  min-height: auto !important;
+  min-height: auto;
   justify-content: flex-end;
 }
 
@@ -102,7 +102,7 @@
 }
 
 .generator-cockpit .generator-progress-snippet-deck > .grid:has(> p) {
-  grid-template-columns: minmax(220px, 1fr) auto !important;
+  grid-template-columns: minmax(220px, 1fr) auto;
 }
 
 /* Copy Center: title, target, action, and payload are enough. */
@@ -161,6 +161,6 @@
   }
 
   .generator-cockpit .generator-progress-snippet-deck > .grid:has(> p) {
-    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
