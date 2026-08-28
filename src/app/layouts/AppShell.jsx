@@ -80,14 +80,6 @@ function ticketWorkspaceSubscription(pathname) {
   return null;
 }
 
-function workspaceRefreshInterval(scope) {
-  if (scope === TICKET_WORKSPACE_SCOPE.RUNNING || scope === TICKET_WORKSPACE_SCOPE.CUT_POINTS) {
-    return 30_000;
-  }
-  if (scope === TICKET_WORKSPACE_SCOPE.DASHBOARD) return 60_000;
-  return null;
-}
-
 export function AppShell() {
   const location = useLocation();
   const [commandOpen, setCommandOpen] = useState(false);
@@ -111,28 +103,14 @@ export function AppShell() {
     if (!workspaceScope || localDevelopmentMode) return undefined;
     return subscribeTicketWorkspaceChanges(
       () => setWorkspaceRevision((current) => current + 1),
-      { scopes: [workspaceScope], ticketId: workspaceTicketId, debounceMs: 160 },
+      {
+        scopes: [workspaceScope],
+        ticketId: workspaceTicketId,
+        debounceMs: 160,
+        ignoreCurrentSource: true,
+      },
     );
   }, [localDevelopmentMode, workspaceScope, workspaceTicketId]);
-
-  useEffect(() => {
-    if (!workspaceScope || localDevelopmentMode) return undefined;
-
-    const refresh = () => setWorkspaceRevision((current) => current + 1);
-    const handleVisibility = () => {
-      if (document.visibilityState === 'visible') refresh();
-    };
-    const intervalMs = workspaceRefreshInterval(workspaceScope);
-    const timer = intervalMs ? window.setInterval(refresh, intervalMs) : null;
-
-    window.addEventListener('focus', refresh);
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => {
-      window.removeEventListener('focus', refresh);
-      document.removeEventListener('visibilitychange', handleVisibility);
-      if (timer !== null) window.clearInterval(timer);
-    };
-  }, [localDevelopmentMode, workspaceScope]);
 
   return (
     <TooltipProvider delayDuration={350}>
