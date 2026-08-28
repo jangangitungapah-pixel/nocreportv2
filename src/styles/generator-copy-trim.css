@@ -132,6 +132,15 @@
   display: none;
 }
 
+/* Keep the readiness signal's outer ring inside the clipped preview surface. */
+.generator-cockpit .generator-preview-readiness {
+  padding-inline: 0.3rem;
+}
+
+.generator-cockpit .generator-preview-readiness__signal {
+  margin-left: 0.1rem;
+}
+
 /* Reclaim vertical rhythm after removing copy. */
 .generator-cockpit .generator-flow-stage__content {
   padding-top: 0.72rem;
