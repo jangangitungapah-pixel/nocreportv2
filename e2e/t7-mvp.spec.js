@@ -9,6 +9,8 @@ const FIRESTORE_ORIGIN = 'http://127.0.0.1:8080';
 const PASSWORD = 'NocReport-T7-E2E-2026!';
 const INCIDENT_TITLE = '[T7-E2E] BANDUNG LINK DOWN [TT : INC-20260821-00070001]';
 const INCIDENT_TT = 'INC-20260821-00070001';
+const GEMINI_API_KEY_STORAGE_KEY = 'nocreportv2:gemini-api-key:v1';
+const GEMINI_E2E_API_KEY = 'AIza-t7-e2e';
 
 const accounts = {
   admin: { email: 't7-admin@nocreport.test', role: 'ADMIN', active: true, uid: null },
@@ -195,6 +197,50 @@ async function createOcrFixtureBuffer(page) {
   return Buffer.from(dataUrl.split(',')[1], 'base64');
 }
 
+async function mockGeminiCoordinateOcr(page) {
+  const structured = JSON.stringify({
+    status: 'success',
+    latitude: 3.5244,
+    longitude: 98.7691,
+    formatted: '3.5244, 98.7691',
+    format: 'DD',
+    rawText: 'LATITUDE 3.5244 N LONGITUDE 98.7691 E',
+    candidates: [],
+  });
+  const corsHeaders = {
+    'access-control-allow-origin': APP_ORIGIN,
+    'access-control-allow-methods': 'POST, OPTIONS',
+    'access-control-allow-headers': 'content-type,x-goog-api-key',
+  };
+
+  await page.route('https://generativelanguage.googleapis.com/**', async (route) => {
+    const request = route.request();
+    if (request.method() === 'OPTIONS') {
+      await route.fulfill({ status: 204, headers: corsHeaders });
+      return;
+    }
+
+    expect(request.method()).toBe('POST');
+    expect(request.headers()['x-goog-api-key']).toBe(GEMINI_E2E_API_KEY);
+    const body = request.postDataJSON();
+    expect(body?.contents?.[0]?.parts?.[0]?.inlineData?.mimeType).toBe('image/png');
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      headers: corsHeaders,
+      body: JSON.stringify({
+        candidates: [{ content: { parts: [{ text: structured }] } }],
+      }),
+    });
+  });
+
+  await page.evaluate(
+    ({ storageKey, apiKey }) => window.localStorage.setItem(storageKey, apiKey),
+    { storageKey: GEMINI_API_KEY_STORAGE_KEY, apiKey: GEMINI_E2E_API_KEY },
+  );
+}
+
 async function assertViewerTicketLoaded(page, ticketId) {
   await expect(page).toHaveURL(new RegExp(`/tickets/${ticketId}$`));
 
@@ -276,6 +322,7 @@ test.describe.serial('T7 MVP browser workflow', () => {
     await page.getByRole('button', { name: 'Add update' }).click();
     await expect(page.getByText('Team arrived at the Cut Point', { exact: true })).toBeVisible();
 
+    await mockGeminiCoordinateOcr(page);
     const fixtureBuffer = await createOcrFixtureBuffer(page);
     await page.getByLabel('Choose Cut Point photo').setInputFiles({
       name: 't7-coordinate-fixture.png',
@@ -284,7 +331,7 @@ test.describe.serial('T7 MVP browser workflow', () => {
     });
     await page.getByRole('button', { name: 'Scan coordinates' }).click();
     const applyCoordinate = page.getByRole('button', { name: /Apply & verify/ });
-    await expect(applyCoordinate).toBeVisible({ timeout: 120000 });
+    await expect(applyCoordinate).toBeVisible({ timeout: 30_000 });
     await applyCoordinate.click();
     await expect(page.getByLabel('Latitude')).toHaveValue('3.5244');
     await expect(page.getByLabel('Longitude')).toHaveValue('98.7691');
