@@ -5,6 +5,7 @@ import { PageHeader } from '../../../app/components/PageHeader.jsx';
 import { useAuth } from '../../../app/providers/AuthProvider.jsx';
 import { useToast } from '../../../app/providers/ToastProvider.jsx';
 import {
+  TICKET_STATUS,
   formatCoordinatePair,
   formatDateTime,
   formatTicketReport,
@@ -57,6 +58,7 @@ export function TicketViewerPage() {
   const [error, setError] = useState(null);
   const [copyPending, setCopyPending] = useState(false);
   const canEdit = can(CAPABILITY.EDIT_TICKET);
+  const canArchiveRestore = can(CAPABILITY.ARCHIVE_RESTORE);
 
   const loadTicket = useCallback(async () => {
     setLoading(true);
@@ -129,6 +131,14 @@ export function TicketViewerPage() {
     ticket.hasCoordinates && ticket.coordinate
       ? formatCoordinatePair(ticket.coordinate.latitude, ticket.coordinate.longitude)
       : '—';
+  const lifecycleHref =
+    ticket.status === TICKET_STATUS.RUNNING
+      ? '/running'
+      : canArchiveRestore &&
+          (ticket.status === TICKET_STATUS.RESOLVED || ticket.status === TICKET_STATUS.ARCHIVED)
+        ? '/archive'
+        : null;
+  const lifecycleLabel = ticket.status === TICKET_STATUS.RUNNING ? 'Running Queue' : 'Lifecycle';
 
   return (
     <div className="grid gap-3">
@@ -138,6 +148,22 @@ export function TicketViewerPage() {
         description={ticket.title || 'Untitled Ticket'}
         actions={
           <>
+            {lifecycleHref ? (
+              <Button asChild tone="ghost" size="sm">
+                <Link to={lifecycleHref}>
+                  <AppIcon name={ticket.status === TICKET_STATUS.RUNNING ? 'running' : 'archive'} size={14} />
+                  {lifecycleLabel}
+                </Link>
+              </Button>
+            ) : null}
+            {ticket.hasCoordinates ? (
+              <Button asChild tone="ghost" size="sm">
+                <Link to={`/cut-points?ticket=${encodeURIComponent(ticketId)}`}>
+                  <AppIcon name="map" size={14} />
+                  Locate
+                </Link>
+              </Button>
+            ) : null}
             <Button tone="secondary" size="sm" onClick={copyReport} disabled={copyPending}>
               <AppIcon name="copy" size={14} />
               {copyPending ? 'Copying…' : 'Copy Report'}
@@ -168,7 +194,7 @@ export function TicketViewerPage() {
           Revision {ticket.revision}
         </span>
         <span className="ml-auto hidden text-[10px] font-medium text-[var(--text-faint)] sm:inline">
-          Persisted inspection · no mutation controls
+          Persisted inspection · synchronized operational source
         </span>
       </div>
 
@@ -184,15 +210,17 @@ export function TicketViewerPage() {
                   Operational context
                 </h3>
               </div>
-              <span className="text-[10px] font-semibold text-[var(--text-faint)]">6 fields</span>
+              <span className="text-[10px] font-semibold text-[var(--text-faint)]">8 fields</span>
             </header>
             <dl className="grid px-3 md:grid-cols-2 md:gap-x-5 xl:grid-cols-3">
               <DetailItem label="Occur Time" value={formatDateTime(ticket.occurAt)} />
               <DetailItem label="Dispatch Time" value={formatDateTime(ticket.dispatchAt)} />
+              <DetailItem label="Closed Time" value={formatDateTime(ticket.closedAt)} />
               <DetailItem label="PIC" value={ticket.pic} />
               <DetailItem label="Rootcause" value={ticket.rootcause} />
               <DetailItem label="Cut Point" value={ticket.cutPoint} />
               <DetailItem label="Coordinate" value={coordinate} />
+              <DetailItem label="Resolved Time" value={formatDateTime(ticket.resolvedAt)} />
             </dl>
           </section>
 
