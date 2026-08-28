@@ -155,14 +155,15 @@ describe('report formatter', () => {
     expect(report).toContain('Dispatch Time = 18/08/2026 14:20');
   });
 
-  it('renders Impact List when populated and preserves entry order', () => {
+  it('renders Impact List as ordered lines and preserves entry order', () => {
     const report = formatTicketReport({
       ...baseTicket,
       impactList: ['SITE_A', 'SITE_B'],
       progress: [],
     });
 
-    expect(report).toContain('Impact List : SITE_A, SITE_B');
+    expect(report).toContain('Impact List :\n1. SITE_A\n2. SITE_B\nOccur Time');
+    expect(report.indexOf('1. SITE_A')).toBeLessThan(report.indexOf('2. SITE_B'));
   });
 
   it('sorts progress before rendering and preserves user wording', () => {
