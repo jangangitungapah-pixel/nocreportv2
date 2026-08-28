@@ -112,16 +112,16 @@
   --text-primary: #f1f1ee;
   --text-secondary: #c3c4c8;
   --text-muted: #98999f;
-  --text-faint: #7c7d83;
+  --text-faint: #898a91;
   --text-on-inverse: #17181a;
 
-  --accent-solid: #7775ed;
-  --accent-solid-hover: #8987f5;
+  --accent-solid: #6967d9;
+  --accent-solid-hover: #5f5dc4;
   --accent-on-solid: #ffffff;
   --accent-soft: #29284a;
   --accent-soft-strong: #35345e;
   --accent-text: #b8b7ff;
-  --accent-glow: rgb(119 117 237 / 17%);
+  --accent-glow: rgb(105 103 217 / 17%);
   --accent-cyan: #8a88f2;
   --accent-violet: #8a88f2;
 
