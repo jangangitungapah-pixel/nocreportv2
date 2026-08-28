@@ -26,6 +26,7 @@
     "firebase:deploy:firestore": "npx --yes firebase-tools deploy --only firestore:rules,firestore:indexes --project nocreportv2",
     "firebase:deploy:hosting": "npm run release:preflight && npm run build:production && npx --yes firebase-tools deploy --only hosting --project nocreportv2",
     "firebase:deploy:release": "npm run release:preflight && npm run build:production && npx --yes firebase-tools deploy --only firestore:rules,firestore:indexes,hosting --project nocreportv2",
+    "deploy:firebase": "npm run firebase:deploy:release",
     "quality": "npm run format:check && npm run lint && npm test && npm run test:integration && npm run build"
   },
   "dependencies": {
