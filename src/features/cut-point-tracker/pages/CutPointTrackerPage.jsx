@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { PageHeader } from '../../../app/components/PageHeader.jsx';
 import { useAuth } from '../../../app/providers/AuthProvider.jsx';
@@ -149,6 +149,7 @@ function FilterControls({ search, status, onSearchChange, onStatusChange }) {
 
 export function CutPointTrackerPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { localDevelopmentMode } = useAuth();
   const mapHostRef = useRef(null);
   const mapClientRef = useRef(null);
@@ -162,6 +163,11 @@ export function CutPointTrackerPage() {
   const [mapError, setMapError] = useState(null);
   const [tileWarning, setTileWarning] = useState(false);
   const [mapRevision, setMapRevision] = useState(0);
+  const [mapReadyRevision, setMapReadyRevision] = useState(0);
+  const requestedTicketId = useMemo(
+    () => new URLSearchParams(location.search).get('ticket')?.trim() || null,
+    [location.search],
+  );
 
   const loadTickets = useCallback(async () => {
     if (localDevelopmentMode) {
@@ -203,6 +209,9 @@ export function CutPointTrackerPage() {
     }),
     [markers],
   );
+  const requestedMarkerAvailable = Boolean(
+    requestedTicketId && markers.some((marker) => marker.ticketId === requestedTicketId),
+  );
   const useVirtualizedMarkerList = visibleMarkers.length > VIRTUALIZATION_THRESHOLD;
   visibleMarkersRef.current = visibleMarkers;
 
@@ -229,6 +238,7 @@ export function CutPointTrackerPage() {
         mapClientRef.current = client;
         client.setMarkers(visibleMarkersRef.current);
         client.invalidateSize();
+        setMapReadyRevision((current) => current + 1);
       })
       .catch((error) => {
         if (!cancelled) setMapError(error);
@@ -244,6 +254,27 @@ export function CutPointTrackerPage() {
   useEffect(() => {
     mapClientRef.current?.setMarkers(visibleMarkers);
   }, [visibleMarkers]);
+
+  useEffect(() => {
+    if (!requestedTicketId || !requestedMarkerAvailable || loading || queryError || !mapReadyRevision) {
+      return undefined;
+    }
+    const markerVisible = visibleMarkers.some((marker) => marker.ticketId === requestedTicketId);
+    if (!markerVisible) return undefined;
+
+    setSelectedTicketId(requestedTicketId);
+    const timer = window.setTimeout(() => {
+      mapClientRef.current?.focusMarker(requestedTicketId);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [
+    loading,
+    mapReadyRevision,
+    queryError,
+    requestedMarkerAvailable,
+    requestedTicketId,
+    visibleMarkers,
+  ]);
 
   useEffect(() => {
     const host = mapHostRef.current;
@@ -287,6 +318,7 @@ export function CutPointTrackerPage() {
 
   const locateMarker = (marker) => {
     setSelectedTicketId(marker.ticketId);
+    navigate(`/cut-points?ticket=${encodeURIComponent(marker.ticketId)}`, { replace: true });
     mapClientRef.current?.focusMarker(marker.ticketId);
   };
 
@@ -520,6 +552,17 @@ export function CutPointTrackerPage() {
           {visibleMarkers.length} visible · query cap 500
         </span>
       </div>
+
+      {requestedTicketId && !loading && !queryError && !requestedMarkerAvailable ? (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-[var(--radius-control)] border border-[var(--warning-border)] bg-[var(--warning-soft)] px-3 py-2 text-[10.5px] text-[var(--warning-text)]">
+          <span>
+            The requested Ticket is not currently map-eligible. It may be missing a verified coordinate or no longer be Running/Resolved.
+          </span>
+          <Button asChild tone="ghost" size="xs">
+            <Link to={`/tickets/${encodeURIComponent(requestedTicketId)}`}>Open Ticket</Link>
+          </Button>
+        </div>
+      ) : null}
 
       {localDevelopmentMode ? (
         <div className="border-l-2 border-[var(--accent-solid)] bg-[var(--accent-soft)] px-3 py-2 text-[10.5px] leading-5 text-[var(--text-secondary)]">
