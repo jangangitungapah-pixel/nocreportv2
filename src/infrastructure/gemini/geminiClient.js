@@ -1,7 +1,9 @@
 import { GEMINI_MODEL } from './geminiSettings.js';
 
 const INTERACTIONS_ENDPOINT = 'https://generativelanguage.googleapis.com/v1beta/interactions';
-const MODEL_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}`;
+const GENERATE_CONTENT_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+const API_REVISION = '2026-05-20';
+const TRANSIENT_STATUS = new Set([500, 502, 503, 504]);
 
 const COORDINATE_PROMPT = `You extract geographic coordinates from NOC cut-point photos.
 Inspect all visible text, especially small camera/geotag watermark overlays.
@@ -73,13 +75,28 @@ function normalizeCandidate(candidate) {
   };
 }
 
-function extractOutputText(payload) {
+function extractInteractionOutputText(payload) {
+  if (payload?.output_text) return String(payload.output_text);
+
   const steps = Array.isArray(payload?.steps) ? payload.steps : [];
   for (let index = steps.length - 1; index >= 0; index -= 1) {
     const step = steps[index];
     if (step?.type !== 'model_output' || !Array.isArray(step.content)) continue;
     const textBlock = step.content.find((item) => item?.type === 'text' && item.text);
     if (textBlock?.text) return textBlock.text;
+  }
+  return '';
+}
+
+function extractGenerateContentText(payload) {
+  const candidates = Array.isArray(payload?.candidates) ? payload.candidates : [];
+  for (const candidate of candidates) {
+    const parts = Array.isArray(candidate?.content?.parts) ? candidate.content.parts : [];
+    const text = parts
+      .map((part) => (typeof part?.text === 'string' ? part.text : ''))
+      .filter(Boolean)
+      .join('');
+    if (text) return text;
   }
   return '';
 }
@@ -96,18 +113,20 @@ function parseJsonText(text) {
 }
 
 function apiErrorMessage(status, payload) {
-  const detail = payload?.error?.message || payload?.message || '';
+  const detail = String(payload?.error?.message || payload?.message || '').trim();
   if ([400, 401, 403].includes(status)) {
-    return 'Gemini API key was rejected. Check the key in Settings.';
+    return 'Gemini API key was rejected or is not allowed to use this model. Check the key in Settings.';
   }
   if (status === 429) {
     return 'Gemini API quota or rate limit was reached. Try again later or check the API project quota.';
   }
-  if (status >= 500) {
-    return 'Gemini API is temporarily unavailable. Try scanning again in a moment.';
+  if (TRANSIENT_STATUS.has(status)) {
+    return detail
+      ? `Gemini API is temporarily unavailable (${status}: ${detail}). Retry the scan in a moment.`
+      : `Gemini API is temporarily unavailable (${status}). Retry the scan in a moment.`;
   }
   return detail
-    ? `Gemini API request failed: ${detail}`
+    ? `Gemini API request failed (${status}): ${detail}`
     : `Gemini API request failed (${status}).`;
 }
 
@@ -130,6 +149,94 @@ async function fileToBase64(file) {
   }
 
   return globalThis.btoa(binary);
+}
+
+function delay(milliseconds) {
+  return new Promise((resolve) => globalThis.setTimeout(resolve, milliseconds));
+}
+
+async function requestJsonWithRetry(
+  url,
+  options,
+  { fetchImpl = globalThis.fetch, retries = 2, sleepImpl = delay, onRetry } = {},
+) {
+  let attempt = 0;
+
+  while (true) {
+    const response = await fetchImpl(url, options);
+    const payload = await readResponsePayload(response);
+
+    if (response.ok || !TRANSIENT_STATUS.has(response.status) || attempt >= retries) {
+      return { response, payload, attempt };
+    }
+
+    attempt += 1;
+    onRetry?.(attempt, response.status);
+    await sleepImpl(attempt === 1 ? 450 : 1100);
+  }
+}
+
+function interactionsRequestBody(imageData, mimeType) {
+  return {
+    model: GEMINI_MODEL,
+    store: false,
+    input: [
+      {
+        type: 'image',
+        mime_type: mimeType,
+        data: imageData,
+      },
+      { type: 'text', text: COORDINATE_PROMPT },
+    ],
+    response_format: {
+      type: 'text',
+      mime_type: 'application/json',
+      schema: RESPONSE_SCHEMA,
+    },
+  };
+}
+
+function generateContentRequestBody(imageData, mimeType) {
+  return {
+    contents: [
+      {
+        role: 'user',
+        parts: [
+          {
+            inline_data: {
+              mime_type: mimeType,
+              data: imageData,
+            },
+          },
+          { text: COORDINATE_PROMPT },
+        ],
+      },
+    ],
+    generationConfig: {
+      maxOutputTokens: 700,
+      responseFormat: {
+        text: {
+          mimeType: 'application/json',
+          schema: RESPONSE_SCHEMA,
+        },
+      },
+    },
+  };
+}
+
+function parseCoordinateResponse(payload, extractText) {
+  const outputText = extractText(payload);
+  let structured;
+  try {
+    structured = parseJsonText(outputText);
+  } catch {
+    throw new Error('Gemini returned an unreadable coordinate response. Try scanning the image again.');
+  }
+
+  return {
+    structured,
+    analysis: normalizeGeminiCoordinatePayload(structured),
+  };
 }
 
 export function normalizeGeminiCoordinatePayload(payload) {
@@ -185,23 +292,36 @@ export function normalizeGeminiCoordinatePayload(payload) {
   };
 }
 
-export async function testGeminiApiKey(apiKey, { fetchImpl = globalThis.fetch } = {}) {
+export async function testGeminiApiKey(
+  apiKey,
+  { fetchImpl = globalThis.fetch, sleepImpl = delay } = {},
+) {
   const key = normalizedKey(apiKey);
   if (!key) throw new Error('Enter a Gemini API key first.');
 
-  const response = await fetchImpl(MODEL_ENDPOINT, {
-    method: 'GET',
-    headers: { 'x-goog-api-key': key },
-  });
+  const { response, payload } = await requestJsonWithRetry(
+    GENERATE_CONTENT_ENDPOINT,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': key,
+      },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: 'Reply with READY.' }] }],
+        generationConfig: { maxOutputTokens: 8 },
+      }),
+    },
+    { fetchImpl, sleepImpl, retries: 1 },
+  );
 
-  const payload = await readResponsePayload(response);
   if (!response.ok) throw new Error(apiErrorMessage(response.status, payload));
   return payload;
 }
 
 export async function recognizeCoordinateWithGemini(
   file,
-  { apiKey, onProgress, fetchImpl = globalThis.fetch } = {},
+  { apiKey, onProgress, fetchImpl = globalThis.fetch, sleepImpl = delay } = {},
 ) {
   const key = normalizedKey(apiKey);
   if (!key) {
@@ -211,61 +331,92 @@ export async function recognizeCoordinateWithGemini(
 
   onProgress?.({ status: 'Preparing image for Gemini', progress: 0.08 });
   const imageData = await fileToBase64(file);
+  const mimeType = file.type || 'image/jpeg';
   onProgress?.({ status: `Sending image to ${GEMINI_MODEL}`, progress: 0.3 });
 
-  const response = await fetchImpl(INTERACTIONS_ENDPOINT, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-goog-api-key': key,
-    },
-    body: JSON.stringify({
-      model: GEMINI_MODEL,
-      store: false,
-      input: [
-        {
-          type: 'image',
-          mime_type: file.type || 'image/jpeg',
-          data: imageData,
-        },
-        { type: 'text', text: COORDINATE_PROMPT },
-      ],
-      response_format: {
-        type: 'text',
-        mime_type: 'application/json',
-        schema: RESPONSE_SCHEMA,
+  const interactionResult = await requestJsonWithRetry(
+    INTERACTIONS_ENDPOINT,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-goog-api-key': key,
+        'Api-Revision': API_REVISION,
       },
-    }),
-  });
+      body: JSON.stringify(interactionsRequestBody(imageData, mimeType)),
+    },
+    {
+      fetchImpl,
+      sleepImpl,
+      retries: 2,
+      onRetry: (attempt) =>
+        onProgress?.({
+          status: `Gemini service busy · retry ${attempt}/2`,
+          progress: 0.3 + attempt * 0.08,
+        }),
+    },
+  );
 
-  const responsePayload = await readResponsePayload(response);
-  if (!response.ok) throw new Error(apiErrorMessage(response.status, responsePayload));
+  let parsed;
+  let transportLabel = 'Interactions API';
 
-  onProgress?.({ status: 'Reading Gemini coordinate result', progress: 0.9 });
-  const outputText = extractOutputText(responsePayload);
-  let structured;
-  try {
-    structured = parseJsonText(outputText);
-  } catch {
+  if (interactionResult.response.ok) {
+    onProgress?.({ status: 'Reading Gemini coordinate result', progress: 0.88 });
+    parsed = parseCoordinateResponse(interactionResult.payload, extractInteractionOutputText);
+  } else if (TRANSIENT_STATUS.has(interactionResult.response.status)) {
+    onProgress?.({
+      status: 'Gemini Interactions busy · switching transport',
+      progress: 0.56,
+    });
+
+    const fallbackResult = await requestJsonWithRetry(
+      GENERATE_CONTENT_ENDPOINT,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': key,
+        },
+        body: JSON.stringify(generateContentRequestBody(imageData, mimeType)),
+      },
+      {
+        fetchImpl,
+        sleepImpl,
+        retries: 2,
+        onRetry: (attempt) =>
+          onProgress?.({
+            status: `Gemini fallback busy · retry ${attempt}/2`,
+            progress: 0.58 + attempt * 0.08,
+          }),
+      },
+    );
+
+    if (!fallbackResult.response.ok) {
+      throw new Error(apiErrorMessage(fallbackResult.response.status, fallbackResult.payload));
+    }
+
+    transportLabel = 'Generate Content fallback';
+    onProgress?.({ status: 'Reading Gemini coordinate result', progress: 0.9 });
+    parsed = parseCoordinateResponse(fallbackResult.payload, extractGenerateContentText);
+  } else {
     throw new Error(
-      'Gemini returned an unreadable coordinate response. Try scanning the image again.',
+      apiErrorMessage(interactionResult.response.status, interactionResult.payload),
     );
   }
 
-  const analysis = normalizeGeminiCoordinatePayload(structured);
   onProgress?.({ status: 'Gemini coordinate analysis complete', progress: 1 });
 
   return {
-    text: structured.rawText ?? '',
-    analysis,
+    text: parsed.structured.rawText ?? '',
+    analysis: parsed.analysis,
     confidence: null,
-    sourceLabel: 'Gemini 3.7 Flash',
+    sourceLabel: `Gemini 3.7 Flash · ${transportLabel}`,
     attempts: [
       {
-        id: GEMINI_MODEL,
-        label: 'Gemini 3.7 Flash',
+        id: `${GEMINI_MODEL}:${transportLabel}`,
+        label: `Gemini 3.7 Flash · ${transportLabel}`,
         confidence: null,
-        text: structured.rawText ?? '',
+        text: parsed.structured.rawText ?? '',
       },
     ],
   };
