@@ -1,11 +1,17 @@
 import { useState } from 'react';
 
 import { PageHeader } from '../../../app/components/PageHeader.jsx';
-import { GEMINI_MODEL, clearGeminiApiKey, getGeminiApiKey, maskGeminiApiKey, saveGeminiApiKey } from '../../../infrastructure/gemini/geminiSettings.js';
 import { testGeminiApiKey } from '../../../infrastructure/gemini/geminiClient.js';
+import {
+  GEMINI_MODEL,
+  clearGeminiApiKey,
+  getGeminiApiKey,
+  maskGeminiApiKey,
+  saveGeminiApiKey,
+} from '../../../infrastructure/gemini/geminiSettings.js';
 import { AppIcon } from '../../../shared/ui/icon.jsx';
-import { Button } from '../../../shared/ui/primitives.jsx';
 import { TextInput } from '../../../shared/ui/index.jsx';
+import { Button } from '../../../shared/ui/primitives.jsx';
 
 function ConnectionState({ state }) {
   if (!state.message) return null;
@@ -18,7 +24,10 @@ function ConnectionState({ state }) {
         : 'border-[var(--border-subtle)] bg-[var(--surface-muted)] text-[var(--text-secondary)]';
 
   return (
-    <div className={`rounded-[var(--radius-control)] border px-3 py-2 text-xs font-semibold ${toneClass}`} role={state.tone === 'error' ? 'alert' : 'status'}>
+    <div
+      className={`rounded-[var(--radius-control)] border px-3 py-2 text-xs font-semibold ${toneClass}`}
+      role={state.tone === 'error' ? 'alert' : 'status'}
+    >
       {state.message}
     </div>
   );
@@ -89,7 +98,9 @@ export function SettingsPage() {
               <AppIcon name="settings" size={16} />
             </span>
             <div className="min-w-0">
-              <h2 className="text-sm font-extrabold text-[var(--text-primary)]">Gemini Coordinate OCR</h2>
+              <h2 className="text-sm font-extrabold text-[var(--text-primary)]">
+                Gemini Coordinate OCR
+              </h2>
               <p className="text-[10px] font-semibold text-[var(--text-muted)]">
                 Multimodal coordinate extraction
               </p>
@@ -137,7 +148,9 @@ export function SettingsPage() {
               <dl className="mt-3 grid gap-2.5 text-xs">
                 <div className="flex items-center justify-between gap-3">
                   <dt className="font-semibold text-[var(--text-muted)]">Model</dt>
-                  <dd className="font-mono font-bold text-[var(--text-primary)]">{GEMINI_MODEL}</dd>
+                  <dd className="font-mono font-bold text-[var(--text-primary)]">
+                    {GEMINI_MODEL}
+                  </dd>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <dt className="font-semibold text-[var(--text-muted)]">Image handling</dt>
@@ -149,7 +162,8 @@ export function SettingsPage() {
                 </div>
               </dl>
               <p className="mt-3 border-t border-[var(--border-subtle)] pt-3 text-[10px] leading-4 text-[var(--text-muted)]">
-                When Scan coordinates is pressed, the selected Cut Point image is sent to the Gemini API for analysis. The request is stateless and is configured with store disabled.
+                When Scan coordinates is pressed, the selected Cut Point image is sent to the Gemini
+                API for analysis. The request is stateless and is configured with store disabled.
               </p>
             </aside>
           </div>
