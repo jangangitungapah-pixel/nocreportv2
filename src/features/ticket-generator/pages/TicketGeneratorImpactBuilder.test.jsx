@@ -64,7 +64,7 @@ describe('GEN-F3 Impact Builder page integration', () => {
 
     expect(firstImpact).toHaveValue('SITE_A_OPERATOR_EDIT');
     expect(screen.getByLabelText('Generated NOC report')).toHaveTextContent(
-      'Impact List : SITE_A_OPERATOR_EDIT, SITE_B',
+      'Impact List : 1. SITE_A_OPERATOR_EDIT 2. SITE_B',
     );
   });
 });
