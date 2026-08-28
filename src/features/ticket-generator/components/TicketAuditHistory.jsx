@@ -113,6 +113,20 @@ function groupEventsByDay(events) {
   return groups;
 }
 
+function AuditLoadingSkeleton() {
+  return (
+    <div className="generator-audit-loading grid gap-1.5 px-3 py-2.5" aria-label="Loading revision history">
+      {[0, 1, 2].map((row) => (
+        <div key={row} className="flex items-center gap-2" aria-hidden="true">
+          <span className="size-1.5 rounded-full bg-[var(--border-default)]" />
+          <span className="h-2.5 w-24 animate-pulse rounded bg-[var(--surface-muted)]" />
+          <span className="ml-auto h-2.5 w-12 animate-pulse rounded bg-[var(--surface-muted)]" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function TicketAuditHistory({ ticketId, enabled = false, limit = 50 }) {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -165,11 +179,7 @@ export function TicketAuditHistory({ ticketId, enabled = false, limit = 50 }) {
         ) : null}
       </header>
 
-      {loading ? (
-        <p className="generator-audit-state px-3 py-3 text-[10px] text-[var(--text-muted)]">
-          Loading revision history…
-        </p>
-      ) : null}
+      {loading ? <AuditLoadingSkeleton /> : null}
       {error ? (
         <p
           className="generator-audit-state generator-audit-state--error px-3 py-3 text-[10px] font-semibold text-[var(--danger-text)]"
