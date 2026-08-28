@@ -1,6 +1,6 @@
 # NOC Report Template Generator
 
-React/Vite web app for creating, persisting, searching, and resolving NOC incident reports with a canonical report template, local Cut Point OCR, role-based Firebase access, and an operational Cut Point map.
+React/Vite web app for creating, persisting, searching, correlating, and resolving NOC incident reports with a canonical report template, Gemini-assisted Cut Point coordinate extraction, role-based Firebase access, and an operational Cut Point map.
 
 ## Current project state
 
@@ -14,6 +14,8 @@ The Firebase release to project `nocreportv2` includes Firebase Hosting, Cloud F
 
 The intended Firebase Spark plan/account billing state and required Firebase Authentication provider were explicitly confirmed for release acceptance. No Critical/High production blocker remained at T8 acceptance.
 
+The application has continued to evolve after that MVP release. Current implementation details that intentionally revise historical OCR assumptions are recorded in `docs/02-architecture/ADR-001-GEMINI-COORDINATE-OCR.md`.
+
 The canonical phase tracker lives at `docs/06-workplan/IMPLEMENTATION-WORKPLAN.md`. Release procedures and evidence live under `docs/07-release/`.
 
 ## Technology baseline
@@ -24,16 +26,18 @@ The canonical phase tracker lives at `docs/06-workplan/IMPLEMENTATION-WORKPLAN.m
 - Firebase Authentication + Cloud Firestore
 - Firebase Emulator Suite for integration/security testing
 - Leaflet with configurable OpenStreetMap-compatible tiles
-- browser-local PaddleOCR.js primary OCR with Tesseract.js fallback
+- Gemini 3.6 Flash coordinate extraction through a direct browser-to-Gemini API request
+- browser-local Gemini API-key configuration for the current client integration
 - Vitest + React Testing Library
 - Playwright + axe in the CI browser gate
 
 ## Architecture invariants
 
-- Firebase Spark-compatible MVP path
+- Firebase Spark-compatible application path; Gemini usage is an external integration with its own quota/billing contract
 - no Cloud Storage, Cloud Functions, Cloud Run, App Hosting, or custom backend dependency
-- Cut Point source photos never leave the browser and are never persisted
-- only verified coordinate metadata is persisted
+- Cut Point source photos are never persisted by NOCReport or written to Firestore/Cloud Storage
+- when the operator explicitly presses **Scan coordinates**, the selected image is transmitted directly from the browser to the Gemini API for coordinate extraction
+- only operator-confirmed/verified coordinate metadata is persisted
 - one canonical Ticket dataset; Running Tickets and map markers are views/queries, not duplicate collections
 - Firebase SDK access stays behind infrastructure/repository boundaries
 - no per-keystroke Firestore persistence
@@ -88,22 +92,33 @@ VITE_MAP_ATTRIBUTION
 
 Firebase Web App client configuration is public application configuration, not a service-account secret. Service-account keys and private-key material must never be committed.
 
+The Gemini API key is intentionally not part of the build environment contract. The current client integration stores it in the browser's local storage through Settings and sends it with direct Gemini requests. It is not written to Firestore, GitHub, or the production bundle. Browser local storage is not a server-side secret store, so shared/untrusted browser profiles should not retain the key.
+
 The T8 production build reads the public Web App values from `.env.example`, requires project `nocreportv2`, and forces emulator mode off. This prevents an accidental Firebase Hosting release of the local-preview/emulator configuration.
 
 ## Main routes
 
 - `/dashboard` — bounded operational summaries and recent activity
 - `/generator/new` — create a Draft Ticket
-- `/generator/:ticketId` — edit an existing Ticket and Progress Timeline
+- `/tickets/:ticketId` — read-only persisted Ticket inspection
+- `/generator/:ticketId/edit` — edit an existing Ticket and Progress Timeline
 - `/running` — bounded Running Ticket search/actions
 - `/cut-points` — map of Tickets with verified valid coordinates
+- `/archive` — Admin-only Resolved/Archived lifecycle workspace
+- `/settings` — Admin/Operator browser-scoped integration settings
 - `/login` — Firebase Authentication entry point
 
-Admin-only archive/restore behavior is protected by both permission-aware UI and Firestore Security Rules. Operator and Viewer behavior follows the role matrix in `docs/05-security/SECURITY-ACCESS-CONTROL-PRD.md`.
+Admin-only archive/restore behavior is protected by both permission-aware UI and Firestore Security Rules. Operator and Viewer behavior follows the role matrix in `docs/05-security/SECURITY-ACCESS-CONTROL-PRD.md` together with the current OCR revision in `docs/02-architecture/ADR-001-GEMINI-COORDINATE-OCR.md`.
 
 ## OCR and coordinate privacy
 
-Cut Point OCR executes in the browser. PaddleOCR.js is the primary engine and Tesseract.js is the fallback. The coordinate pipeline supports DD, DMS, and DDM formats, requires operator verification when needed, and only sends verified Latitude/Longitude metadata through the persistence boundary. Source images are not uploaded or stored.
+Cut Point source images remain local until the operator explicitly starts a scan. On **Scan coordinates**, the selected image is encoded in the browser and sent directly to the Gemini `generateContent` endpoint for coordinate extraction. NOCReport has no image-upload backend, does not write the source image to Firebase Storage or Firestore, and does not persist the image as part of Ticket data.
+
+The Gemini response is normalized into coordinate candidates. The coordinate pipeline validates supported geographic ranges, requires operator review/confirmation where needed, and persists only verified Latitude/Longitude metadata and related coordinate provenance.
+
+The Gemini API key is stored only in the current browser profile. Because browser local storage can be read by JavaScript running on the same origin, it must be treated as a browser-scoped credential rather than a protected server secret. Remove it from shared or untrusted browser profiles.
+
+See `docs/02-architecture/ADR-001-GEMINI-COORDINATE-OCR.md` for the current provider, data-flow, privacy, and threat-model decision.
 
 ## Quality commands
 
@@ -129,7 +144,9 @@ GitHub Actions additionally runs:
 - dev-server smoke testing
 - real-browser Cut Point viewport/touch QA
 - Playwright MVP E2E, responsive, keyboard/focus, and accessibility QA
-- guarded T8 finalization after authenticated production evidence exists
+- guarded historical T8 finalization only on the legacy phase branch
+
+The Quality workflow runs for pull requests targeting `main` and for direct pushes to `main`. Historical phase-finalizer steps are isolated to the legacy `feature/t0-repository-foundation` branch so a normal `main` quality run cannot mutate old T6–T8 tracker state.
 
 ## Firestore development and validation
 
@@ -184,14 +201,16 @@ The full release procedure, public deployment evidence, and authenticated accept
 - failed Ticket Save does not reset the form; network failures explicitly state that unsaved data remains on screen and the same Save action can be retried.
 - historical reads are bounded/paginated.
 - invalid coordinates never become map markers.
+- cross-tab workspace changes refresh read-only operational views while editors preserve local unsaved state and warn about newer persisted revisions.
 
 ## Documentation
 
-Source-of-truth documents:
+Source-of-truth and current-revision documents:
 
 - `docs/00-product/MASTER-PRD.md`
 - `docs/01-ux/UI-UX-PRD.md`
 - `docs/02-architecture/TECHNICAL-ARCHITECTURE-TDD.md`
+- `docs/02-architecture/ADR-001-GEMINI-COORDINATE-OCR.md`
 - `docs/03-data/DATA-DATABASE-PRD.md`
 - `docs/04-api/API-INTEGRATION-PRD.md`
 - `docs/05-security/SECURITY-ACCESS-CONTROL-PRD.md`
@@ -201,4 +220,4 @@ Source-of-truth documents:
 - `docs/07-release/AUTHENTICATED-PRODUCTION-SMOKE.md`
 - `docs/07-release/AUTHENTICATED-PRODUCTION-SMOKE-EVIDENCE.md`
 
-If implementation and documentation diverge, the relevant PRD/TDD must be reconciled before a future release is accepted.
+The baseline PRD/TDD set records the original MVP decisions. Accepted ADRs under `docs/02-architecture/` are explicit post-baseline revisions and take precedence for the decisions they name. Implementation and documentation must be reconciled before a future release is accepted.

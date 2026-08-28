@@ -126,7 +126,7 @@ export function SettingsPage() {
                 autoComplete="off"
                 spellCheck={false}
                 placeholder="AIza…"
-                hint="Stored only in this browser. It is not written to Firestore, GitHub, or the production bundle."
+                hint="Stored in this browser's localStorage. It is not written to Firestore, GitHub, or the production bundle."
               />
 
               <div className="flex flex-wrap items-center gap-2">
@@ -154,17 +154,22 @@ export function SettingsPage() {
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <dt className="font-semibold text-[var(--text-muted)]">Image handling</dt>
-                  <dd className="font-bold text-[var(--text-primary)]">Gemini API</dd>
+                  <dd className="font-bold text-[var(--text-primary)]">Direct Gemini API</dd>
                 </div>
                 <div className="flex items-center justify-between gap-3">
                   <dt className="font-semibold text-[var(--text-muted)]">API key storage</dt>
-                  <dd className="font-bold text-[var(--text-primary)]">Browser only</dd>
+                  <dd className="font-bold text-[var(--text-primary)]">Browser localStorage</dd>
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <dt className="font-semibold text-[var(--text-muted)]">App image storage</dt>
+                  <dd className="font-bold text-[var(--text-primary)]">None</dd>
                 </div>
               </dl>
               <p className="mt-3 border-t border-[var(--border-subtle)] pt-3 text-[10px] leading-4 text-[var(--text-muted)]">
-                When Scan coordinates is pressed, the selected Cut Point image is sent directly to
-                the Gemini generateContent endpoint for coordinate extraction. The API key remains
-                stored only in this browser.
+                When Scan coordinates is pressed, the selected Cut Point image and this API key are
+                sent directly from the browser to the Gemini generateContent endpoint. NOCReport
+                does not persist the source image. Browser localStorage is not a protected server
+                secret store, so remove the key from shared or untrusted browser profiles.
               </p>
             </aside>
           </div>
