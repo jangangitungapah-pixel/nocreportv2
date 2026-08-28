@@ -89,7 +89,7 @@ describe('GEN-F4 ValidationCenter UI', () => {
     expect(screen.getByText('Incident elapsed')).toBeVisible();
   });
 
-  it('shows Running ready when no blockers remain', () => {
+  it('shows a compact collapsed Running ready state when no blockers remain', () => {
     render(
       <ValidationCenter
         validation={{
@@ -102,6 +102,11 @@ describe('GEN-F4 ValidationCenter UI', () => {
     );
 
     expect(screen.getByText('Running ready')).toBeInTheDocument();
-    expect(screen.getByText(/No derived findings/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Expand Validation Center' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+    expect(screen.getByText('Incident elapsed')).not.toBeVisible();
+    expect(screen.queryByText(/No derived findings/i)).not.toBeInTheDocument();
   });
 });
