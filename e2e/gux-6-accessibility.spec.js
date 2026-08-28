@@ -102,6 +102,14 @@ async function openGenerator(page) {
   await expect(page.locator('.generator-cockpit')).toBeVisible();
 }
 
+async function expandValidationCenter(page) {
+  const toggle = page.getByRole('button', { name: 'Expand Validation Center' });
+  await expect(toggle).toBeVisible();
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator('#generator-validation-center-content')).toBeVisible();
+}
+
 async function assertNoSeriousOrCriticalAxeViolations(page, label) {
   const results = await new AxeBuilder({ page }).analyze();
   const violations = results.violations.filter((violation) =>
@@ -152,6 +160,7 @@ test('Generator Light and Dark themes expose distinct, complete accessible state
   test.setTimeout(120_000);
   await page.setViewportSize({ width: 1280, height: 900 });
   await openGenerator(page);
+  await expandValidationCenter(page);
 
   const html = page.locator('html');
   await expect(html).toHaveAttribute('data-theme', 'light');
@@ -224,7 +233,9 @@ test('Generator focus order is keyboard reachable and visibly focused', async ({
   expect(focusStyle.outlineStyle).not.toBe('none');
   expect(Number.parseFloat(focusStyle.outlineWidth)).toBeGreaterThanOrEqual(2);
 
+  await expandValidationCenter(page);
   const finding = page.locator('.generator-finding--interactive').first();
+  await expect(finding).toBeVisible();
   await finding.focus();
   await page.keyboard.press('Enter');
   const focusedField = await page.evaluate(() => document.activeElement?.id ?? '');
@@ -250,6 +261,7 @@ test('Generator honors reduced motion for CSS and focus scrolling', async ({ pag
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 1280, height: 900 });
   await openGenerator(page);
+  await expandValidationCenter(page);
 
   await expect
     .poll(() => page.evaluate(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches))
@@ -280,9 +292,12 @@ test('Generator honors reduced motion for CSS and focus scrolling', async ({ pag
   });
 
   const finding = page.locator('.generator-finding--interactive').first();
+  await expect(finding).toBeVisible();
   await finding.focus();
   await page.keyboard.press('Enter');
+  await expect
+    .poll(() => page.evaluate(() => window.__gux6ScrollBehaviors.length))
+    .toBeGreaterThan(0);
   const behaviors = await page.evaluate(() => window.__gux6ScrollBehaviors);
-  expect(behaviors.length).toBeGreaterThan(0);
   expect(behaviors.every((behavior) => behavior === 'auto')).toBe(true);
 });
