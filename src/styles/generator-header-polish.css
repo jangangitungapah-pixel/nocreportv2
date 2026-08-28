@@ -1,0 +1,142 @@
+/*
+ * Template Generator header command-zone polish.
+ *
+ * Keep status/actions and workflow navigation visually connected, prevent the
+ * next-action button from dropping into a detached second row, and preserve a
+ * compact sticky desktop header. Scoped to .generator-cockpit only.
+ */
+
+.generator-cockpit {
+  --generator-header-divider: color-mix(in srgb, var(--border-subtle) 78%, transparent);
+  --generator-header-surface: color-mix(in srgb, var(--surface-panel) 94%, transparent);
+}
+
+/* Treat command bar + workflow deck as one quiet two-tier control surface. */
+.generator-cockpit > .generator-command-bar {
+  min-height: 2.75rem;
+  margin-bottom: -0.7rem;
+  border: 1px solid var(--generator-header-divider) !important;
+  border-bottom: 0 !important;
+  border-radius: 0.75rem 0.75rem 0 0 !important;
+  padding: 0.4rem 0.65rem !important;
+  background: var(--generator-header-surface) !important;
+  box-shadow: none !important;
+}
+
+.generator-cockpit > .generator-workflow-deck {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) max-content !important;
+  align-items: stretch;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--generator-header-divider) !important;
+  border-top: 1px solid var(--generator-header-divider) !important;
+  border-radius: 0 0 0.75rem 0.75rem !important;
+  background: var(--generator-header-surface) !important;
+}
+
+.generator-cockpit .generator-command-context {
+  gap: 0.55rem;
+}
+
+.generator-cockpit .generator-command-actions {
+  flex-wrap: nowrap;
+  gap: 0.35rem;
+}
+
+.generator-cockpit .generator-command-actions > :is(button, a) {
+  min-height: 2.15rem;
+}
+
+/* Four workflow steps stay on one clean row. */
+.generator-cockpit .generator-workflow-map {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  min-width: 0;
+  padding: 0.2rem 0.35rem !important;
+}
+
+.generator-cockpit .generator-workflow-step {
+  min-width: 0;
+  min-height: 2.55rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.generator-cockpit .generator-workflow-step__copy {
+  min-width: 0;
+}
+
+.generator-cockpit .generator-workflow-step__copy :is(strong, small) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Keep the contextual next action attached to the workflow row instead of floating below it. */
+.generator-cockpit .generator-next-action {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0 !important;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 0 !important;
+  border-left: 1px solid var(--generator-header-divider) !important;
+  padding: 0.35rem 0.6rem !important;
+}
+
+.generator-cockpit .generator-next-action button {
+  min-height: 2.05rem;
+  padding-inline: 0.8rem;
+  white-space: nowrap;
+}
+
+/* Desktop keeps both tiers together while scrolling. */
+@media (min-width: 1024px) {
+  .generator-cockpit > .generator-command-bar {
+    position: sticky;
+    top: 0.5rem;
+    z-index: 31;
+    flex-wrap: nowrap;
+  }
+
+  .generator-cockpit > .generator-workflow-deck {
+    position: sticky;
+    top: 3.2rem;
+    z-index: 30;
+  }
+}
+
+/* On narrower layouts, prioritize wrapping safely over forcing the desktop composition. */
+@media (max-width: 1023px) {
+  .generator-cockpit > .generator-command-bar {
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--generator-header-divider) !important;
+    border-radius: 0.75rem !important;
+  }
+
+  .generator-cockpit > .generator-workflow-deck {
+    grid-template-columns: minmax(0, 1fr) !important;
+    border-radius: 0.75rem !important;
+  }
+
+  .generator-cockpit .generator-next-action {
+    grid-column: 1;
+    grid-row: 2;
+    border-top: 1px solid var(--generator-header-divider) !important;
+    border-left: 0 !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .generator-cockpit .generator-workflow-map {
+    overflow-x: auto;
+    grid-template-columns: repeat(4, minmax(9rem, 1fr));
+  }
+
+  .generator-cockpit .generator-command-actions {
+    flex-wrap: wrap;
+  }
+}
