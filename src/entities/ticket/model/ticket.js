@@ -115,6 +115,7 @@ export function createEmptyTicket(overrides = {}) {
     impactList: cleanImpactList(overrides.impactList),
     occurAt: overrides.occurAt ?? null,
     dispatchAt: overrides.dispatchAt ?? null,
+    closedAt: overrides.closedAt ?? null,
     pic: cleanString(overrides.pic),
     rootcause: cleanString(overrides.rootcause),
     cutPoint: cleanString(overrides.cutPoint),
