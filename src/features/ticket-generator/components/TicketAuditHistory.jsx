@@ -23,6 +23,7 @@ const FIELD_LABELS = Object.freeze({
   impactList: 'Impact',
   occurAt: 'Occur Time',
   dispatchAt: 'Dispatch Time',
+  closedAt: 'Closed Time',
   pic: 'PIC',
   rootcause: 'Rootcause',
   cutPoint: 'Cut Point',
