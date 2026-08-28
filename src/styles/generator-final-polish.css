@@ -1,0 +1,220 @@
+/*
+ * Final Template Generator visual audit pass.
+ *
+ * Loaded last and scoped to .generator-cockpit. The goal is to quiet secondary
+ * actions, remove dead space, strengthen useful hierarchy, and make the last
+ * workflow stage read like compact utilities instead of loose footer text.
+ */
+
+.generator-cockpit {
+  --generator-final-divider: color-mix(in srgb, var(--border-subtle) 72%, transparent);
+  --generator-final-secondary: color-mix(in srgb, var(--surface-panel) 94%, var(--surface-muted));
+}
+
+/* Workflow map owns navigation; lifecycle action in the command bar remains primary. */
+.generator-cockpit .generator-workflow-deck {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: stretch;
+}
+
+.generator-cockpit .generator-next-action {
+  align-self: stretch;
+  border-left: 1px solid var(--generator-final-divider);
+  padding-left: 0.75rem;
+}
+
+.generator-cockpit .generator-next-action button {
+  border: 1px solid var(--border-default) !important;
+  background: var(--generator-final-secondary) !important;
+  color: var(--text-secondary) !important;
+  box-shadow: none !important;
+}
+
+.generator-cockpit .generator-next-action button:hover {
+  border-color: var(--border-accent) !important;
+  background: var(--accent-soft) !important;
+  color: var(--accent-text) !important;
+}
+
+/* Stronger labels, without bringing back card chrome. */
+.generator-cockpit :is(
+  .generator-flow-stage__title,
+  .generator-editor-section__title,
+  .generator-operations-header h3,
+  .generator-impact-header h3,
+  .generator-output-header h3
+) {
+  color: var(--text-primary);
+  font-weight: 800;
+}
+
+.generator-cockpit .generator-editor-section__title,
+.generator-cockpit .generator-operations-header h3,
+.generator-cockpit .generator-impact-header h3,
+.generator-cockpit .generator-output-header h3 {
+  font-size: 12px;
+}
+
+/* Impact preview exists only when there are candidates, so reclaim the full input width otherwise. */
+.generator-cockpit #generator-stage-incident .generator-impact-builder-grid:not(:has(.generator-impact-preview)) {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.generator-cockpit #generator-stage-incident .generator-impact-builder-grid:not(:has(.generator-impact-preview)) #impact-builder-source {
+  min-height: 4.35rem;
+}
+
+.generator-cockpit .generator-impact-duplicate-note {
+  padding-left: 0.1rem;
+}
+
+/* Duplicate lookup should feel like a transient check, not a permanent section. */
+.generator-cockpit .generator-duplicate-related__header p {
+  display: none;
+}
+
+.generator-cockpit .generator-duplicate-related:has(.generator-duplicate-related__body > p:only-child) {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.6rem;
+  padding-block: 0.25rem;
+}
+
+.generator-cockpit .generator-duplicate-related:has(.generator-duplicate-related__body > p:only-child) .generator-duplicate-related__header {
+  min-height: 1.8rem;
+  padding-bottom: 0;
+}
+
+.generator-cockpit .generator-duplicate-related:has(.generator-duplicate-related__body > p:only-child) .generator-duplicate-related__body {
+  padding: 0;
+}
+
+.generator-cockpit .generator-duplicate-related:has(.generator-duplicate-related__body > p:only-child) .generator-duplicate-related__body > p {
+  font-size: 9.5px;
+  line-height: 1.35;
+}
+
+/* Running-ready validation defaults collapsed; keep the collapsed row particularly compact. */
+.generator-cockpit .generator-validation-center__header:has(button[aria-expanded='false']) {
+  min-height: 2rem;
+  padding-block: 0.15rem;
+}
+
+.generator-cockpit .generator-validation-center__header:has(button[aria-expanded='false']) h3 {
+  font-size: 11.5px;
+}
+
+/* OCR remains available, but should not dominate an already structured response area. */
+.generator-cockpit #generator-stage-response .generator-coordinate-extractor__header {
+  min-height: 1.65rem;
+}
+
+.generator-cockpit #generator-stage-response .generator-coordinate-extractor > div:last-child {
+  padding-bottom: 0.1rem;
+}
+
+.generator-cockpit #generator-stage-response .generator-ocr-dropzone {
+  grid-template-columns: 92px minmax(0, 1fr);
+  min-height: 3.2rem;
+}
+
+.generator-cockpit #generator-stage-response .generator-ocr-dropzone > :is(img, div:first-of-type) {
+  height: 3rem;
+}
+
+/* Report preview: no full-height lane divider. The document itself is the boundary. */
+@media (min-width: 1280px) {
+  .generator-cockpit .generator-preview-stage {
+    border-left: 0 !important;
+    padding-left: 1.15rem;
+  }
+}
+
+.generator-cockpit .generator-report-preview__header {
+  padding-bottom: 0.5rem;
+}
+
+.generator-cockpit .generator-report-preview__document {
+  border-color: color-mix(in srgb, var(--border-default) 72%, transparent);
+}
+
+.generator-cockpit .generator-report-preview__content {
+  font-size: 12.5px;
+  line-height: 1.62;
+  letter-spacing: 0.005em;
+}
+
+/* Stage 04 is a compact utility stack. */
+.generator-cockpit #generator-stage-handover .generator-flow-stage__body {
+  border-top: 1px solid var(--generator-final-divider);
+}
+
+.generator-cockpit #generator-stage-handover .generator-flow-stage__body > * {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  border-top: 0 !important;
+  border-bottom: 1px solid var(--generator-final-divider);
+}
+
+.generator-cockpit #generator-stage-handover .generator-flow-stage__body > *:last-child {
+  border-bottom: 0;
+}
+
+.generator-cockpit #generator-stage-handover :is(
+  .generator-copy-center__header,
+  .generator-operator-presets__header,
+  .generator-audit-history__header
+) {
+  min-height: 2.3rem;
+  padding-block: 0.25rem;
+}
+
+.generator-cockpit #generator-stage-handover .generator-output-header button {
+  min-height: 1.75rem;
+}
+
+.generator-cockpit #generator-stage-handover .generator-copy-center__body,
+.generator-cockpit #generator-stage-handover .generator-operator-presets__body {
+  padding-top: 0.55rem;
+  padding-bottom: 0.65rem;
+}
+
+.generator-cockpit .generator-audit-loading {
+  border-top: 1px solid var(--generator-final-divider);
+}
+
+/* Recorded Progress already has the right density. Keep actions quiet until interaction. */
+@media (hover: hover) {
+  .generator-cockpit .generator-progress-entry:not(:hover) button {
+    opacity: 0.45;
+  }
+}
+
+@media (max-width: 1023px) {
+  .generator-cockpit .generator-workflow-deck {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .generator-cockpit .generator-next-action {
+    border-top: 1px solid var(--generator-final-divider);
+    border-left: 0;
+    padding: 0.4rem 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .generator-cockpit #generator-stage-response .generator-ocr-dropzone {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .generator-cockpit #generator-stage-response .generator-ocr-dropzone > :is(img, div:first-of-type) {
+    height: 4.5rem;
+  }
+
+  .generator-cockpit .generator-report-preview__content {
+    font-size: 12px;
+    line-height: 1.58;
+  }
+}
