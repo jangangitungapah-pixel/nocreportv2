@@ -11,6 +11,7 @@ describe('ticket workspace synchronization bus', () => {
     vi.useRealTimers();
     vi.unstubAllGlobals();
     window.localStorage.clear();
+    window.sessionStorage.clear();
   });
 
   it('delivers same-tab changes only to matching scopes', () => {
@@ -43,6 +44,27 @@ describe('ticket workspace synchronization bus', () => {
     stopArchive();
   });
 
+  it('can ignore mutations originating from the current browser tab', () => {
+    vi.useFakeTimers();
+    vi.stubGlobal('BroadcastChannel', undefined);
+    const listener = vi.fn();
+    const stop = subscribeTicketWorkspaceChanges(listener, {
+      scopes: [TICKET_WORKSPACE_SCOPE.RUNNING],
+      debounceMs: 0,
+      ignoreCurrentSource: true,
+    });
+
+    publishTicketWorkspaceChange({
+      ticketId: 'ticket-1',
+      revision: null,
+      scopes: [TICKET_WORKSPACE_SCOPE.RUNNING],
+    });
+    vi.runAllTimers();
+
+    expect(listener).not.toHaveBeenCalled();
+    stop();
+  });
+
   it('filters Ticket-detail subscriptions by Ticket id', () => {
     vi.useFakeTimers();
     vi.stubGlobal('BroadcastChannel', undefined);
@@ -69,6 +91,17 @@ describe('ticket workspace synchronization bus', () => {
       expect.objectContaining({ ticketId: 'ticket-2', revision: 7 }),
     );
     stop();
+  });
+
+  it('keeps absent revision metadata null instead of coercing it to zero', () => {
+    vi.stubGlobal('BroadcastChannel', undefined);
+    const published = publishTicketWorkspaceChange({
+      ticketId: 'ticket-1',
+      revision: null,
+      scopes: [TICKET_WORKSPACE_SCOPE.DASHBOARD],
+    });
+
+    expect(published.revision).toBeNull();
   });
 
   it('coalesces rapid mutations into the latest refresh signal', () => {
