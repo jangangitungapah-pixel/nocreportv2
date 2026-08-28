@@ -20,6 +20,7 @@ export function ticketToFormValues(ticket) {
       : [],
     occurAt: toLocalInputDateTime(ticket?.occurAt),
     dispatchAt: toLocalInputDateTime(ticket?.dispatchAt),
+    closedAt: toLocalInputDateTime(ticket?.closedAt),
     pic: ticket?.pic ?? '',
     rootcause: ticket?.rootcause ?? '',
     cutPoint: ticket?.cutPoint ?? '',
