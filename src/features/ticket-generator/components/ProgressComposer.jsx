@@ -191,29 +191,26 @@ export function ProgressComposer({
             options={snippetOptions}
           />
 
-          <div className="generator-progress-snippet-actions flex items-center justify-end gap-1.5">
-            <Button
-              type="button"
-              tone="ghost"
-              size="xs"
-              disabled={!selectedSnippet}
-              aria-label={
-                selectedSnippet
-                  ? favoriteIds.includes(selectedSnippet.id)
+          {selectedSnippet ? (
+            <div className="generator-progress-snippet-actions flex items-center justify-end gap-1.5">
+              <Button
+                type="button"
+                tone="ghost"
+                size="xs"
+                aria-label={
+                  favoriteIds.includes(selectedSnippet.id)
                     ? `Remove ${selectedSnippet.label} from favorites`
                     : `Add ${selectedSnippet.label} to favorites`
-                  : 'Favorite Progress snippet'
-              }
-              onClick={toggleFavorite}
-            >
-              {selectedSnippet && favoriteIds.includes(selectedSnippet.id)
-                ? '★ Favorite'
-                : '☆ Favorite'}
-            </Button>
-            <Button type="button" size="xs" disabled={!selectedSnippet} onClick={insertSnippet}>
-              Insert snippet
-            </Button>
-          </div>
+                }
+                onClick={toggleFavorite}
+              >
+                {favoriteIds.includes(selectedSnippet.id) ? '★ Favorite' : '☆ Favorite'}
+              </Button>
+              <Button type="button" size="xs" onClick={insertSnippet}>
+                Insert snippet
+              </Button>
+            </div>
+          ) : null}
         </div>
 
         {selectedSnippet ? (
