@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 import { getAuthClient } from '../../../infrastructure/firebase/authClient.js';
 import { getFirebaseConfigStatus } from '../../../infrastructure/firebase/firebaseConfig.js';
@@ -77,12 +78,42 @@ function focusDuplicateReview() {
     ?.scrollIntoView?.({ block: 'center', behavior: preferredWorkspaceScrollBehavior() });
 }
 
+function ReadinessStrip({ validation, onFixNext, onReviewAll }) {
+  const counts = validation?.counts ?? { blocking: 0, warning: 0, info: 0 };
+  const ready = Boolean(validation?.readyForRunning);
+  const firstBlocking = validation?.findings?.find((item) => item.severity === 'blocking') ?? null;
+  const nextFinding = firstBlocking ?? validation?.findings?.find((item) => item.severity === 'warning');
+
+  return (
+    <div className="generator-readiness-strip" data-state={ready ? 'ready' : 'blocked'}>
+      <div className="generator-readiness-strip__summary">
+        <span className="generator-readiness-strip__signal" aria-hidden="true" />
+        <strong>{ready ? 'Running ready' : `${counts.blocking} blocker${counts.blocking === 1 ? '' : 's'}`}</strong>
+        <span>{counts.warning} warning{counts.warning === 1 ? '' : 's'}</span>
+      </div>
+      <div className="generator-readiness-strip__next">
+        <span>Next required</span>
+        <strong>{nextFinding?.message ?? 'Required fields are ready for final review.'}</strong>
+      </div>
+      <div className="generator-readiness-strip__actions">
+        {nextFinding?.field && onFixNext ? (
+          <button type="button" onClick={() => onFixNext(nextFinding.field)}>
+            {firstBlocking ? 'Fix now' : 'Review warning'}
+          </button>
+        ) : null}
+        <button type="button" onClick={onReviewAll}>View all</button>
+      </div>
+    </div>
+  );
+}
+
 export function ValidationCenter({ validation, onFocusField, onOperationalContextChange }) {
   const ticket = validation?.ticket ?? null;
   const routeTicketId = persistedTicketIdFromPathname();
   const duplicateFingerprint = useMemo(() => duplicateLookupFingerprint(ticket), [ticket]);
   const duplicateAcknowledgedRef = useRef(false);
   const previousReadyRef = useRef(Boolean(validation?.readyForRunning));
+  const [workflowDeckTarget, setWorkflowDeckTarget] = useState(null);
   const [duplicateCandidates, setDuplicateCandidates] = useState([]);
   const [duplicatePending, setDuplicatePending] = useState(false);
   const [duplicateError, setDuplicateError] = useState(null);
@@ -93,7 +124,12 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
   const [relatedError, setRelatedError] = useState(null);
   const [relatePendingId, setRelatePendingId] = useState(null);
   const [unlinkPending, setUnlinkPending] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(() => Boolean(validation?.readyForRunning));
+  const [isCollapsed, setIsCollapsed] = useState(true);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    setWorkflowDeckTarget(document.querySelector('.generator-workflow-deck'));
+  }, []);
 
   useEffect(() => {
     duplicateAcknowledgedRef.current = false;
@@ -203,9 +239,7 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
   const handleRelateCandidate = async (candidate) => {
     if (!routeTicketId || !ticket || relatePendingId) return;
     if (generatorHasUnsavedChanges()) {
-      setRelatedError(
-        new Error('Save the current Generator changes before linking related Tickets.'),
-      );
+      setRelatedError(new Error('Save the current Generator changes before linking related Tickets.'));
       return;
     }
 
@@ -227,9 +261,7 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
   const handleUnlinkCurrent = async () => {
     if (!routeTicketId || !ticket?.incidentGroupId || unlinkPending) return;
     if (generatorHasUnsavedChanges()) {
-      setRelatedError(
-        new Error('Save the current Generator changes before unlinking this Ticket.'),
-      );
+      setRelatedError(new Error('Save the current Generator changes before unlinking this Ticket.'));
       return;
     }
 
@@ -255,11 +287,7 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
   const hasUnsavedChanges = generatorHasUnsavedChanges();
 
   useEffect(() => {
-    if (!ready) {
-      setIsCollapsed(false);
-    } else if (!previousReadyRef.current) {
-      setIsCollapsed(true);
-    }
+    if (ready && !previousReadyRef.current) setIsCollapsed(true);
     previousReadyRef.current = ready;
   }, [ready]);
 
@@ -270,8 +298,29 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
     });
   }, [displayValidation?.findings, onOperationalContextChange, relatedTickets.length]);
 
+  const reviewAll = () => {
+    setIsCollapsed(false);
+    window.setTimeout(() => {
+      document.getElementById('generator-validation-center')?.scrollIntoView?.({
+        block: 'center',
+        behavior: preferredWorkspaceScrollBehavior(),
+      });
+    }, 0);
+  };
+
   return (
     <div className="generator-readiness-stack grid gap-3">
+      {workflowDeckTarget
+        ? createPortal(
+            <ReadinessStrip
+              validation={displayValidation}
+              onFixNext={onFocusField}
+              onReviewAll={reviewAll}
+            />,
+            workflowDeckTarget,
+          )
+        : null}
+
       <DuplicateRelatedPanel
         candidates={duplicateCandidates}
         duplicatePending={duplicatePending}
@@ -303,7 +352,7 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
         >
           <div className="flex min-w-0 items-center gap-2">
             <AppIcon name={ready ? 'check' : 'info'} size={14} />
-            <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Validation Center</h3>
+            <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Validation details</h3>
             <span
               className={`rounded-full border px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-[0.08em] ${
                 ready
@@ -355,18 +404,18 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
                   const interactive = Boolean(item.field && onFocusField);
                   const content = (
                     <>
-                      <span
-                        className={`shrink-0 text-[9px] font-extrabold uppercase ${meta.className}`}
-                      >
+                      <span className={`shrink-0 text-[9px] font-extrabold uppercase ${meta.className}`}>
                         {meta.label}
                       </span>
                       <span className="min-w-0 flex-1 text-left text-[10.5px] leading-5 text-[var(--text-secondary)]">
                         {item.message}
                       </span>
                       {interactive ? (
-                        <span className="shrink-0 text-[9px] font-bold text-[var(--accent-text)]">
-                          Focus
-                        </span>
+                        <AppIcon
+                          name="arrowDown"
+                          size={12}
+                          className="-rotate-90 shrink-0 text-[var(--text-faint)] transition-colors group-hover:text-[var(--accent-text)]"
+                        />
                       ) : null}
                     </>
                   );
@@ -375,7 +424,7 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
                     <button
                       key={item.id}
                       type="button"
-                      className="generator-finding generator-finding--interactive flex min-h-9 w-full items-center gap-2 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-2.5 py-1.5 text-left transition-colors hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
+                      className="generator-finding generator-finding--interactive group flex min-h-9 w-full items-center gap-2 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] px-2.5 py-1.5 text-left transition-colors hover:bg-[var(--surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                       data-severity={item.severity}
                       onClick={() => onFocusField(item.field)}
                     >
