@@ -15,24 +15,24 @@
 .generator-cockpit > .generator-command-bar {
   min-height: 2.75rem;
   margin-bottom: -0.7rem;
-  border: 1px solid var(--generator-header-divider) !important;
-  border-bottom: 0 !important;
-  border-radius: 0.75rem 0.75rem 0 0 !important;
-  padding: 0.4rem 0.65rem !important;
-  background: var(--generator-header-surface) !important;
-  box-shadow: none !important;
+  border: 1px solid var(--generator-header-divider);
+  border-bottom: 0;
+  border-radius: 0.75rem 0.75rem 0 0;
+  padding: 0.4rem 0.65rem;
+  background: var(--generator-header-surface);
+  box-shadow: none;
 }
 
 .generator-cockpit > .generator-workflow-deck {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) max-content !important;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
   align-items: stretch;
   min-width: 0;
   overflow: hidden;
-  border: 1px solid var(--generator-header-divider) !important;
-  border-top: 1px solid var(--generator-header-divider) !important;
-  border-radius: 0 0 0.75rem 0.75rem !important;
-  background: var(--generator-header-surface) !important;
+  border: 1px solid var(--generator-header-divider);
+  border-top: 1px solid var(--generator-header-divider);
+  border-radius: 0 0 0.75rem 0.75rem;
+  background: var(--generator-header-surface);
 }
 
 .generator-cockpit .generator-command-context {
@@ -53,7 +53,7 @@
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   min-width: 0;
-  padding: 0.2rem 0.35rem !important;
+  padding: 0.2rem 0.35rem;
 }
 
 .generator-cockpit .generator-workflow-step {
@@ -77,14 +77,14 @@
 .generator-cockpit .generator-next-action {
   grid-column: 2;
   grid-row: 1;
-  min-width: 0 !important;
+  min-width: 0;
   align-self: stretch;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-top: 0 !important;
-  border-left: 1px solid var(--generator-header-divider) !important;
-  padding: 0.35rem 0.6rem !important;
+  border-top: 0;
+  border-left: 1px solid var(--generator-header-divider);
+  padding: 0.35rem 0.6rem;
 }
 
 .generator-cockpit .generator-next-action button {
@@ -113,20 +113,20 @@
 @media (max-width: 1023px) {
   .generator-cockpit > .generator-command-bar {
     margin-bottom: 0;
-    border-bottom: 1px solid var(--generator-header-divider) !important;
-    border-radius: 0.75rem !important;
+    border-bottom: 1px solid var(--generator-header-divider);
+    border-radius: 0.75rem;
   }
 
   .generator-cockpit > .generator-workflow-deck {
-    grid-template-columns: minmax(0, 1fr) !important;
-    border-radius: 0.75rem !important;
+    grid-template-columns: minmax(0, 1fr);
+    border-radius: 0.75rem;
   }
 
   .generator-cockpit .generator-next-action {
     grid-column: 1;
     grid-row: 2;
-    border-top: 1px solid var(--generator-header-divider) !important;
-    border-left: 0 !important;
+    border-top: 1px solid var(--generator-header-divider);
+    border-left: 0;
   }
 }
 
