@@ -103,10 +103,14 @@ async function openGenerator(page) {
 }
 
 async function expandValidationCenter(page) {
-  const toggle = page.getByRole('button', { name: 'Expand Validation Center' });
+  const toggle = page.locator(
+    'button[aria-controls="generator-validation-center-content"]',
+  );
   await expect(toggle).toBeVisible();
+  await expect(toggle).toHaveAccessibleName('Expand Validation Center');
   await toggle.click();
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(toggle).toHaveAccessibleName('Collapse Validation Center');
   await expect(page.locator('#generator-validation-center-content')).toBeVisible();
 }
 
