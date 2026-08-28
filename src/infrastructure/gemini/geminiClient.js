@@ -155,6 +155,7 @@ async function requestJsonWithRetry(
       const message = error instanceof Error ? error.message : String(error);
       throw new Error(
         `Gemini browser request failed before a response was received. ${message || 'Check browser network access and API restrictions.'}`,
+        { cause: error },
       );
     }
 
