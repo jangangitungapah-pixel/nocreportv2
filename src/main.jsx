@@ -10,6 +10,7 @@ import './styles/generator-copy-trim.css';
 import './styles/generator-final-polish.css';
 import './styles/generator-focus.css';
 import './styles/generator-header-polish.css';
+import './styles/generator-refinement.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
