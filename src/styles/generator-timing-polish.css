@@ -1,18 +1,29 @@
 /*
  * Generator incident timing alignment.
  *
- * DateTimeField uses an internal CSS grid. Timing fields with helper text have
- * one more row than fields without helper text, so stretching the outer grid
- * items can distribute extra vertical space and push the shorter field's input
- * downward. Keep every timing field content-start aligned instead.
+ * DateTimeField renders label + control + optional helper/error text. Without an
+ * explicit row model, a field with no helper text can distribute its available
+ * height differently from fields that do have helper text. That is what made
+ * Dispatch Time sit lower than Occur/Closed even though the outer grid itself
+ * was top-aligned.
+ *
+ * Give every timing FieldFrame the same three-row skeleton. The third row stays
+ * empty when no helper/error is rendered, so label and control geometry remains
+ * identical across all three columns.
  */
 
 .generator-timing-grid {
   align-items: start;
 }
 
-.generator-timing-grid > * {
+.generator-timing-grid > .grid {
   min-width: 0;
+  grid-template-rows: auto minmax(var(--control-height), auto) minmax(1.25rem, auto);
   align-self: start;
   align-content: start;
+}
+
+.generator-timing-grid > .grid > label,
+.generator-timing-grid > .grid > div {
+  align-self: start;
 }
