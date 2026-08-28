@@ -166,7 +166,7 @@ Update Progress
     });
 
     expect(preview).toHaveTextContent('Title : *[MANDAU] LINK DOWN, [TT : INC-20260818-00015849]*');
-    expect(preview).toHaveTextContent('Impact List : SITE_MAJALENGKA');
+    expect(preview).toHaveTextContent('Impact List : 1. SITE_MAJALENGKA');
     expect(screen.getByText('INC-20260818-00015849', { selector: 'strong' })).toBeInTheDocument();
   });
 
@@ -188,7 +188,7 @@ Update Progress
     fireEvent.change(impact, { target: { value: 'SITE_A / manual operator note' } });
     expect(impact).toHaveValue('SITE_A / manual operator note');
     expect(screen.getByLabelText('Generated NOC report')).toHaveTextContent(
-      'Impact List : SITE_A / manual operator note',
+      'Impact List : 1. SITE_A / manual operator note',
     );
   });
 
