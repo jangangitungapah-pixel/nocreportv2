@@ -25,10 +25,43 @@ describe('GEN-F4 Time Intelligence', () => {
     expect(result.timezone).toBe('Asia/Jakarta');
     expect(result.refreshAfterMs).toBe(TIME_INTELLIGENCE_REFRESH_MS);
     expect(result.incidentElapsedMs).toBe(120 * 60_000);
+    expect(result.mttrMs).toBe(120 * 60_000);
+    expect(result.mttrStopped).toBe(false);
     expect(result.dispatchDelayMs).toBe(12 * 60_000);
     expect(result.latestProgressAgeMs).toBe(40 * 60_000);
     expect(result.latestUpdateAgeMs).toBe(15 * 60_000);
     expect(result.resolvedDurationMs).toBeNull();
+  });
+
+  it('freezes MTTR at Closed Time even before lifecycle resolution', () => {
+    const result = deriveTimeIntelligence(
+      {
+        occurAt: '2026-08-26T08:00:00.000Z',
+        closedAt: '2026-08-26T09:20:00.000Z',
+      },
+      { now: new Date('2026-08-26T12:00:00.000Z') },
+    );
+
+    expect(result.incidentElapsedMs).toBe(80 * 60_000);
+    expect(result.mttrMs).toBe(80 * 60_000);
+    expect(result.mttrStopped).toBe(true);
+    expect(result.mttrStopAt.toISOString()).toBe('2026-08-26T09:20:00.000Z');
+    expect(result.closedAt.toISOString()).toBe('2026-08-26T09:20:00.000Z');
+    expect(result.resolvedDurationMs).toBeNull();
+  });
+
+  it('prefers Closed Time over a later lifecycle resolution for MTTR', () => {
+    const result = deriveTimeIntelligence(
+      {
+        occurAt: '2026-08-26T08:00:00.000Z',
+        closedAt: '2026-08-26T09:20:00.000Z',
+        resolvedAt: '2026-08-26T10:00:00.000Z',
+      },
+      { now: new Date('2026-08-26T12:00:00.000Z') },
+    );
+
+    expect(result.mttrMs).toBe(80 * 60_000);
+    expect(result.resolvedDurationMs).toBe(120 * 60_000);
   });
 
   it('freezes incident elapsed at resolution and exposes resolved duration', () => {
@@ -41,6 +74,7 @@ describe('GEN-F4 Time Intelligence', () => {
     );
 
     expect(result.incidentElapsedMs).toBe(95 * 60_000);
+    expect(result.mttrMs).toBe(95 * 60_000);
     expect(result.resolvedDurationMs).toBe(95 * 60_000);
   });
 
