@@ -16,7 +16,7 @@ describe('GEN-F4 ValidationCenter UI', () => {
           counts: { blocking: 1, warning: 1, info: 0 },
           time: {
             timezone: 'Asia/Jakarta',
-            incidentElapsedMs: 125 * 60_000,
+            mttrMs: 125 * 60_000,
             dispatchDelayMs: 10 * 60_000,
             latestProgressAgeMs: 5 * 60_000,
             resolvedDurationMs: null,
@@ -43,6 +43,7 @@ describe('GEN-F4 ValidationCenter UI', () => {
     );
 
     expect(screen.getByText('1 blocking')).toBeInTheDocument();
+    expect(screen.getByText('MTTR')).toBeInTheDocument();
     expect(screen.getByText('2h 5m')).toBeInTheDocument();
     expect(screen.getByText('10m')).toBeInTheDocument();
     expect(screen.getByText('Asia/Jakarta', { exact: false })).toBeInTheDocument();
@@ -59,7 +60,7 @@ describe('GEN-F4 ValidationCenter UI', () => {
           counts: { blocking: 1, warning: 0, info: 0 },
           time: {
             timezone: 'Asia/Jakarta',
-            incidentElapsedMs: 60_000,
+            mttrMs: 60_000,
           },
           findings: [
             {
@@ -76,17 +77,17 @@ describe('GEN-F4 ValidationCenter UI', () => {
 
     const collapseButton = screen.getByRole('button', { name: 'Collapse Validation Center' });
     expect(collapseButton).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByText('Incident elapsed')).toBeVisible();
+    expect(screen.getByText('MTTR')).toBeVisible();
 
     fireEvent.click(collapseButton);
 
     const expandButton = screen.getByRole('button', { name: 'Expand Validation Center' });
     expect(expandButton).toHaveAttribute('aria-expanded', 'false');
-    expect(screen.getByText('Incident elapsed')).not.toBeVisible();
+    expect(screen.getByText('MTTR')).not.toBeVisible();
     expect(screen.getByText('1 blocking')).toBeVisible();
 
     fireEvent.click(expandButton);
-    expect(screen.getByText('Incident elapsed')).toBeVisible();
+    expect(screen.getByText('MTTR')).toBeVisible();
   });
 
   it('shows a compact collapsed Running ready state when no blockers remain', () => {
@@ -106,7 +107,7 @@ describe('GEN-F4 ValidationCenter UI', () => {
       'aria-expanded',
       'false',
     );
-    expect(screen.getByText('Incident elapsed')).not.toBeVisible();
+    expect(screen.getByText('MTTR')).not.toBeVisible();
     expect(screen.queryByText(/No derived findings/i)).not.toBeInTheDocument();
   });
 });
