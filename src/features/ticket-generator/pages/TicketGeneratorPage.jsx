@@ -1248,7 +1248,7 @@ export function TicketGeneratorPage() {
     });
     setFeatureMetadata((current) => ({
       ...current,
-      titleMode: TICKET_TITLE_MODE.MANUAL,
+      titleMode: TICKET_TITLE_MODE.GENERATED,
       externalTtNumber: ticket.externalTtNumber ?? current.externalTtNumber,
     }));
     setFeatureMetadataDirty(true);
