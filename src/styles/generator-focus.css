@@ -19,9 +19,9 @@
   --tw-ring-offset-shadow: 0 0 #0000;
   --tw-ring-shadow: 0 0 #0000;
   --tw-shadow: 0 0 #0000;
-  border-color: var(--accent-solid) !important;
-  outline: none !important;
-  box-shadow: none !important;
+  border-color: var(--accent-solid);
+  outline: none;
+  box-shadow: none;
 }
 
 /* Calendar/field affordances keep a small inward keyboard-focus cue. */
@@ -30,8 +30,8 @@
   --tw-ring-offset-width: 0px;
   --tw-ring-offset-shadow: 0 0 #0000;
   --tw-ring-shadow: inset 0 0 0 1px var(--focus-ring);
-  outline: none !important;
-  box-shadow: var(--tw-ring-shadow) !important;
+  outline: none;
+  box-shadow: var(--tw-ring-shadow);
 }
 
 /*
@@ -44,6 +44,6 @@
   --tw-ring-offset-width: 0px;
   --tw-ring-offset-shadow: 0 0 #0000;
   --tw-ring-shadow: inset 0 0 0 1px var(--focus-ring);
-  outline: none !important;
-  box-shadow: var(--tw-ring-shadow) !important;
+  outline: none;
+  box-shadow: var(--tw-ring-shadow);
 }
