@@ -66,9 +66,9 @@ function ticket(overrides = {}) {
   };
 }
 
-function renderPage() {
+function renderPage(initialEntry = '/cut-points') {
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[initialEntry]}>
       <CutPointTrackerPage />
     </MemoryRouter>,
   );
@@ -171,6 +171,29 @@ describe('CutPointTrackerPage', () => {
 
     const mapOptions = createLeafletMap.mock.calls[0][0];
     expect(mapOptions.onOpenTicket).toEqual(expect.any(Function));
+  });
+
+  it('focuses the exact Ticket requested by a cross-page map deep link', async () => {
+    renderPage('/cut-points?ticket=ticket-2');
+    expect(await screen.findByText('[BANDUNG] RESOLVED LINK')).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(mapClient.focusMarker).toHaveBeenCalledWith('ticket-2');
+    });
+  });
+
+  it('explains when a requested Ticket is not map-eligible instead of focusing another marker', async () => {
+    renderPage('/cut-points?ticket=not-mapped');
+    await screen.findByText('[MANDAU] LINK DOWN');
+
+    expect(
+      screen.getByText(/requested Ticket is not currently map-eligible/i),
+    ).toBeInTheDocument();
+    expect(mapClient.focusMarker).not.toHaveBeenCalledWith('not-mapped');
+    expect(screen.getByRole('link', { name: 'Open Ticket' })).toHaveAttribute(
+      'href',
+      '/tickets/not-mapped',
+    );
   });
 
   it('keeps the responsive Cut Point flow free of desktop resize affordances', async () => {
