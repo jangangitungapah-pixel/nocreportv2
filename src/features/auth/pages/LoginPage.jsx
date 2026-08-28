@@ -12,7 +12,7 @@ import { Button } from '../../../shared/ui/primitives.jsx';
 
 const PRODUCT_POINTS = [
   'Canonical Ticket reporting and lifecycle review',
-  'Browser-local OCR and verified Cut Point workflow',
+  'Gemini-assisted OCR with operator-verified Cut Point coordinates',
   'Capability-safe Admin, Operator, and Viewer access',
 ];
 
