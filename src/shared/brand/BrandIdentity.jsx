@@ -50,9 +50,8 @@ export function BrandLockup({
           NOC Report
         </p>
         <p
-          className={`brand-lockup__subtitle mt-0.5 truncate text-[9px] font-semibold uppercase tracking-[0.12em] ${
-            inverse ? 'text-white/45' : 'text-[var(--text-muted)]'
-          }`}
+          className="brand-lockup__subtitle mt-0.5 truncate text-[9px] font-semibold uppercase tracking-[0.12em]"
+          style={{ color: inverse ? 'rgb(255 255 255 / 50%)' : 'var(--text-muted)' }}
         >
           {subtitle}
         </p>
