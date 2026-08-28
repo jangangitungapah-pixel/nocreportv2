@@ -36,10 +36,15 @@ export function ImpactBuilder({ existing = EMPTY_IMPACT_VALUES, onApply }) {
   };
 
   const skippedCount = parsed.stats.sourceDuplicateCount + parsed.stats.existingDuplicateCount;
+  const hasProposals = parsed.items.length > 0;
 
   return (
     <div className="generator-impact-builder border-b border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3">
-      <div className="generator-impact-builder-grid grid gap-2.5 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.8fr)]">
+      <div
+        className={`generator-impact-builder-grid grid gap-2.5 ${
+          hasProposals ? 'lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.8fr)]' : ''
+        }`}
+      >
         <Textarea
           id="impact-builder-source"
           label="Paste impact / service / node list"
@@ -49,18 +54,18 @@ export function ImpactBuilder({ existing = EMPTY_IMPACT_VALUES, onApply }) {
           onChange={(event) => setSource(event.target.value)}
         />
 
-        <div className="generator-impact-preview min-h-[6.5rem] rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-2.5">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-[10.5px] font-extrabold text-[var(--text-primary)]">
-              Impact preview
-            </p>
-            <span className="text-[9px] font-bold text-[var(--text-faint)]">
-              {parsed.items.length} proposed
-              {skippedCount ? ` · ${skippedCount} duplicate skipped` : ''}
-            </span>
-          </div>
+        {hasProposals ? (
+          <div className="generator-impact-preview min-h-[6.5rem] rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-[10.5px] font-extrabold text-[var(--text-primary)]">
+                Impact preview
+              </p>
+              <span className="text-[9px] font-bold text-[var(--text-faint)]">
+                {parsed.items.length} proposed
+                {skippedCount ? ` · ${skippedCount} duplicate skipped` : ''}
+              </span>
+            </div>
 
-          {parsed.items.length ? (
             <div className="generator-impact-candidates mt-2 grid max-h-36 gap-1.5 overflow-y-auto">
               {parsed.items.map((item) => (
                 <label
@@ -77,21 +82,22 @@ export function ImpactBuilder({ existing = EMPTY_IMPACT_VALUES, onApply }) {
                 </label>
               ))}
             </div>
-          ) : (
-            <p className="mt-2 text-[10px] leading-5 text-[var(--text-muted)]">
-              Paste one item per line. Bullets and numbering are normalized locally; nothing is
-              applied until you select and confirm it.
-            </p>
-          )}
 
-          <div className="generator-impact-builder-actions mt-2 flex justify-end">
-            <Button type="button" size="xs" disabled={selectedIds.size === 0} onClick={apply}>
-              <AppIcon name="plus" size={13} />
-              Apply Impact ({selectedIds.size})
-            </Button>
+            <div className="generator-impact-builder-actions mt-2 flex justify-end">
+              <Button type="button" size="xs" disabled={selectedIds.size === 0} onClick={apply}>
+                <AppIcon name="plus" size={13} />
+                Apply Impact ({selectedIds.size})
+              </Button>
+            </div>
           </div>
-        </div>
+        ) : null}
       </div>
+
+      {!hasProposals && skippedCount ? (
+        <p className="generator-impact-duplicate-note mt-1.5 text-[9.5px] font-medium text-[var(--text-faint)]">
+          {skippedCount} duplicate {skippedCount === 1 ? 'item' : 'items'} skipped.
+        </p>
+      ) : null}
     </div>
   );
 }
