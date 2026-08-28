@@ -1,19 +1,27 @@
 /*
  * Template Generator focus treatment.
  *
- * Keep keyboard focus obvious without the heavy outer halo that made compact
- * controls look double-bordered. Inside the Generator, field focus is expressed
- * by the canonical accent border; button/link focus uses a restrained inset ring.
- * Scoped to .generator-cockpit so the shared design system elsewhere is unchanged.
+ * Keep keyboard focus obvious without any outer halo that can be clipped by the
+ * compact Generator sections. Form controls use only their own accent border on
+ * focus. Buttons/links retain a restrained inset cue. Scoped to
+ * .generator-cockpit so the shared design system elsewhere is unchanged.
  */
 
 /*
  * TextInput, Textarea, DateTimeField and SelectField all expose .ui-control.
- * Remove the 4px Tailwind focus halo and keep a crisp accent border instead.
+ * Kill Tailwind's ring/shadow stack completely here. A border lives inside the
+ * control box, so it cannot be shaved off by an overflow-hidden ancestor.
  */
-.generator-cockpit .ui-control:focus {
+.generator-cockpit .ui-control:focus,
+.generator-cockpit .ui-control:focus-visible {
+  --tw-ring-inset: initial;
+  --tw-ring-offset-width: 0px;
+  --tw-ring-offset-shadow: 0 0 #0000;
+  --tw-ring-shadow: 0 0 #0000;
+  --tw-shadow: 0 0 #0000;
   border-color: var(--accent-solid) !important;
-  box-shadow: var(--shadow-xs) !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 /* Calendar/field affordances keep a small inward keyboard-focus cue. */
@@ -22,11 +30,12 @@
   --tw-ring-offset-width: 0px;
   --tw-ring-offset-shadow: 0 0 #0000;
   --tw-ring-shadow: inset 0 0 0 1px var(--focus-ring);
+  outline: none !important;
   box-shadow: var(--tw-ring-shadow) !important;
 }
 
 /*
- * Canonical buttons/links should not draw a thick outer halo either. Use a
+ * Canonical buttons/links should not draw an outer halo either. Use a
  * single-pixel inset cue so focus remains keyboard-visible without changing
  * layout or being clipped by compact section boundaries.
  */
@@ -35,5 +44,6 @@
   --tw-ring-offset-width: 0px;
   --tw-ring-offset-shadow: 0 0 #0000;
   --tw-ring-shadow: inset 0 0 0 1px var(--focus-ring);
+  outline: none !important;
   box-shadow: var(--tw-ring-shadow) !important;
 }
