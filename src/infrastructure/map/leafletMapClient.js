@@ -29,43 +29,92 @@ export function safeFocusZoom(zoom) {
   return Number.isFinite(numericZoom) ? Math.max(numericZoom, MARKER_FOCUS_ZOOM) : MARKER_FOCUS_ZOOM;
 }
 
-function textLine(label, value) {
-  const line = document.createElement('p');
-  const strong = document.createElement('strong');
-  strong.textContent = `${label}: `;
-  line.append(strong, document.createTextNode(value || '—'));
-  return line;
+function displayStatus(status) {
+  const normalized = String(status ?? '').trim().toLowerCase();
+  return normalized ? `${normalized.charAt(0).toUpperCase()}${normalized.slice(1)}` : 'Unknown';
+}
+
+function createPopupDetail(label, value, { mono = false, emphasis = false } = {}) {
+  const row = document.createElement('div');
+  row.className = 'noc-map-popup__detail';
+  if (emphasis) row.dataset.emphasis = 'true';
+
+  const key = document.createElement('span');
+  key.className = 'noc-map-popup__detail-key';
+  key.textContent = label;
+
+  const content = document.createElement('span');
+  content.className = 'noc-map-popup__detail-value';
+  if (mono) content.classList.add('noc-map-popup__detail-value--mono');
+  content.textContent = value || '—';
+
+  row.append(key, content);
+  return row;
 }
 
 function createPopupNode(marker, onOpenTicket) {
   const root = document.createElement('div');
   root.className = 'noc-map-popup';
 
-  const title = document.createElement('strong');
-  title.textContent = marker.externalTtNumber || marker.title;
-  root.append(title);
+  const header = document.createElement('header');
+  header.className = 'noc-map-popup__header';
 
-  if (marker.externalTtNumber) {
-    const subtitle = document.createElement('p');
-    subtitle.textContent = marker.title;
-    root.append(subtitle);
-  }
+  const identity = document.createElement('div');
+  identity.className = 'noc-map-popup__identity';
 
-  root.append(
-    textLine('Status', marker.status),
-    textLine('Cut Point', marker.cutPoint),
-    textLine('Coordinate', marker.coordinateLabel),
-    textLine('PIC', marker.pic),
-    textLine('Latest update', marker.latestProgress),
-    textLine('Updated', marker.updatedLabel),
+  const eyebrow = document.createElement('span');
+  eyebrow.className = 'noc-map-popup__eyebrow';
+  eyebrow.textContent = 'Mapped incident';
+
+  const tt = document.createElement('strong');
+  tt.className = 'noc-map-popup__tt';
+  tt.textContent = marker.externalTtNumber || 'Ticket';
+
+  identity.append(eyebrow, tt);
+
+  const status = document.createElement('span');
+  status.className = 'noc-map-popup__status';
+  status.dataset.status = String(marker.status ?? '').trim().toLowerCase();
+  status.textContent = displayStatus(marker.status);
+
+  header.append(identity, status);
+
+  const title = document.createElement('p');
+  title.className = 'noc-map-popup__title';
+  title.textContent = marker.title || 'Untitled ticket';
+
+  const details = document.createElement('div');
+  details.className = 'noc-map-popup__details';
+  details.append(
+    createPopupDetail('Cut Point', marker.cutPoint),
+    createPopupDetail('Coordinate', marker.coordinateLabel, { mono: true, emphasis: true }),
+    createPopupDetail('PIC', marker.pic),
+    createPopupDetail('Latest update', marker.latestProgress),
   );
+
+  const footer = document.createElement('div');
+  footer.className = 'noc-map-popup__footer';
+
+  const updated = document.createElement('span');
+  updated.className = 'noc-map-popup__updated';
+  updated.textContent = `Updated ${marker.updatedLabel || '—'}`;
 
   const button = document.createElement('button');
   button.type = 'button';
-  button.textContent = 'Open Ticket';
   button.className = 'noc-map-popup-action';
+  button.setAttribute('aria-label', `Open ${marker.externalTtNumber || marker.title || 'ticket'}`);
+
+  const buttonLabel = document.createElement('span');
+  buttonLabel.textContent = 'Open Ticket';
+  const buttonArrow = document.createElement('span');
+  buttonArrow.className = 'noc-map-popup-action__arrow';
+  buttonArrow.setAttribute('aria-hidden', 'true');
+  buttonArrow.textContent = '→';
+  button.append(buttonLabel, buttonArrow);
   button.addEventListener('click', () => onOpenTicket?.(marker.ticketId));
-  root.append(button);
+
+  footer.append(updated, button);
+  root.append(header, title, details, footer);
 
   return root;
 }
@@ -123,7 +172,11 @@ export async function createLeafletMap({
         title: markerLabel,
         alt: `Cut Point ${markerLabel}`,
       });
-      marker.bindPopup(createPopupNode(markerData, onOpenTicket), { maxWidth: 320 });
+      marker.bindPopup(createPopupNode(markerData, onOpenTicket), {
+        minWidth: 300,
+        maxWidth: 360,
+        className: 'noc-map-popup-shell',
+      });
       marker.addTo(markerLayer);
       markerReferences.set(markerData.ticketId, marker);
       coordinates.push([latitude, longitude]);
