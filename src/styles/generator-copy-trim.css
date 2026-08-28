@@ -37,11 +37,6 @@
   justify-content: flex-end;
 }
 
-/* Draft/Running + TT + Saved/Unsaved are useful. Environment/revision subcopy is not. */
-.generator-cockpit .generator-command-context > div > p:last-child {
-  display: none;
-}
-
 /* Import mode controls already communicate what this block does. */
 .generator-cockpit .generator-smart-import__header .generator-intelligence-title > span {
   display: none;
