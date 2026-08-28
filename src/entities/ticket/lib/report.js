@@ -15,19 +15,23 @@ function formatTitle(title) {
 
 function formatImpactList(impactList) {
   if (!Array.isArray(impactList)) {
-    return null;
+    return [];
   }
 
   const entries = impactList.map(reportValue).filter(Boolean);
-  return entries.length > 0 ? `Impact List : ${entries.join(', ')}` : null;
+  if (entries.length === 0) {
+    return [];
+  }
+
+  return ['Impact List :', ...entries.map((entry, index) => `${index + 1}. ${entry}`)];
 }
 
 export function formatTicketReport(ticket = {}) {
   const lines = [`Title : ${formatTitle(ticket.title)}`];
-  const impactLine = formatImpactList(ticket.impactList);
+  const impactLines = formatImpactList(ticket.impactList);
 
-  if (impactLine) {
-    lines.push(impactLine);
+  if (impactLines.length > 0) {
+    lines.push(...impactLines);
   }
 
   lines.push(`Occur Time = ${formatDateTime(ticket.occurAt)}`);
