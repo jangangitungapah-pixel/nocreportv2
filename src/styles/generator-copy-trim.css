@@ -79,7 +79,10 @@
 
 /* Evidence: keep accepted formats/limits in the drop target, remove duplicate privacy/empty copy. */
 .generator-cockpit .generator-evidence-workspace__header p,
-.generator-cockpit .generator-evidence-workspace > div:last-child > p:last-child:not([role='alert']) {
+.generator-cockpit
+  .generator-evidence-workspace
+  > div:last-child
+  > p:last-child:not([role='alert']) {
   display: none;
 }
 
