@@ -1,0 +1,30 @@
+/*
+ * Template Generator focus-visibility guard.
+ *
+ * Several Generator sections intentionally use overflow clipping for compact
+ * surfaces. Canonical controls use outer box-shadow focus rings, which can be
+ * shaved off at the left/right edge of those sections. Keep the accessibility
+ * signal fully visible by rendering focus rings inward inside this workspace.
+ * This is scoped to .generator-cockpit so the shared design system elsewhere is
+ * unchanged.
+ */
+
+/* TextInput, Textarea, DateTimeField and SelectField all expose .ui-control. */
+.generator-cockpit .ui-control:focus {
+  --tw-ring-inset: inset;
+}
+
+/* Calendar/field affordances use the same containment rule. */
+.generator-cockpit .ui-field-trigger:focus-visible {
+  --tw-ring-inset: inset;
+}
+
+/*
+ * Canonical buttons/links use a 2px outer ring plus a 2px offset. Within the
+ * Generator, move that ring inward and remove the external offset so controls
+ * near clipped edges never lose half of their focus indicator.
+ */
+.generator-cockpit :is(button, a):focus-visible {
+  --tw-ring-inset: inset;
+  --tw-ring-offset-width: 0px;
+}
