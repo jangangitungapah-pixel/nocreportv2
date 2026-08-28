@@ -173,11 +173,7 @@
   margin: 0;
 }
 
-.generator-cockpit
-  #generator-stage-response
-  .generator-ocr-dropzone
-  > div.min-w-0
-  > p:first-child {
+.generator-cockpit #generator-stage-response .generator-ocr-dropzone > div.min-w-0 > p:first-child {
   font-size: 11px;
   line-height: 1.35;
 }
