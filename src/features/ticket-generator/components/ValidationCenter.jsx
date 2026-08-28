@@ -82,6 +82,7 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
   const routeTicketId = persistedTicketIdFromPathname();
   const duplicateFingerprint = useMemo(() => duplicateLookupFingerprint(ticket), [ticket]);
   const duplicateAcknowledgedRef = useRef(false);
+  const previousReadyRef = useRef(Boolean(validation?.readyForRunning));
   const [duplicateCandidates, setDuplicateCandidates] = useState([]);
   const [duplicatePending, setDuplicatePending] = useState(false);
   const [duplicateError, setDuplicateError] = useState(null);
@@ -92,7 +93,7 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
   const [relatedError, setRelatedError] = useState(null);
   const [relatePendingId, setRelatePendingId] = useState(null);
   const [unlinkPending, setUnlinkPending] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(() => Boolean(validation?.readyForRunning));
 
   useEffect(() => {
     duplicateAcknowledgedRef.current = false;
@@ -254,6 +255,15 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
   const hasUnsavedChanges = generatorHasUnsavedChanges();
 
   useEffect(() => {
+    if (!ready) {
+      setIsCollapsed(false);
+    } else if (!previousReadyRef.current) {
+      setIsCollapsed(true);
+    }
+    previousReadyRef.current = ready;
+  }, [ready]);
+
+  useEffect(() => {
     onOperationalContextChange?.({
       validationFindings: displayValidation?.findings ?? [],
       relatedTicketCount: relatedTickets.length,
@@ -337,8 +347,8 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
             <Metric label="Latest update age" value={time.latestUpdateAgeMs} />
           </div>
 
-          <div className="generator-readiness-findings p-3">
-            {findings.length ? (
+          {findings.length ? (
+            <div className="generator-readiness-findings p-3">
               <div className="grid gap-1.5">
                 {findings.map((item) => {
                   const meta = SEVERITY_META[item.severity] ?? SEVERITY_META.info;
@@ -382,12 +392,8 @@ export function ValidationCenter({ validation, onFocusField, onOperationalContex
                   );
                 })}
               </div>
-            ) : (
-              <p className="text-[10.5px] leading-5 text-[var(--text-muted)]">
-                No derived findings. Field validation and lifecycle rules are currently satisfied.
-              </p>
-            )}
-          </div>
+            </div>
+          ) : null}
         </div>
       </section>
     </div>
