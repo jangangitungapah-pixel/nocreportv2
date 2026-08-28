@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 
 import { BrandLockup, BrandMark } from '../../shared/brand/BrandIdentity.jsx';
+import {
+  TICKET_WORKSPACE_SCOPE,
+  subscribeTicketWorkspaceChanges,
+} from '../../shared/integration/ticketWorkspaceSync.js';
 import { AppIcon } from '../../shared/ui/icon.jsx';
 import {
   DropdownMenu,
@@ -53,9 +57,19 @@ function NavigationLink({ item }) {
   );
 }
 
+function ticketWorkspaceScope(pathname) {
+  if (pathname.startsWith('/dashboard')) return TICKET_WORKSPACE_SCOPE.DASHBOARD;
+  if (pathname.startsWith('/running')) return TICKET_WORKSPACE_SCOPE.RUNNING;
+  if (pathname.startsWith('/cut-points')) return TICKET_WORKSPACE_SCOPE.CUT_POINTS;
+  if (pathname.startsWith('/archive')) return TICKET_WORKSPACE_SCOPE.ARCHIVE;
+  if (pathname.startsWith('/tickets/')) return TICKET_WORKSPACE_SCOPE.TICKET;
+  return null;
+}
+
 export function AppShell() {
   const location = useLocation();
   const [commandOpen, setCommandOpen] = useState(false);
+  const [workspaceRevision, setWorkspaceRevision] = useState(0);
   const { can, firebaseConfigured, localDevelopmentMode, profile, role, signOut } = useAuth();
   const { theme, setTheme, toggleTheme } = useTheme();
   const visibleNavigation = PRIMARY_NAVIGATION.filter(
@@ -64,6 +78,15 @@ export function AppShell() {
   const accountLabel = localDevelopmentMode
     ? 'Local development'
     : profile?.displayName || profile?.email || 'Firebase user';
+  const workspaceScope = useMemo(() => ticketWorkspaceScope(location.pathname), [location.pathname]);
+
+  useEffect(() => {
+    if (!workspaceScope || localDevelopmentMode) return undefined;
+    return subscribeTicketWorkspaceChanges(
+      () => setWorkspaceRevision((current) => current + 1),
+      { scopes: [workspaceScope], debounceMs: 160 },
+    );
+  }, [localDevelopmentMode, workspaceScope]);
 
   return (
     <TooltipProvider delayDuration={350}>
@@ -196,7 +219,7 @@ export function AppShell() {
           </header>
 
           <main className="mx-auto w-full max-w-[var(--page-max)] px-3 pb-24 pt-3 md:px-4 md:pt-4 lg:px-5 lg:pb-8">
-            <Outlet />
+            <Outlet key={`${location.pathname}:${workspaceRevision}`} />
           </main>
         </div>
 
