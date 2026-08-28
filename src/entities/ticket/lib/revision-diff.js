@@ -11,6 +11,7 @@ const SIMPLE_FIELDS = Object.freeze([
   'impactList',
   'occurAt',
   'dispatchAt',
+  'closedAt',
   'pic',
   'rootcause',
   'cutPoint',
@@ -60,18 +61,20 @@ function addChange(changes, field, previousValue, nextValue) {
   changes[field] = { from, to };
 }
 
+function isDateField(field) {
+  return field === 'occurAt' || field === 'dispatchAt' || field === 'closedAt';
+}
+
 export function buildOperationalRevisionDiff(previousTicket = {}, nextTicket = {}) {
   const changes = {};
 
   for (const field of SIMPLE_FIELDS) {
-    const previousValue =
-      field === 'occurAt' || field === 'dispatchAt'
-        ? normalizedDate(previousTicket?.[field])
-        : previousTicket?.[field];
-    const nextValue =
-      field === 'occurAt' || field === 'dispatchAt'
-        ? normalizedDate(nextTicket?.[field])
-        : nextTicket?.[field];
+    const previousValue = isDateField(field)
+      ? normalizedDate(previousTicket?.[field])
+      : previousTicket?.[field];
+    const nextValue = isDateField(field)
+      ? normalizedDate(nextTicket?.[field])
+      : nextTicket?.[field];
     addChange(changes, field, previousValue, nextValue);
   }
 
