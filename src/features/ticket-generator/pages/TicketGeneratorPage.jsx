@@ -1204,6 +1204,7 @@ export function TicketGeneratorPage() {
       title: 'ticket-title',
       occurAt: 'occur-at',
       dispatchAt: 'dispatch-at',
+      closedAt: 'closed-at',
       pic: 'pic',
       rootcause: 'rootcause',
       cutPoint: 'cut-point',
@@ -1247,7 +1248,7 @@ export function TicketGeneratorPage() {
     });
     setFeatureMetadata((current) => ({
       ...current,
-      titleMode: TICKET_TITLE_MODE.GENERATED,
+      titleMode: TICKET_TITLE_MODE.MANUAL,
       externalTtNumber: ticket.externalTtNumber ?? current.externalTtNumber,
     }));
     setFeatureMetadataDirty(true);
@@ -1456,7 +1457,7 @@ export function TicketGeneratorPage() {
             meta="Operational clock"
             className="generator-authoring-section generator-authoring-section--timing"
           >
-            <div className="generator-timing-grid grid gap-3 md:grid-cols-2">
+            <div className="generator-timing-grid grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               <DateTimeField
                 id="occur-at"
                 label="Occur Time"
@@ -1469,6 +1470,13 @@ export function TicketGeneratorPage() {
                 label="Dispatch Time"
                 error={errors.dispatchAt?.message}
                 {...register('dispatchAt')}
+              />
+              <DateTimeField
+                id="closed-at"
+                label="Closed Time"
+                hint="Stops MTTR clock"
+                error={errors.closedAt?.message}
+                {...register('closedAt')}
               />
             </div>
           </EditorSection>
