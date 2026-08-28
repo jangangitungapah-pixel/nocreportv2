@@ -36,6 +36,8 @@ function createLoadedTicket() {
       revision: 7,
       occurAt: new Date('2026-08-18T07:20:00.000Z'),
       dispatchAt: new Date('2026-08-18T07:30:00.000Z'),
+      closedAt: new Date('2026-08-18T09:10:00.000Z'),
+      resolvedAt: null,
       pic: 'Agus',
       rootcause: 'Fiber cut',
       cutPoint: 'KM 24 Majalengka',
@@ -79,7 +81,7 @@ describe('TicketViewerPage read-only inspection workspace', () => {
     cleanup();
   });
 
-  it('renders persisted Ticket data as a dense read-only workspace with an explicit Edit Ticket action', async () => {
+  it('renders persisted Ticket data as a dense read-only workspace with precise operational links', async () => {
     renderPage();
 
     expect(await screen.findByText('[MANDAU] LINK DOWN')).toBeInTheDocument();
@@ -87,11 +89,17 @@ describe('TicketViewerPage read-only inspection workspace', () => {
     expect(within(reviewMeta).getByText('Read only')).toBeInTheDocument();
     expect(within(reviewMeta).getByText('Revision 7')).toBeInTheDocument();
     expect(screen.getByText('Operational context')).toBeInTheDocument();
+    expect(screen.getByText('Closed Time')).toBeInTheDocument();
     expect(screen.getByText('Team OTW to Cut Point')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
     expect(screen.queryByLabelText('Title')).not.toBeInTheDocument();
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
 
+    expect(screen.getByRole('link', { name: 'Running Queue' })).toHaveAttribute('href', '/running');
+    expect(screen.getByRole('link', { name: 'Locate' })).toHaveAttribute(
+      'href',
+      '/cut-points?ticket=ticket-1',
+    );
     const editLink = screen.getByRole('link', { name: 'Edit Ticket' });
     expect(editLink).toHaveAttribute('href', '/generator/ticket-1/edit');
   });
