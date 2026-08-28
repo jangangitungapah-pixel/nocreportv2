@@ -165,7 +165,7 @@ export function CutPointTrackerPage() {
   const [mapRevision, setMapRevision] = useState(0);
   const [mapReadyRevision, setMapReadyRevision] = useState(0);
   const requestedTicketId = useMemo(
-    () => new URLSearchParams(location.search).get('ticket')?.trim() || null,
+    () => new globalThis.URLSearchParams(location.search).get('ticket')?.trim() || null,
     [location.search],
   );
 
@@ -256,7 +256,13 @@ export function CutPointTrackerPage() {
   }, [visibleMarkers]);
 
   useEffect(() => {
-    if (!requestedTicketId || !requestedMarkerAvailable || loading || queryError || !mapReadyRevision) {
+    if (
+      !requestedTicketId ||
+      !requestedMarkerAvailable ||
+      loading ||
+      queryError ||
+      !mapReadyRevision
+    ) {
       return undefined;
     }
     const markerVisible = visibleMarkers.some((marker) => marker.ticketId === requestedTicketId);
@@ -556,7 +562,8 @@ export function CutPointTrackerPage() {
       {requestedTicketId && !loading && !queryError && !requestedMarkerAvailable ? (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-[var(--radius-control)] border border-[var(--warning-border)] bg-[var(--warning-soft)] px-3 py-2 text-[10.5px] text-[var(--warning-text)]">
           <span>
-            The requested Ticket is not currently map-eligible. It may be missing a verified coordinate or no longer be Running/Resolved.
+            The requested Ticket is not currently map-eligible. It may be missing a verified
+            coordinate or no longer be Running/Resolved.
           </span>
           <Button asChild tone="ghost" size="xs">
             <Link to={`/tickets/${encodeURIComponent(requestedTicketId)}`}>Open Ticket</Link>
