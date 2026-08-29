@@ -32,6 +32,8 @@ describe('CoordinateExtractor', () => {
     const onApplyCoordinate = vi.fn();
     render(<CoordinateExtractor onApplyCoordinate={onApplyCoordinate} />);
 
+    expect(screen.getByRole('region', { name: 'Photo coordinate scanner' })).toBeInTheDocument();
+
     const file = new File(['image'], 'cut-point.png', { type: 'image/png' });
     fireEvent.change(screen.getByLabelText('Choose Cut Point photo'), {
       target: { files: [file] },

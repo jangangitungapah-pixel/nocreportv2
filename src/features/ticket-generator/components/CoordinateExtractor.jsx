@@ -140,7 +140,10 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
   const needsGeminiKey = error.includes('Gemini API key');
 
   const content = (
-    <section className="generator-operations-surface generator-coordinate-extractor generator-coordinate-extractor--inline overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)] xl:overflow-visible xl:rounded-none xl:border-0 xl:bg-transparent xl:shadow-none">
+    <section
+      className="generator-operations-surface generator-coordinate-extractor generator-coordinate-extractor--inline overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)] xl:overflow-visible xl:rounded-none xl:border-0 xl:bg-transparent xl:shadow-none"
+      aria-label="Photo coordinate scanner"
+    >
       <header className="generator-operations-header generator-coordinate-extractor__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 xl:hidden">
         <div className="flex min-w-0 items-center gap-2">
           <AppIcon name="map" size={14} className="text-[var(--accent-text)]" />
@@ -203,7 +206,9 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
           <div className="min-w-0">
             <div className="hidden items-center gap-2 xl:flex">
               <AppIcon name="map" size={13} className="text-[var(--accent-text)]" />
-              <p className="text-[11px] font-semibold text-[var(--text-primary)]">Photo coordinate</p>
+              <p className="text-[11px] font-semibold text-[var(--text-primary)]">
+                Photo coordinate
+              </p>
               <span className="text-[8px] font-bold uppercase tracking-[0.1em] text-[var(--accent-text)]">
                 Gemini 3.6 Flash
               </span>

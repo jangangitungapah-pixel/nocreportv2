@@ -39,7 +39,7 @@ export function ImpactBuilder({ existing = EMPTY_IMPACT_VALUES, onApply }) {
   const hasProposals = parsed.items.length > 0;
 
   return (
-    <div className="generator-impact-builder border-b border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3 xl:border-b-0 xl:bg-transparent xl:p-0">
+    <div className="generator-impact-builder border-b border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3 xl:border-b-0 xl:bg-transparent xl:px-1 xl:pb-2.5 xl:pt-0">
       <div
         className={`generator-impact-builder-grid grid gap-2.5 ${
           hasProposals ? 'lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.8fr)]' : ''
@@ -48,14 +48,15 @@ export function ImpactBuilder({ existing = EMPTY_IMPACT_VALUES, onApply }) {
         <Textarea
           id="impact-builder-source"
           label="Paste impact / service / node list"
-          rows={2}
+          rows={3}
+          className="generator-impact-source min-h-20 py-2.5 leading-5"
           value={source}
           placeholder={'1. SITE_A\n- Service B\n• NODE_C'}
           onChange={(event) => setSource(event.target.value)}
         />
 
         {hasProposals ? (
-          <div className="generator-impact-preview min-h-[6.5rem] rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-2.5 xl:rounded-none xl:border-x-0 xl:border-b-0 xl:border-t xl:bg-transparent xl:px-0 xl:pb-0 xl:pt-2.5">
+          <div className="generator-impact-preview min-h-20 rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] p-2.5 xl:rounded-none xl:border-x-0 xl:border-b-0 xl:border-t xl:bg-transparent xl:px-0 xl:pb-0 xl:pt-2.5">
             <div className="flex items-center justify-between gap-2">
               <p className="text-[10.5px] font-extrabold text-[var(--text-primary)]">
                 Impact preview

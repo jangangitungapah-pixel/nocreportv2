@@ -964,6 +964,45 @@ body {
   background: transparent;
 }
 
+.generator-impact-builder label[for='impact-builder-source'] {
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.generator-impact-source {
+  min-height: 80px;
+}
+
+.generator-impact-row {
+  padding-left: 48px;
+}
+
+@media (min-width: 1280px) {
+  .generator-authoring-section--coordinate {
+    padding-bottom: 10px;
+  }
+
+  .generator-authoring-section--coordinate .generator-coordinate-extractor--inline {
+    margin-top: 8px;
+  }
+
+  .generator-authoring-section--coordinate .generator-ocr-dropzone {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-control);
+    background: color-mix(in srgb, var(--surface-muted) 74%, transparent);
+    padding: 8px;
+  }
+
+  .generator-impact-builder {
+    background: transparent;
+  }
+
+  .generator-impact-empty {
+    background: transparent;
+  }
+}
+
 .generator-intelligence-header,
 .generator-readiness-metrics,
 .generator-readiness-findings {
@@ -2115,9 +2154,13 @@ body {
     flex: 0 0 auto;
   }
 
-  .generator-impact-empty,
-  .generator-impact-row {
+  .generator-impact-empty {
     padding-inline: 10px;
+  }
+
+  .generator-impact-row {
+    padding-right: 10px;
+    padding-left: 44px;
   }
 
   .generator-evidence-card > div:first-child {
