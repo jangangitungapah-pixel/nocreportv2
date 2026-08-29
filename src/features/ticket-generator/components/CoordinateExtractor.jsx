@@ -140,8 +140,8 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
   const needsGeminiKey = error.includes('Gemini API key');
 
   const content = (
-    <section className="generator-operations-surface generator-coordinate-extractor generator-coordinate-extractor--inline overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
-      <header className="generator-operations-header generator-coordinate-extractor__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3">
+    <section className="generator-operations-surface generator-coordinate-extractor generator-coordinate-extractor--inline overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)] xl:rounded-none xl:border-0 xl:bg-transparent xl:shadow-none">
+      <header className="generator-operations-header generator-coordinate-extractor__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 xl:min-h-9 xl:px-1">
         <div className="flex min-w-0 items-center gap-2">
           <AppIcon name="map" size={14} className="text-[var(--accent-text)]" />
           <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Photo coordinate</h3>
@@ -154,7 +154,7 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
         </span>
       </header>
 
-      <div className="p-3">
+      <div className="p-3 xl:px-1 xl:py-2.5">
         <div
           className={`generator-ocr-dropzone grid gap-3 border border-dashed p-2.5 transition-colors sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center ${
             dragActive
