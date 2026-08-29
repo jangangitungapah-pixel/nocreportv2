@@ -39,7 +39,7 @@ export function ImpactBuilder({ existing = EMPTY_IMPACT_VALUES, onApply }) {
   const hasProposals = parsed.items.length > 0;
 
   return (
-    <div className="generator-impact-builder border-b border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3">
+    <div className="generator-impact-builder border-b border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3 xl:bg-transparent xl:px-1 xl:py-2.5">
       <div
         className={`generator-impact-builder-grid grid gap-2.5 ${
           hasProposals ? 'lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.8fr)]' : ''
