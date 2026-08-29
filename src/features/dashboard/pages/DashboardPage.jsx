@@ -153,7 +153,7 @@ function RecentActivity({ tickets }) {
         </div>
       ) : (
         <div>
-          <div className="hidden min-h-8 grid-cols-[140px_minmax(0,1fr)_110px_128px] items-center gap-3 border-b border-[var(--border-subtle)] bg-[var(--surface-muted)] px-4 text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--text-faint)] md:grid">
+          <div className="hidden min-h-8 grid-cols-[140px_minmax(0,1fr)_110px_128px] items-center gap-3 border-b border-[var(--border-subtle)] bg-[var(--surface-muted)] px-4 text-[9px] font-extrabold uppercase tracking-[0.11em] text-[var(--text-muted)] md:grid">
             <span>TT</span>
             <span>Incident</span>
             <span>Status</span>
