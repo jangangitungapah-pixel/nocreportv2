@@ -120,7 +120,7 @@ function RunningMobileRow({ row, getActions }) {
         <span>{ticket.hasCoordinates ? 'Coordinate available' : 'No coordinate'}</span>
       </div>
 
-      <p className="running-ticket-card__latest mt-2 line-clamp-2 text-[11px] leading-4.5 text-[var(--text-secondary)]">
+      <p className="running-ticket-card__latest-copy mt-2 line-clamp-2 text-[11px] leading-4.5 text-[var(--text-secondary)]">
         <span className="font-bold text-[var(--text-muted)]">Latest:</span>{' '}
         {ticket.latestProgress?.text || 'No progress update yet'}
       </p>

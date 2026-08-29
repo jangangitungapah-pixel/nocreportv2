@@ -6,6 +6,14 @@ import { ImpactBuilder } from './ImpactBuilder.jsx';
 afterEach(() => cleanup());
 
 describe('GEN-F3 ImpactBuilder', () => {
+  it('keeps the quick-paste surface compact while showing the three-line input format', () => {
+    render(<ImpactBuilder onApply={vi.fn()} />);
+
+    const source = screen.getByLabelText('Paste impact / service / node list');
+    expect(source).toHaveAttribute('rows', '3');
+    expect(source).toHaveClass('generator-impact-source', 'min-h-20');
+  });
+
   it('previews normalized candidates, filters duplicates and applies only selected items', () => {
     const onApply = vi.fn();
     render(<ImpactBuilder existing={[{ value: 'SITE_EXISTING' }]} onApply={onApply} />);

@@ -125,15 +125,15 @@ export function ReportPreview({
             </div>
           </div>
         ) : null}
-        <div className="generator-report-preview__stage min-h-0 flex-1 bg-[var(--surface-muted)] p-1.5">
+        <div className="generator-report-preview__stage min-h-0 flex-1 bg-[var(--surface-muted)] p-1.5 xl:bg-[var(--surface-panel)] xl:p-0">
           <ScrollArea
             className={cn(
-              'generator-report-preview__document rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)]',
+              'generator-report-preview__document rounded-[var(--radius-control)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] xl:rounded-none xl:border-0 xl:shadow-none',
               fill ? 'h-full min-h-0' : 'max-h-[calc(100vh-8.5rem)] min-h-72',
             )}
           >
             <pre
-              className="generator-report-preview__content min-h-full whitespace-pre-wrap break-words p-3 font-mono text-[12px] leading-5 text-[var(--text-primary)]"
+              className="generator-report-preview__content min-h-full whitespace-pre-wrap break-words p-3 font-mono text-[12px] leading-5 text-[var(--text-primary)] xl:p-4"
               aria-label="Generated NOC report"
             >
               {report}
@@ -141,19 +141,27 @@ export function ReportPreview({
           </ScrollArea>
         </div>
         {validation ? (
-          <div className="generator-preview-copilot shrink-0 border-t border-[var(--border-subtle)]">
-            <div className="generator-preview-copilot__stage">
-              <span>Current stage</span>
-              <strong>{copilot.stage}</strong>
+          <div className="generator-preview-copilot grid shrink-0 gap-2 border-t border-[var(--border-subtle)] bg-[var(--surface-panel-strong)] px-3 py-2 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-center">
+            <div className="generator-preview-copilot__stage grid min-w-0 gap-0.5">
+              <span className="text-[8px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)]">
+                Current stage
+              </span>
+              <strong className="truncate text-[9.5px] font-bold text-[var(--accent-text)]">
+                {copilot.stage}
+              </strong>
             </div>
-            <div className="generator-preview-copilot__next">
-              <span>{copilot.label}</span>
-              <strong>{copilot.detail}</strong>
+            <div className="generator-preview-copilot__next grid min-w-0 gap-0.5 sm:border-l sm:border-[var(--border-subtle)] sm:pl-3">
+              <span className="text-[8px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)]">
+                {copilot.label}
+              </span>
+              <strong className="truncate text-[9.5px] font-semibold text-[var(--text-secondary)]">
+                {copilot.detail}
+              </strong>
             </div>
             {copilot.field ? (
               <button
                 type="button"
-                className="generator-preview-copilot__action"
+                className="generator-preview-copilot__action inline-flex min-h-8 items-center justify-center gap-1.5 rounded-[var(--radius-control)] px-2.5 text-[9.5px] font-bold text-[var(--accent-text)] transition-colors hover:bg-[var(--accent-soft)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                 onClick={() => focusValidationField(copilot.field)}
               >
                 Go to field

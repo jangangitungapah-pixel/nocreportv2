@@ -1,18 +1,18 @@
 import { cva } from 'class-variance-authority';
 
 export const buttonVariants = cva(
-  'inline-flex select-none items-center justify-center gap-2 whitespace-nowrap font-semibold tracking-[-0.01em] transition-[background-color,border-color,box-shadow,color,opacity,transform] duration-[var(--motion-base)] ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-canvas)] disabled:pointer-events-none disabled:opacity-45',
+  'inline-flex select-none items-center justify-center gap-2 whitespace-nowrap font-semibold tracking-[-0.01em] transition-[background-color,border-color,box-shadow,color,opacity,transform] duration-[var(--motion-base)] ease-[var(--ease-out)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-canvas)] disabled:pointer-events-none',
   {
     variants: {
       tone: {
         primary:
-          'border border-transparent bg-[var(--accent-solid)] text-[var(--accent-on-solid)] shadow-[var(--shadow-xs)] hover:bg-[var(--accent-solid-hover)]',
+          'border border-transparent bg-[var(--accent-solid)] text-[var(--accent-on-solid)] shadow-[var(--shadow-xs)] hover:bg-[var(--accent-solid-hover)] disabled:border-[var(--border-default)] disabled:bg-[var(--surface-muted)] disabled:text-[var(--text-muted)] disabled:shadow-none',
         secondary:
-          'border border-[var(--border-default)] bg-[var(--surface-panel)] text-[var(--text-primary)] shadow-[var(--shadow-xs)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-panel-strong)]',
+          'border border-[var(--border-default)] bg-[var(--surface-panel)] text-[var(--text-primary)] shadow-[var(--shadow-xs)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-panel-strong)] disabled:bg-[var(--surface-muted)] disabled:text-[var(--text-muted)] disabled:shadow-none',
         ghost:
-          'border border-transparent bg-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] hover:text-[var(--text-primary)]',
+          'border border-transparent bg-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] hover:text-[var(--text-primary)] disabled:bg-transparent disabled:text-[var(--text-muted)]',
         danger:
-          'border border-transparent bg-[var(--danger-solid)] text-white shadow-[var(--shadow-xs)] hover:bg-[var(--danger-solid-hover)]',
+          'border border-transparent bg-[var(--danger-solid)] text-white shadow-[var(--shadow-xs)] hover:bg-[var(--danger-solid-hover)] disabled:border-[var(--border-default)] disabled:bg-[var(--surface-muted)] disabled:text-[var(--text-muted)] disabled:shadow-none',
       },
       size: {
         xs: 'min-h-[var(--control-height-xs)] rounded-[var(--radius-control)] px-2.5 text-[11px]',

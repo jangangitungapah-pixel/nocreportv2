@@ -27,7 +27,19 @@ const TEXT_EXTENSIONS = new Set([
 const SOURCE_EXTENSIONS = new Set(['.js', '.jsx', '.mjs', '.cjs']);
 const UI_SOURCE_EXTENSIONS = new Set(['.js', '.jsx', '.css']);
 const LEGACY_UI_ROOTS = ['src/app/', 'src/features/', 'src/shared/', 'src/styles/'];
-const ALLOWED_IMPORTANT_FILES = new Set(['src/styles/app.css']);
+const REDUCED_MOTION_IMPORTANT_PROPERTIES = new Set([
+  'animation-delay',
+  'animation-duration',
+  'animation-iteration-count',
+  'scroll-behavior',
+  'transition-delay',
+  'transition-duration',
+]);
+const APP_CSS_ACCESSIBILITY_IMPORTANT_VALUES = new Map([
+  ['height', new Set(['44px'])],
+  ['min-height', new Set(['44px'])],
+  ['outline', new Set(['2px solid var(--focus-ring)'])],
+]);
 const FORBIDDEN_FILE_PATTERNS = [
   /(^|\/)(service[-_.]?account|serviceAccount).*\.json$/i,
   /\.(pem|p12|pfx|key)$/i,
@@ -120,6 +132,56 @@ function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+function isAllowedAppAccessibilityImportant(path, property, value) {
+  if (path !== 'src/styles/app.css') return false;
+  return APP_CSS_ACCESSIBILITY_IMPORTANT_VALUES.get(property)?.has(value.trim()) ?? false;
+}
+
+function hasForbiddenImportant(path, content) {
+  let depth = 0;
+  let reducedMotionDepth = null;
+  let pendingReducedMotion = false;
+
+  for (const line of content.split('\n')) {
+    if (/@media\s*\(\s*prefers-reduced-motion\s*:\s*reduce\s*\)/.test(line)) {
+      pendingReducedMotion = true;
+    }
+
+    const openBraces = (line.match(/{/g) ?? []).length;
+    const closeBraces = (line.match(/}/g) ?? []).length;
+
+    if (pendingReducedMotion && openBraces > 0) {
+      reducedMotionDepth = depth + 1;
+      pendingReducedMotion = false;
+    }
+
+    if (line.includes('!important')) {
+      const declarations = [...line.matchAll(/([\w-]+)\s*:\s*([^;{}]*?)\s*!important\b/g)];
+      if (!declarations.length) return true;
+
+      const allowed = declarations.every((match) => {
+        const [, property, value] = match;
+        if (
+          reducedMotionDepth !== null &&
+          REDUCED_MOTION_IMPORTANT_PROPERTIES.has(property)
+        ) {
+          return true;
+        }
+        return isAllowedAppAccessibilityImportant(path, property, value);
+      });
+
+      if (!allowed) return true;
+    }
+
+    depth += openBraces - closeBraces;
+    if (reducedMotionDepth !== null && depth < reducedMotionDepth) {
+      reducedMotionDepth = null;
+    }
+  }
+
+  return false;
+}
+
 const allFiles = await walk(ROOT);
 const textFileContents = new Map();
 
@@ -154,9 +216,9 @@ for (const absolute of allFiles) {
         if (rule.pattern.test(content)) violations.push(`${path}: ${rule.message}`);
       }
 
-      if (!ALLOWED_IMPORTANT_FILES.has(path) && /!important/.test(content)) {
+      if (hasForbiddenImportant(path, content)) {
         violations.push(
-          `${path}: legacy CSS !important overrides are forbidden in production UI source`,
+          `${path}: legacy CSS !important overrides are forbidden outside narrow accessibility exceptions`,
         );
       }
     }

@@ -140,12 +140,15 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
   const needsGeminiKey = error.includes('Gemini API key');
 
   const content = (
-    <section className="generator-operations-surface generator-coordinate-extractor generator-coordinate-extractor--inline overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]">
-      <header className="generator-operations-header generator-coordinate-extractor__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3">
+    <section
+      className="generator-operations-surface generator-coordinate-extractor generator-coordinate-extractor--inline overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)] xl:overflow-visible xl:rounded-none xl:border-0 xl:bg-transparent xl:shadow-none"
+      aria-label="Photo coordinate scanner"
+    >
+      <header className="generator-operations-header generator-coordinate-extractor__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 xl:hidden">
         <div className="flex min-w-0 items-center gap-2">
           <AppIcon name="map" size={14} className="text-[var(--accent-text)]" />
           <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Photo coordinate</h3>
-          <span className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-text)]">
+          <span className="rounded-full bg-[var(--accent-soft)] px-1.5 py-0.5 text-[8.5px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-text)]">
             Gemini 3.6 Flash
           </span>
         </div>
@@ -154,12 +157,12 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
         </span>
       </header>
 
-      <div className="p-3">
+      <div className="p-3 xl:p-0">
         <div
-          className={`generator-ocr-dropzone grid gap-3 border border-dashed p-2.5 transition-colors sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center ${
+          className={`generator-ocr-dropzone grid gap-3 border border-dashed p-2.5 transition-colors sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center xl:grid-cols-[72px_minmax(0,1fr)_auto] xl:gap-3 xl:border-x-0 xl:border-b-0 xl:border-t xl:border-solid xl:px-0 xl:py-3 ${
             dragActive
               ? 'border-[var(--accent-solid)] bg-[var(--accent-soft)]'
-              : 'border-[var(--border-default)] bg-[var(--surface-muted)]'
+              : 'border-[var(--border-default)] bg-[var(--surface-muted)] xl:bg-transparent'
           }`}
           onDragEnter={(event) => {
             event.preventDefault();
@@ -192,29 +195,39 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
             <img
               src={previewUrl}
               alt="Local Cut Point preview"
-              className="h-20 w-full border border-[var(--border-subtle)] object-cover sm:h-16"
+              className="h-20 w-full border border-[var(--border-subtle)] object-cover sm:h-16 xl:h-12"
             />
           ) : (
-            <div className="grid h-20 place-items-center border border-[var(--border-subtle)] bg-[var(--surface-panel)] text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)] sm:h-16">
+            <div className="grid h-20 place-items-center border border-[var(--border-subtle)] bg-[var(--surface-panel)] text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)] sm:h-16 xl:h-12 xl:text-[8px]">
               No image
             </div>
           )}
 
           <div className="min-w-0">
-            <p className="truncate text-[11.5px] font-bold text-[var(--text-primary)]">
+            <div className="hidden items-center gap-2 xl:flex">
+              <AppIcon name="map" size={13} className="text-[var(--accent-text)]" />
+              <p className="text-[11px] font-semibold text-[var(--text-primary)]">
+                Photo coordinate
+              </p>
+              <span className="text-[8px] font-bold uppercase tracking-[0.1em] text-[var(--accent-text)]">
+                Gemini 3.6 Flash
+              </span>
+            </div>
+            <p className="truncate text-[11.5px] font-bold text-[var(--text-primary)] xl:mt-0.5 xl:text-[10.5px] xl:font-medium xl:text-[var(--text-secondary)]">
               {file ? file.name : 'Drop a geotag photo here'}
             </p>
-            <p className="mt-0.5 text-[10px] leading-4 text-[var(--text-muted)]">
+            <p className="mt-0.5 text-[10px] leading-4 text-[var(--text-muted)] xl:text-[9.5px]">
               JPG, PNG, WebP · max 15 MB · sent to Gemini only when Scan is pressed
             </p>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              <Button tone="secondary" size="xs" onClick={() => inputRef.current?.click()}>
-                Choose image
-              </Button>
-              <Button size="xs" disabled={!file || phase === 'processing'} onClick={scanImage}>
-                {phase === 'processing' ? 'Scanning…' : 'Scan coordinates'}
-              </Button>
-            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-1.5 sm:col-start-2 xl:col-start-3 xl:row-start-1 xl:items-center xl:justify-end">
+            <Button tone="secondary" size="xs" onClick={() => inputRef.current?.click()}>
+              Choose image
+            </Button>
+            <Button size="xs" disabled={!file || phase === 'processing'} onClick={scanImage}>
+              {phase === 'processing' ? 'Scanning…' : 'Scan coordinates'}
+            </Button>
           </div>
         </div>
 

@@ -102,6 +102,18 @@ async function openGenerator(page) {
   await expect(page.locator('.generator-cockpit')).toBeVisible();
 }
 
+async function expandValidationCenter(page) {
+  const toggle = page.locator(
+    'button[aria-controls="generator-validation-center-content"]',
+  );
+  await expect(toggle).toBeVisible();
+  await expect(toggle).toHaveAccessibleName('Expand Validation Center');
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  await expect(toggle).toHaveAccessibleName('Collapse Validation Center');
+  await expect(page.locator('#generator-validation-center-content')).toBeVisible();
+}
+
 async function assertNoSeriousOrCriticalAxeViolations(page, label) {
   const results = await new AxeBuilder({ page }).analyze();
   const violations = results.violations.filter((violation) =>
@@ -125,7 +137,7 @@ async function readThemeEvidence(page) {
       warningBorder: root.getPropertyValue('--warning-border').trim(),
       infoBorder: root.getPropertyValue('--accent-cyan').trim(),
       cockpitColor: cockpit ? window.getComputedStyle(cockpit).color : '',
-      commandBackground: commandBar ? window.getComputedStyle(commandBar).backgroundImage : '',
+      commandSurface: commandBar ? window.getComputedStyle(commandBar).backgroundColor : '',
       blockingBorder: blocking ? window.getComputedStyle(blocking).borderTopColor : '',
       defaultBorder: root.getPropertyValue('--border-subtle').trim(),
     };
@@ -152,6 +164,7 @@ test('Generator Light and Dark themes expose distinct, complete accessible state
   test.setTimeout(120_000);
   await page.setViewportSize({ width: 1280, height: 900 });
   await openGenerator(page);
+  await expandValidationCenter(page);
 
   const html = page.locator('html');
   await expect(html).toHaveAttribute('data-theme', 'light');
@@ -161,7 +174,7 @@ test('Generator Light and Dark themes expose distinct, complete accessible state
   expect(light.successBorder).not.toBe('');
   expect(new Set([light.dangerBorder, light.warningBorder, light.infoBorder]).size).toBe(3);
   expect(light.blockingBorder).not.toBe(light.defaultBorder);
-  expect(light.commandBackground).not.toBe('none');
+  expect(light.commandSurface).not.toBe('rgba(0, 0, 0, 0)');
   await assertNoSeriousOrCriticalAxeViolations(page, 'Generator light theme');
   await testInfo.attach('generator-light.png', {
     body: await page.screenshot({ fullPage: false }),
@@ -178,6 +191,7 @@ test('Generator Light and Dark themes expose distinct, complete accessible state
   expect(dark.panel).not.toBe(light.panel);
   expect(dark.text).not.toBe(light.text);
   expect(dark.cockpitColor).not.toBe(light.cockpitColor);
+  expect(dark.commandSurface).not.toBe(light.commandSurface);
   await assertNoSeriousOrCriticalAxeViolations(page, 'Generator dark theme');
   await testInfo.attach('generator-dark.png', {
     body: await page.screenshot({ fullPage: false }),
@@ -224,11 +238,12 @@ test('Generator focus order is keyboard reachable and visibly focused', async ({
   expect(focusStyle.outlineStyle).not.toBe('none');
   expect(Number.parseFloat(focusStyle.outlineWidth)).toBeGreaterThanOrEqual(2);
 
+  await expandValidationCenter(page);
   const finding = page.locator('.generator-finding--interactive').first();
+  await expect(finding).toBeVisible();
   await finding.focus();
   await page.keyboard.press('Enter');
-  const focusedField = await page.evaluate(() => document.activeElement?.id ?? '');
-  expect([
+  const focusTargets = [
     'ticket-title',
     'occur-at',
     'dispatch-at',
@@ -238,7 +253,15 @@ test('Generator focus order is keyboard reachable and visibly focused', async ({
     'latitude',
     'longitude',
     'progress-text',
-  ]).toContain(focusedField);
+  ];
+  await expect
+    .poll(() =>
+      page.evaluate(
+        (targets) => targets.includes(document.activeElement?.id ?? ''),
+        focusTargets,
+      ),
+    )
+    .toBe(true);
 
   const save = page.getByRole('button', { name: 'Save' });
   await tabTo(page, save, 180);
@@ -250,6 +273,7 @@ test('Generator honors reduced motion for CSS and focus scrolling', async ({ pag
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.setViewportSize({ width: 1280, height: 900 });
   await openGenerator(page);
+  await expandValidationCenter(page);
 
   await expect
     .poll(() => page.evaluate(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches))
@@ -280,9 +304,12 @@ test('Generator honors reduced motion for CSS and focus scrolling', async ({ pag
   });
 
   const finding = page.locator('.generator-finding--interactive').first();
+  await expect(finding).toBeVisible();
   await finding.focus();
   await page.keyboard.press('Enter');
+  await expect
+    .poll(() => page.evaluate(() => window.__gux6ScrollBehaviors.length))
+    .toBeGreaterThan(0);
   const behaviors = await page.evaluate(() => window.__gux6ScrollBehaviors);
-  expect(behaviors.length).toBeGreaterThan(0);
   expect(behaviors.every((behavior) => behavior === 'auto')).toBe(true);
 });
