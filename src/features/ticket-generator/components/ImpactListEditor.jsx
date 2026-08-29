@@ -13,13 +13,18 @@ export function ImpactListEditor({
   onApplyCandidates,
 }) {
   return (
-    <section className="generator-authoring-surface generator-impact-editor overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)] xl:rounded-none xl:border-0 xl:border-t xl:border-t-[var(--border-subtle)] xl:bg-transparent xl:pt-2 xl:shadow-none">
-      <header className="generator-impact-header flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3 xl:min-h-8 xl:border-b-0 xl:px-0 xl:py-1.5">
-        <div className="flex min-w-0 items-baseline gap-2.5">
-          <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Impact List</h3>
-          <span className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)]">
-            Optional · hidden when empty
-          </span>
+    <section className="generator-authoring-surface generator-impact-editor overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)] xl:mt-2 xl:overflow-visible xl:rounded-none xl:border-0 xl:border-t xl:border-t-[var(--border-subtle)] xl:bg-transparent xl:shadow-none">
+      <header className="generator-impact-header flex min-h-10 items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-3 xl:min-h-0 xl:border-b-0 xl:bg-transparent xl:px-0 xl:pb-2 xl:pt-4">
+        <div className="min-w-0">
+          <div className="flex min-w-0 items-baseline gap-2.5">
+            <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Impact List</h3>
+            <span className="text-[8.5px] font-bold uppercase tracking-[0.1em] text-[var(--text-faint)]">
+              Optional
+            </span>
+          </div>
+          <p className="mt-0.5 hidden text-[9.5px] font-medium text-[var(--text-muted)] xl:block">
+            Paste affected sites or services, then apply only the items that belong to this incident.
+          </p>
         </div>
         <Button tone="ghost" size="xs" onClick={() => append({ value: '' })}>
           <AppIcon name="plus" size={13} />
@@ -30,11 +35,11 @@ export function ImpactListEditor({
       <ImpactBuilder existing={currentValues} onApply={onApplyCandidates} />
 
       {fields.length === 0 ? (
-        <p className="generator-impact-empty px-3 py-3 text-xs font-medium text-[var(--text-muted)] xl:px-0 xl:py-2">
+        <p className="generator-impact-empty px-3 py-3 text-xs font-medium text-[var(--text-muted)] xl:px-0 xl:pb-1 xl:pt-2 xl:text-[10px]">
           No impacted service or site recorded.
         </p>
       ) : (
-        <div className="generator-impact-list divide-y divide-[var(--border-subtle)]">
+        <div className="generator-impact-list divide-y divide-[var(--border-subtle)] xl:mt-2">
           {fields.map((field, index) => (
             <div
               key={field.id}
