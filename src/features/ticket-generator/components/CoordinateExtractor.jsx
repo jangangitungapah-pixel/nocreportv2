@@ -141,11 +141,11 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
 
   const content = (
     <section className="generator-operations-surface generator-coordinate-extractor generator-coordinate-extractor--inline overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)] xl:rounded-none xl:border-0 xl:bg-transparent xl:shadow-none">
-      <header className="generator-operations-header generator-coordinate-extractor__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 xl:min-h-9 xl:px-1">
+      <header className="generator-operations-header generator-coordinate-extractor__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 xl:min-h-8 xl:border-b-0 xl:bg-transparent xl:px-0 xl:pb-1.5">
         <div className="flex min-w-0 items-center gap-2">
           <AppIcon name="map" size={14} className="text-[var(--accent-text)]" />
           <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Photo coordinate</h3>
-          <span className="text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-text)]">
+          <span className="rounded-full bg-[var(--accent-soft)] px-1.5 py-0.5 text-[8.5px] font-extrabold uppercase tracking-[0.1em] text-[var(--accent-text)]">
             Gemini 3.6 Flash
           </span>
         </div>
@@ -154,9 +154,9 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
         </span>
       </header>
 
-      <div className="p-3 xl:px-1 xl:py-2.5">
+      <div className="p-3 xl:p-0">
         <div
-          className={`generator-ocr-dropzone grid gap-3 border border-dashed p-2.5 transition-colors sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center ${
+          className={`generator-ocr-dropzone grid gap-3 border border-dashed p-2.5 transition-colors sm:grid-cols-[112px_minmax(0,1fr)] sm:items-center xl:grid-cols-[88px_minmax(0,1fr)] xl:gap-2.5 xl:border-0 xl:border-l-2 xl:border-solid xl:px-3 xl:py-2.5 ${
             dragActive
               ? 'border-[var(--accent-solid)] bg-[var(--accent-soft)]'
               : 'border-[var(--border-default)] bg-[var(--surface-muted)]'
@@ -192,10 +192,10 @@ export function CoordinateExtractor({ onApplyCoordinate }) {
             <img
               src={previewUrl}
               alt="Local Cut Point preview"
-              className="h-20 w-full border border-[var(--border-subtle)] object-cover sm:h-16"
+              className="h-20 w-full border border-[var(--border-subtle)] object-cover sm:h-16 xl:h-14"
             />
           ) : (
-            <div className="grid h-20 place-items-center border border-[var(--border-subtle)] bg-[var(--surface-panel)] text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)] sm:h-16">
+            <div className="grid h-20 place-items-center border border-[var(--border-subtle)] bg-[var(--surface-panel)] text-[9px] font-extrabold uppercase tracking-[0.1em] text-[var(--text-faint)] sm:h-16 xl:h-14">
               No image
             </div>
           )}
