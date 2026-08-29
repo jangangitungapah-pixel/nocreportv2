@@ -718,19 +718,19 @@ body {
 
 .generator-flow-stage[data-state='current'] {
   border-color: var(--border-subtle);
-  background: color-mix(in srgb, var(--accent-soft) 24%, transparent);
-  box-shadow: inset 3px 0 0 var(--accent-solid);
+  background: color-mix(in srgb, var(--accent-soft) 10%, transparent);
+  box-shadow: inset 2px 0 0 var(--accent-solid);
 }
 
 .generator-flow-stage__rail {
   border-right: 0;
   background: transparent;
-  padding-top: 14px;
+  padding-top: 12px;
 }
 
 .generator-flow-stage__rail::after {
-  top: 42px;
-  bottom: -12px;
+  top: 40px;
+  bottom: -10px;
   background: var(--border-default);
 }
 
@@ -753,12 +753,12 @@ body {
 }
 
 .generator-flow-stage__content {
-  padding: 12px 6px 18px 4px;
+  padding: 10px 5px 14px 3px;
 }
 
 .generator-flow-stage__header {
-  gap: 12px;
-  padding: 1px 4px 10px;
+  gap: 10px;
+  padding: 1px 3px 8px;
 }
 
 .generator-flow-stage__eyebrow {
@@ -827,7 +827,7 @@ body {
 }
 
 .generator-flow-stage__body {
-  gap: 10px;
+  gap: 8px;
 }
 
 .generator-core-form,
@@ -841,7 +841,12 @@ body {
 .generator-authoring-surface,
 .generator-intelligence-surface,
 .generator-smart-import,
-.generator-validation-center,
+.generator-validation-center {
+  border-color: var(--border-default);
+  background: var(--surface-panel);
+  box-shadow: none;
+}
+
 .generator-impact-editor,
 .generator-evidence-workspace,
 .generator-coordinate-extractor,
@@ -849,13 +854,13 @@ body {
 .generator-copy-center,
 .generator-operator-presets,
 .generator-audit-state {
-  border-color: var(--border-default);
-  background: var(--surface-panel);
+  border-color: transparent;
+  background: transparent;
   box-shadow: none;
 }
 
 .generator-editor-section {
-  padding: 13px 4px;
+  padding: 10px 2px;
 }
 
 .generator-editor-section:hover {
@@ -864,7 +869,7 @@ body {
 
 .generator-editor-section__header {
   min-height: 20px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .generator-editor-section__title,
@@ -918,7 +923,7 @@ body {
 .generator-title-controlbar,
 .generator-tt-detection-bar {
   margin-inline: 0;
-  padding: 7px 0 0;
+  padding: 5px 0 0;
 }
 
 .generator-tt-detection-value {
@@ -958,12 +963,17 @@ body {
 .generator-duplicate-card,
 .generator-import-plan-row,
 .generator-evidence-card,
-.generator-progress-snippet-deck,
 .generator-copy-preview,
 .generator-handover-card,
 .generator-audit-change {
   border-color: var(--border-subtle);
   background: var(--surface-panel);
+  box-shadow: none;
+}
+
+.generator-progress-snippet-deck {
+  border-color: var(--border-subtle);
+  background: transparent;
   box-shadow: none;
 }
 
@@ -1086,14 +1096,14 @@ body {
 }
 
 .generator-report-preview__stage {
-  background: var(--surface-muted);
+  background: var(--surface-panel);
 }
 
 .generator-report-preview__document {
-  border-color: var(--border-default);
-  border-radius: 8px;
+  border-color: transparent;
+  border-radius: 0;
   background: var(--surface-panel);
-  box-shadow: var(--shadow-xs);
+  box-shadow: none;
 }
 
 .generator-report-preview__content {
@@ -1262,6 +1272,17 @@ body {
     background: var(--surface-panel);
   }
 
+  .generator-impact-editor,
+  .generator-evidence-workspace,
+  .generator-coordinate-extractor,
+  .generator-operations-surface,
+  .generator-copy-center,
+  .generator-operator-presets,
+  .generator-audit-state {
+    border-color: var(--border-default);
+    background: var(--surface-panel);
+  }
+
   .generator-editor-section {
     padding: 11px 12px;
   }
@@ -1280,6 +1301,20 @@ body {
   .generator-coordinate-summary {
     border-radius: 0 7px 7px 0;
     background: var(--surface-panel-strong);
+  }
+
+  .generator-progress-snippet-deck {
+    background: var(--surface-muted);
+  }
+
+  .generator-report-preview__stage {
+    background: var(--surface-muted);
+  }
+
+  .generator-report-preview__document {
+    border-color: var(--border-default);
+    border-radius: 8px;
+    box-shadow: var(--shadow-xs);
   }
 
   .generator-cockpit-mobile-flow .generator-flow-stage__toggle {
@@ -1655,8 +1690,10 @@ body {
     max-height: 2.15rem;
     margin-top: 7px;
     overflow: hidden;
+    padding-block: 3px;
+    line-height: 1.3rem;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
   }
 
   .running-ticket-card__footer {
