@@ -337,10 +337,10 @@ export function EvidenceWorkspace({ items = [], onItemsChange, onApplyCoordinate
   return (
     <section
       id="generator-evidence-workspace"
-      className="generator-operations-surface generator-evidence-workspace overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
+      className="generator-operations-surface generator-evidence-workspace overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)] xl:rounded-none xl:border-0 xl:bg-transparent xl:shadow-none"
       tabIndex={-1}
     >
-      <header className="generator-operations-header generator-evidence-workspace__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5">
+      <header className="generator-operations-header generator-evidence-workspace__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5 xl:min-h-9 xl:px-1">
         <div className="flex min-w-0 items-center gap-2">
           <AppIcon name="map" size={14} className="text-[var(--accent-text)]" />
           <div>
@@ -357,7 +357,7 @@ export function EvidenceWorkspace({ items = [], onItemsChange, onApplyCoordinate
         </span>
       </header>
 
-      <div className="p-3">
+      <div className="p-3 xl:px-1 xl:py-2.5">
         <input
           ref={inputRef}
           className="sr-only"
