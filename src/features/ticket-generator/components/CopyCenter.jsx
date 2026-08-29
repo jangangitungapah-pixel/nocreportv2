@@ -28,10 +28,10 @@ export function CopyCenter({
   return (
     <section
       id="generator-copy-center"
-      className="generator-output-surface generator-copy-center overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
+      className="generator-output-surface generator-copy-center overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)] xl:rounded-none xl:border-0 xl:bg-transparent xl:shadow-none"
       tabIndex={-1}
     >
-      <header className="generator-output-header generator-copy-center__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5">
+      <header className="generator-output-header generator-copy-center__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5 xl:min-h-9 xl:px-1">
         <div className="flex items-center gap-2">
           <AppIcon name="copy" size={14} />
           <div>
@@ -53,7 +53,7 @@ export function CopyCenter({
       </header>
 
       {expanded ? (
-        <div className="generator-copy-center__body grid gap-3 p-3">
+        <div className="generator-copy-center__body grid gap-3 p-3 xl:px-1 xl:py-2.5">
           <div className="generator-copy-center__command grid gap-2 sm:grid-cols-[minmax(220px,0.6fr)_auto] sm:items-end">
             <SelectField
               id="copy-center-target"
