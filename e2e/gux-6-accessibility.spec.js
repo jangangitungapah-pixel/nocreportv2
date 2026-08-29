@@ -243,8 +243,7 @@ test('Generator focus order is keyboard reachable and visibly focused', async ({
   await expect(finding).toBeVisible();
   await finding.focus();
   await page.keyboard.press('Enter');
-  const focusedField = await page.evaluate(() => document.activeElement?.id ?? '');
-  expect([
+  const focusTargets = [
     'ticket-title',
     'occur-at',
     'dispatch-at',
@@ -254,7 +253,15 @@ test('Generator focus order is keyboard reachable and visibly focused', async ({
     'latitude',
     'longitude',
     'progress-text',
-  ]).toContain(focusedField);
+  ];
+  await expect
+    .poll(() =>
+      page.evaluate(
+        (targets) => targets.includes(document.activeElement?.id ?? ''),
+        focusTargets,
+      ),
+    )
+    .toBe(true);
 
   const save = page.getByRole('button', { name: 'Save' });
   await tabTo(page, save, 180);
