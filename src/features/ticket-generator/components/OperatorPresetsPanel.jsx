@@ -32,10 +32,10 @@ export function OperatorPresetsPanel({ presets, onChange, onReset, expanded = fa
   return (
     <section
       id="generator-operator-presets"
-      className="generator-output-surface generator-operator-presets overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)]"
+      className="generator-output-surface generator-operator-presets overflow-hidden rounded-[var(--radius-panel)] border border-[var(--border-subtle)] bg-[var(--surface-panel)] shadow-[var(--shadow-xs)] xl:rounded-none xl:border-0 xl:bg-transparent xl:shadow-none"
       tabIndex={-1}
     >
-      <header className="generator-output-header generator-operator-presets__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5">
+      <header className="generator-output-header generator-operator-presets__header flex min-h-10 flex-wrap items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-3 py-1.5 xl:min-h-9 xl:px-1">
         <div>
           <h3 className="text-xs font-extrabold text-[var(--text-primary)]">Operator Presets</h3>
           <p className="text-[9px] font-semibold text-[var(--text-faint)]">
@@ -60,7 +60,7 @@ export function OperatorPresetsPanel({ presets, onChange, onReset, expanded = fa
       </header>
 
       {expanded ? (
-        <div className="generator-operator-presets__body grid gap-3 p-3">
+        <div className="generator-operator-presets__body grid gap-3 p-3 xl:px-1 xl:py-2.5">
           <div className="grid gap-3 md:grid-cols-2">
             <SelectField
               id="preset-template-profile"
